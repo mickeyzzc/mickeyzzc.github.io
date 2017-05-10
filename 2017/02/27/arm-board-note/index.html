@@ -1,0 +1,953 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Arm,Linux," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Raspberry Pi我用树莓派搭建docker集群环境，参考Hypriot的博客  CubieBoard 安装docker 选择Hypriot(截止到2017年3月版本是docker 1.11.1) Install dependencies1$ apt-get install -y apt-transport-https  Add respository key1$ wget -q https">
+<meta name="keywords" content="Arm,Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARM的点点滴滴记录">
+<meta property="og:url" content="https://blog.mickeyzzc.tech/2017/02/27/arm-board-note/index.html">
+<meta property="og:site_name" content="MickeyBee's BLOG">
+<meta property="og:description" content="Raspberry Pi我用树莓派搭建docker集群环境，参考Hypriot的博客  CubieBoard 安装docker 选择Hypriot(截止到2017年3月版本是docker 1.11.1) Install dependencies1$ apt-get install -y apt-transport-https  Add respository key1$ wget -q https">
+<meta property="og:image" content="https://blog.mickeyzzc.tech/images/RaspPi_cluster_only.jpg">
+<meta property="og:image" content="https://blog.mickeyzzc.tech/images/orangepi_nas.png">
+<meta property="og:updated_time" content="2017-05-10T09:36:21.125Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ARM的点点滴滴记录">
+<meta name="twitter:description" content="Raspberry Pi我用树莓派搭建docker集群环境，参考Hypriot的博客  CubieBoard 安装docker 选择Hypriot(截止到2017年3月版本是docker 1.11.1) Install dependencies1$ apt-get install -y apt-transport-https  Add respository key1$ wget -q https">
+<meta name="twitter:image" content="https://blog.mickeyzzc.tech/images/RaspPi_cluster_only.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'squall_zzc',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.mickeyzzc.tech/2017/02/27/arm-board-note/"/>
+
+
+
+
+
+  <title>ARM的点点滴滴记录 | MickeyBee's BLOG</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-97893934-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ebd237aaca3280d73b83afa3d7327f59";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">MickeyBee's BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">Mickey & Bee</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://blog.mickeyzzc.tech/2017/02/27/arm-board-note/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="蓝宝石的傻话">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MickeyBee's BLOG">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                ARM的点点滴滴记录
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-27T04:20:21+08:00">
+                2017-02-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Arm/" itemprop="url" rel="index">
+                    <span itemprop="name">Arm</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/02/27/arm-board-note/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/27/arm-board-note/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Raspberry-Pi"><a href="#Raspberry-Pi" class="headerlink" title="Raspberry Pi"></a>Raspberry Pi</h1><p>我用树莓派搭建docker集群环境，参考<a href="http://blog.hypriot.com/" target="_blank" rel="external">Hypriot</a>的博客</p>
+<p><img src="/images/RaspPi_cluster_only.jpg" alt=""></p>
+<h1 id="CubieBoard"><a href="#CubieBoard" class="headerlink" title="CubieBoard"></a>CubieBoard</h1><ul>
+<li><h2 id="安装docker"><a href="#安装docker" class="headerlink" title="安装docker"></a>安装docker</h2><ul>
+<li><h3 id="选择Hypriot-截止到2017年3月版本是docker-1-11-1"><a href="#选择Hypriot-截止到2017年3月版本是docker-1-11-1" class="headerlink" title="选择Hypriot(截止到2017年3月版本是docker 1.11.1)"></a>选择Hypriot(截止到2017年3月版本是docker 1.11.1)</h3><ul>
+<li><h4 id="Install-dependencies"><a href="#Install-dependencies" class="headerlink" title="Install dependencies"></a>Install dependencies</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ apt-get install -y apt-transport-https</div></pre></td></tr></table></figure>
+</li>
+<li><h4 id="Add-respository-key"><a href="#Add-respository-key" class="headerlink" title="Add respository key"></a>Add respository key</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ wget -q https://packagecloud.io/gpg.key -O - | sudo apt-key add -</div></pre></td></tr></table></figure>
+</li>
+<li><h4 id="Add-repository"><a href="#Add-repository" class="headerlink" title="Add repository"></a>Add repository</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ echo &apos;deb https://packagecloud.io/Hypriot/Schatzkiste/debian/ jessie main&apos; | sudo tee /etc/apt/sources.list.d/hypriot.list</div><div class="line">$ apt-get update</div></pre></td></tr></table></figure>
+</li>
+<li><h4 id="Install-Hypriot"><a href="#Install-Hypriot" class="headerlink" title="Install Hypriot"></a>Install Hypriot</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ apt-get install -y docker-hypriot</div><div class="line">$ systemctl enable docker</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><h3 id="选择Dockerproject-随官方更新，截止2017年3月，版本17-03-ce"><a href="#选择Dockerproject-随官方更新，截止2017年3月，版本17-03-ce" class="headerlink" title="选择Dockerproject (随官方更新，截止2017年3月，版本17.03-ce)"></a>选择Dockerproject (随官方更新，截止2017年3月，版本17.03-ce)</h3><ul>
+<li><h4 id="Install-dependencies-1"><a href="#Install-dependencies-1" class="headerlink" title="Install dependencies"></a>Install dependencies</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get update</div><div class="line">$ sudo apt-get install apt-transport-https ca-certificates</div></pre></td></tr></table></figure>
+</li>
+<li><h4 id="Add-repository-1"><a href="#Add-repository-1" class="headerlink" title="Add repository"></a>Add repository</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>用下面的命令将 APT 源添加到 source.list（将其中的 <repo> 替换为下表“表一：dockerproject 对应表”的值）：</repo></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ echo &quot;&lt;REPO&gt;&quot; | sudo tee /etc/apt/sources.list.d/docker.list</div></pre></td></tr></table></figure>
+<ul>
+<li><h4 id="Install-Docker-Engine"><a href="#Install-Docker-Engine" class="headerlink" title="Install Docker-Engine"></a>Install Docker-Engine</h4></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ apt-get update</div><div class="line">$ apt-get install -y docker-engine</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><h2 id="Cubietruck-系统：armbian-问题与记录"><a href="#Cubietruck-系统：armbian-问题与记录" class="headerlink" title="Cubietruck (系统：armbian) 问题与记录"></a>Cubietruck (系统：armbian) 问题与记录</h2><ul>
+<li><h3 id="外置硬盘挂死的原因及处理："><a href="#外置硬盘挂死的原因及处理：" class="headerlink" title="外置硬盘挂死的原因及处理："></a>外置硬盘挂死的原因及处理：</h3><p>参考：<a href="https://wiki.archlinux.org/index.php/hdparm" target="_blank" rel="external">Arch hdparm</a></p>
+<blockquote>
+<p>Values 1-127 permit spin-down,<br>128-254 do not and 255 disables advanced power management altogether (if the drive supports it).<br>Values 1 to 240 are in 5 second steps,<br>values 241 to 251 are steps of 30 minutes,<br>see the table below.</p>
+</blockquote>
+<p>解决方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># hdparm -B 127 /dev/sdx</div></pre></td></tr></table></figure>
+</li>
+<li><h3 id="被墙"><a href="#被墙" class="headerlink" title="被墙"></a>被墙</h3><p>利用pogoplug的shadowsocks做的ss5代理，用tsocks工具更新软件。</p>
+</li>
+<li><h3 id="docker构建gogs"><a href="#docker构建gogs" class="headerlink" title="docker构建gogs:"></a>docker构建gogs:</h3><p>利用PogoPlug在官方GIT库的Dockerfile和build.sh增加代理来完成部署</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">export http_proxy=http://192.168.208.88:8118</div><div class="line">export https_proxy=http://192.168.208.88:8118</div></pre></td></tr></table></figure>
+<p>把Dockerfile参考如下修改:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">RUN export http_proxy=http://192.168.208.88:8118 \</div><div class="line"> &amp;&amp; export https_proxy=http://192.168.208.88:8118 \</div><div class="line"> &amp;&amp; apk --no-cache --no-progress add curl \</div><div class="line"> &amp;&amp; curl -x 192.168.208.88:8118 -L https://github.com/tianon/gosu/releases/download/1.9/gosu-armhf -o /usr/sbin/gosu \</div><div class="line"> &amp;&amp; chmod +x /usr/sbin/gosu \</div><div class="line"> &amp;&amp; apk --no-cache --no-progress add ca-certificates bash git linux-pam s6 openssh socat tzdata</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="PogoPlug-破狗"><a href="#PogoPlug-破狗" class="headerlink" title="PogoPlug 破狗"></a>PogoPlug 破狗</h1><ul>
+<li><h2 id="安装openwrt，部署shadowsocks提供ss5代理服务"><a href="#安装openwrt，部署shadowsocks提供ss5代理服务" class="headerlink" title="安装openwrt，部署shadowsocks提供ss5代理服务"></a>安装openwrt，部署shadowsocks提供ss5代理服务</h2><ul>
+<li><h3 id="打开Luci，定位到“系统”-“软件包”-“配置”选项卡，然后在设置中现将下面一行注释掉，如下："><a href="#打开Luci，定位到“系统”-“软件包”-“配置”选项卡，然后在设置中现将下面一行注释掉，如下：" class="headerlink" title="打开Luci，定位到“系统”-“软件包”-“配置”选项卡，然后在设置中现将下面一行注释掉，如下："></a>打开Luci，定位到“系统”-“软件包”-“配置”选项卡，然后在设置中现将下面一行注释掉，如下：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">#option check_signature 1</div></pre></td></tr></table></figure>
+</li>
+<li><h3 id="接着在末尾添加软件源："><a href="#接着在末尾添加软件源：" class="headerlink" title="接着在末尾添加软件源："></a>接着在末尾添加软件源：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">src/gz openwrt_dist http://openwrt-dist.sourceforge.net/packages/OpenWrt/base/oxnas</div><div class="line">src/gz openwrt_dist_luci http://openwrt-dist.sourceforge.net/packages/OpenWrt/luci</div></pre></td></tr></table></figure>
+</li>
+<li><h3 id="更新源并安装shadowsocks"><a href="#更新源并安装shadowsocks" class="headerlink" title="更新源并安装shadowsocks"></a>更新源并安装shadowsocks</h3></li>
+</ul>
+</li>
+<li><h2 id="提供nfs服务"><a href="#提供nfs服务" class="headerlink" title="提供nfs服务"></a>提供nfs服务</h2></li>
+</ul>
+<h1 id="Orange-Pi"><a href="#Orange-Pi" class="headerlink" title="Orange Pi"></a>Orange Pi</h1><ul>
+<li><h2 id="Orange-Pi-Zero-系统：armbian-问题与记录："><a href="#Orange-Pi-Zero-系统：armbian-问题与记录：" class="headerlink" title="Orange Pi Zero (系统：armbian)问题与记录："></a>Orange Pi Zero (系统：armbian)问题与记录：</h2><ul>
+<li>结合OrangePiNas板子使用.<br><img src="/images/orangepi_nas.png" alt=""></li>
+</ul>
+</li>
+<li><h2 id="Orange-Pi-One-系统：dietpi-问题与记录："><a href="#Orange-Pi-One-系统：dietpi-问题与记录：" class="headerlink" title="Orange Pi One (系统：dietpi)问题与记录："></a>Orange Pi One (系统：dietpi)问题与记录：</h2><ul>
+<li>默认en_GB字符，会经常报错，更改为zh_CN</li>
+</ul>
+</li>
+</ul>
+<h1 id="Nano-Pi"><a href="#Nano-Pi" class="headerlink" title="Nano Pi"></a>Nano Pi</h1><ul>
+<li><h2 id="Nano-Pi-Neo-系统：armbian-问题与记录："><a href="#Nano-Pi-Neo-系统：armbian-问题与记录：" class="headerlink" title="Nano Pi Neo (系统：armbian)问题与记录："></a>Nano Pi Neo (系统：armbian)问题与记录：</h2></li>
+<li><h2 id="Nano-Pi-M3-系统：kali-linux-问题与记录："><a href="#Nano-Pi-M3-系统：kali-linux-问题与记录：" class="headerlink" title="Nano Pi M3 (系统：kali linux)问题与记录："></a>Nano Pi M3 (系统：kali linux)问题与记录：</h2><ul>
+<li>Kali Linux有提供官方镜像下载:<a href="https://www.offensive-security.com/kali-linux-arm-images/" target="_blank" rel="external">Kali Linux ARM Images 下载地址</a></li>
+<li><p>扩容SD卡:</p>
+<ul>
+<li><p>查看第二分区的起始地址, 后面需要</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat /sys/block/mmcblk0/mmcblk0p2/start</div></pre></td></tr></table></figure>
+</li>
+<li><p>启用 fdisk 磁盘管理工具</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">fdisk /dev/mmcblk0</div></pre></td></tr></table></figure>
+</li>
+<li><p>删除分区</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Command (m for help): d</div></pre></td></tr></table></figure>
+</li>
+<li><p>删除第二分区</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Partition number (1,2, default 2): 2</div></pre></td></tr></table></figure>
+</li>
+<li><p>创建一个新分区</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Command (m for help): n</div></pre></td></tr></table></figure>
+</li>
+<li><p>创建主分区</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Partition type</div><div class="line"> p   primary (1 primary, 0 extended, 3 free)</div><div class="line"> e   extended (container for logical partitions)</div><div class="line">Select (default p): p</div></pre></td></tr></table></figure>
+</li>
+<li><p>选择分区 2</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Partition number (2-4, default 2): 2</div></pre></td></tr></table></figure>
+</li>
+<li><p>输入第二分区起始扇区</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">First sector (125001-31116287, default 126976): 125001</div></pre></td></tr></table></figure>
+</li>
+<li><p>输入最后一个结束扇区, 直接回车代表剩余所有</p>
+</li>
+<li><p>将上面的操作写入分区表</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Command (m for help): w</div></pre></td></tr></table></figure>
+</li>
+<li><p>重启后继续执行如下命令，否则容量还是以前的,重新分配分区大小</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">resize2fs /dev/mmcblk0p2</div></pre></td></tr></table></figure>
+</li>
+<li><p>到此扩容完成。使用 df -lh 查看容量已扩至 SD 卡实际所有可用物理容量。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="附表："><a href="#附表：" class="headerlink" title="附表："></a>附表：</h1><p>表一：dockerproject 对应表</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">操作系统版本</th>
+<th>REPO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Precise 12.04 (LTS)</td>
+<td>deb <a href="https://apt.dockerproject.org/repo" target="_blank" rel="external">https://apt.dockerproject.org/repo</a> ubuntu-precise main</td>
+</tr>
+<tr>
+<td style="text-align:center">Trusty 14.04 (LTS)</td>
+<td>deb <a href="https://apt.dockerproject.org/repo" target="_blank" rel="external">https://apt.dockerproject.org/repo</a> ubuntu-trusty main</td>
+</tr>
+<tr>
+<td style="text-align:center">Xenial 16.04 (LTS)</td>
+<td>deb <a href="https://apt.dockerproject.org/repo" target="_blank" rel="external">https://apt.dockerproject.org/repo</a> ubuntu-xenial main</td>
+</tr>
+<tr>
+<td style="text-align:center">Debian 7 Wheezy</td>
+<td>deb <a href="https://apt.dockerproject.org/repo" target="_blank" rel="external">https://apt.dockerproject.org/repo</a> debian-wheezy main</td>
+</tr>
+<tr>
+<td style="text-align:center">Debian 8 Jessie</td>
+<td>deb <a href="https://apt.dockerproject.org/repo" target="_blank" rel="external">https://apt.dockerproject.org/repo</a> debian-jessie main</td>
+</tr>
+<tr>
+<td style="text-align:center">Debian Stretch/Sid</td>
+<td>deb <a href="https://apt.dockerproject.org/repo" target="_blank" rel="external">https://apt.dockerproject.org/repo</a> debian-stretch main</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Arm/" rel="tag"># Arm</a>
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/08/rasp_pi_docker/" rel="next" title="树莓派 RaspberryPi docker集群">
+                <i class="fa fa-chevron-left"></i> 树莓派 RaspberryPi docker集群
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/26/blog_mickeyzzc/" rel="prev" title="GitHub博客的搭建（docker-hexo）">
+                GitHub博客的搭建（docker-hexo） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/27/arm-board-note/"
+           data-title="ARM的点点滴滴记录" data-url="https://blog.mickeyzzc.tech/2017/02/27/arm-board-note/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="蓝宝石的傻话" />
+          <p class="site-author-name" itemprop="name">蓝宝石的傻话</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://git.mickeybee.cn" target="_blank" title="MiGIT">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  MiGIT
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/mickeyzzc" target="_blank" title="GITHUB">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  GITHUB
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Raspberry-Pi"><span class="nav-number">1.</span> <span class="nav-text">Raspberry Pi</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CubieBoard"><span class="nav-number">2.</span> <span class="nav-text">CubieBoard</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装docker"><span class="nav-number">2.1.</span> <span class="nav-text">安装docker</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#选择Hypriot-截止到2017年3月版本是docker-1-11-1"><span class="nav-number">2.1.1.</span> <span class="nav-text">选择Hypriot(截止到2017年3月版本是docker 1.11.1)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Install-dependencies"><span class="nav-number">2.1.1.1.</span> <span class="nav-text">Install dependencies</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Add-respository-key"><span class="nav-number">2.1.1.2.</span> <span class="nav-text">Add respository key</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Add-repository"><span class="nav-number">2.1.1.3.</span> <span class="nav-text">Add repository</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Install-Hypriot"><span class="nav-number">2.1.1.4.</span> <span class="nav-text">Install Hypriot</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选择Dockerproject-随官方更新，截止2017年3月，版本17-03-ce"><span class="nav-number">2.1.2.</span> <span class="nav-text">选择Dockerproject (随官方更新，截止2017年3月，版本17.03-ce)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Install-dependencies-1"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">Install dependencies</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Add-repository-1"><span class="nav-number">2.1.2.2.</span> <span class="nav-text">Add repository</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Install-Docker-Engine"><span class="nav-number">2.1.2.3.</span> <span class="nav-text">Install Docker-Engine</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cubietruck-系统：armbian-问题与记录"><span class="nav-number">2.2.</span> <span class="nav-text">Cubietruck (系统：armbian) 问题与记录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#外置硬盘挂死的原因及处理："><span class="nav-number">2.2.1.</span> <span class="nav-text">外置硬盘挂死的原因及处理：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#被墙"><span class="nav-number">2.2.2.</span> <span class="nav-text">被墙</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#docker构建gogs"><span class="nav-number">2.2.3.</span> <span class="nav-text">docker构建gogs:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PogoPlug-破狗"><span class="nav-number">3.</span> <span class="nav-text">PogoPlug 破狗</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装openwrt，部署shadowsocks提供ss5代理服务"><span class="nav-number">3.1.</span> <span class="nav-text">安装openwrt，部署shadowsocks提供ss5代理服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#打开Luci，定位到“系统”-“软件包”-“配置”选项卡，然后在设置中现将下面一行注释掉，如下："><span class="nav-number">3.1.1.</span> <span class="nav-text">打开Luci，定位到“系统”-“软件包”-“配置”选项卡，然后在设置中现将下面一行注释掉，如下：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接着在末尾添加软件源："><span class="nav-number">3.1.2.</span> <span class="nav-text">接着在末尾添加软件源：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新源并安装shadowsocks"><span class="nav-number">3.1.3.</span> <span class="nav-text">更新源并安装shadowsocks</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#提供nfs服务"><span class="nav-number">3.2.</span> <span class="nav-text">提供nfs服务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Orange-Pi"><span class="nav-number">4.</span> <span class="nav-text">Orange Pi</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Orange-Pi-Zero-系统：armbian-问题与记录："><span class="nav-number">4.1.</span> <span class="nav-text">Orange Pi Zero (系统：armbian)问题与记录：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Orange-Pi-One-系统：dietpi-问题与记录："><span class="nav-number">4.2.</span> <span class="nav-text">Orange Pi One (系统：dietpi)问题与记录：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Nano-Pi"><span class="nav-number">5.</span> <span class="nav-text">Nano Pi</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Nano-Pi-Neo-系统：armbian-问题与记录："><span class="nav-number">5.1.</span> <span class="nav-text">Nano Pi Neo (系统：armbian)问题与记录：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nano-Pi-M3-系统：kali-linux-问题与记录："><span class="nav-number">5.2.</span> <span class="nav-text">Nano Pi M3 (系统：kali linux)问题与记录：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#附表："><span class="nav-number">6.</span> <span class="nav-text">附表：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-MickeyZZC"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">蓝宝石的傻话</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"mickeyzzc"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
