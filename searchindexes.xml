@@ -7,7 +7,18 @@
 核心计算的代码在pushSample函数中有描述：
 func (as *totalAggrState) pushSample(inputKey, outputKey string, value float64) { currentTime := fasttime.UnixTimestamp() deleteDeadline := currentTime + as.intervalSecs + (as.intervalSecs &gt;&gt; 1) again: v, ok := as.m.Load(outputKey) if !ok { v = &amp;totalStateValue{ lastValues: make(map[string]*lastValueState), } vNew, loaded := as.m.LoadOrStore(outputKey, v) if loaded { v = vNew } } sv := v.(*totalStateValue) sv.mu.Lock() deleted := sv.deleted if !deleted { lv, ok := sv.lastValues[inputKey] if !ok { lv = &amp;lastValueState{} sv.lastValues[inputKey] = lv } d := value if ok &amp;&amp; lv.value &lt;= value { d = value - lv.value } if ok || currentTime &gt; as.ignoreInputDeadline { sv.total += d } lv.value = value lv.deleteDeadline = deleteDeadline sv.deleteDeadline = deleteDeadline } sv.mu.Unlock() if deleted { goto again } } 二、流聚合能力的一般运用分析 首先先看看流聚合后的时序图： 这时候，我们看看时序数据的理论形态 基于理论形态的理想流聚合形态 在实际状态下的流聚合形态 三、原生流聚合能力的日常问题 1、采集断点问题 在现实世界是更残酷的，某个时间断点是无可避免，原因很多，有网络上的、有被采集服务的性能问题等。 高精度的流聚合断点问题在大数计算情况下，影响是很极端的： 2、巨量数据的算力架构 流聚合没有历史数据细节的状态保存，因此性能极优，但是再优性能的服务也存在单点的极限值。在处理单点无法处理的数据量级情况下，分布式算力结构就会存在一系列问题要解决：
 vmagent自带采集能力是否可用？ 在实际测试过程中，启动vmagent分片加副本采集能力结合实时流聚合，资源使用大幅增加，在量级极大的情况下频繁出现采集连续断点的问题，恶化了断点导致的计算结果差异问题。 架构图参考：
-需计算的Sample数据分别给哪个算力点计算？ 多个算力点计算后的同维度指标集因同维度同时间窗口但不同结果值导致后到值丢弃的问题如何解决？（触发乱序指标处理逻辑） 分布式计算的资源均衡问题？ 插入任务id解决计算点同维度分辨问题后再次引入新维度如何解决？   ]]></content></entry><entry><title>About me</title><url>/about.html</url><categories/><tags/><content type="html"> 在多年工作中，从运维历练到开发，可观测性技术爱好者，对云原生技术也略有经验。 从Shell学起，写了点VBA工具，后来续Python、Lua之后玩起了Golang和Rust。 有过国内外业务平台的运维和架构设计的经历。 用Promtheus+Thanos+VictoriaMetrics+自研架构组件，搭建支持日千亿指标量的跨地域混合云监控平台。
+需计算的Sample数据分别给哪个算力点计算？ 多个算力点计算后的同维度指标集因同维度同时间窗口但不同结果值导致后到值丢弃的问题如何解决？（触发乱序指标处理逻辑） 分布式计算的资源均衡问题？ 插入任务id解决计算点同维度分辨问题后再次引入新维度如何解决？   ]]></content></entry><entry><title>闲聊一下CPU时序和现代操作系统二三事</title><url>/posts/opentelemetry/talk-about-cpu-timer/</url><categories><category>Linux</category><category>CPU</category></categories><tags><tag>Linux</tag></tags><content type="html"> 时分系统和Linux 首先我们补习一下时分系统，时分系统是一个非常重要的操作系统概念,它最大限度地提高了运算机的利用率,是实现多道程序并发执行的重要手段。 我们日常工作用到的Linux系统 内核也采用了时分系统的思想,主要体现在以下几个方面:
+时间片: Linux 使用时间片机制对 CPU 进行时间分割,每个进程只能执行一个时间片的时间,然后交出 CPU 给其他进程运行。这实现了 CPU 时间的共享与公平分配。
+上下文切换: 当时间片用完或进程主动放弃 CPU 时,会进行上下文切换,保存当前进程上下文并恢复下一个进程上下文。这使得 CPU 可以高效地在不同进程间切换。
+进程调度: Linux 使用 CFS 调度器根据每个进程的时间片选择最适合运行的进程,这是时分系统思想的体现。不同的调度策略可以实现不同的时分效果。
+中断机制: Linux 使用中断机制实现对时间的管理与调度。时钟中断可以在时间片用完时通知内核进行上下文切换与调度。这为时分系统提供了动力基础。
+时钟事件: Linux 基于时分系统管理各种时间事件,如定时器、睡眠唤醒等。这需要内核根据时钟中断来进行管理与调度。
+除此之外,时分系统的思想在 Linux 中还体现在:
+多道程序设计 Linux 支持多道程序并发运行,这也依赖于时分系统实现的 CPU 时间共享机制。 实时性 通过设置实时调度策略和对中断处理的优化,Linux 可以提供较好的实时响应性能。这也需要时分系统的支持。 睡眠唤醒 进程可以主动睡眠释放 CPU,这需要时分系统在其唤醒后重新调度其 CPU 时间。 同步机制 Linux 提供多种同步机制,这都需要时分系统来实现进程之间的协调与调度。 时分系统是 Linux 实现多道程序、并发执行、实时响应、时间管理等功能的基础。它使 Linux 能够充分利用 CPU 资源,实现高效率与公平的调度。时分系统的思想贯穿 Linux 内核的方方面面,是理解 Linux 调度与实现并发执行的重要概念。
+聊一下Linux的时序 接下来我们需要提前了解几个概念：
+Some Words Jiffies 有更多兴趣的可以看看《 内核时钟问题 》
+jiffies是一个非常重要的Linux内核变量,它代表了自系统启动以来的时间戳,以时钟中断的个数来表示。它有以下特点:
+jiffies以时钟中断的个数来衡量时间,所以它的精度由 …</content></entry><entry><title>About me</title><url>/about.html</url><categories/><tags/><content type="html"> 在多年工作中，从运维历练到开发，可观测性技术爱好者，对云原生技术也略有经验。 从Shell学起，写了点VBA工具，后来续Python、Lua之后玩起了Golang和Rust。 有过国内外业务平台的运维和架构设计的经历。 用Promtheus+Thanos+VictoriaMetrics+自研架构组件，搭建支持日千亿指标量的跨地域混合云监控平台。
 作品 不是很多
 Shell+Python 工作需要常写，有写复杂脚本的能力，请点击 MLSBS ,相关的 GIT库 Golang 给Thanos社区和kube-state-metric项目修过Bug，提交了一点点代码
 eBPF/Rust 给eBPF项目的代表之一DeepFlow社区的Agent项目补充了MongoDB协议的解码逻辑，用Rust实现。</content></entry><entry><title>ANSIBLE管理线上docker集群</title><url>/posts/old/ansible-docker/</url><categories><category>Ansible</category><category>Docker</category></categories><tags><tag>Ansible</tag><tag>Docker</tag></tags><content type="html"> Docker-Engine的安装: 利用 MickeyZZC / MiAnsibleRules 中的docker-engine ,参考以下playbook:
