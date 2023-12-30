@@ -21,7 +21,15 @@ vmagent自带采集能力是否可用？ 在实际测试过程中，启动vmagen
 聊一下Linux的时序 接下来我们需要提前了解几个概念：
 Some Words Jiffies 有更多兴趣的可以看看《 内核时钟问题 》
 jiffies是一个非常重要的Linux内核变量,它代表了自系统启动以来的时间戳,以时钟中断的个数来表示。它有以下特点:
-jiffies以时钟中断的个数来衡量时间,所以它的精度由 …</content></entry><entry><title>监控系统企业架构演进史-初入Prometheus</title><url>/posts/opentelemetry/prometheus-evolution-history-one/</url><categories/><tags/><content type="html"> Prometheus是一个开源的监控与时间序列数据库系统,在近年来得到了越来越广泛的应用。 官方的架构图如图所示： 本系列文章会以Prometheus的在一个企业里的部署架构演进过程中逐步理解和深入各种组件和概念。
+jiffies以时钟中断的个数来衡量时间,所以它的精度由 …</content></entry><entry><title>监控系统企业架构演进史-跨地域混合云</title><url>/posts/opentelemetry/prometheus-evolution-history-two/</url><categories/><tags/><content type="html"> 前情概述： 在《监控系统企业架构演进史-初入Prometheus》中，监控系统已经从单体架构升级到单IDC分布式架构了。 前一篇文章的内容是适用于虚拟机部署和容器部署的。Prometheus是云原生时代的产物，一般和Kubernetes配套使用，但是Prometheus本身也能在非Kubernetes取替传统监控如Zabbix使用的。 在该篇文章中，开始以Kubernetes的部署来升级整个监控系统架构，使之在跨地域混合云的业务场景中更具灵活性。
+架构设计 跨地域的三层结构设计 设计三层区域结构，同时规范区域命名标签化来实现快速辨识服务的地域详细信息。 在第三层中的Cluster和VPC是同级，分别代表集群内或者某网段的隔离服务。
+前端查询入口逻辑架构 用Thanos Query实现前期的层级架构 利用Thanos内的GRPC通讯协议和聚合查询能力来实现递级数据汇聚到最上层Thanos Query组件，再聚合计算时间线结果集前端展示。
+引入Thanos Query Frontend完成统一前端查询入口 Thanos Query Frontend组件有以下配置能力优化查询，需根据实际情况调整：
+时间线的纵向切割查询 比如查15天的数据，由于样本量的数据庞大，会在原始数据读取到内存时导致OOM问题。通过纵向切割比如把15天的聚合查询逻辑拆分成每6小时的聚合查询。 Thanos Query组件就会得到4 * 15个并发查询去完成样本查询并聚合成不同时间段的结果集再拼接展示，且每完成一个子查询聚合均及时释放内存高效优化了资源利用率。
+查询结果集缓存 通过对查询语句和时间周期的HASH KEY缓存结果集到内存或者Redis以重复利用，减轻上游压力。
+利用Kubernetes赋予更具弹性的冗余能力 自研架构组件 在基于原生开源项目的基础架构下，已基本实现对跨地域混合云的能力。但是要做到企业日常管理还远远不够，需要完善管理架构和前台能力才称得上企业服务。
+基础设计逻辑 为了让整个架构具备灵活性和通用性，分别设计了几个组件：
+Self-research service discovery 用于对接第三方系统，比如CMDB，CICD等收集业务系统和资产信息，并计算各个业务系统和基建关联关系，通过地域信息来调度资源信息同步给P-sidcar组件。 P-sidcar用于在边缘管 …</content></entry><entry><title>监控系统企业架构演进史-初入Prometheus</title><url>/posts/opentelemetry/prometheus-evolution-history-one/</url><categories/><tags/><content type="html"> Prometheus是一个开源的监控与时间序列数据库系统,在近年来得到了越来越广泛的应用。 官方的架构图如图所示： 本系列文章会以Prometheus的在一个企业里的部署架构演进过程中逐步理解和深入各种组件和概念。
 单节点架构 刚开始接触Prometheus监控体系，只需要在服务端部署Prometheus的二进制文件，用最基础的文件服务发现配置file_sd_config来实现对主机基础监控node_exporter进行拉取指标采集即可。 再通过Grafana的datasource配置Prometheus的url地址即可开始配置查看监控数据。
 指标数据采集 Prometheus的数据模型主要由Metric、Label和 Sample组成。
 Metric: 表示一个时序指标,对应于一个监控指标名称。如cpu_usage、free_memory等。 Metric仅包含时序数据名称,没有预定义的结构或类型。这使Prometheus具有很高的灵活性。 一个Prometheus实例可以包含任意数量的Metric。 Label: 用来描述和区分相同Metric的数据。类似于其他时序数据库的Tag。 Label通常表示数据的维度或属性,如instance、job、region等。 每个样本数据都必须包含相同的Label集。Label用于快速查询和聚合特定维度的数据。 Label的值可以是字符串、布尔值或整数。支持在Label上过滤和分组数据。 Sample: 表示一条时序数据,包含Timestamp、Value和Label集。 Timestamp表示时序数据的时间戳,精度为毫秒。它用于排序和查询给定时间范围的数据。 Value表示时序指标的值,可以是浮点数、整数或字符串。 Label集用于标识该Sample数据的属性与维度。相同Label的Sample表示同一指标的不同记录。 一个Prometheus Sample包含:
