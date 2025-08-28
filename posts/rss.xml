@@ -1,698 +1,698 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on 蓝宝石的傻话</title><link>/posts/</link><description>Recent content in Posts on 蓝宝石的傻话</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Fri, 09 Feb 2024 00:00:00 +0000</lastBuildDate><atom:link href="/posts/rss.xml" rel="self" type="application/rss+xml"/><item><title>基于 ESP01 主板的温湿度监控开发</title><link>/posts/iot/esp-01-dht11/</link><pubDate>Fri, 09 Feb 2024 00:00:00 +0000</pubDate><guid>/posts/iot/esp-01-dht11/</guid><description>&lt;h2 id="引言">引言
-&lt;a class="header-anchor" href="#%e5%bc%95%e8%a8%80">&lt;/a>
-&lt;/h2>&lt;p>在物联网应用中，温湿度监控是一个常见且重要的需求。ESP01 作为一款低成本、低功耗的 Wi-Fi 模块，为实现温湿度监控提供了一个便捷的解决方案。本文将详细介绍如何使用 ESP01 主板进行温湿度监控开发，包括硬件连接、代码实现和功能解析。&lt;/p></description></item><item><title>eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）</title><link>/posts/ebpf/deepflow-agent-proto-dev/</link><pubDate>Sat, 25 Nov 2023 00:00:00 +0000</pubDate><guid>/posts/ebpf/deepflow-agent-proto-dev/</guid><description>&lt;ul>
-&lt;li>
-&lt;a href="#%e6%a6%82%e8%bf%b0" title="概述：" >
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on 蓝宝石的傻话</title><link>/posts/</link><description>Recent content in Posts on 蓝宝石的傻话</description><generator>Hugo</generator><language>zh-CN</language><lastBuildDate>Fri, 09 Feb 2024 00:00:00 +0000</lastBuildDate><atom:link href="/posts/rss.xml" rel="self" type="application/rss+xml"/><item><title>基于 ESP01 主板的温湿度监控开发</title><link>/posts/iot/esp-01-dht11/</link><pubDate>Fri, 09 Feb 2024 00:00:00 +0000</pubDate><guid>/posts/iot/esp-01-dht11/</guid><description>&lt;h2 id="引言"&gt;引言
+&lt;a class="header-anchor" href="#%e5%bc%95%e8%a8%80"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;p&gt;在物联网应用中，温湿度监控是一个常见且重要的需求。ESP01 作为一款低成本、低功耗的 Wi-Fi 模块，为实现温湿度监控提供了一个便捷的解决方案。本文将详细介绍如何使用 ESP01 主板进行温湿度监控开发，包括硬件连接、代码实现和功能解析。&lt;/p&gt;</description></item><item><title>eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）</title><link>/posts/ebpf/deepflow-agent-proto-dev/</link><pubDate>Sat, 25 Nov 2023 00:00:00 +0000</pubDate><guid>/posts/ebpf/deepflow-agent-proto-dev/</guid><description>&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="#%e6%a6%82%e8%bf%b0" title="概述：" &gt;
  概述：
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#%e5%a6%82%e4%bd%95%e5%88%86%e6%9e%90%e4%b8%80%e4%b8%aa%e5%8d%8f%e8%ae%aemongodb" title="如何分析一个协议(MongoDB)" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#%e5%a6%82%e4%bd%95%e5%88%86%e6%9e%90%e4%b8%80%e4%b8%aa%e5%8d%8f%e8%ae%aemongodb" title="如何分析一个协议(MongoDB)" &gt;
  如何分析一个协议(MongoDB)
  
-&lt;/a>
-&lt;ul>
-&lt;li>
-&lt;a href="#%e5%8d%8f%e8%ae%ae%e6%96%87%e6%a1%a3%e7%9a%84%e5%88%86%e6%9e%90%e6%80%9d%e8%b7%af" title="协议文档的分析思路" >
+&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="#%e5%8d%8f%e8%ae%ae%e6%96%87%e6%a1%a3%e7%9a%84%e5%88%86%e6%9e%90%e6%80%9d%e8%b7%af" title="协议文档的分析思路" &gt;
  协议文档的分析思路
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#mongodb%e5%8d%8f%e8%ae%ae%e6%93%8d%e4%bd%9c%e7%a0%81%e8%af%b4%e6%98%8e%e8%a1%a8" title="MongoDB协议操作码说明表" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#mongodb%e5%8d%8f%e8%ae%ae%e6%93%8d%e4%bd%9c%e7%a0%81%e8%af%b4%e6%98%8e%e8%a1%a8" title="MongoDB协议操作码说明表" &gt;
  MongoDB协议操作码说明表
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#%e5%af%b9%e6%9c%80%e5%b8%b8%e8%a7%81%e7%9a%84%e6%93%8d%e4%bd%9c%e7%a0%81op_msg%e5%88%86%e6%9e%90" title="对最常见的操作码OP_MSG分析" >
- 对最常见的操作码&lt;code>OP_MSG&lt;/code>分析
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#%e5%af%b9%e6%9c%80%e5%b8%b8%e8%a7%81%e7%9a%84%e6%93%8d%e4%bd%9c%e7%a0%81op_msg%e5%88%86%e6%9e%90" title="对最常见的操作码OP_MSG分析" &gt;
+ 对最常见的操作码&lt;code&gt;OP_MSG&lt;/code&gt;分析
  
-&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;a href="#%e5%9c%a8deepflow-agent%e6%89%a9%e5%b1%95%e4%b8%80%e4%b8%aa%e5%8d%8f%e8%ae%ae%e8%a7%a3%e6%9e%90%e9%87%87%e9%9b%86" title="在DeepFlow Agent扩展一个协议解析采集" >
- 在&lt;code>DeepFlow Agent&lt;/code>扩展一个协议解析采集
+&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#%e5%9c%a8deepflow-agent%e6%89%a9%e5%b1%95%e4%b8%80%e4%b8%aa%e5%8d%8f%e8%ae%ae%e8%a7%a3%e6%9e%90%e9%87%87%e9%9b%86" title="在DeepFlow Agent扩展一个协议解析采集" &gt;
+ 在&lt;code&gt;DeepFlow Agent&lt;/code&gt;扩展一个协议解析采集
  
-&lt;/a>
-&lt;ul>
-&lt;li>
-&lt;a href="#deepflow-agent%e7%9a%84%e5%bc%80%e5%8f%91%e6%96%87%e6%a1%a3%e6%a6%82%e8%a6%81" title="DeepFlow Agent的开发文档概要" >
- &lt;code>DeepFlow Agent&lt;/code>的开发文档概要
+&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="#deepflow-agent%e7%9a%84%e5%bc%80%e5%8f%91%e6%96%87%e6%a1%a3%e6%a6%82%e8%a6%81" title="DeepFlow Agent的开发文档概要" &gt;
+ &lt;code&gt;DeepFlow Agent&lt;/code&gt;的开发文档概要
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#%e4%bb%a3%e7%a0%81%e6%8c%87%e5%bc%95" title="代码指引" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#%e4%bb%a3%e7%a0%81%e6%8c%87%e5%bc%95" title="代码指引" &gt;
  代码指引
  
-&lt;/a>
-&lt;ul>
-&lt;li>
-&lt;a href="#%e5%ae%9a%e4%b9%89%e4%b8%80%e4%b8%aa%e5%8d%8f%e8%ae%ae%e5%b9%b6%e7%94%a8%e4%b8%80%e4%b8%aa%e5%b8%b8%e9%87%8f%e6%a0%87%e8%af%86" title="定义一个协议，并用一个常量标识。" >
+&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="#%e5%ae%9a%e4%b9%89%e4%b8%80%e4%b8%aa%e5%8d%8f%e8%ae%ae%e5%b9%b6%e7%94%a8%e4%b8%80%e4%b8%aa%e5%b8%b8%e9%87%8f%e6%a0%87%e8%af%86" title="定义一个协议，并用一个常量标识。" &gt;
  定义一个协议，并用一个常量标识。
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#%e4%b8%ba%e6%96%b0%e5%8d%8f%e8%ae%ae%e5%87%86%e5%a4%87%e8%a7%a3%e6%9e%90%e9%80%bb%e8%be%91" title="为新协议准备解析逻辑" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#%e4%b8%ba%e6%96%b0%e5%8d%8f%e8%ae%ae%e5%87%86%e5%a4%87%e8%a7%a3%e6%9e%90%e9%80%bb%e8%be%91" title="为新协议准备解析逻辑" &gt;
  为新协议准备解析逻辑
  
-&lt;/a>
-&lt;ul>
-&lt;li>
-&lt;a href="#%e5%ae%9a%e4%b9%89%e7%bb%93%e6%9e%84%e4%bd%93" title="定义结构体" >
+&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="#%e5%ae%9a%e4%b9%89%e7%bb%93%e6%9e%84%e4%bd%93" title="定义结构体" &gt;
  定义结构体
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#%e5%ae%9e%e7%8e%b0l7protocolparserinterface" title="实现 L7ProtocolParserInterface" >
- 实现 &lt;code>L7ProtocolParserInterface&lt;/code>
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#%e5%ae%9e%e7%8e%b0l7protocolparserinterface" title="实现 L7ProtocolParserInterface" &gt;
+ 实现 &lt;code&gt;L7ProtocolParserInterface&lt;/code&gt;
  
-&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;a href="#%e5%88%a9%e7%94%a8wasm%e6%8f%92%e4%bb%b6%e6%89%a9%e5%b1%95deepflow%e7%9a%84%e5%8d%8f%e8%ae%ae%e9%87%87%e9%9b%86" title="利用Wasm插件扩展DeepFlow的协议采集" >
- 利用&lt;code>Wasm&lt;/code>插件扩展&lt;code>DeepFlow&lt;/code>的协议采集
+&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#%e5%88%a9%e7%94%a8wasm%e6%8f%92%e4%bb%b6%e6%89%a9%e5%b1%95deepflow%e7%9a%84%e5%8d%8f%e8%ae%ae%e9%87%87%e9%9b%86" title="利用Wasm插件扩展DeepFlow的协议采集" &gt;
+ 利用&lt;code&gt;Wasm&lt;/code&gt;插件扩展&lt;code&gt;DeepFlow&lt;/code&gt;的协议采集
  
-&lt;/a>
-&lt;ul>
-&lt;li>
-&lt;a href="#kafka%e5%8d%8f%e8%ae%ae%e5%88%86%e6%9e%90" title="Kafka协议分析" >
- &lt;code>Kafka&lt;/code>协议分析
+&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="#kafka%e5%8d%8f%e8%ae%ae%e5%88%86%e6%9e%90" title="Kafka协议分析" &gt;
+ &lt;code&gt;Kafka&lt;/code&gt;协议分析
  
-&lt;/a>
-&lt;ul>
-&lt;li>
-&lt;a href="#kafka%e7%9a%84header%e5%92%8cdata%e6%a6%82%e8%a7%88" title="Kafka的Header和Data概览" >
- &lt;code>Kafka&lt;/code>的&lt;code>Header&lt;/code>和&lt;code>Data&lt;/code>概览
+&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="#kafka%e7%9a%84header%e5%92%8cdata%e6%a6%82%e8%a7%88" title="Kafka的Header和Data概览" &gt;
+ &lt;code&gt;Kafka&lt;/code&gt;的&lt;code&gt;Header&lt;/code&gt;和&lt;code&gt;Data&lt;/code&gt;概览
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#kafka%e7%9a%84fetch-api" title="Kafka的Fetch API" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#kafka%e7%9a%84fetch-api" title="Kafka的Fetch API" &gt;
  Kafka的Fetch API
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#kafka%e7%9a%84produce-api" title="Kafka的Produce API" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#kafka%e7%9a%84produce-api" title="Kafka的Produce API" &gt;
  Kafka的Produce API
  
-&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;a href="#kafka%e5%8d%8f%e8%ae%aedeepflow-agent%e5%8e%9f%e7%94%9f%e8%a7%a3%e7%a0%81" title="Kafka协议DeepFlow Agent原生解码" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#kafka%e5%8d%8f%e8%ae%aedeepflow-agent%e5%8e%9f%e7%94%9f%e8%a7%a3%e7%a0%81" title="Kafka协议DeepFlow Agent原生解码" &gt;
  Kafka协议DeepFlow Agent原生解码
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#deepflow-agent%e7%9a%84-wasm-%e6%8f%92%e4%bb%b6" title="DeepFlow Agent的 Wasm 插件" >
- &lt;code>DeepFlow Agent&lt;/code>的 &lt;code>Wasm&lt;/code> 插件
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#deepflow-agent%e7%9a%84-wasm-%e6%8f%92%e4%bb%b6" title="DeepFlow Agent的 Wasm 插件" &gt;
+ &lt;code&gt;DeepFlow Agent&lt;/code&gt;的 &lt;code&gt;Wasm&lt;/code&gt; 插件
  
-&lt;/a>
-&lt;ul>
-&lt;li>
-&lt;a href="#wasm-go-sdk-%e7%9a%84%e6%a1%86%e6%9e%b6" title="Wasm Go SDK 的框架" >
+&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="#wasm-go-sdk-%e7%9a%84%e6%a1%86%e6%9e%b6" title="Wasm Go SDK 的框架" &gt;
  Wasm Go SDK 的框架
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#%e6%8f%92%e4%bb%b6%e4%bb%a3%e7%a0%81%e6%8c%87%e5%bc%95" title="插件代码指引" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#%e6%8f%92%e4%bb%b6%e4%bb%a3%e7%a0%81%e6%8c%87%e5%bc%95" title="插件代码指引" &gt;
  插件代码指引
  
-&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;a href="#%e7%bb%93%e8%af%ad" title="结语" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#%e7%bb%93%e8%af%ad" title="结语" &gt;
  结语
  
-&lt;/a>
-&lt;ul>
-&lt;li>
-&lt;a href="#%e5%8e%9f%e7%94%9frust%e6%89%a9%e5%b1%95" title="原生Rust扩展" >
+&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="#%e5%8e%9f%e7%94%9frust%e6%89%a9%e5%b1%95" title="原生Rust扩展" &gt;
  原生Rust扩展
  
-&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="#wasm%e6%8f%92%e4%bb%b6%e6%89%a9%e5%b1%95" title="Wasm插件扩展" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#wasm%e6%8f%92%e4%bb%b6%e6%89%a9%e5%b1%95" title="Wasm插件扩展" &gt;
  Wasm插件扩展
  
-&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;a href="#%e9%99%84%e5%bd%95" title="附录" >
+&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#%e9%99%84%e5%bd%95" title="附录" &gt;
  附录
  
-&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;div style="position:relative; padding-bottom:75%; width:100%; height:0">
-&lt;iframe src="//player.bilibili.com/player.html?isOutside=true&amp;aid=921401645&amp;bvid=BV1Nu4y1A7ZC&amp;cid=1345829549&amp;p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="position:absolute; height: 100%; width: 100%;">&lt;/iframe>
-&lt;/div>
-&lt;h2 id="概述">概述：
-&lt;a class="header-anchor" href="#%e6%a6%82%e8%bf%b0">&lt;/a>
-&lt;/h2>&lt;p>&lt;code>MongoDB&lt;/code> 目前使用广泛，但是缺乏有效的可观测能力。
-&lt;code>DeepFlow&lt;/code> 在可观测能力上是很优秀的解决方案，但是却缺少了对 &lt;code>MongoDB&lt;/code> 协议的支持。
-该文是为 &lt;code>DeepFlow&lt;/code> 扩展了 &lt;code>MongoDB&lt;/code> 协议解析，增强 &lt;code>MongoDB&lt;/code> 生态的可观测能力，简要描述了从协议文档分析到在 &lt;code>DeepFlow&lt;/code> 内实现代码解析的过程拆解。&lt;/p></description></item><item><title>VictoriaMetrics的指标流聚合能力应用</title><link>/posts/opentelemetry/stream-metrics-one/</link><pubDate>Mon, 27 Mar 2023 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/stream-metrics-one/</guid><description>&lt;h2 id="社区vm对指标流聚合能力分析与问题">社区VM对指标流聚合能力分析与问题
-&lt;a class="header-anchor" href="#%e7%a4%be%e5%8c%bavm%e5%af%b9%e6%8c%87%e6%a0%87%e6%b5%81%e8%81%9a%e5%90%88%e8%83%bd%e5%8a%9b%e5%88%86%e6%9e%90%e4%b8%8e%e9%97%ae%e9%a2%98">&lt;/a>
-&lt;/h2>&lt;h3 id="victoriametrics开源项目的原生能力">VictoriaMetrics开源项目的原生能力
-&lt;a class="header-anchor" href="#victoriametrics%e5%bc%80%e6%ba%90%e9%a1%b9%e7%9b%ae%e7%9a%84%e5%8e%9f%e7%94%9f%e8%83%bd%e5%8a%9b">&lt;/a>
-&lt;/h3>&lt;p>VictoriaMetrics项目中的流聚合能力是从1.86版本开始整合到vmagent的，具体可参考： 
-&lt;a href="https://github.com/VictoriaMetrics/VictoriaMetrics/issues/3460" title="https://github.com/VictoriaMetrics/VictoriaMetrics/issues/3460" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div style="position:relative; padding-bottom:75%; width:100%; height:0"&gt;
+&lt;iframe src="//player.bilibili.com/player.html?isOutside=true&amp;aid=921401645&amp;bvid=BV1Nu4y1A7ZC&amp;cid=1345829549&amp;p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="position:absolute; height: 100%; width: 100%;"&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+&lt;h2 id="概述"&gt;概述：
+&lt;a class="header-anchor" href="#%e6%a6%82%e8%bf%b0"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;p&gt;&lt;code&gt;MongoDB&lt;/code&gt; 目前使用广泛，但是缺乏有效的可观测能力。
+&lt;code&gt;DeepFlow&lt;/code&gt; 在可观测能力上是很优秀的解决方案，但是却缺少了对 &lt;code&gt;MongoDB&lt;/code&gt; 协议的支持。
+该文是为 &lt;code&gt;DeepFlow&lt;/code&gt; 扩展了 &lt;code&gt;MongoDB&lt;/code&gt; 协议解析，增强 &lt;code&gt;MongoDB&lt;/code&gt; 生态的可观测能力，简要描述了从协议文档分析到在 &lt;code&gt;DeepFlow&lt;/code&gt; 内实现代码解析的过程拆解。&lt;/p&gt;</description></item><item><title>VictoriaMetrics的指标流聚合能力应用</title><link>/posts/opentelemetry/stream-metrics-one/</link><pubDate>Mon, 27 Mar 2023 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/stream-metrics-one/</guid><description>&lt;h2 id="社区vm对指标流聚合能力分析与问题"&gt;社区VM对指标流聚合能力分析与问题
+&lt;a class="header-anchor" href="#%e7%a4%be%e5%8c%bavm%e5%af%b9%e6%8c%87%e6%a0%87%e6%b5%81%e8%81%9a%e5%90%88%e8%83%bd%e5%8a%9b%e5%88%86%e6%9e%90%e4%b8%8e%e9%97%ae%e9%a2%98"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;h3 id="victoriametrics开源项目的原生能力"&gt;VictoriaMetrics开源项目的原生能力
+&lt;a class="header-anchor" href="#victoriametrics%e5%bc%80%e6%ba%90%e9%a1%b9%e7%9b%ae%e7%9a%84%e5%8e%9f%e7%94%9f%e8%83%bd%e5%8a%9b"&gt;&lt;/a&gt;
+&lt;/h3&gt;&lt;p&gt;VictoriaMetrics项目中的流聚合能力是从1.86版本开始整合到vmagent的，具体可参考： 
+&lt;a href="https://github.com/VictoriaMetrics/VictoriaMetrics/issues/3460" title="https://github.com/VictoriaMetrics/VictoriaMetrics/issues/3460" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  https://github.com/VictoriaMetrics/VictoriaMetrics/issues/3460
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>
-从源码分析来看，流集合能力如图：&lt;/p></description></item><item><title>eBPF系列之：Pixie浅剖析</title><link>/posts/ebpf/pixie-try/</link><pubDate>Fri, 10 Feb 2023 00:00:00 +0000</pubDate><guid>/posts/ebpf/pixie-try/</guid><description>&lt;p>部署过程和指令参考：
-&lt;a href="https://docs.px.dev/installing-pixie/install-guides/self-hosted-pixie/" title="pixie install" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;
+从源码分析来看，流集合能力如图：&lt;/p&gt;</description></item><item><title>eBPF系列之：Pixie浅剖析</title><link>/posts/ebpf/pixie-try/</link><pubDate>Fri, 10 Feb 2023 00:00:00 +0000</pubDate><guid>/posts/ebpf/pixie-try/</guid><description>&lt;p&gt;部署过程和指令参考：
+&lt;a href="https://docs.px.dev/installing-pixie/install-guides/self-hosted-pixie/" title="pixie install" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  pixie install
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>&lt;/p>
-&lt;h2 id="pixie平台主要由以下组件组成">Pixie平台主要由以下组件组成：
-&lt;a class="header-anchor" href="#pixie%e5%b9%b3%e5%8f%b0%e4%b8%bb%e8%a6%81%e7%94%b1%e4%bb%a5%e4%b8%8b%e7%bb%84%e4%bb%b6%e7%bb%84%e6%88%90">&lt;/a>
-&lt;/h2>&lt;ul>
-&lt;li>
-&lt;p>&lt;strong>Pixie Edge Module 边缘模块(PEM)&lt;/strong>:
+&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id="pixie平台主要由以下组件组成"&gt;Pixie平台主要由以下组件组成：
+&lt;a class="header-anchor" href="#pixie%e5%b9%b3%e5%8f%b0%e4%b8%bb%e8%a6%81%e7%94%b1%e4%bb%a5%e4%b8%8b%e7%bb%84%e4%bb%b6%e7%bb%84%e6%88%90"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Pixie Edge Module 边缘模块(PEM)&lt;/strong&gt;:
 Pixie&amp;rsquo;s agent, installed per node. PEMs use eBPF to collect data, which is stored locally on the node.
-Pixie的代理，安装在每个节点上。PEM使用eBPF收集数据，这些数据存储在节点本地。&lt;/p></description></item><item><title>闲聊一下CPU时序和现代操作系统二三事</title><link>/posts/opentelemetry/talk-about-cpu-timer/</link><pubDate>Fri, 20 Jan 2023 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/talk-about-cpu-timer/</guid><description>&lt;h2 id="时分系统和linux">时分系统和Linux
-&lt;a class="header-anchor" href="#%e6%97%b6%e5%88%86%e7%b3%bb%e7%bb%9f%e5%92%8clinux">&lt;/a>
-&lt;/h2>&lt;p>首先我们补习一下时分系统，时分系统是一个非常重要的操作系统概念,它最大限度地提高了运算机的利用率,是实现多道程序并发执行的重要手段。
-我们日常工作用到的Linux系统 内核也采用了时分系统的思想,主要体现在以下几个方面:&lt;/p></description></item><item><title>监控系统企业架构演进史-拨测监控</title><link>/posts/opentelemetry/prometheus-evolution-history-three/</link><pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/prometheus-evolution-history-three/</guid><description>&lt;h2 id="前情概述">前情概述：
-&lt;a class="header-anchor" href="#%e5%89%8d%e6%83%85%e6%a6%82%e8%bf%b0">&lt;/a>
-&lt;/h2>&lt;p>在《监控系统企业架构演进史-跨地域混合云》中，监控系统已经逐步成熟且企业化发展。
-这一章节简单讲述一下期间的拨测能力搭建，以下是这套系统的发展史，在监控平台搭建的过程中，内部监控采集还不足以满足企业业务需求，在计划发展apm之前，异地拨测的黑匣子监控也纳入了该系统的一个子功能。&lt;/p></description></item><item><title>监控系统企业架构演进史-跨地域混合云</title><link>/posts/opentelemetry/prometheus-evolution-history-two/</link><pubDate>Mon, 12 Oct 2020 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/prometheus-evolution-history-two/</guid><description>&lt;h2 id="前情概述">前情概述：
-&lt;a class="header-anchor" href="#%e5%89%8d%e6%83%85%e6%a6%82%e8%bf%b0">&lt;/a>
-&lt;/h2>&lt;p>在《监控系统企业架构演进史-初入Prometheus》中，监控系统已经从单体架构升级到单&lt;code>IDC&lt;/code>分布式架构了。
-前一篇文章的内容是适用于虚拟机部署和容器部署的。&lt;code>Prometheus&lt;/code>是云原生时代的产物，一般和&lt;code>Kubernetes&lt;/code>配套使用，但是&lt;code>Prometheus&lt;/code>本身也能在非&lt;code>Kubernetes&lt;/code>取替传统监控如&lt;code>Zabbix&lt;/code>使用的。
-在该篇文章中，开始以&lt;code>Kubernetes&lt;/code>的部署来升级整个监控系统架构，使之在跨地域混合云的业务场景中更具灵活性。&lt;/p></description></item><item><title>监控系统企业架构演进史-初入Prometheus</title><link>/posts/opentelemetry/prometheus-evolution-history-one/</link><pubDate>Thu, 12 Dec 2019 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/prometheus-evolution-history-one/</guid><description>&lt;p>&lt;code>Prometheus&lt;/code>是一个开源的监控与时间序列数据库系统,在近年来得到了越来越广泛的应用。
+Pixie的代理，安装在每个节点上。PEM使用eBPF收集数据，这些数据存储在节点本地。&lt;/p&gt;</description></item><item><title>闲聊一下CPU时序和现代操作系统二三事</title><link>/posts/opentelemetry/talk-about-cpu-timer/</link><pubDate>Fri, 20 Jan 2023 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/talk-about-cpu-timer/</guid><description>&lt;h2 id="时分系统和linux"&gt;时分系统和Linux
+&lt;a class="header-anchor" href="#%e6%97%b6%e5%88%86%e7%b3%bb%e7%bb%9f%e5%92%8clinux"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;p&gt;首先我们补习一下时分系统，时分系统是一个非常重要的操作系统概念,它最大限度地提高了运算机的利用率,是实现多道程序并发执行的重要手段。
+我们日常工作用到的Linux系统 内核也采用了时分系统的思想,主要体现在以下几个方面:&lt;/p&gt;</description></item><item><title>监控系统企业架构演进史-拨测监控</title><link>/posts/opentelemetry/prometheus-evolution-history-three/</link><pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/prometheus-evolution-history-three/</guid><description>&lt;h2 id="前情概述"&gt;前情概述：
+&lt;a class="header-anchor" href="#%e5%89%8d%e6%83%85%e6%a6%82%e8%bf%b0"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;p&gt;在《监控系统企业架构演进史-跨地域混合云》中，监控系统已经逐步成熟且企业化发展。
+这一章节简单讲述一下期间的拨测能力搭建，以下是这套系统的发展史，在监控平台搭建的过程中，内部监控采集还不足以满足企业业务需求，在计划发展apm之前，异地拨测的黑匣子监控也纳入了该系统的一个子功能。&lt;/p&gt;</description></item><item><title>监控系统企业架构演进史-跨地域混合云</title><link>/posts/opentelemetry/prometheus-evolution-history-two/</link><pubDate>Mon, 12 Oct 2020 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/prometheus-evolution-history-two/</guid><description>&lt;h2 id="前情概述"&gt;前情概述：
+&lt;a class="header-anchor" href="#%e5%89%8d%e6%83%85%e6%a6%82%e8%bf%b0"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;p&gt;在《监控系统企业架构演进史-初入Prometheus》中，监控系统已经从单体架构升级到单&lt;code&gt;IDC&lt;/code&gt;分布式架构了。
+前一篇文章的内容是适用于虚拟机部署和容器部署的。&lt;code&gt;Prometheus&lt;/code&gt;是云原生时代的产物，一般和&lt;code&gt;Kubernetes&lt;/code&gt;配套使用，但是&lt;code&gt;Prometheus&lt;/code&gt;本身也能在非&lt;code&gt;Kubernetes&lt;/code&gt;取替传统监控如&lt;code&gt;Zabbix&lt;/code&gt;使用的。
+在该篇文章中，开始以&lt;code&gt;Kubernetes&lt;/code&gt;的部署来升级整个监控系统架构，使之在跨地域混合云的业务场景中更具灵活性。&lt;/p&gt;</description></item><item><title>监控系统企业架构演进史-初入Prometheus</title><link>/posts/opentelemetry/prometheus-evolution-history-one/</link><pubDate>Thu, 12 Dec 2019 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/prometheus-evolution-history-one/</guid><description>&lt;p&gt;&lt;code&gt;Prometheus&lt;/code&gt;是一个开源的监控与时间序列数据库系统,在近年来得到了越来越广泛的应用。
 官方的架构图如图所示：
-&lt;img src="/imgs/img-lazy-loading.gif" data-src="/posts/opentelemetry/images/prometheus-architecture.svg" alt="" />
-本系列文章会以&lt;code>Prometheus&lt;/code>的在一个企业里的部署架构演进过程中逐步理解和深入各种组件和概念。
+&lt;img src="/imgs/img-lazy-loading.gif" data-src="/posts/opentelemetry/images/prometheus-architecture.svg" alt="" /&gt;
+本系列文章会以&lt;code&gt;Prometheus&lt;/code&gt;的在一个企业里的部署架构演进过程中逐步理解和深入各种组件和概念。
 先通过下图简单了解这个演进发展史
-&lt;img src="/imgs/img-lazy-loading.gif" data-src="/posts/opentelemetry/images/monitoring-system-2019-2020.png" alt="" />&lt;/p></description></item><item><title>Linode的BBR简单测试</title><link>/posts/old/linode-bbr-test/</link><pubDate>Mon, 10 Apr 2017 00:00:00 +0000</pubDate><guid>/posts/old/linode-bbr-test/</guid><description>&lt;h2 id="概述">概述:
-&lt;a class="header-anchor" href="#%e6%a6%82%e8%bf%b0">&lt;/a>
-&lt;/h2>&lt;ul>
-&lt;li>TCP BBR 致力于解决两个问题：
-&lt;ul>
-&lt;li>在有一定丢包率的网络链路上充分利用带宽。非常适合高延迟、高带宽的网络链路。&lt;/li>
-&lt;li>降低网络链路上的 buffer 占用率，从而降低延迟。非常适合慢速接入网络的用户。&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>测试目的:
+&lt;img src="/imgs/img-lazy-loading.gif" data-src="/posts/opentelemetry/images/monitoring-system-2019-2020.png" alt="" /&gt;&lt;/p&gt;</description></item><item><title>Linode的BBR简单测试</title><link>/posts/old/linode-bbr-test/</link><pubDate>Mon, 10 Apr 2017 00:00:00 +0000</pubDate><guid>/posts/old/linode-bbr-test/</guid><description>&lt;h2 id="概述"&gt;概述:
+&lt;a class="header-anchor" href="#%e6%a6%82%e8%bf%b0"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;TCP BBR 致力于解决两个问题：
+&lt;ul&gt;
+&lt;li&gt;在有一定丢包率的网络链路上充分利用带宽。非常适合高延迟、高带宽的网络链路。&lt;/li&gt;
+&lt;li&gt;降低网络链路上的 buffer 占用率，从而降低延迟。非常适合慢速接入网络的用户。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;测试目的:
 这次的测试主要是针对丢包率.更有说服力的测试请参考
-&lt;a href="https://drive.google.com/file/d/0B4YZ_0yTgbJEa21CbUVLWFdrX2c/view" title="Lawrence Brakmo的BBR Report" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;a href="https://drive.google.com/file/d/0B4YZ_0yTgbJEa21CbUVLWFdrX2c/view" title="Lawrence Brakmo的BBR Report" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  Lawrence Brakmo的BBR Report
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>.&lt;/li>
-&lt;li>
-&lt;a href="http://blog.csdn.net/dog250/article/details/54754784" title="BBR的另一面" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="http://blog.csdn.net/dog250/article/details/54754784" title="BBR的另一面" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  BBR的另一面
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;h2 id="测试准备">测试准备：
-&lt;a class="header-anchor" href="#%e6%b5%8b%e8%af%95%e5%87%86%e5%a4%87">&lt;/a>
-&lt;/h2>&lt;ul>
-&lt;li>ADDR01：aaa.aaa.aaa.aaa&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>$ uname -r
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>4.8.6-x86_64-linode78
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;ul>
-&lt;li>ADDR02：bbb.bbb.bbb.bbb&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># uname -r&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>4.8.6-x86_64-linode78
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;hr>
-&lt;h2 id="测试方式">测试方式：
-&lt;a class="header-anchor" href="#%e6%b5%8b%e8%af%95%e6%96%b9%e5%bc%8f">&lt;/a>
-&lt;/h2>&lt;ul>
-&lt;li>模拟丢包1%-30%的场景，分别测试不同内核开启BBR先后的情况。
-用到的tc指令：&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 清理tc规则：&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tc qdisc del root dev eth0
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 模拟1%丢包：&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tc qdisc add dev eth0 root netem loss 1%
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 模拟10%丢包：&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tc qdisc add dev eth0 root netem loss 10%
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 模拟30%丢包：&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tc qdisc add dev eth0 root netem loss 30%
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;ul>
-&lt;li>测试从从ADDR02传数据到ADDR01,ADDR01的内核不变,ADDR02在每次测试都会调整内核重启。&lt;/li>
-&lt;/ul>
-&lt;h2 id="测试过程">测试过程：
-&lt;a class="header-anchor" href="#%e6%b5%8b%e8%af%95%e8%bf%87%e7%a8%8b">&lt;/a>
-&lt;/h2>&lt;ul>
-&lt;li>步骤略,test.gz约160MB,过程大致如下:
-没有启用BBR的情况，从ADDR02传数据到ADDR01：&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>$ rsync -ave &lt;span style="color:#e6db74">&amp;#34;ssh -l mickey&amp;#34;&lt;/span> --progress test.gz mickey@bbb.bbb.bbb.bbb:/home/mickey/test.gz
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>sending incremental file list
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>test.gz
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ae81ff">166042909&lt;/span> 100% 3.27MB/s 0:00:48 &lt;span style="color:#f92672">(&lt;/span>xfer#1, to-check&lt;span style="color:#f92672">=&lt;/span>0/1&lt;span style="color:#f92672">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>sent &lt;span style="color:#ae81ff">166063274&lt;/span> bytes received &lt;span style="color:#ae81ff">31&lt;/span> bytes 3288382.28 bytes/sec
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>total size is &lt;span style="color:#ae81ff">166042909&lt;/span> speedup is 1.00
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;ul>
-&lt;li>
-&lt;h2 id="测试数据比对">测试数据比对:
-&lt;a class="header-anchor" href="#%e6%b5%8b%e8%af%95%e6%95%b0%e6%8d%ae%e6%af%94%e5%af%b9">&lt;/a>
-&lt;/h2>&lt;/li>
-&lt;/ul>
-&lt;table>
- &lt;thead>
- &lt;tr>
- &lt;th style="text-align: center">&lt;/th>
- &lt;th style="text-align: center">4.8.6-x86_64-linode78&lt;/th>
- &lt;th style="text-align: center">4.9.15-x86_64-linode78&lt;/th>
- &lt;th style="text-align: center">非linode的官方4.10内核(generic)&lt;/th>
- &lt;/tr>
- &lt;/thead>
- &lt;tbody>
- &lt;tr>
- &lt;td style="text-align: center">没有启动BBR正常情况&lt;/td>
- &lt;td style="text-align: center">3.27MB/s&lt;/td>
- &lt;td style="text-align: center">3.36MB/s&lt;/td>
- &lt;td style="text-align: center">没有测试&lt;/td>
- &lt;/tr>
- &lt;tr>
- &lt;td style="text-align: center">启动BBR正常情况&lt;/td>
- &lt;td style="text-align: center">没有测试&lt;/td>
- &lt;td style="text-align: center">3.45MB/s&lt;/td>
- &lt;td style="text-align: center">2.31MB/s&lt;/td>
- &lt;/tr>
- &lt;tr>
- &lt;td style="text-align: center">启动BBR丢包1%&lt;/td>
- &lt;td style="text-align: center">3.19MB/s&lt;/td>
- &lt;td style="text-align: center">没有测试&lt;/td>
- &lt;td style="text-align: center">没有测试&lt;/td>
- &lt;/tr>
- &lt;tr>
- &lt;td style="text-align: center">启动BBR丢包10%&lt;/td>
- &lt;td style="text-align: center">没有测试&lt;/td>
- &lt;td style="text-align: center">3.21MB/s&lt;/td>
- &lt;td style="text-align: center">2.81MB/s&lt;/td>
- &lt;/tr>
- &lt;tr>
- &lt;td style="text-align: center">启动BBR丢包30%&lt;/td>
- &lt;td style="text-align: center">97.30kB/s(在20分钟内没有传输完成中断得到的最后结果)&lt;/td>
- &lt;td style="text-align: center">1.35MB/s&lt;/td>
- &lt;td style="text-align: center">1.15MB/s&lt;/td>
- &lt;/tr>
- &lt;/tbody>
-&lt;/table>
-&lt;ul>
-&lt;li>
-&lt;h3 id="测试总结和当时情况以上述结果来总结">测试总结和当时情况(以上述结果来总结):
-&lt;a class="header-anchor" href="#%e6%b5%8b%e8%af%95%e6%80%bb%e7%bb%93%e5%92%8c%e5%bd%93%e6%97%b6%e6%83%85%e5%86%b5%e4%bb%a5%e4%b8%8a%e8%bf%b0%e7%bb%93%e6%9e%9c%e6%9d%a5%e6%80%bb%e7%bb%93">&lt;/a>
-&lt;/h3>&lt;ul>
-&lt;li>linode自己编译的内核有明显针对性优化,效果比较明显.&lt;/li>
-&lt;li>启动bbr后在丢包30%的情况下还能完成传输,bbr的效果也比较明显;&lt;/li>
-&lt;li>4.10内核选择了generic没有选择lowlatency.&lt;/li>
-&lt;li>本来还打算测50%的丢包.但是50%设置后几乎无法远程操作ADDR01而放弃测试.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;hr>
-&lt;h2 id="附录">附录：
-&lt;a class="header-anchor" href="#%e9%99%84%e5%bd%95">&lt;/a>
-&lt;/h2>&lt;ul>
-&lt;li>centos7官方内核的升级方法：
-&lt;ul>
-&lt;li>升级内核:&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>yum --enablerepo&lt;span style="color:#f92672">=&lt;/span>elrepo-kernel install kernel-ml -y
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;ul>
-&lt;li>更新启动&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>egrep ^menuentry /etc/grub2.cfg | cut -f &lt;span style="color:#ae81ff">2&lt;/span> -d &lt;span style="color:#ae81ff">\&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>grub2-set-default &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#75715e">#default 0表示第一个内核设置为默认运行, 选择最新内核就对了&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>reboot
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;ul>
-&lt;li>开启BBR：&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>modprobe tcp_bbr
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>echo &lt;span style="color:#e6db74">&amp;#34;net.core.default_qdisc=fq&amp;#34;&lt;/span> &amp;gt;&amp;gt; /etc/sysctl.conf
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>echo &lt;span style="color:#e6db74">&amp;#34;net.ipv4.tcp_congestion_control=bbr&amp;#34;&lt;/span> &amp;gt;&amp;gt; /etc/sysctl.conf
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>sysctl -p
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div></description></item><item><title>树莓派 RaspberryPi docker集群</title><link>/posts/old/rasp_pi_docker/</link><pubDate>Wed, 08 Mar 2017 00:00:00 +0000</pubDate><guid>/posts/old/rasp_pi_docker/</guid><description>&lt;h2 id="概述">概述：
-&lt;a class="header-anchor" href="#%e6%a6%82%e8%bf%b0">&lt;/a>
-&lt;/h2>&lt;p>参考
-&lt;a href="http://blog.hypriot.com/" title="Hypriot" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="测试准备"&gt;测试准备：
+&lt;a class="header-anchor" href="#%e6%b5%8b%e8%af%95%e5%87%86%e5%a4%87"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;ADDR01：aaa.aaa.aaa.aaa&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;1
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ uname -r
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;4.8.6-x86_64-linode78
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;ADDR02：bbb.bbb.bbb.bbb&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;1
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# uname -r&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;4.8.6-x86_64-linode78
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;hr&gt;
+&lt;h2 id="测试方式"&gt;测试方式：
+&lt;a class="header-anchor" href="#%e6%b5%8b%e8%af%95%e6%96%b9%e5%bc%8f"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;模拟丢包1%-30%的场景，分别测试不同内核开启BBR先后的情况。
+用到的tc指令：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;1
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;2
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;3
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;4
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;5
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;6
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;7
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# 清理tc规则：&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;tc qdisc del root dev eth0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# 模拟1%丢包：&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;tc qdisc add dev eth0 root netem loss 1%
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# 模拟10%丢包：&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;tc qdisc add dev eth0 root netem loss 10%
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# 模拟30%丢包：&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;tc qdisc add dev eth0 root netem loss 30%
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;测试从从ADDR02传数据到ADDR01,ADDR01的内核不变,ADDR02在每次测试都会调整内核重启。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="测试过程"&gt;测试过程：
+&lt;a class="header-anchor" href="#%e6%b5%8b%e8%af%95%e8%bf%87%e7%a8%8b"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;步骤略,test.gz约160MB,过程大致如下:
+没有启用BBR的情况，从ADDR02传数据到ADDR01：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;1
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;2
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;3
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;4
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;5
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ rsync -ave &lt;span style="color:#e6db74"&gt;&amp;#34;ssh -l mickey&amp;#34;&lt;/span&gt; --progress test.gz mickey@bbb.bbb.bbb.bbb:/home/mickey/test.gz
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;sending incremental file list
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;test.gz
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;166042909&lt;/span&gt; 100% 3.27MB/s 0:00:48 &lt;span style="color:#f92672"&gt;(&lt;/span&gt;xfer#1, to-check&lt;span style="color:#f92672"&gt;=&lt;/span&gt;0/1&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;sent &lt;span style="color:#ae81ff"&gt;166063274&lt;/span&gt; bytes received &lt;span style="color:#ae81ff"&gt;31&lt;/span&gt; bytes 3288382.28 bytes/sec
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;total size is &lt;span style="color:#ae81ff"&gt;166042909&lt;/span&gt; speedup is 1.00
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;h2 id="测试数据比对"&gt;测试数据比对:
+&lt;a class="header-anchor" href="#%e6%b5%8b%e8%af%95%e6%95%b0%e6%8d%ae%e6%af%94%e5%af%b9"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+ &lt;thead&gt;
+ &lt;tr&gt;
+ &lt;th style="text-align: center"&gt;&lt;/th&gt;
+ &lt;th style="text-align: center"&gt;4.8.6-x86_64-linode78&lt;/th&gt;
+ &lt;th style="text-align: center"&gt;4.9.15-x86_64-linode78&lt;/th&gt;
+ &lt;th style="text-align: center"&gt;非linode的官方4.10内核(generic)&lt;/th&gt;
+ &lt;/tr&gt;
+ &lt;/thead&gt;
+ &lt;tbody&gt;
+ &lt;tr&gt;
+ &lt;td style="text-align: center"&gt;没有启动BBR正常情况&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;3.27MB/s&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;3.36MB/s&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;没有测试&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+ &lt;td style="text-align: center"&gt;启动BBR正常情况&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;没有测试&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;3.45MB/s&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;2.31MB/s&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+ &lt;td style="text-align: center"&gt;启动BBR丢包1%&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;3.19MB/s&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;没有测试&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;没有测试&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+ &lt;td style="text-align: center"&gt;启动BBR丢包10%&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;没有测试&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;3.21MB/s&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;2.81MB/s&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+ &lt;td style="text-align: center"&gt;启动BBR丢包30%&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;97.30kB/s(在20分钟内没有传输完成中断得到的最后结果)&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;1.35MB/s&lt;/td&gt;
+ &lt;td style="text-align: center"&gt;1.15MB/s&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h3 id="测试总结和当时情况以上述结果来总结"&gt;测试总结和当时情况(以上述结果来总结):
+&lt;a class="header-anchor" href="#%e6%b5%8b%e8%af%95%e6%80%bb%e7%bb%93%e5%92%8c%e5%bd%93%e6%97%b6%e6%83%85%e5%86%b5%e4%bb%a5%e4%b8%8a%e8%bf%b0%e7%bb%93%e6%9e%9c%e6%9d%a5%e6%80%bb%e7%bb%93"&gt;&lt;/a&gt;
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;linode自己编译的内核有明显针对性优化,效果比较明显.&lt;/li&gt;
+&lt;li&gt;启动bbr后在丢包30%的情况下还能完成传输,bbr的效果也比较明显;&lt;/li&gt;
+&lt;li&gt;4.10内核选择了generic没有选择lowlatency.&lt;/li&gt;
+&lt;li&gt;本来还打算测50%的丢包.但是50%设置后几乎无法远程操作ADDR01而放弃测试.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id="附录"&gt;附录：
+&lt;a class="header-anchor" href="#%e9%99%84%e5%bd%95"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;centos7官方内核的升级方法：
+&lt;ul&gt;
+&lt;li&gt;升级内核:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;1
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;2
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;yum --enablerepo&lt;span style="color:#f92672"&gt;=&lt;/span&gt;elrepo-kernel install kernel-ml -y
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;更新启动&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;1
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;2
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;egrep ^menuentry /etc/grub2.cfg | cut -f &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt; -d &lt;span style="color:#ae81ff"&gt;\&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;grub2-set-default &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt; &lt;span style="color:#75715e"&gt;#default 0表示第一个内核设置为默认运行, 选择最新内核就对了&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;reboot
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;开启BBR：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;1
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;2
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;3
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;modprobe tcp_bbr
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;echo &lt;span style="color:#e6db74"&gt;&amp;#34;net.core.default_qdisc=fq&amp;#34;&lt;/span&gt; &amp;gt;&amp;gt; /etc/sysctl.conf
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;echo &lt;span style="color:#e6db74"&gt;&amp;#34;net.ipv4.tcp_congestion_control=bbr&amp;#34;&lt;/span&gt; &amp;gt;&amp;gt; /etc/sysctl.conf
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;sysctl -p
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description></item><item><title>树莓派 RaspberryPi docker集群</title><link>/posts/old/rasp_pi_docker/</link><pubDate>Wed, 08 Mar 2017 00:00:00 +0000</pubDate><guid>/posts/old/rasp_pi_docker/</guid><description>&lt;h2 id="概述"&gt;概述：
+&lt;a class="header-anchor" href="#%e6%a6%82%e8%bf%b0"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;p&gt;参考
+&lt;a href="http://blog.hypriot.com/" title="Hypriot" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  Hypriot
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>的博客，我买了1块Rasp2代板和2块Rasp3代板。&lt;/p>
-&lt;p>&lt;img src="/imgs/img-lazy-loading.gif" data-src="/posts/old/images/RaspPi_cluster_withLine.jpg" alt="" />&lt;/p>
-&lt;p>其中2代默认安装了
-&lt;a href="http://blog.hypriot.com/" title="Hypriot" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;的博客，我买了1块Rasp2代板和2块Rasp3代板。&lt;/p&gt;
+&lt;p&gt;&lt;img src="/imgs/img-lazy-loading.gif" data-src="/posts/old/images/RaspPi_cluster_withLine.jpg" alt="" /&gt;&lt;/p&gt;
+&lt;p&gt;其中2代默认安装了
+&lt;a href="http://blog.hypriot.com/" title="Hypriot" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  Hypriot
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>的系统。3代板如果您有兴趣可以自己参考
-&lt;a href="http://blog.hypriot.com/post/building-a-64bit-docker-os-for-rpi3/" title="《Building a 64bit Docker OS for the Raspberry Pi 3》" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;的系统。3代板如果您有兴趣可以自己参考
+&lt;a href="http://blog.hypriot.com/post/building-a-64bit-docker-os-for-rpi3/" title="《Building a 64bit Docker OS for the Raspberry Pi 3》" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  《Building a 64bit Docker OS for the Raspberry Pi 3》
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>这篇文章编译一套64bit的系统。也可以直接下载作者的
-&lt;a href="https://github.com/DieterReuter/image-builder-rpi64/releases" title="已编译好镜像地址" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;这篇文章编译一套64bit的系统。也可以直接下载作者的
+&lt;a href="https://github.com/DieterReuter/image-builder-rpi64/releases" title="已编译好镜像地址" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  已编译好镜像地址
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>中压缩包。&lt;/p></description></item><item><title>ARM的点点滴滴记录</title><link>/posts/old/arm-board-note/</link><pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate><guid>/posts/old/arm-board-note/</guid><description>&lt;h2 id="raspberry-pi">Raspberry Pi
-&lt;a class="header-anchor" href="#raspberry-pi">&lt;/a>
-&lt;/h2>&lt;p>我用树莓派搭建docker集群环境，参考
-&lt;a href="http://blog.hypriot.com/" title="Hypriot" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;中压缩包。&lt;/p&gt;</description></item><item><title>ARM的点点滴滴记录</title><link>/posts/old/arm-board-note/</link><pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate><guid>/posts/old/arm-board-note/</guid><description>&lt;h2 id="raspberry-pi"&gt;Raspberry Pi
+&lt;a class="header-anchor" href="#raspberry-pi"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;p&gt;我用树莓派搭建docker集群环境，参考
+&lt;a href="http://blog.hypriot.com/" title="Hypriot" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  Hypriot
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>的博客&lt;/p>
-&lt;p>&lt;img src="/imgs/img-lazy-loading.gif" data-src="/posts/old/images/RaspPi_cluster_only.jpg" alt="" />&lt;/p>
-&lt;h2 id="cubieboard">CubieBoard
-&lt;a class="header-anchor" href="#cubieboard">&lt;/a>
-&lt;/h2>&lt;ul>
-&lt;li>
-&lt;p>安装docker&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>选择Hypriot(截止到2017年3月版本是docker 1.11.1)&lt;/p></description></item><item><title>GitHub博客的搭建</title><link>/posts/old/blog-mickeyzzc-github/</link><pubDate>Sun, 26 Feb 2017 00:00:00 +0000</pubDate><guid>/posts/old/blog-mickeyzzc-github/</guid><description>&lt;h2 id="2023年的博客从hexo切换到hugo">2023年的博客从&lt;code>hexo&lt;/code>切换到&lt;code>hugo&lt;/code>
-&lt;a class="header-anchor" href="#2023%e5%b9%b4%e7%9a%84%e5%8d%9a%e5%ae%a2%e4%bb%8ehexo%e5%88%87%e6%8d%a2%e5%88%b0hugo">&lt;/a>
-&lt;/h2>&lt;ul>
-&lt;li>工具选用了
-&lt;a href="https://gohugo.io/" title="hugo" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;的博客&lt;/p&gt;
+&lt;p&gt;&lt;img src="/imgs/img-lazy-loading.gif" data-src="/posts/old/images/RaspPi_cluster_only.jpg" alt="" /&gt;&lt;/p&gt;
+&lt;h2 id="cubieboard"&gt;CubieBoard
+&lt;a class="header-anchor" href="#cubieboard"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;安装docker&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;选择Hypriot(截止到2017年3月版本是docker 1.11.1)&lt;/p&gt;</description></item><item><title>GitHub博客的搭建</title><link>/posts/old/blog-mickeyzzc-github/</link><pubDate>Sun, 26 Feb 2017 00:00:00 +0000</pubDate><guid>/posts/old/blog-mickeyzzc-github/</guid><description>&lt;h2 id="2023年的博客从hexo切换到hugo"&gt;2023年的博客从&lt;code&gt;hexo&lt;/code&gt;切换到&lt;code&gt;hugo&lt;/code&gt;
+&lt;a class="header-anchor" href="#2023%e5%b9%b4%e7%9a%84%e5%8d%9a%e5%ae%a2%e4%bb%8ehexo%e5%88%87%e6%8d%a2%e5%88%b0hugo"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;工具选用了
+&lt;a href="https://gohugo.io/" title="hugo" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  hugo
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>&lt;/li>
-&lt;li>主题选择了
-&lt;a href="https://github.com/hugo-next/hugo-theme-next" title="Hugo.NexT" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;主题选择了
+&lt;a href="https://github.com/hugo-next/hugo-theme-next" title="Hugo.NexT" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  Hugo.NexT
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>&lt;/li>
-&lt;li>CDN选择了
-&lt;a href="https://www.cloudflare.com" title="CloudFlare" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;CDN选择了
+&lt;a href="https://www.cloudflare.com" title="CloudFlare" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  CloudFlare
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;h3 id="迁移过程">迁移过程
-&lt;a class="header-anchor" href="#%e8%bf%81%e7%a7%bb%e8%bf%87%e7%a8%8b">&lt;/a>
-&lt;/h3>&lt;h4 id="搭建hugo新环境">搭建&lt;code>hugo&lt;/code>新环境
-&lt;a class="header-anchor" href="#%e6%90%ad%e5%bb%bahugo%e6%96%b0%e7%8e%af%e5%a2%83">&lt;/a>
-&lt;/h4>&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>hugo new site mickeyzzcblog 
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd mickeyzzcblog 
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git init 
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git submodule add https://github.com/hugo-next/hugo-theme-next.git themes/hugo-theme-next
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cp themes/hugo-theme-next/exampleSite/config.yaml .
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>vim config.yaml
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>hugo server
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h4 id="构建github-ci的workflows">构建&lt;code>github ci&lt;/code>的&lt;code>workflows&lt;/code>
-&lt;a class="header-anchor" href="#%e6%9e%84%e5%bb%bagithub-ci%e7%9a%84workflows">&lt;/a>
-&lt;/h4>&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">deploy&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">on&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">push&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">workflow_dispatch&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">schedule&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Runs everyday at 8:00 AM&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - &lt;span style="color:#f92672">cron&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;0 0 * * *&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">jobs&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">build&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">runs-on&lt;/span>: &lt;span style="color:#ae81ff">ubuntu-latest&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">steps&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">Checkout&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">uses&lt;/span>: &lt;span style="color:#ae81ff">actions/checkout@v2&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">with&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">submodules&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">fetch-depth&lt;/span>: &lt;span style="color:#ae81ff">0&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">Setup Hugo&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">uses&lt;/span>: &lt;span style="color:#ae81ff">peaceiris/actions-hugo@v2&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">with&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">hugo-version&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;latest&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">extended&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">Build Web&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">run&lt;/span>: &lt;span style="color:#ae81ff">hugo&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">Deploy Web&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">uses&lt;/span>: &lt;span style="color:#ae81ff">peaceiris/actions-gh-pages@v3&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">with&lt;/span>:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">PERSONAL_TOKEN&lt;/span>: &lt;span style="color:#ae81ff">${{ secrets.PERSONAL_TOKEN }}&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">EXTERNAL_REPOSITORY&lt;/span>: &lt;span style="color:#ae81ff">mickeyzzc/mickeyzzc.github.io&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">PUBLISH_BRANCH&lt;/span>: &lt;span style="color:#ae81ff">main&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">PUBLISH_DIR&lt;/span>: &lt;span style="color:#ae81ff">./public&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">commit_message&lt;/span>: &lt;span style="color:#ae81ff">${{ github.event.head_commit.message }}&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h2 id="2017年的博客建设">2017年的博客建设
-&lt;a class="header-anchor" href="#2017%e5%b9%b4%e7%9a%84%e5%8d%9a%e5%ae%a2%e5%bb%ba%e8%ae%be">&lt;/a>
-&lt;/h2>&lt;ul>
-&lt;li>工具选用了
-&lt;a href="https://hexo.io" title="hexo" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="迁移过程"&gt;迁移过程
+&lt;a class="header-anchor" href="#%e8%bf%81%e7%a7%bb%e8%bf%87%e7%a8%8b"&gt;&lt;/a&gt;
+&lt;/h3&gt;&lt;h4 id="搭建hugo新环境"&gt;搭建&lt;code&gt;hugo&lt;/code&gt;新环境
+&lt;a class="header-anchor" href="#%e6%90%ad%e5%bb%bahugo%e6%96%b0%e7%8e%af%e5%a2%83"&gt;&lt;/a&gt;
+&lt;/h4&gt;&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;1
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;2
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;3
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;4
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;5
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;6
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;hugo new site mickeyzzcblog 
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;cd mickeyzzcblog 
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;git init 
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;git submodule add https://github.com/hugo-next/hugo-theme-next.git themes/hugo-theme-next
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;cp themes/hugo-theme-next/exampleSite/config.yaml .
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;vim config.yaml
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;hugo server
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id="构建github-ci的workflows"&gt;构建&lt;code&gt;github ci&lt;/code&gt;的&lt;code&gt;workflows&lt;/code&gt;
+&lt;a class="header-anchor" href="#%e6%9e%84%e5%bb%bagithub-ci%e7%9a%84workflows"&gt;&lt;/a&gt;
+&lt;/h4&gt;&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt; 1
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt; 2
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt; 3
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt; 4
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt; 5
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt; 6
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt; 7
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt; 8
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt; 9
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;10
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;11
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;12
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;13
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;14
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;15
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;16
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;17
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;18
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;19
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;20
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;21
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;22
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;23
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;24
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;25
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;26
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;27
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;28
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;29
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;30
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;31
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;32
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;33
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;34
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;35
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;36
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-yaml" data-lang="yaml"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;name&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;deploy&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;on&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;push&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;workflow_dispatch&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;schedule&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;# Runs everyday at 8:00 AM&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#f92672"&gt;cron&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;0 0 * * *&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;jobs&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;build&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;runs-on&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;ubuntu-latest&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;steps&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#f92672"&gt;name&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;Checkout&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;uses&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;actions/checkout@v2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;with&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;submodules&lt;/span&gt;: &lt;span style="color:#66d9ef"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;fetch-depth&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#f92672"&gt;name&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;Setup Hugo&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;uses&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;peaceiris/actions-hugo@v2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;with&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;hugo-version&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;latest&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;extended&lt;/span&gt;: &lt;span style="color:#66d9ef"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#f92672"&gt;name&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;Build Web&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;run&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;hugo&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#f92672"&gt;name&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;Deploy Web&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;uses&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;peaceiris/actions-gh-pages@v3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;with&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;PERSONAL_TOKEN&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;${{ secrets.PERSONAL_TOKEN }}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;EXTERNAL_REPOSITORY&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;mickeyzzc/mickeyzzc.github.io&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;PUBLISH_BRANCH&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;main&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;PUBLISH_DIR&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;./public&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;commit_message&lt;/span&gt;: &lt;span style="color:#ae81ff"&gt;${{ github.event.head_commit.message }}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id="2017年的博客建设"&gt;2017年的博客建设
+&lt;a class="header-anchor" href="#2017%e5%b9%b4%e7%9a%84%e5%8d%9a%e5%ae%a2%e5%bb%ba%e8%ae%be"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;工具选用了
+&lt;a href="https://hexo.io" title="hexo" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  hexo
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>&lt;/li>
-&lt;li>主题选择了
-&lt;a href="http://theme-next.iissnan.com/" title="NexT.Mist" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;主题选择了
+&lt;a href="http://theme-next.iissnan.com/" title="NexT.Mist" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  NexT.Mist
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>&lt;/li>
-&lt;li>CDN选择了
-&lt;a href="https://www.cloudflare.com" title="CloudFlare" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;CDN选择了
+&lt;a href="https://www.cloudflare.com" title="CloudFlare" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  CloudFlare
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;h3 id="本地搭建hexo环境">本地搭建&lt;code>hexo&lt;/code>环境
-&lt;a class="header-anchor" href="#%e6%9c%ac%e5%9c%b0%e6%90%ad%e5%bb%bahexo%e7%8e%af%e5%a2%83">&lt;/a>
-&lt;/h3>&lt;blockquote>
-&lt;p>详细步骤请参考官方网站，这里只提及过程中的注意点&lt;/p></description></item><item><title>监控采集点点记录</title><link>/posts/opentelemetry/monitor-experience/</link><pubDate>Mon, 20 Feb 2017 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/monitor-experience/</guid><description>&lt;h2 id="mysql的监控">MYSQL的监控
-&lt;a class="header-anchor" href="#mysql%e7%9a%84%e7%9b%91%e6%8e%a7">&lt;/a>
-&lt;/h2>&lt;h3 id="mysql权限经验原则">MySQL权限经验原则
-&lt;a class="header-anchor" href="#mysql%e6%9d%83%e9%99%90%e7%bb%8f%e9%aa%8c%e5%8e%9f%e5%88%99">&lt;/a>
-&lt;/h3>&lt;p>权限控制主要是出于安全因素，因此需要遵循一下几个经验原则：&lt;/p>
-&lt;ol>
-&lt;li>只授予能满足需要的最小权限，防止用户干坏事。比如用户只是需要查询，那就只给select权限就可以了，不要给用户赋予update、insert或者delete权限。&lt;/li>
-&lt;li>创建用户的时候限制用户的登录主机，一般是限制成指定IP或者内网IP段。&lt;/li>
-&lt;li>初始化数据库的时候删除没有密码的用户。安装完数据库的时候会自动创建一些用户，这些用户默认没有密码。&lt;/li>
-&lt;li>为每个用户设置满足密码复杂度的密码。&lt;/li>
-&lt;li>定期清理不需要的用户。回收权限或者删除用户。&lt;/li>
-&lt;/ol>
-&lt;p>eg:&lt;/p></description></item><item><title>跨城区局域网的搭建（基于Docker）</title><link>/posts/old/mi-docker-net/</link><pubDate>Fri, 20 Jan 2017 00:00:00 +0000</pubDate><guid>/posts/old/mi-docker-net/</guid><description>&lt;h2 id="概述">概述：
-&lt;a class="header-anchor" href="#%e6%a6%82%e8%bf%b0">&lt;/a>
-&lt;/h2>&lt;p>管理复杂网络内的系统,有时候需要突破网络限制.有比较多的方案,比如ss5,Shadowsocks,vpn等.
+&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="本地搭建hexo环境"&gt;本地搭建&lt;code&gt;hexo&lt;/code&gt;环境
+&lt;a class="header-anchor" href="#%e6%9c%ac%e5%9c%b0%e6%90%ad%e5%bb%bahexo%e7%8e%af%e5%a2%83"&gt;&lt;/a&gt;
+&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;详细步骤请参考官方网站，这里只提及过程中的注意点&lt;/p&gt;</description></item><item><title>监控采集点点记录</title><link>/posts/opentelemetry/monitor-experience/</link><pubDate>Mon, 20 Feb 2017 00:00:00 +0000</pubDate><guid>/posts/opentelemetry/monitor-experience/</guid><description>&lt;h2 id="mysql的监控"&gt;MYSQL的监控
+&lt;a class="header-anchor" href="#mysql%e7%9a%84%e7%9b%91%e6%8e%a7"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;h3 id="mysql权限经验原则"&gt;MySQL权限经验原则
+&lt;a class="header-anchor" href="#mysql%e6%9d%83%e9%99%90%e7%bb%8f%e9%aa%8c%e5%8e%9f%e5%88%99"&gt;&lt;/a&gt;
+&lt;/h3&gt;&lt;p&gt;权限控制主要是出于安全因素，因此需要遵循一下几个经验原则：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;只授予能满足需要的最小权限，防止用户干坏事。比如用户只是需要查询，那就只给select权限就可以了，不要给用户赋予update、insert或者delete权限。&lt;/li&gt;
+&lt;li&gt;创建用户的时候限制用户的登录主机，一般是限制成指定IP或者内网IP段。&lt;/li&gt;
+&lt;li&gt;初始化数据库的时候删除没有密码的用户。安装完数据库的时候会自动创建一些用户，这些用户默认没有密码。&lt;/li&gt;
+&lt;li&gt;为每个用户设置满足密码复杂度的密码。&lt;/li&gt;
+&lt;li&gt;定期清理不需要的用户。回收权限或者删除用户。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;eg:&lt;/p&gt;</description></item><item><title>跨城区局域网的搭建（基于Docker）</title><link>/posts/old/mi-docker-net/</link><pubDate>Fri, 20 Jan 2017 00:00:00 +0000</pubDate><guid>/posts/old/mi-docker-net/</guid><description>&lt;h2 id="概述"&gt;概述：
+&lt;a class="header-anchor" href="#%e6%a6%82%e8%bf%b0"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;p&gt;管理复杂网络内的系统,有时候需要突破网络限制.有比较多的方案,比如ss5,Shadowsocks,vpn等.
 这里提供一种方案是利用
-&lt;a href="https://hub.docker.com/r/kylemanna/openvpn/" title="docker-openvpn" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;a href="https://hub.docker.com/r/kylemanna/openvpn/" title="docker-openvpn" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  docker-openvpn
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>
-实施多重复杂网络内的主机互联,实现利用nginx反向代理各类服务.&lt;/p></description></item><item><title>Tumx + Git + OhMyZsh + VIM</title><link>/posts/old/zsh-tmux-vim-git/</link><pubDate>Thu, 11 Aug 2016 00:00:00 +0000</pubDate><guid>/posts/old/zsh-tmux-vim-git/</guid><description>&lt;h2 id="ubuntu下的环境">Ubuntu下的环境：
-&lt;a class="header-anchor" href="#ubuntu%e4%b8%8b%e7%9a%84%e7%8e%af%e5%a2%83">&lt;/a>
-&lt;/h2>&lt;h3 id="要求">要求：
-&lt;a class="header-anchor" href="#%e8%a6%81%e6%b1%82">&lt;/a>
-&lt;/h3>&lt;ul>
-&lt;li>tmux &amp;gt;= 2.1&lt;/li>
-&lt;li>vim &amp;gt;= 7.3&lt;/li>
-&lt;li>zsh (oh-my-zsh)&lt;/li>
-&lt;li>git&lt;/li>
-&lt;/ul>
-&lt;hr>
-&lt;h3 id="部署环境">部署环境：
-&lt;a class="header-anchor" href="#%e9%83%a8%e7%bd%b2%e7%8e%af%e5%a2%83">&lt;/a>
-&lt;/h3>&lt;h4 id="tmux使用gpakosz的配置">TMUX(使用
-&lt;a href="https://github.com/gpakosz/.tmux.git" title="gpakosz" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl">
+&lt;/a&gt;
+实施多重复杂网络内的主机互联,实现利用nginx反向代理各类服务.&lt;/p&gt;</description></item><item><title>Tumx + Git + OhMyZsh + VIM</title><link>/posts/old/zsh-tmux-vim-git/</link><pubDate>Thu, 11 Aug 2016 00:00:00 +0000</pubDate><guid>/posts/old/zsh-tmux-vim-git/</guid><description>&lt;h2 id="ubuntu下的环境"&gt;Ubuntu下的环境：
+&lt;a class="header-anchor" href="#ubuntu%e4%b8%8b%e7%9a%84%e7%8e%af%e5%a2%83"&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;h3 id="要求"&gt;要求：
+&lt;a class="header-anchor" href="#%e8%a6%81%e6%b1%82"&gt;&lt;/a&gt;
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;tmux &amp;gt;= 2.1&lt;/li&gt;
+&lt;li&gt;vim &amp;gt;= 7.3&lt;/li&gt;
+&lt;li&gt;zsh (oh-my-zsh)&lt;/li&gt;
+&lt;li&gt;git&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id="部署环境"&gt;部署环境：
+&lt;a class="header-anchor" href="#%e9%83%a8%e7%bd%b2%e7%8e%af%e5%a2%83"&gt;&lt;/a&gt;
+&lt;/h3&gt;&lt;h4 id="tmux使用gpakosz的配置"&gt;TMUX(使用
+&lt;a href="https://github.com/gpakosz/.tmux.git" title="gpakosz" rel="noopener external nofollow noreferrer" target="_blank" class=" exturl"&gt;
  gpakosz
  
- &lt;i class="fa fa-external-link-alt">&lt;/i>
+ &lt;i class="fa fa-external-link-alt"&gt;&lt;/i&gt;
  
-&lt;/a>的配置)：
-&lt;a class="header-anchor" href="#tmux%e4%bd%bf%e7%94%a8gpakosz%e7%9a%84%e9%85%8d%e7%bd%ae">&lt;/a>
-&lt;/h4>&lt;ul>
-&lt;li>部署方式：&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-&lt;/span>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>$ cd ~
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ git clone https://github.com/gpakosz/.tmux.git
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ ln -s -f .tmux/.tmux.conf
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ cp .tmux/.tmux.conf.local .
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ sudo apt-get install xclip &lt;span style="color:#75715e">## Ubuntu下安装xclip来支持跨文件复制粘贴&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;ul>
-&lt;li>修改“.tmux.conf” 把以下地方修改：&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">
-&lt;table style="border-spacing:0;padding:0;margin:0;border:0;">&lt;tr>&lt;td style="vertical-align:top;padding:0;margin:0;border:0;">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code>&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>bind -t vi-copy y copy-selection
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>改为&lt;/p></description></item></channel></rss>
+&lt;/a&gt;的配置)：
+&lt;a class="header-anchor" href="#tmux%e4%bd%bf%e7%94%a8gpakosz%e7%9a%84%e9%85%8d%e7%bd%ae"&gt;&lt;/a&gt;
+&lt;/h4&gt;&lt;ul&gt;
+&lt;li&gt;部署方式：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;1
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;2
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;3
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;4
+&lt;/span&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ cd ~
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ git clone https://github.com/gpakosz/.tmux.git
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ln -s -f .tmux/.tmux.conf
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ cp .tmux/.tmux.conf.local .
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ sudo apt-get install xclip &lt;span style="color:#75715e"&gt;## Ubuntu下安装xclip来支持跨文件复制粘贴&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;修改“.tmux.conf” 把以下地方修改：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;
+&lt;table style="border-spacing:0;padding:0;margin:0;border:0;"&gt;&lt;tr&gt;&lt;td style="vertical-align:top;padding:0;margin:0;border:0;"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code&gt;&lt;span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%"&gt;
+&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;bind -t vi-copy y copy-selection
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;改为&lt;/p&gt;</description></item></channel></rss>
