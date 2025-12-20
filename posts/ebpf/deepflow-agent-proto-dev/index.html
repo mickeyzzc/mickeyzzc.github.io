@@ -1,4 +1,4 @@
-<!doctype html><html lang=zh-CN data-theme=dark><head><meta charset=UTF-8><meta name=viewport content="width=device-width"><meta name=theme-color content="#222" media="(prefers-color-scheme: dark)"><meta name=generator content="Hugo 0.152.2"><link rel="shortcut icon" type=image/x-icon href=/imgs/icons/favicon.png><link rel=icon type=image/x-icon href=/imgs/icons/favicon.png><link rel=icon type=image/png sizes=16x16 href=/imgs/icons/favicon.png><link rel=icon type=image/png sizes=32x32 href=/imgs/icons/favicon.png><link rel=apple-touch-icon sizes=180x180 href=/imgs/icons/favicon.png><meta itemprop=name content="eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）"><meta itemprop=description content="What is rational is real; and what is real is rational."><meta itemprop=datePublished zgotmplz><meta itemprop=dateModified zgotmplz><meta itemprop=image content="/imgs/icons/custom.png"><meta itemprop=keywords content="Tcp,DeepFlow,eBPF"><meta property="og:type" content="article"><meta property="og:title" content="eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/icons/custom.png"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/ebpf/deepflow-agent-proto-dev/"><meta property="og:site_name" content="蓝宝石的傻话"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2023-11-25 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2023-11-25 00:00:00 +0000 UTC"><link type=text/css rel=stylesheet href=https://cdn.staticfile.org/font-awesome/6.1.2/css/all.min.css><link type=text/css rel=stylesheet href=https://cdn.staticfile.org/animate.css/3.1.1/animate.min.css><link type=text/css rel=stylesheet href=https://cdn.staticfile.org/viewerjs/1.11.0/viewer.min.css><link rel=stylesheet href=/css/main.min.897d85b1ab6c0aa1e97c3753fff757abafcaa5e54a5e13a94ef7d09dd61833de.css><style type=text/css>.post-footer,.flinks-list-footer hr:after{content:"~ 我可是有底线的哟 ~"}</style><script type=text/javascript>(function(){localDB={set:function(e,t,n){if(n===0)return;const s=new Date,o=n*864e5,i={value:t,expiry:s.getTime()+o};localStorage.setItem(e,JSON.stringify(i))},get:function(e){const t=localStorage.getItem(e);if(!t)return 0[0];const n=JSON.parse(t),s=new Date;return s.getTime()>n.expiry?(localStorage.removeItem(e),0[0]):n.value}},theme={active:function(){const e=localDB.get("theme");if(e==null)return;theme.toggle(e),window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){theme.toggle(e.matches?"dark":"light")})},toggle:function(e){document.documentElement.setAttribute("data-theme",e),localDB.set("theme",e,2);const t=document.querySelector("iframe.giscus-frame");if(t){const n={setConfig:{theme:e}};t.contentWindow.postMessage({giscus:n},"https://giscus.app")}}},theme.active()})(window)</script><script class=next-config data-name=page type=application/json>{"comments":false,"isHome":false,"isPage":true,"path":"deepflow-agent-proto-dev","permalink":"/posts/ebpf/deepflow-agent-proto-dev/","title":"eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）","waline":{"js":[{"alias":"waline","alias_name":"@waline/client","file":"dist/pageview.js","name":"pageview","version":"2.13.0"},{"alias":"waline","alias_name":"@waline/client","file":"dist/comment.js","name":"comment","version":"2.13.0"}]}}</script><script type=text/javascript>document.addEventListener("DOMContentLoaded",()=>{var e=document.createElement("script");e.charset="UTF-8",e.src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",e.async=!1,e.defer=!0,document.head.appendChild(e),e.onload=function(){NexT.utils.fmtBusuanzi()}})</script><title>eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议） - 蓝宝石的傻话</title><noscript><link rel=stylesheet href=/css/noscript.css></noscript></head><body itemscope itemtype=http://schema.org/WebPage class=use-motion><div class=headband></div><main class=main><header class=header itemscope itemtype=http://schema.org/WPHeader><div class=header-inner><div class=site-brand-container><div class=site-nav-toggle><div class=toggle aria-label role=button><span class=toggle-line></span>
+<!doctype html><html lang=zh-CN data-theme=dark><head><meta charset=UTF-8><meta name=viewport content="width=device-width"><meta name=theme-color content="#222" media="(prefers-color-scheme: dark)"><meta name=generator content="Hugo 0.153.0"><link rel="shortcut icon" type=image/x-icon href=/imgs/icons/favicon.png><link rel=icon type=image/x-icon href=/imgs/icons/favicon.png><link rel=icon type=image/png sizes=16x16 href=/imgs/icons/favicon.png><link rel=icon type=image/png sizes=32x32 href=/imgs/icons/favicon.png><link rel=apple-touch-icon sizes=180x180 href=/imgs/icons/favicon.png><meta itemprop=name content="eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）"><meta itemprop=description content="What is rational is real; and what is real is rational."><meta itemprop=datePublished zgotmplz><meta itemprop=dateModified zgotmplz><meta itemprop=image content="/imgs/icons/custom.png"><meta itemprop=keywords content="Tcp,DeepFlow,eBPF"><meta property="og:type" content="article"><meta property="og:title" content="eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/icons/custom.png"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/ebpf/deepflow-agent-proto-dev/"><meta property="og:site_name" content="蓝宝石的傻话"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2023-11-25 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2023-11-25 00:00:00 +0000 UTC"><link type=text/css rel=stylesheet href=https://cdn.staticfile.org/font-awesome/6.1.2/css/all.min.css><link type=text/css rel=stylesheet href=https://cdn.staticfile.org/animate.css/3.1.1/animate.min.css><link type=text/css rel=stylesheet href=https://cdn.staticfile.org/viewerjs/1.11.0/viewer.min.css><link rel=stylesheet href=/css/main.min.897d85b1ab6c0aa1e97c3753fff757abafcaa5e54a5e13a94ef7d09dd61833de.css><script type=text/javascript>(function(){localDB={set:function(e,t,n){if(n===0)return;const s=new Date,o=n*864e5,i={value:t,expiry:s.getTime()+o};localStorage.setItem(e,JSON.stringify(i))},get:function(e){const t=localStorage.getItem(e);if(!t)return 0[0];const n=JSON.parse(t),s=new Date;return s.getTime()>n.expiry?(localStorage.removeItem(e),0[0]):n.value}},theme={active:function(){const e=localDB.get("theme");if(e==null)return;theme.toggle(e),window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){theme.toggle(e.matches?"dark":"light")})},toggle:function(e){document.documentElement.setAttribute("data-theme",e),localDB.set("theme",e,2);const t=document.querySelector("iframe.giscus-frame");if(t){const n={setConfig:{theme:e}};t.contentWindow.postMessage({giscus:n},"https://giscus.app")}}},theme.active()})(window)</script><script class=next-config data-name=page type=application/json>{"comments":false,"isHome":false,"isPage":true,"path":"deepflow-agent-proto-dev","permalink":"/posts/ebpf/deepflow-agent-proto-dev/","title":"eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）","waline":{"js":[{"alias":"waline","alias_name":"@waline/client","file":"dist/pageview.js","name":"pageview","version":"2.13.0"},{"alias":"waline","alias_name":"@waline/client","file":"dist/comment.js","name":"comment","version":"2.13.0"}]}}</script><script type=text/javascript>document.addEventListener("DOMContentLoaded",()=>{var e=document.createElement("script");e.charset="UTF-8",e.src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js",e.async=!1,e.defer=!0,document.head.appendChild(e),e.onload=function(){NexT.utils.fmtBusuanzi()}})</script><title>eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议） - 蓝宝石的傻话</title><noscript><link rel=stylesheet href=/css/noscript.css></noscript></head><body itemscope itemtype=http://schema.org/WebPage class=use-motion><div class=headband></div><main class=main><header class=header itemscope itemtype=http://schema.org/WPHeader><div class=header-inner><div class=site-brand-container><div class=site-nav-toggle><div class=toggle aria-label role=button><span class=toggle-line></span>
 <span class=toggle-line></span>
 <span class=toggle-line></span></div></div><div class=site-meta><a href=/ class=brand rel=start><i class=logo-line></i><h1 class=site-title>蓝宝石的傻话</h1><i class=logo-line></i></a><p class=site-subtitle itemprop=description>MickeyBee's BLOG</p><img class=custom-logo-image src=/imgs/icons/custom.png alt=蓝宝石的傻话></div><div class=site-nav-right><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class=site-nav><ul class="main-menu menu"><li class="menu-item menu-item-home"><a href=/ class=hvr-icon-pulse rel=section><i class="fa fa-home hvr-icon"></i>首页</a></li><li class="menu-item menu-item-about"><a href=/about.html class=hvr-icon-pulse rel=section><i class="fa fa-user hvr-icon"></i>关于</a></li><li class="menu-item menu-item-archives"><a href=/archives/ class=hvr-icon-pulse rel=section><i class="fa fa-archive hvr-icon"></i>归档
 <span class=badge>15</span></a></li><li class="menu-item menu-item-commonweal"><a href=/404.html class=hvr-icon-pulse rel=section><i class="fa fa-heartbeat hvr-icon"></i>公益 404</a></li><li class="menu-item menu-item-search"><a role=button class="popup-trigger hvr-icon-pulse"><i class="fa fa-search fa-fw hvr-icon"></i>搜索</a></li></ul></nav><div class=search-pop-overlay><div class="popup search-popup"><div class=search-header><span class=search-icon><i class="fa fa-search"></i></span><div class=search-input-container><input autocomplete=off autocapitalize=off maxlength=80 placeholder=搜索... spellcheck=false type=search class=search-input></div><span class=popup-btn-close role=button><i class="fa fa-times-circle"></i></span></div><div class="search-result-container no-result"><div class=search-result-icon><i class="fa fa-spinner fa-pulse fa-5x"></i></div></div></div></div></div><div class="toggle sidebar-toggle" role=button><span class=toggle-line></span>
@@ -204,11 +204,11 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
 </span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>struct</span> MsgHeader {
 </span></span><span style=display:flex><span>    int32   messageLength;     <span style=color:#75715e>// total message size, including this
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    int32   requestID;         <span style=color:#75715e>// identifier for this message
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    int32   responseTo;        <span style=color:#75715e>// requestID from the original request
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                               <span style=color:#75715e>//   (used in responses from the database)
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    int32   opCode;            <span style=color:#75715e>// message type
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span></span><span style=display:flex><span>    int32   requestID;         <span style=color:#75715e>// identifier for this message
+</span></span></span><span style=display:flex><span>    int32   responseTo;        <span style=color:#75715e>// requestID from the original request
+</span></span></span><span style=display:flex><span>                               <span style=color:#75715e>//   (used in responses from the database)
+</span></span></span><span style=display:flex><span>    int32   opCode;            <span style=color:#75715e>// message type
+</span></span></span><span style=display:flex><span>}
 </span></span></code></pre></td></tr></table></div></div><p>上述结构代码理解为下图所示：</p><p><img src=/imgs/img-lazy-loading.gif data-src=/posts/ebpf/images/MongoDB-Msg-Header.svg alt></p><blockquote><p>注意，在协议文档
 <a href=https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/ title=《mongodb-wire-protocol》 rel="noopener external nofollow noreferrer" target=_blank class=exturl>《mongodb-wire-protocol》
 <i class="fa fa-external-link-alt"></i>
@@ -250,10 +250,10 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
 </span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-c data-lang=c><span style=display:flex><span>OP_MSG {
 </span></span><span style=display:flex><span>    MsgHeader header;              <span style=color:#75715e>// standard message header
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    uint32 flagBits;               <span style=color:#75715e>// message flags
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    Sections[] sections;           <span style=color:#75715e>// data sections
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    optional<span style=color:#f92672>&lt;</span>uint32<span style=color:#f92672>&gt;</span> checksum;     <span style=color:#75715e>// optional CRC-32C checksum
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span></span><span style=display:flex><span>    uint32 flagBits;               <span style=color:#75715e>// message flags
+</span></span></span><span style=display:flex><span>    Sections[] sections;           <span style=color:#75715e>// data sections
+</span></span></span><span style=display:flex><span>    optional<span style=color:#f92672>&lt;</span>uint32<span style=color:#f92672>&gt;</span> checksum;     <span style=color:#75715e>// optional CRC-32C checksum
+</span></span></span><span style=display:flex><span>}
 </span></span></code></pre></td></tr></table></div></div><blockquote><p><code>OP_MSG</code>需要关注的解码内容在<code>Sections</code>，只需要判断<code>kind</code>为<code>0</code>和<code>1</code>的情况，其中：</p><ul><li>0：后面直接用<code>BSON</code>解码；</li><li>1：先偏移<code>int32</code>和<code>c_string</code>占用的<code>byte</code>后，用<code>BSON</code>解码后面的内容</li></ul></blockquote><p><img src=/imgs/img-lazy-loading.gif data-src=/posts/ebpf/images/MongoDB-OPMSG.svg alt></p><p>从实际抓包看一下原始数据。如下所示，MongoDB协议的操作码<code>OP_MSG</code>内容从第十六（从0开始数，后续文档统一按此规律）字节开始。
 <img src=/imgs/img-lazy-loading.gif data-src=/posts/ebpf/images/mongo-op-msg-pcap.png alt></p><div class=highlight><div style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
 </span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
@@ -328,26 +328,26 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span>    Unknown <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>,
 </span></span><span style=display:flex><span>    Other <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// HTTP
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    Http1 <span style=color:#f92672>=</span> <span style=color:#ae81ff>20</span>,
+</span></span></span><span style=display:flex><span>    Http1 <span style=color:#f92672>=</span> <span style=color:#ae81ff>20</span>,
 </span></span><span style=display:flex><span>    Http2 <span style=color:#f92672>=</span> <span style=color:#ae81ff>21</span>,
 </span></span><span style=display:flex><span>    Http1TLS <span style=color:#f92672>=</span> <span style=color:#ae81ff>22</span>,
 </span></span><span style=display:flex><span>    Http2TLS <span style=color:#f92672>=</span> <span style=color:#ae81ff>23</span>,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// RPC
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    Dubbo <span style=color:#f92672>=</span> <span style=color:#ae81ff>40</span>,
+</span></span></span><span style=display:flex><span>    Dubbo <span style=color:#f92672>=</span> <span style=color:#ae81ff>40</span>,
 </span></span><span style=display:flex><span>    Grpc <span style=color:#f92672>=</span> <span style=color:#ae81ff>41</span>,
 </span></span><span style=display:flex><span>    SofaRPC <span style=color:#f92672>=</span> <span style=color:#ae81ff>43</span>,
 </span></span><span style=display:flex><span>    FastCGI <span style=color:#f92672>=</span> <span style=color:#ae81ff>44</span>,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// SQL
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    MySQL <span style=color:#f92672>=</span> <span style=color:#ae81ff>60</span>,
+</span></span></span><span style=display:flex><span>    MySQL <span style=color:#f92672>=</span> <span style=color:#ae81ff>60</span>,
 </span></span><span style=display:flex><span>    PostgreSQL <span style=color:#f92672>=</span> <span style=color:#ae81ff>61</span>,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// NoSQL
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    Redis <span style=color:#f92672>=</span> <span style=color:#ae81ff>80</span>,
+</span></span></span><span style=display:flex><span>    Redis <span style=color:#f92672>=</span> <span style=color:#ae81ff>80</span>,
 </span></span><span style=display:flex><span><span style=color:#f92672>+</span>   MongoDB <span style=color:#f92672>=</span> <span style=color:#ae81ff>81</span>,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// MQ
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    Kafka <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>,
+</span></span></span><span style=display:flex><span>    Kafka <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>,
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>MQTT</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>101</span>,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// INFRA
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>DNS</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>120</span>,
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>DNS</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>120</span>,
 </span></span><span style=display:flex><span>    Custom <span style=color:#f92672>=</span> <span style=color:#ae81ff>127</span>,
 </span></span><span style=display:flex><span>    Max <span style=color:#f92672>=</span> <span style=color:#ae81ff>255</span>,
 </span></span><span style=display:flex><span>}
@@ -432,10 +432,10 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(rename = </span><span style=color:#e6db74>&#34;resp_len&#34;</span><span style=color:#75715e>)]</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> resp_len: <span style=color:#66d9ef>u32</span>,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>//// 参考“deepflow/agent/src/flow_generator/protocol_logs/pb_adapter.rs” 
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>//   准备要处理的结构体。
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>//   其中“request_id”、“response_id”、“op_code”和“op_code_name”是
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>//   从mongodb header解析出来的关键信息。
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>#[serde(rename = </span><span style=color:#e6db74>&#34;request_id&#34;</span><span style=color:#75715e>)]</span>
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>//   准备要处理的结构体。
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>//   其中“request_id”、“response_id”、“op_code”和“op_code_name”是
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>//   从mongodb header解析出来的关键信息。
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(rename = </span><span style=color:#e6db74>&#34;request_id&#34;</span><span style=color:#75715e>)]</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> request_id: <span style=color:#66d9ef>u32</span>,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(rename = </span><span style=color:#e6db74>&#34;response_id&#34;</span><span style=color:#75715e>)]</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> response_id: <span style=color:#66d9ef>u32</span>,
@@ -444,15 +444,15 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(skip)]</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> op_code_name: String,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>//// “request”、“response”和“response_code”是
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>//   从mongodb协议主体内容解析出来的所需信息。
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>#[serde(rename = </span><span style=color:#e6db74>&#34;request_resource&#34;</span><span style=color:#75715e>]</span>
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>//   从mongodb协议主体内容解析出来的所需信息。
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(rename = </span><span style=color:#e6db74>&#34;request_resource&#34;</span><span style=color:#75715e>]</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> request: String,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(skip)]</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> response: String,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(rename = </span><span style=color:#e6db74>&#34;response_code&#34;</span><span style=color:#75715e>]</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> response_code: <span style=color:#66d9ef>i32</span>,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>////
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>#[serde(rename = </span><span style=color:#e6db74>&#34;response_status&#34;</span><span style=color:#75715e>)]</span>
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>#[serde(rename = </span><span style=color:#e6db74>&#34;response_status&#34;</span><span style=color:#75715e>)]</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> status: <span style=color:#a6e22e>L7ResponseStatus</span>,
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></td></tr></table></div></div><h5 id=实现l7protocolparserinterface>实现 <code>L7ProtocolParserInterface</code>
@@ -486,27 +486,27 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>trait</span> L7ProtocolParserInterface {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>check_payload</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self, payload: <span style=color:#66d9ef>&amp;</span>[<span style=color:#66d9ef>u8</span>], param: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>ParseParam</span>) -&gt; <span style=color:#66d9ef>bool</span>;
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// 协议解析
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parse_payload</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self, payload: <span style=color:#66d9ef>&amp;</span>[<span style=color:#66d9ef>u8</span>], param: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>ParseParam</span>) -&gt; Result<span style=color:#f92672>&lt;</span>L7ParseResult<span style=color:#f92672>&gt;</span>;
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parse_payload</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self, payload: <span style=color:#66d9ef>&amp;</span>[<span style=color:#66d9ef>u8</span>], param: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>ParseParam</span>) -&gt; Result<span style=color:#f92672>&lt;</span>L7ParseResult<span style=color:#f92672>&gt;</span>;
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// 返回协议号和协议名称，由于的bitmap使用u128，所以协议号不能超过128.
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// 其中 crates/public/src/l7_protocol.rs 里面的 pub const L7_PROTOCOL_xxx 是已实现的协议号.
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// ===========================================================================================
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// return protocol number and protocol string. because of bitmap use u128, so the max protocol number can not exceed 128
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// crates/public/src/l7_protocol.rs, pub const L7_PROTOCOL_xxx is the implemented protocol.
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>protocol</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#a6e22e>L7Protocol</span>;
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// 其中 crates/public/src/l7_protocol.rs 里面的 pub const L7_PROTOCOL_xxx 是已实现的协议号.
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// ===========================================================================================
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// return protocol number and protocol string. because of bitmap use u128, so the max protocol number can not exceed 128
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// crates/public/src/l7_protocol.rs, pub const L7_PROTOCOL_xxx is the implemented protocol.
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>protocol</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#a6e22e>L7Protocol</span>;
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// l4是tcp时是否解析，用于快速过滤协议
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// ==============================
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// whether l4 is parsed when tcp, use for quickly protocol filter
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parsable_on_tcp</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#66d9ef>bool</span> {
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// ==============================
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// whether l4 is parsed when tcp, use for quickly protocol filter
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parsable_on_tcp</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#66d9ef>bool</span> {
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>true</span>
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// l4是udp是是否解析，用于快速过滤协议
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// ==============================
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75715e>// whether l4 is parsed when udp, use for quickly protocol filter
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parsable_on_udp</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#66d9ef>bool</span> {
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// ==============================
+</span></span></span><span style=display:flex><span>    <span style=color:#75715e>// whether l4 is parsed when udp, use for quickly protocol filter
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parsable_on_udp</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#66d9ef>bool</span> {
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>true</span>
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// return perf data
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>perf_stats</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self) -&gt; Option<span style=color:#f92672>&lt;</span>L7PerfStats<span style=color:#f92672>&gt;</span>;
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>perf_stats</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self) -&gt; Option<span style=color:#f92672>&lt;</span>L7PerfStats<span style=color:#f92672>&gt;</span>;
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></td></tr></table></div></div><ul><li><p>解码协议的第一步是如何识别协议，代码中需处理 <code>L7ProtocolParserInterface::check_payload()</code>逻辑</p><ul><li>定义<code>MongoDB</code>协议头并解码</li></ul><div class=highlight><div style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
 </span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
@@ -530,7 +530,7 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
 </span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
 </span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#75715e>// 定义MongoDB协议头结构体，并对必要信息字段一一解码
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#75715e>#[derive(Clone, Debug, Default, Serialize)]</span>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>#[derive(Clone, Debug, Default, Serialize)]</span>
 </span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>MongoDBHeader</span> {
 </span></span><span style=display:flex><span>    length: <span style=color:#66d9ef>u32</span>,
 </span></span><span style=display:flex><span>    request_id: <span style=color:#66d9ef>u32</span>,
@@ -542,13 +542,13 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span><span style=color:#66d9ef>impl</span> MongoDBHeader {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>decode</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self, payload: <span style=color:#66d9ef>&amp;</span>[<span style=color:#66d9ef>u8</span>]) -&gt; <span style=color:#66d9ef>isize</span> {
 </span></span><span style=display:flex><span> <span style=color:#75715e>// 对payload前16位以MongoDBHeader结构解码，判断是否符合MongoDB的协议
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
+</span></span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>is_request</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#66d9ef>bool</span> {
 </span></span><span style=display:flex><span> <span style=color:#75715e>// 解码op_code判断是否request
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
+</span></span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>get_op_str</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#66d9ef>&amp;</span>&#39;static <span style=color:#66d9ef>str</span> {
 </span></span><span style=display:flex><span> <span style=color:#75715e>// 解码op_code出对应文本描述
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
+</span></span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></td></tr></table></div></div><ul><li>在<code>L7ProtocolParserInterface::check_payload()</code>调用<code>MongoDB</code>协议头解码逻辑
 在此过程，把<code>protocol(&amp;self)</code>和<code>parsable_on_udp(&amp;self)</code>也一并处理。</li></ul><div class=highlight><div style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
@@ -573,7 +573,7 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span>        L7Protocol::MongoDB
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// udp协议的跳过解码
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parsable_on_udp</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#66d9ef>bool</span> {<span style=color:#66d9ef>false</span>}
+</span></span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parsable_on_udp</span>(<span style=color:#f92672>&amp;</span>self) -&gt; <span style=color:#66d9ef>bool</span> {<span style=color:#66d9ef>false</span>}
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></td></tr></table></div></div><ul><li>第一步的效果展示
 到这一步的解码将会得到如下展示效果，接下来还需要对具体的协议操作码做进一步解码。
@@ -602,7 +602,7 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span><span style=color:#66d9ef>impl</span> MongoOpMsg {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>decode</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self, payload: <span style=color:#66d9ef>&amp;</span>[<span style=color:#66d9ef>u8</span>]) -&gt; Result<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>bool</span><span style=color:#f92672>&gt;</span> {
 </span></span><span style=display:flex><span>                <span style=color:#75715e>// 略过偏移逻辑
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>let</span> _ <span style=color:#f92672>=</span> sections.decode(<span style=color:#f92672>&amp;</span>payload);
+</span></span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> _ <span style=color:#f92672>=</span> sections.decode(<span style=color:#f92672>&amp;</span>payload);
 </span></span><span style=display:flex><span>        self.sections <span style=color:#f92672>=</span> sections;
 </span></span><span style=display:flex><span>        Ok(<span style=color:#66d9ef>true</span>)
 </span></span><span style=display:flex><span>    }
@@ -634,9 +634,9 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span>    kind: <span style=color:#66d9ef>u8</span>,
 </span></span><span style=display:flex><span>    kind_name: String,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// kind: 0 mean doc
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    doc: <span style=color:#a6e22e>Document</span>,
+</span></span></span><span style=display:flex><span>    doc: <span style=color:#a6e22e>Document</span>,
 </span></span><span style=display:flex><span>    <span style=color:#75715e>// kind: 1 mean body
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    size: Option<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>i32</span><span style=color:#f92672>&gt;</span>,
+</span></span></span><span style=display:flex><span>    size: Option<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>i32</span><span style=color:#f92672>&gt;</span>,
 </span></span><span style=display:flex><span>    c_string: Option<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>&gt;</span>,
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
@@ -644,10 +644,10 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>decode</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self, payload: <span style=color:#66d9ef>&amp;</span>[<span style=color:#66d9ef>u8</span>]) -&gt; Result<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>bool</span><span style=color:#f92672>&gt;</span> {
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>match</span> self.kind {
 </span></span><span style=display:flex><span>            <span style=color:#ae81ff>0</span> <span style=color:#f92672>=&gt;</span> {<span style=color:#75715e>// Body}
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#ae81ff>1</span> <span style=color:#f92672>=&gt;</span> {<span style=color:#75715e>// Doc}
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#ae81ff>2</span> <span style=color:#f92672>=&gt;</span> {<span style=color:#75715e>// Internal}
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            _ <span style=color:#f92672>=&gt;</span> {<span style=color:#75715e>// Unknown}
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        }
+</span></span></span><span style=display:flex><span>            <span style=color:#ae81ff>1</span> <span style=color:#f92672>=&gt;</span> {<span style=color:#75715e>// Doc}
+</span></span></span><span style=display:flex><span>            <span style=color:#ae81ff>2</span> <span style=color:#f92672>=&gt;</span> {<span style=color:#75715e>// Internal}
+</span></span></span><span style=display:flex><span>            _ <span style=color:#f92672>=&gt;</span> {<span style=color:#75715e>// Unknown}
+</span></span></span><span style=display:flex><span>        }
 </span></span><span style=display:flex><span>        Ok(<span style=color:#66d9ef>true</span>)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
@@ -686,17 +686,17 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parse_payload</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self, payload: <span style=color:#66d9ef>&amp;</span>[<span style=color:#66d9ef>u8</span>], param: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>ParseParam</span>) -&gt; Result<span style=color:#f92672>&lt;</span>L7ParseResult<span style=color:#f92672>&gt;</span> {
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> info <span style=color:#f92672>=</span> MongoDBInfo::default();
 </span></span><span style=display:flex><span>        self.parse(payload, param.l4_protocol, param.direction, <span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> info)<span style=color:#f92672>?</span>;  <span style=color:#75715e>// 解码得到L7ProtocolInfo
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
+</span></span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span><span style=color:#66d9ef>impl</span> MongoDBLog {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parse</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self,payload:<span style=color:#66d9ef>&amp;</span>[<span style=color:#66d9ef>u8</span>],proto:<span style=color:#a6e22e>IpProtocol</span>,dir:<span style=color:#a6e22e>PacketDirection</span>,info:<span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>mut</span> MongoDBInfo,)-&gt; Result<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>bool</span><span style=color:#f92672>&gt;</span> { <span style=color:#75715e>// 解码指令获取请求和响应等信息}
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	    <span style=color:#75715e>// command decode
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#66d9ef>match</span> info.op_code {
+</span></span></span><span style=display:flex><span>	    <span style=color:#75715e>// command decode
+</span></span></span><span style=display:flex><span>		<span style=color:#66d9ef>match</span> info.op_code {
 </span></span><span style=display:flex><span>			<span style=color:#66d9ef>_OP_MSG</span> <span style=color:#66d9ef>if</span> payload.len() <span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>_MSG_DOC_SECTION_OFFSET</span> <span style=color:#f92672>=&gt;</span> {
 </span></span><span style=display:flex><span>				<span style=color:#75715e>// OP_MSG
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>				<span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> msg_body <span style=color:#f92672>=</span> MongoOpMsg::default();	
+</span></span></span><span style=display:flex><span>				<span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> msg_body <span style=color:#f92672>=</span> MongoOpMsg::default();	
 </span></span><span style=display:flex><span>				<span style=color:#75715e>// TODO: Message Flags
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>				msg_body.decode(<span style=color:#f92672>&amp;</span>payload[<span style=color:#66d9ef>_MSG_DOC_SECTION_OFFSET</span><span style=color:#f92672>..</span>])<span style=color:#f92672>?</span>;
+</span></span></span><span style=display:flex><span>				msg_body.decode(<span style=color:#f92672>&amp;</span>payload[<span style=color:#66d9ef>_MSG_DOC_SECTION_OFFSET</span><span style=color:#f92672>..</span>])<span style=color:#f92672>?</span>;
 </span></span><span style=display:flex><span>			}
 </span></span><span style=display:flex><span>		}
 </span></span><span style=display:flex><span>	}
@@ -725,17 +725,17 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#66d9ef>impl</span> L7ProtocolInfoInterface <span style=color:#66d9ef>for</span> MongoDBInfo {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>session_id</span>(<span style=color:#f92672>&amp;</span>self) -&gt; Option<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>u32</span><span style=color:#f92672>&gt;</span> {
 </span></span><span style=display:flex><span>        <span style=color:#75715e>// 这里返回流标识id，例如 http2 返回 streamid，dns 返回 transaction id，如果没有就返回 None
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
+</span></span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>merge_log</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self, other: <span style=color:#a6e22e>L7ProtocolInfo</span>) -&gt; Result<span style=color:#f92672>&lt;</span>()<span style=color:#f92672>&gt;</span> {
 </span></span><span style=display:flex><span> <span style=color:#75715e>// 这里的self必定是请求，other必定是响应
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>let</span> L7ProtocolInfo::MongoDBInfo(other) <span style=color:#f92672>=</span> other {
+</span></span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>let</span> L7ProtocolInfo::MongoDBInfo(other) <span style=color:#f92672>=</span> other {
 </span></span><span style=display:flex><span>            self.merge(other);
 </span></span><span style=display:flex><span>        }
 </span></span><span style=display:flex><span>        Ok(())
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>app_proto_head</span>(<span style=color:#f92672>&amp;</span>self) -&gt; Option<span style=color:#f92672>&lt;</span>AppProtoHead<span style=color:#f92672>&gt;</span> {
 </span></span><span style=display:flex><span> <span style=color:#75715e>// 这里返回一个 AppProtoHead 结构，返回 None 直接丢弃这段数据
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        Some(AppProtoHead {
+</span></span></span><span style=display:flex><span>        Some(AppProtoHead {
 </span></span><span style=display:flex><span>            proto: <span style=color:#a6e22e>L7Protocol</span>::MongoDB,
 </span></span><span style=display:flex><span>        })
 </span></span><span style=display:flex><span>    }
@@ -767,13 +767,13 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>from</span>(f: <span style=color:#a6e22e>MongoDBInfo</span>) -&gt; <span style=color:#a6e22e>Self</span> {
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> log <span style=color:#f92672>=</span> L7ProtocolSendLog {
 </span></span><span style=display:flex><span>            <span style=color:#75715e>// 这里需要把 info 转换成统一的发送结构 L7ProtocolSendLog
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        };
+</span></span></span><span style=display:flex><span>        };
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> log;
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#75715e>// 参考源码来自：deepflow/agent/src/flow_generator/protocol_logs/pb_adapter.rs
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>L7ProtocolSendLog</span> {
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>L7ProtocolSendLog</span> {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> req_len: Option<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>u32</span><span style=color:#f92672>&gt;</span>,
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> resp_len: Option<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>u32</span><span style=color:#f92672>&gt;</span>,
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> row_effect: <span style=color:#66d9ef>u32</span>,
@@ -803,8 +803,8 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-rust data-lang=rust><span style=display:flex><span><span style=color:#a6e22e>impl_protocol_parser!</span> {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>enum</span> <span style=color:#a6e22e>L7ProtocolParser</span> {
 </span></span><span style=display:flex><span>        <span style=color:#75715e>// http have two version but one parser, can not place in macro param.
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#75715e>// custom must in frist so can not place in macro
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>DNS</span>(DnsLog),
+</span></span></span><span style=display:flex><span>        <span style=color:#75715e>// custom must in frist so can not place in macro
+</span></span></span><span style=display:flex><span>        <span style=color:#66d9ef>DNS</span>(DnsLog),
 </span></span><span style=display:flex><span>        SofaRPC(SofaRpcLog),
 </span></span><span style=display:flex><span>        MySQL(MysqlLog),
 </span></span><span style=display:flex><span>        Kafka(KafkaLog),
@@ -815,7 +815,7 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span>        FastCGI(FastCGILog),
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>MQTT</span>(MqttLog),
 </span></span><span style=display:flex><span>        <span style=color:#75715e>// add protocol below
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
+</span></span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></td></tr></table></div></div><ul><li>第二步的效果
 <img src=/imgs/img-lazy-loading.gif data-src=/posts/ebpf/images/grafana-deepflow-mongo-02.png alt></li></ul></li><li><p>通过<code>perf_states</code>统计记录<code>QPS</code>、<code>耗时</code>和<code>异常</code>情况</p></li></ul><div class=highlight><div style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
@@ -849,25 +849,25 @@ DeepFlow 在可观测能力上是很优秀的解决方案，但是却缺少了�
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parse_payload</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self, payload: <span style=color:#66d9ef>&amp;</span>[<span style=color:#66d9ef>u8</span>], param: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>ParseParam</span>) -&gt; Result<span style=color:#f92672>&lt;</span>L7ParseResult<span style=color:#f92672>&gt;</span> {
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> info <span style=color:#f92672>=</span> MongoDBInfo::default();
 </span></span><span style=display:flex><span>        self.parse(payload, param.l4_protocol, param.direction, <span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> info)<span style=color:#f92672>?</span>;  <span style=color:#75715e>// 解码得到L7ProtocolInfo
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        info.cal_rrt(param, None).map(<span style=color:#f92672>|</span>rrt<span style=color:#f92672>|</span> {
+</span></span></span><span style=display:flex><span>        info.cal_rrt(param, None).map(<span style=color:#f92672>|</span>rrt<span style=color:#f92672>|</span> {
 </span></span><span style=display:flex><span>            info.rrt <span style=color:#f92672>=</span> rrt;
 </span></span><span style=display:flex><span><span style=color:#f92672>+</span>           self.perf_stats.as_mut().map(<span style=color:#f92672>|</span>p<span style=color:#f92672>|</span> p.update_rrt(rrt)); <span style=color:#75715e>// 耗时
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        });
+</span></span></span><span style=display:flex><span>        });
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span><span style=color:#66d9ef>impl</span> MongoDBLog {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>parse</span>(<span style=color:#f92672>&amp;</span><span style=color:#66d9ef>mut</span> self,payload:<span style=color:#66d9ef>&amp;</span>[<span style=color:#66d9ef>u8</span>],proto:<span style=color:#a6e22e>IpProtocol</span>,dir:<span style=color:#a6e22e>PacketDirection</span>,info:<span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>mut</span> MongoDBInfo,) -&gt; Result<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>bool</span><span style=color:#f92672>&gt;</span> { <span style=color:#75715e>// 解码指令获取请求和响应等信息
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> header.is_request() {
+</span></span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> header.is_request() {
 </span></span><span style=display:flex><span><span style=color:#f92672>+</span>           self.perf_stats.as_mut().map(<span style=color:#f92672>|</span>p: <span style=color:#66d9ef>&amp;</span><span style=color:#a6e22e>mut</span> L7PerfStats<span style=color:#f92672>|</span> p.inc_req()); <span style=color:#75715e>// 请求记录
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        } <span style=color:#66d9ef>else</span> {
+</span></span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
 </span></span><span style=display:flex><span><span style=color:#f92672>+</span>           self.perf_stats.as_mut().map(<span style=color:#f92672>|</span>p<span style=color:#f92672>|</span> p.inc_resp()); <span style=color:#75715e>// 响应记录
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        }
+</span></span></span><span style=display:flex><span>        }
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>match</span> info.op_code {
 </span></span><span style=display:flex><span>            <span style=color:#66d9ef>_OP_REPLY</span> <span style=color:#66d9ef>if</span> payload.len() <span style=color:#f92672>&gt;</span> <span style=color:#66d9ef>_HEADER_SIZE</span> <span style=color:#f92672>=&gt;</span> {
 </span></span><span style=display:flex><span>                <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> msg_body <span style=color:#f92672>=</span> MongoOpReply::default();
 </span></span><span style=display:flex><span>                msg_body.decode(<span style=color:#f92672>&amp;</span>payload[<span style=color:#66d9ef>_HEADER_SIZE</span><span style=color:#f92672>..</span>])<span style=color:#f92672>?</span>;
 </span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> <span style=color:#f92672>!</span>msg_body.reply_ok {
 </span></span><span style=display:flex><span><span style=color:#f92672>+</span>                   self.perf_stats.as_mut().map(<span style=color:#f92672>|</span>p<span style=color:#f92672>|</span> p.inc_resp_err());<span style=color:#75715e>// 异常记录
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>                }
+</span></span></span><span style=display:flex><span>                }
 </span></span><span style=display:flex><span>            }
 </span></span><span style=display:flex><span>     }
 </span></span><span style=display:flex><span>  }
@@ -1340,6 +1340,6 @@ eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议�
 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div></div></main><footer class=footer><div class=footer-inner><div id=gtranslate class=google-translate><i class="fa fa-language"></i><div id=google_translate_element></div></div><div class=copyright>&copy;
 <span itemprop=copyrightYear>2010 - 2025
 </span><span class=with-love><i class="fa fa-heart"></i>
-</span><span class=author itemprop=copyrightHolder>蓝宝石的傻话</span></div><div class=powered-by>由 <a href=https://gohugo.io title=0.152.2 target=_blank>Hugo</a> & <a href=https://github.com/hugo-next/hugo-theme-next title=4.5.3 target=_blank>Hugo NexT.Gemini</a> 强力驱动</div><div class=beian><a href=https://beian.miit.gov.cn target=_blank>粤ICP备2023145803号</a>
+</span><span class=author itemprop=copyrightHolder>蓝宝石的傻话</span></div><div class=powered-by>由 <a href=https://gohugo.io title=0.153.0 target=_blank>Hugo</a> & <a href=https://github.com/hugo-next/hugo-theme-next title=4.5.3 target=_blank>Hugo NexT.Gemini</a> 强力驱动</div><div class=beian><a href=https://beian.miit.gov.cn target=_blank>粤ICP备2023145803号</a>
 <img src=/imgs/gongan.png alt=粤公网安备>
 <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44011102001194" target=_blank>粤公网安备 44011102001194 号</a></div></div></footer><script type=text/javascript src=https://cdn.staticfile.org/animejs/3.2.1/anime.min.js defer></script><script type=text/javascript src=https://cdn.staticfile.org/viewerjs/1.11.0/viewer.min.js defer></script><script class=next-config data-name=main type=application/json>{"bookmark":{"color":"#222","enable":true,"save":"manual"},"copybtn":true,"darkmode":true,"giscus":{"cfg":{"category":"Comments","categoryid":null,"emit":false,"inputposition":"top","mapping":"title","reactions":false,"repo":"username/repo-name","repoid":null,"theme":"preferred_color_scheme"},"js":"https://giscus.app/client.js"},"hostname":"/","i18n":{"ds_day":" 天前","ds_days":" 天 ","ds_hour":" 小时前","ds_hours":" 小时 ","ds_just":"刚刚","ds_min":" 分钟前","ds_mins":" 分钟","ds_month":" 个月前","ds_years":" 年 ","empty":"没有找到任何搜索结果：${query}","hits":"找到 ${hits} 个搜索结果","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","placeholder":"搜索..."},"lang":"zh-CN","lazyload":false,"localSearch":{"enable":true,"limit":1e3,"path":"/searchindexes.xml","preload":false,"topnperarticle":-1,"trigger":"auto","unescape":false},"motion":{"async":true,"enable":true,"transition":{"collheader":"fadeInLeft","postblock":"fadeIn","postbody":"fadeInDown","postheader":"fadeInDown","sidebar":"fadeInUp"}},"postmeta":{"comments":{"enable":true,"plugin":"waline"},"views":{"enable":true,"plugin":"busuanzi"}},"root":"/","scheme":"Gemini","sidebar":{"display":"post","offset":12,"padding":18,"position":"left","width":256},"vendor":{"plugins":"qiniu","router":"https://cdn.staticfile.org"},"version":"4.5.3","waline":{"cfg":{"emoji":false,"imguploader":false,"placeholder":"请文明发言哟 ヾ(≧▽≦*)o","reaction":true,"reactiontext":["点赞","踩一下","得意","不屑","尴尬","睡觉"],"reactiontitle":"你认为这篇文章怎么样？","requiredmeta":["nick","mail"],"serverurl":null,"sofa":"快来发表你的意见吧 (≧∀≦)ゞ","wordlimit":200},"css":{"alias":"waline","file":"dist/waline.css","name":"@waline/client","version":"2.13.0"},"js":{"alias":"waline","file":"dist/waline.js","name":"@waline/client","version":"2.13.0"}}}</script><script type=text/javascript src=/js/main.min.31dafd2443e6bcd4e91b9f755e3281cdf4524d7d753bc4fe66b7e7be0928eeae.js defer></script></body></html>
