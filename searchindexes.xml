@@ -1,4 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>Windows Defender 排除项批量清理指南</title><url>/posts/windows/windows-defender-exclusion-cleanup/</url><categories><category>杂项</category></categories><tags><tag>Windows</tag><tag>PowerShell</tag><tag>Windows Defender</tag><tag>安全</tag></tags><content type="html">  当 Windows Defender 的排除项列表积累了大量无用条目时，可以通过 PowerShell 命令一键批量清理本文将详细介绍整个操作流程，包括备份、清理和验证三个步骤。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>智谱 Coding Plan × Oh My OpenCode：多模型编排配置实战</title><url>/posts/aihelper/zhipuai-coding-plan-oh-my-opencode-setup/</url><categories><category>AI</category><category>开发工具</category></categories><tags><tag>智谱AI</tag><tag>GLM-5</tag><tag>GLM-5.1</tag><tag>Oh-My-OpenCode</tag><tag>OpenCode</tag><tag>多模型编排</tag><tag>AI编程</tag></tags><content type="html">  为什么折腾这个 用 AI 写代码这事儿，单模型和多人模型的差距越来越大。一个模型再强，也干不过一组各司其职的模型并行推进。
+Oh My OpenCode （下文简称 OmO）是 OpenCode 生态里的多模型编排插件，11 个 Agent 各有分工，48 个 Hook 贯穿整个生命周期。 智谱的 Coding Plan 则提供了 GLM 全系列的模型访问。两者搭配起来，就能按角色分配不同的模型——编码强的干编码，推理强的干推理，免费的干杂活。
+这篇文章记录我的完整配置过程。
+GLM 模型家族 智谱 Coding Plan 目前可用的编程相关模型：
+模型 干什么用的 GLM-5 开源旗舰，744B MoE，200K 上下文，SWE-bench 77.8% GLM-5-turbo 闭源，在 GLM-5 基础上专门给 Agent 工作流做了优化，工具调用错误率从 2-6% 降到 0.67%，速度快了约 36% GLM-5.1 后训练优化的版本，编码得分从 35.4 涨到 45.3（+28%），相当于 Claude Opus 4.6 的 94.6% GLM-4.7 推理质量扎实，max 变体支持扩展思考 GLM-4.7-flash 速度优先的 4.7 变体 GLM-5v-turbo 多模态，能看图 这三个 &amp;amp;ldquo;5 系&amp;amp;rdquo; 容易搞混，关系是这样的：
+1 2 3 GLM-5 ← 开源基座，啥都能干，但偶尔抽风 ├── 5-turbo ← 给 Agent 优化：快、稳、工具调用靠谱 └── 5.1 ← 给编码强化：代码质量涨了 28% 选型看需求就行：要编码选 5.1，要稳定跑 Agent 选 5-turbo，要推理选 4.7，要看图选 5v-turbo，要快选 4.7-flash。
+OmO 的 Agent 体系 OmO 的思路很直接：每个 Agent 用自己的系统提示词、工具权限和模型。不是一刀切。
+Agents Agent 干什么 需要什么样的模型 Sisyphus 主编排，任务分解和调度 最强编码 Prometheus 规划，需求澄清和计划制定 长链稳定，工具调用靠谱 Oracle 架构顾问，只读分析 深度推理 Librarian 文档和 API 检索 理解能力 Explore 代码库搜索 快 Metis 预规划咨询，找盲点 深度推理 Momus 计划 …  </content></entry><entry><title>Windows Defender 排除项批量清理指南</title><url>/posts/windows/windows-defender-exclusion-cleanup/</url><categories><category>杂项</category></categories><tags><tag>Windows</tag><tag>PowerShell</tag><tag>Windows Defender</tag><tag>安全</tag></tags><content type="html">  当 Windows Defender 的排除项列表积累了大量无用条目时，可以通过 PowerShell 命令一键批量清理本文将详细介绍整个操作流程，包括备份、清理和验证三个步骤。
 准备工作 修改 Defender 配置需要管理员权限，请按以下步骤打开具有足够权限的终端：
 点击 Windows 开始菜单，搜索 PowerShell 在搜索结果中右键点击 Windows PowerShell，选择 以管理员身份运行 在弹出的用户账户控制（UAC）窗口中点击「是」确认授权 步骤一：备份现有排除项（强烈推荐） 在清理前，建议先备份当前的排除项列表，防止误删需要保留的配置。后续如需恢复，可从备份文件中找回。
 在打开的管理员 PowerShell 窗口中，复制粘贴以下命令并回车执行：
