@@ -1,4 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>智谱 Coding Plan × Oh My OpenCode：多模型编排配置实战</title><url>/posts/aihelper/zhipuai-coding-plan-oh-my-opencode-setup/</url><categories><category>AI</category><category>开发工具</category></categories><tags><tag>智谱AI</tag><tag>GLM-5</tag><tag>GLM-5.1</tag><tag>Oh-My-OpenCode</tag><tag>OpenCode</tag><tag>多模型编排</tag><tag>AI编程</tag></tags><content type="html">&lt;![CDATA[ 为什么折腾这个 用 AI 写代码这事儿，单模型和多人模型的差距越来越大。一个模型再强，也干不过一组各司其职的模型并行推进。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>给博客换了个主题：从 Hugo NexT 到自写的 Zhi</title><url>/posts/aihelper/hugo-theme-zhi-intro/</url><categories><category>AI</category><category>博客</category></categories><tags><tag>Hugo</tag><tag>主题开发</tag><tag>Zhi</tag><tag>CSS</tag><tag>前端</tag></tags><content type="html">&lt;![CDATA[ 为什么换 这个博客之前用的 Hugo NexT，fork 了一份自己做修改。NexT 本身是个功能很全的主题，但在&amp;quot;自己改&amp;quot;这件事上，体验不太行。
+问题集中在几件事上：
+SCSS 套娃。101 个 SCSS 文件，三层目录嵌套。_common/components/post、_common/components/third-party、_common/outline/sidebar……改个样式得先搞清楚文件在哪、变量在哪定义、哪个 scheme 在 override。不是不能改，是改一次得翻半天。
+四套布局方案。Gemini、Mist、Muse、Pisces，每套都是一套独立的 CSS。我只用 Gemini，但其他三套的代码还在那里，占了大量体积。
+JS 耦合度高。9 个 JS 文件，next-boot.js 是总入口，pjax.js 做页面无刷新切换，config.js 读取主题配置。几个文件互相引用，想加个功能得理解整个启动流程。
+改不动。主题是 fork 来的，上游更新了不敢合并——自己的改动散落在各个文件里，merge conflict 一堆。最后的结果就是 fork 彻底冻住，自己在一个固定版本上打补丁。
+风格对不上。我有个工作室的官网，走的干净简约路线——大留白、无装饰、内容居中。NexT 是从 Hexo NexT 移植过来的，骨架里带着论坛/门户时代的审美：侧边栏信息密度高、配色选项多、组件叠加层次深。博客和工作室是同一个品牌，两个站放在一起看着像两个人做的，这事儿忍了很久。
+总之，主题功能很多，但我只想改几个地方的时候，每次都要跟整个体系的复杂度搏斗。
+换什么思路 想清楚了几个原则：
+不要 SCSS。纯 CSS + CSS Variables 足够搞定主题系统，不用多一层预处理 不要构建工具。Hugo 自带 resources.Get → minify → fingerprint 管线，webpack 和 vite 都不需要 功能可开关。每个功能一个 feature flag，关了就不加载对应的 CSS 和 JS，不浪费字节 文件要少。能一个 CSS 文件解决的事不要拆成五个 然后就开工了。整个主题从零开始，结合 AI 写代码，前前后后花了大约两周。
+Zhi 主题做了什么 主题叫 Zhi。名字取自我名字中间那个字，也有几层意思：紫 … ]]></content></entry><entry><title>智谱 Coding Plan × Oh My OpenCode：多模型编排配置实战</title><url>/posts/aihelper/zhipuai-coding-plan-oh-my-opencode-setup/</url><categories><category>AI</category><category>开发工具</category></categories><tags><tag>智谱AI</tag><tag>GLM-5</tag><tag>GLM-5.1</tag><tag>Oh-My-OpenCode</tag><tag>OpenCode</tag><tag>多模型编排</tag><tag>AI编程</tag></tags><content type="html">&lt;![CDATA[ 为什么折腾这个 用 AI 写代码这事儿，单模型和多人模型的差距越来越大。一个模型再强，也干不过一组各司其职的模型并行推进。
 Oh My OpenCode（下文简称 OmO）是 OpenCode 生态里的多模型编排插件，11 个 Agent 各有分工，48 个 Hook 贯穿整个生命周期。智谱的 Coding Plan 则提供了 GLM 全系列的模型访问。两者搭配起来，就能按角色分配不同的模型——编码强的干编码，推理强的干推理，免费的干杂活。
 这篇文章记录我的完整配置过程。
 GLM 模型家族 智谱 Coding Plan 目前可用的编程相关模型：
