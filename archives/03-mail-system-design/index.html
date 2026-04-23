@@ -1,0 +1,173 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - 企业邮件系统架构设计与收发信流程全解析</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/archives/03-mail-system-design/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - 企业邮件系统架构设计与收发信流程全解析"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/archives/03-mail-system-design/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2017-02-24 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2017-02-24 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - 企业邮件系统架构设计与收发信流程全解析"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.58e2def5baec2ea09b04bf7800a130a4cbd71c3d46ad0178ae4e74e3d3a3581c.css integrity="sha256-WOLe9brsLqCbBL94AKEwpMvXHD1GrQF4rk5049OjWBw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":false,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a aria-current=true class=ancestor href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#前言>前言</a></li><li><a href=#三层架构设计>三层架构设计</a><ul><li><a href=#1-前端网关层>1. 前端网关层</a></li><li><a href=#2-后端处理层>2. 后端处理层</a></li><li><a href=#3-sdn智能投递网络层>3. SDN智能投递网络层</a></li></ul></li><li><a href=#系统架构图>系统架构图</a><ul><li><a href=#物理架构图>物理架构图</a></li><li><a href=#服务架构图>服务架构图</a></li><li><a href=#逻辑架构图>逻辑架构图</a></li><li><a href=#后端服务器架构图>后端服务器架构图</a></li></ul></li><li><a href=#发信流程详解>发信流程详解</a><ul><li><a href=#发信总体流程>发信总体流程</a></li><li><a href=#1-客户端接入阶段>1. 客户端接入阶段</a></li><li><a href=#2-入信网关处理阶段>2. 入信网关处理阶段</a></li><li><a href=#3-后端处理阶段>3. 后端处理阶段</a></li><li><a href=#4-出信网关处理阶段>4. 出信网关处理阶段</a></li><li><a href=#5-sdn智能投递>5. SDN智能投递</a></li></ul></li><li><a href=#收信流程详解>收信流程详解</a><ul><li><a href=#收信总体流程>收信总体流程</a></li><li><a href=#1-mx服务器接收阶段>1. MX服务器接收阶段</a></li><li><a href=#2-mta入信处理阶段>2. MTA入信处理阶段</a></li><li><a href=#3-安全检查阶段>3. 安全检查阶段</a></li><li><a href=#4-后端处理阶段>4. 后端处理阶段</a></li><li><a href=#5-用户收取阶段>5. 用户收取阶段</a></li></ul></li><li><a href=#高可用性与性能优化>高可用性与性能优化</a><ul><li><a href=#高可用性设计>高可用性设计</a></li><li><a href=#性能优化>性能优化</a></li></ul></li><li><a href=#安全防护体系>安全防护体系</a><ul><li><a href=#入侵防护>入侵防护</a></li><li><a href=#内容安全>内容安全</a></li><li><a href=#访问控制>访问控制</a></li></ul></li><li><a href=#监控与运维>监控与运维</a><ul><li><a href=#系统监控>系统监控</a></li><li><a href=#运维管理>运维管理</a></li></ul></li><li><a href=#总结>总结</a><ul><li><a href=#技术要点总结>技术要点总结</a></li><li><a href=#未来发展趋势>未来发展趋势</a></li></ul></li></ul></nav></div></nav></div></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>企业邮件系统架构设计与收发信流程全解析</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2017-02-24T00:00:00+00:00>February 24, 2017</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/architecture/>Architecture</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/architecture/>Architecture</a>, <a href=/tags/email/>Email</a>, <a href=/tags/mail-system/>Mail-System</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>6063 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>13 分钟阅读</span></span></div></header><div class=Content><h2 id=前言>前言</h2><p>在数字化时代，电子邮件作为企业内部和外部沟通的核心工具，其架构设计直接关系到邮件服务的稳定性、安全性和性能。本文将深入探讨企业邮件系统的三层架构设计，详细解析收信和发信的完整流程，帮助读者全面理解现代化邮件系统的技术实现。</p><p>企业邮件系统作为企业信息基础设施的重要组成部分，需要应对高并发访问、海量数据处理、安全性保障、可扩展性设计等多重挑战。通过合理的架构设计和流程优化，确保邮件系统在各种复杂场景下都能稳定高效运行。</p><h2 id=三层架构设计>三层架构设计</h2><p>企业邮件系统采用经典的三层架构设计，每层各司其职，相互协作，共同构建了一个完整、高效、安全的邮件服务平台。</p><h3 id=1-前端网关层>1. 前端网关层</h3><p>前端网关层是邮件系统的第一道防线，负责外部邮件的接入、流量分发和基础安全防护。该层主要包括以下组件：</p><ul><li><strong>Nginx前端代理</strong>: 作为HTTP和HTTPS请求的入口，处理Webmail访问、API请求等HTTP流量，提供负载均衡和反向代理功能</li><li><strong>Haproxy负载均衡器</strong>: 专门为邮件服务设计的负载均衡解决方案，负责投递服务和杀毒服务的负载均衡，以及后端系统API端口的映射</li><li><strong>DA/MTA投递服务</strong>: 一体化的投递服务，同时处理MX记录的邮件接收和SMTP协议的邮件投递</li><li><strong>Antivirus杀毒服务</strong>: 实时邮件病毒检测和清理，确保系统免受恶意软件威胁</li><li><strong>网关数据库</strong>: 采用双主互备的高可用架构设计，为网关层各组件提供数据存储和同步支持</li></ul><p>前端网关层的设计充分考虑了高可用性和性能需求，通过负载均衡和集群部署，能够有效应对大规模邮件访问请求。</p><h3 id=2-后端处理层>2. 后端处理层</h3><p>后端处理层是邮件系统的核心，负责邮件的存储、管理、路由和处理。这一层承载了邮件系统的核心功能：</p><ul><li><strong>企业邮件系统核心</strong>: 包含用户管理、邮件存储、邮件路由等核心功能模块</li><li><strong>用户服务</strong>: 处理用户认证、信息查询、配置管理等服务</li><li><strong>邮件服务</strong>: 负责邮件的投递、转发、归档等核心业务逻辑</li><li><strong>本地数据库</strong>: 存储用户数据、邮件元数据等结构化信息</li><li><strong>NAS共享存储</strong>: 提供邮件附件、邮件内容的分布式存储支持</li></ul><p>后端处理层通过模块化设计，实现了功能的清晰分离和高效协作，确保了邮件处理的高性能和可靠性。</p><h3 id=3-sdn智能投递网络层>3. SDN智能投递网络层</h3><p>SDN（智能投递网络）是现代邮件系统的重要组成部分，专门用于邮件的高效投递和智能路由：</p><ul><li><strong>智能投递策略</strong>: 基于邮件目的地、时间、优先级等维度，智能选择最优投递路径</li><li><strong>海外投递通道</strong>: 专门针对海外邮件的优化投递通道，提升跨国邮件投递成功率</li><li><strong>性能监控与优化</strong>: 实时监控投递性能，动态调整投递策略，确保投递效率</li></ul><p>SDN层的引入大大提升了邮件投递的成功率和效率，特别是在处理跨区域、跨国邮件时表现尤为突出。</p><h2 id=系统架构图>系统架构图</h2><h3 id=物理架构图>物理架构图</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    Internet((互联网 Internet))
+    Internet --&gt; FW[防火墙 / 公网入口]
+    FW --&gt; GW[前端网关集群]
+    
+    subgraph 网关层 Gateway
+        GW --&gt; Nginx[Nginx 前端代理]
+        GW --&gt; Haproxy[Haproxy 负载均衡]
+        GW --&gt; DA[DA 投递服务]
+        GW --&gt; MTA[MTA 服务]
+        GW --&gt; AV[Antivirus 杀毒服务]
+        GW --&gt; GDB[(网关数据库 双主互备)]
+    end
+    
+    GW --&gt; Internal[后端内网]
+    
+    subgraph 后端层 Backend
+        Internal --&gt; CM[企业邮件系统]
+        Internal --&gt; NAS[(NAS 共享存储)]
+    end
+    
+    GW --&gt; SDN[智能投递网络]</code></pre></div></div><h3 id=服务架构图>服务架构图</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    Client[客户端] --&gt; Nginx[Nginx 前端代理]
+    Nginx --&gt; Haproxy[Haproxy 负载均衡]
+    
+    Haproxy --&gt; DA[DA 投递服务 MX/SMTP]
+    Haproxy --&gt; MTA[MTA 服务]
+    Haproxy --&gt; AV[Antivirus 杀毒服务]
+    
+    DA --&gt; GDB[(网关数据库)]
+    MTA --&gt; GDB
+    AV --&gt; GDB
+    
+    GDB &lt;--&gt; GDB2[(网关数据库 双主)]</code></pre></div></div><h3 id=逻辑架构图>逻辑架构图</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    User[用户] --&gt; Webmail[Webmail / HTTP]
+    User --&gt; SMTP_C[SMTP 客户端]
+    
+    Webmail --&gt; Nginx[Nginx 前端代理]
+    SMTP_C --&gt; DA_MTA[DA / MTA 入信网关]
+    
+    Nginx --&gt; Haproxy[Haproxy 负载均衡]
+    DA_MTA --&gt; AV[Antivirus 杀毒]
+    
+    Haproxy --&gt; Backend[后端邮件系统]
+    DA_MTA --&gt; Backend
+    
+    Backend --&gt; Mailbox[(用户邮箱)]</code></pre></div></div><h3 id=后端服务器架构图>后端服务器架构图</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    subgraph 后端服务器 Backend Server
+        CM[企业邮件系统核心]
+        US[用户服务 udsvr / udext]
+        MS[邮件服务 mssvr / mdsvr]
+        DB[(本地数据库 MySQL)]
+    end
+    
+    NAS[(NAS 共享存储)]
+    
+    CM --&gt; US
+    CM --&gt; MS
+    US --&gt; DB
+    MS --&gt; DB
+    CM --&gt;|NFS 挂载| NAS</code></pre></div></div><h2 id=发信流程详解>发信流程详解</h2><h3 id=发信总体流程>发信总体流程</h3><p>企业邮件系统的发信流程是一个复杂而精密的过程，从客户端发送到最终投递，经过了多个环节的处理和验证。整个流程可以分为客户端接入、网关处理、后端处理、路由决策和最终投递等阶段。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[客户端 Client] --&gt; B[客户端投递]
+    B --&gt; C[入信网关处理]
+    C --&gt; D[后端处理]
+    D --&gt; E{是否外域邮件?}
+    E --&gt;|是| F[出信网关]
+    F --&gt; G[投递/接收处理]
+    G --&gt; H([完成])
+    E --&gt;|否| H([完成])</code></pre></div></div><h3 id=1-客户端接入阶段>1. 客户端接入阶段</h3><p>发信流程的第一步是客户端接入。企业邮件系统支持多种客户端接入方式：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    subgraph SMTP客户端
+        A1[SMTP Client] --&gt; B1[SMTP认证 Auth]
+        B1 --&gt; C1[提交邮件到网关]
+    end
+    subgraph WEB客户端
+        A2[WEB Client] --&gt; B2[Webmail / HTTP请求]
+        B2 --&gt; C2[提交邮件到网关]
+    end
+    C1 --&gt; D[入信网关 MTA接收]
+    C2 --&gt; D</code></pre></div></div><p><strong>SMTP客户端接入</strong>:</p><ul><li>用户通过支持SMTP协议的邮件客户端（如Outlook、Thunderbird等）发送邮件</li><li>客户端首先通过SMTP协议进行用户认证</li><li>认证成功后，将邮件内容提交到入信网关</li></ul><p><strong>Web客户端接入</strong>:</p><ul><li>用户通过浏览器访问Webmail界面</li><li>通过Web界面填写邮件内容，提交HTTP请求</li><li>请求经过Web服务器处理后，转换为邮件格式提交到入信网关</li></ul><h3 id=2-入信网关处理阶段>2. 入信网关处理阶段</h3><p>入信网关是邮件系统的重要安全屏障，负责对进入系统的邮件进行基础检查和处理。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[SMTP入信请求] --&gt; B[MTA接收]
+    B --&gt; C{反垃圾检查 反垃圾引擎}
+    C --&gt;|通过| D{杀毒检查 Antivirus}
+    C --&gt;|未通过| E[拒收 / 标记垃圾邮件]
+    D --&gt;|通过| F[投递到后端队列]
+    D --&gt;|发现病毒| G[隔离 / 拒收]
+    F --&gt; H[进入后端处理流程]</code></pre></div></div><p><strong>反垃圾检查</strong>:</p><ul><li>入信网关首先对邮件进行反垃圾检查</li><li>通过多种技术手段（如黑名单、白名单、评分算法等）识别垃圾邮件</li><li>检查结果决定邮件的后续处理流程</li></ul><p><strong>杀毒检查</strong>:</p><ul><li>通过反垃圾检查的邮件进入杀毒检查环节</li><li>使用最新的病毒库进行实时病毒检测</li><li>发现病毒的邮件将被隔离或拒收，确保系统安全</li></ul><p><strong>正常邮件处理</strong>:</p><ul><li>通过所有安全检查的邮件被投递到后端处理队列</li><li>等待后端系统的进一步处理和投递</li></ul><h3 id=3-后端处理阶段>3. 后端处理阶段</h3><p>后端处理阶段是邮件发信的核心环节，涉及邮件的路由判断、投递方式选择等多个关键步骤。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[投递代理 接收邮件] --&gt; B[路由判断 Transport]
+    B --&gt; C{投递方式判断}
+    C --&gt;|本域邮件| D[存储到用户邮箱]
+    C --&gt;|外域邮件| E[转入出信网关]
+    C --&gt;|SDN策略匹配| F[SDN通道投递]
+    C --&gt;|海外转发| G[海外转发通道]
+    E --&gt; H[出信网关流程]
+    F --&gt; I[SDN Proxy投递]</code></pre></div></div><p><strong>路由判断</strong>:</p><ul><li>投递代理接收邮件后，首先进行路由判断</li><li>根据邮件的目标地址，确定投递路径和处理方式</li></ul><p><strong>投递方式选择</strong>:</p><ul><li><strong>本域邮件</strong>: 直接存储到目标用户的邮箱中</li><li><strong>外域邮件</strong>: 转移到出信网关，等待外部投递</li><li><strong>SDN策略匹配</strong>: 符合SDN投递策略的邮件通过SDN通道投递</li><li><strong>海外转发</strong>: 需要海外转发的邮件通过专门通道处理</li></ul><h3 id=4-出信网关处理阶段>4. 出信网关处理阶段</h3><p>对于外域邮件，需要经过出信网关的专门处理：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[出信队列] --&gt; B[MTA发送]
+    B --&gt; C{投递结果}
+    C --&gt;|成功| D([完成])
+    C --&gt;|失败| E{重试次数检查}
+    E --&gt;|未超限| F[延迟重新入队]
+    F --&gt; B
+    E --&gt;|已超限| G[生成退信 NDR]
+    G --&gt; H([退信完成])</code></pre></div></div><p><strong>投递执行</strong>:</p><ul><li>出信网关从队列中取出邮件，通过MTA服务进行投递</li><li>支持多种投递方式和优化策略</li></ul><p><strong>结果处理</strong>:</p><ul><li><strong>投递成功</strong>: 邮件投递完成，流程结束</li><li><strong>投递失败</strong>: 进入重试机制<ul><li><strong>重试未超限</strong>: 延迟后重新入队，再次尝试投递</li><li><strong>重试超限</strong>: 生成退信（NDR），通知发件人投递失败</li></ul></li></ul><h3 id=5-sdn智能投递>5. SDN智能投递</h3><p>SDN（智能投递网络）是现代邮件系统的重要特性，专门用于优化邮件投递效率：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[邮件进入SDN通道] --&gt; B[智能路由分析]
+    B --&gt; C[选择最优路径]
+    C --&gt; D[执行投递]
+    D --&gt; E{投递结果}
+    E --&gt;|成功| F([完成])
+    E --&gt;|失败| G[备用路径重试]
+    G --&gt; H{重试结果}
+    H --&gt;|成功| F
+    H --&gt;|失败| I[标记投递失败]</code></pre></div></div><p><strong>SDN投递特点</strong>:</p><ul><li><strong>智能路由</strong>: 根据网络状况、目标服务器状态等因素，选择最优投递路径</li><li><strong>多路径重试</strong>: 投递失败时自动切换备用路径</li><li><strong>性能优化</strong>: 专门针对跨国、跨区域邮件进行优化</li><li><strong>实时监控</strong>: 实时监控投递状态，动态调整策略</li></ul><h2 id=收信流程详解>收信流程详解</h2><p>收信流程是与发信流程相对应的另一个重要环节，负责外部邮件的接收、处理和投递到用户邮箱。整个流程需要确保邮件的安全性、完整性和及时性。</p><h3 id=收信总体流程>收信总体流程</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[外部发信方] --&gt; B[DNS MX查询]
+    B --&gt; C[MX服务器]
+    C --&gt; D[入信网关 Gateway]
+    D --&gt; E[反垃圾/杀毒检查]
+    E --&gt; F[后端处理 Backend]
+    F --&gt; G[投递到用户邮箱]
+    G --&gt; H([用户收取邮件])</code></pre></div></div><p>收信流程从外部发信方开始，经过DNS查询、MX服务器解析、入信网关处理、安全检查、后端处理，最终投递到用户邮箱，供用户收取。</p><h3 id=1-mx服务器接收阶段>1. MX服务器接收阶段</h3><p>MX服务器是邮件系统的入口，负责接收外部发信方的邮件请求。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[外域发信服务器] --&gt;|SMTP| B[DNS MX解析]
+    B --&gt; C[MX网关接收]
+    C --&gt; D[MTA入信处理]
+    D --&gt; E{反垃圾检查 反垃圾引擎}
+    E --&gt;|通过| F{杀毒检查}
+    E --&gt;|未通过| G[拒收/标记垃圾]
+    F --&gt;|通过| H[智能投递网络 Proxy转发]
+    F --&gt;|病毒| I[隔离处理]
+    H --&gt; J[后端收信服务器]
+    J --&gt; K[投递到用户邮箱]</code></pre></div></div><p><strong>DNS MX解析</strong>:</p><ul><li>外域发信服务器首先通过DNS查询目标域名的MX记录</li><li>MX记录指向企业邮件系统的邮件服务器地址</li><li>发信方根据MX记录选择合适的服务器进行邮件投递</li></ul><p><strong>MX网关接收</strong>:</p><ul><li>企业邮件系统的MX网关接收外部SMTP连接</li><li>进行基础的协议验证和安全检查</li><li>将连接转交给MTA入信服务进行处理</li></ul><h3 id=2-mta入信处理阶段>2. MTA入信处理阶段</h3><p>MTA（邮件传输代理）是邮件系统的核心组件，负责邮件的传输和处理。</p><p><strong>邮件接收与验证</strong>:</p><ul><li>MTA服务接收SMTP连接和邮件数据</li><li>验证发信方的身份和权限</li><li>检查邮件格式和完整性</li></ul><p><strong>邮件预处理</strong>:</p><ul><li>解析邮件头信息，提取关键元数据</li><li>检查邮件大小、附件等信息</li><li>为后续的安全检查做准备</li></ul><h3 id=3-安全检查阶段>3. 安全检查阶段</h3><p>安全检查是收信流程的重要环节，确保进入系统的邮件是安全、合法的。</p><p><strong>反垃圾检查</strong>:</p><ul><li>使用反垃圾引擎对邮件进行深度分析</li><li>基于多种规则和算法判断邮件是否为垃圾邮件</li><li>包括发信人信誉检查、内容分析、频率限制等</li></ul><p><strong>杀毒检查</strong>:</p><ul><li>通过杀毒软件对邮件进行病毒扫描</li><li>检查邮件内容、附件是否包含恶意代码</li><li>确保邮件系统免受病毒威胁</li></ul><p><strong>安全检查结果处理</strong>:</p><ul><li><strong>垃圾邮件</strong>: 拒收或标记为垃圾，直接丢弃</li><li><strong>病毒邮件</strong>: 隔离处理，防止扩散</li><li><strong>正常邮件</strong>: 进入后续处理流程</li></ul><h3 id=4-后端处理阶段>4. 后端处理阶段</h3><p>通过安全检查的邮件进入后端处理阶段，进行最终的路由和投递。</p><p><strong>邮件路由</strong>:</p><ul><li>根据邮件的目标地址确定投递路径</li><li>检查目标用户是否存在和有效</li><li>选择合适的投递方式和时间</li></ul><p><strong>邮件投递</strong>:</p><ul><li>将邮件存储到目标用户的邮箱中</li><li>更新邮件状态和相关元数据</li><li>通知用户有新邮件到达</li></ul><p><strong>邮件存储与备份</strong>:</p><ul><li>邮件内容存储在NAS共享存储中</li><li>定期进行数据备份，确保数据安全</li><li>支持邮件的检索和管理功能</li></ul><h3 id=5-用户收取阶段>5. 用户收取阶段</h3><p>邮件投递完成后，用户可以通过各种方式收取邮件。</p><p><strong>Webmail访问</strong>:</p><ul><li>用户通过浏览器访问Webmail界面</li><li>登录后查看收件箱中的邮件</li><li>支持邮件的阅读、回复、转发等操作</li></ul><p><strong>POP3/IMAP访问</strong>:</p><ul><li>用户通过邮件客户端（如Outlook、Foxmail等）收取邮件</li><li>支持POP3和IMAP协议</li><li>提供离线访问和同步功能</li></ul><p><strong>移动端访问</strong>:</p><ul><li>用户通过移动设备访问邮件系统</li><li>支持手机APP、网页浏览器等多种方式</li><li>提供推送通知等便捷功能</li></ul><h2 id=高可用性与性能优化>高可用性与性能优化</h2><p>企业邮件系统的高可用性和性能是系统设计的重要考虑因素，通过多种技术手段确保系统的稳定运行。</p><h3 id=高可用性设计>高可用性设计</h3><p><strong>负载均衡</strong>:</p><ul><li>使用Haproxy实现多台服务器的负载均衡</li><li>确保请求均匀分布，避免单点故障</li><li>支持多种负载均衡算法和健康检查机制</li></ul><p><strong>数据库高可用</strong>:</p><ul><li>网关数据库采用双主互备架构</li><li>数据实时同步，故障自动切换</li><li>确保数据的一致性和可用性</li></ul><p><strong>服务冗余</strong>:</p><ul><li>关键服务采用集群部署</li><li>多节点协同工作，互为备份</li><li>单点故障不影响整体服务</li></ul><h3 id=性能优化>性能优化</h3><p><strong>缓存机制</strong>:</p><ul><li>使用Redis等缓存技术缓存热点数据</li><li>减少数据库访问，提升响应速度</li><li>支持多级缓存策略</li></ul><p><strong>异步处理</strong>:</p><ul><li>邮件投递采用异步处理机制</li><li>避免同步操作造成的性能瓶颈</li><li>提高系统的并发处理能力</li></ul><p><strong>存储优化</strong>:</p><ul><li>使用NAS共享存储提供高容量存储</li><li>支持存储的横向扩展</li><li>优化文件存储结构，提升访问效率</li></ul><h2 id=安全防护体系>安全防护体系</h2><p>企业邮件系统的安全防护体系是系统的重要组成部分，通过多层防护确保邮件系统的安全。</p><h3 id=入侵防护>入侵防护</h3><p><strong>防火墙保护</strong>:</p><ul><li>在网络边界部署防火墙</li><li>限制非法访问和恶意攻击</li><li>只开放必要的端口和服务</li></ul><p><strong>网络隔离</strong>:</p><ul><li>前端网关和后端系统进行网络隔离</li><li>使用VLAN等技术实现网络分段</li><li>限制内部网络的横向移动</li></ul><h3 id=内容安全>内容安全</h3><p><strong>反垃圾邮件</strong>:</p><ul><li>多层次的反垃圾邮件检测机制</li><li>包括基于规则、评分、机器学习等多种技术</li><li>实时更新垃圾邮件特征库</li></ul><p><strong>病毒防护</strong>:</p><ul><li>实时病毒检测和清除</li><li>支持多种病毒扫描引擎</li><li>定期更新病毒库，确保防护效果</li></ul><p><strong>内容过滤</strong>:</p><ul><li>敏感内容检测和过滤</li><li>邮件内容合规性检查</li><li>防止信息泄露和违规内容传播</li></ul><h3 id=访问控制>访问控制</h3><p><strong>身份认证</strong>:</p><ul><li>多因素身份认证机制</li><li>支持SSL/TLS加密传输</li><li>防止身份盗用和未授权访问</li></ul><p><strong>权限管理</strong>:</p><ul><li>基于角色的访问控制</li><li>细粒度的权限管理</li><li>最小权限原则的实施</li></ul><h2 id=监控与运维>监控与运维</h2><p>完善的监控和运维体系是确保邮件系统稳定运行的重要保障。</p><h3 id=系统监控>系统监控</h3><p><strong>性能监控</strong>:</p><ul><li>实时监控系统性能指标</li><li>包括CPU、内存、磁盘、网络等</li><li>监控邮件处理性能和响应时间</li></ul><p><strong>业务监控</strong>:</p><ul><li>监控邮件投递成功率</li><li>监控系统可用性</li><li>监控用户访问情况</li></ul><p><strong>告警机制</strong>:</p><ul><li>基于阈值的自动告警</li><li>多种告警方式（邮件、短信、电话等）</li><li>告警级别和优先级管理</li></ul><h3 id=运维管理>运维管理</h3><p><strong>自动化运维</strong>:</p><ul><li>自动化部署和更新</li><li>自动化故障处理</li><li>自动化备份和恢复</li></ul><p><strong>配置管理</strong>:</p><ul><li>统一的配置管理平台</li><li>配置版本控制和变更管理</li><li>配置的自动化同步</li></ul><p><strong>日志管理</strong>:</p><ul><li>统一的日志收集和分析</li><li>日志的存储和检索</li><li>日志的审计和分析</li></ul><h2 id=总结>总结</h2><p>企业邮件系统作为企业信息基础设施的核心组件，其架构设计和流程优化对于确保企业通信的安全、高效和可靠具有重要意义。本文详细介绍了企业邮件系统的三层架构设计，深入解析了收信和发信的完整流程，并探讨了系统的安全性、可用性和性能优化等关键问题。</p><h3 id=技术要点总结>技术要点总结</h3><ol><li><p><strong>三层架构设计</strong>：前端网关层、后端处理层和SDN智能投递网络的有机结合，实现了邮件系统的高可用性和高性能。</p></li><li><p><strong>流程优化</strong>：通过合理的安全检查、路由选择和投递策略，确保邮件处理的效率和安全性。</p></li><li><p><strong>高可用性</strong>：通过负载均衡、数据库高可用、服务冗余等技术，确保系统的稳定运行。</p></li><li><p><strong>安全防护</strong>：多层次的安全防护体系，包括入侵防护、内容安全和访问控制，保障邮件系统的安全。</p></li><li><p><strong>运维管理</strong>：完善的监控和运维体系，确保系统的持续稳定运行。</p></li></ol><h3 id=未来发展趋势>未来发展趋势</h3><p>随着云计算、大数据、人工智能等技术的发展，企业邮件系统也在不断演进：</p><ol><li><p><strong>云化转型</strong>：越来越多的企业邮件系统向云化方向发展，提供更加灵活和可扩展的服务。</p></li><li><p><strong>智能化升级</strong>：人工智能技术在反垃圾邮件、病毒防护等方面的应用将更加广泛。</p></li><li><p><strong>移动化适配</strong>：移动办公的普及对邮件系统的移动端支持提出了更高要求。</p></li><li><p><strong>安全增强</strong>：随着网络安全威胁的增加，邮件系统的安全防护将更加严格和完善。</p></li><li><p><strong>集成化发展</strong>：邮件系统与其他企业应用的集成将更加紧密，提供更加统一的用户体验。</p></li></ol><p>企业邮件系统作为企业沟通的核心平台，其技术架构和服务质量直接影响企业的运营效率。通过持续的技术创新和优化，企业邮件系统将更好地满足企业日益增长的通信需求，为企业的发展提供有力的支撑。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/architecture/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Architecture
+</a><a class=tag-chip href=/tags/email/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Email
+</a><a class=tag-chip href=/tags/mail-system/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Mail-System</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.ad1361ea29e6d5f390afc5de93c34baa5b46fd431d66608fd0a2e16e4cb0000a.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>

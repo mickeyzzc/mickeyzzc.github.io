@@ -1,0 +1,775 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - Linux高可用与负载均衡实战——从Keepalived到性能调优</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/archives/04-keepalived-and-haproxy/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - Linux高可用与负载均衡实战——从Keepalived到性能调优"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/archives/04-keepalived-and-haproxy/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2018-06-19 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2018-06-19 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - Linux高可用与负载均衡实战——从Keepalived到性能调优"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.58e2def5baec2ea09b04bf7800a130a4cbd71c3d46ad0178ae4e74e3d3a3581c.css integrity="sha256-WOLe9brsLqCbBL94AKEwpMvXHD1GrQF4rk5049OjWBw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":false,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a aria-current=true class=ancestor href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#前言>前言</a></li><li><a href=#keepalived双机热备部署>Keepalived双机热备部署</a><ul><li><a href=#vrrp原理>VRRP原理</a></li><li><a href=#完整配置详解>完整配置详解</a><ul><li><a href=#服务器-1-配置>服务器-1 配置</a></li><li><a href=#服务器-2-配置>服务器-2 配置</a></li><li><a href=#配置要点解析>配置要点解析</a></li></ul></li></ul></li><li><a href=#haproxy内网服务负载均衡>HAProxy内网服务负载均衡</a><ul><li><a href=#tcp模式负载均衡>TCP模式负载均衡</a><ul><li><a href=#部署架构>部署架构</a></li><li><a href=#haproxy配置详解>HAProxy配置详解</a></li></ul></li><li><a href=#健康检查与统计>健康检查与统计</a><ul><li><a href=#健康检查机制>健康检查机制</a></li><li><a href=#统计功能>统计功能</a></li><li><a href=#状态监控>状态监控</a></li></ul></li></ul></li><li><a href=#网络性能调优网卡软中断优化>网络性能调优：网卡软中断优化</a><ul><li><a href=#硬中断与软中断原理>硬中断与软中断原理</a><ul><li><a href=#什么是中断>什么是中断？</a></li><li><a href=#硬中断与软中断的区别>硬中断与软中断的区别</a></li><li><a href=#中断处理流程>中断处理流程</a></li></ul></li><li><a href=#问题定位过程>问题定位过程</a><ul><li><a href=#症状识别>症状识别</a></li><li><a href=#监控工具使用>监控工具使用</a></li></ul></li><li><a href=#rpsrfs优化方案>RPS/RFS优化方案</a><ul><li><a href=#rpsreceive-packet-steering>RPS（Receive Packet Steering）</a></li><li><a href=#rfsreceive-flow-steering>RFS（Receive Flow Steering）</a></li><li><a href=#综合优化配置>综合优化配置</a></li><li><a href=#优化效果验证>优化效果验证</a></li></ul></li></ul></li><li><a href=#总结>总结</a><ul><li><a href=#1-keepalived双机热备架构>1. Keepalived双机热备架构</a></li><li><a href=#2-haproxy负载均衡实现>2. HAProxy负载均衡实现</a></li><li><a href=#3-网络性能优化实践>3. 网络性能优化实践</a></li><li><a href=#4-运维建议>4. 运维建议</a></li></ul></li></ul></nav></div></nav></div></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Linux高可用与负载均衡实战——从Keepalived到性能调优</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2018-06-19T00:00:00+00:00>June 19, 2018</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/linux/>Linux</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/linux/>Linux</a>, <a href=/tags/keepalived/>Keepalived</a>, <a href=/tags/haproxy/>Haproxy</a>, <a href=/tags/load-balancing/>Load-Balancing</a>, <a href=/tags/performance/>Performance</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>4078 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>9 分钟阅读</span></span></div></header><div class=Content><h2 id=前言>前言</h2><p>在现代企业级应用架构中，高可用性和负载均衡是确保系统稳定运行的关键技术。本文将详细介绍如何通过Keepalived实现双机热备，使用HAProxy构建内网服务负载均衡，以及解决网络性能问题中的网卡软中断优化。通过实际案例和详细配置说明，帮助读者理解这些技术的核心原理和实战应用。</p><h2 id=keepalived双机热备部署>Keepalived双机热备部署</h2><h3 id=vrrp原理>VRRP原理</h3><p>虚拟路由冗余协议（Virtual Router Redundancy Protocol, VRRP）是用于实现路由器高可用的协议。在VRRP架构中，多台路由器组成一个虚拟路由器，其中一台作为主路由器（MASTER）负责处理实际的网络流量，其他作为备份路由器（BACKUP）。当主路由器发生故障时，备份路由器会立即接管，确保网络服务的连续性。</p><p>VRRP的核心概念包括：</p><ul><li><strong>虚拟路由器ID（VRID）</strong>：标识一个虚拟路由器组</li><li><strong>虚拟IP地址</strong>：虚拟路由器对外提供的IP地址</li><li><strong>优先级</strong>：决定路由器在组中的角色，数值越高优先级越高</li><li><strong>通告间隔</strong>：路由器发送心跳消息的时间间隔</li><li><strong>认证机制</strong>：确保只有授权的路由器可以加入虚拟路由器组</li></ul><p>在我们的架构中，配置了多个VRRP实例以实现不同网络段的高可用：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[虚拟路由器组] --&gt; B[外部网络VRRP实例]
+    A --&gt; C[内部网络VRRP实例]
+    B --&gt; D[服务器-1 主]
+    B --&gt; E[服务器-2 备份]
+    C --&gt; F[服务器-1 主]
+    C --&gt; G[服务器-2 备份]
+    
+    D --&gt; H[浮动IP1: 192.168.1.66]
+    D --&gt; I[浮动IP2: 192.168.1.67]
+    E --&gt; H
+    E --&gt; I
+    F --&gt; J[浮动IP3: 192.168.2.12]
+    F --&gt; K[浮动IP4: 192.168.2.16]
+    G --&gt; J
+    G --&gt; K</code></pre></div></div><h3 id=完整配置详解>完整配置详解</h3><h4 id=服务器-1-配置>服务器-1 配置</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span><span class=lnt>93
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>! Configuration File <span class=k>for</span> keepalived
+</span></span><span class=line><span class=cl>global_defs <span class=o>{</span>
+</span></span><span class=line><span class=cl>    router_id server-1
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>static_ipaddress <span class=o>{</span>
+</span></span><span class=line><span class=cl>    192.168.1.64/23 dev br0
+</span></span><span class=line><span class=cl>    192.168.2.13 dev br1
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>static_routes <span class=o>{</span>
+</span></span><span class=line><span class=cl>    default via 192.168.1.1 dev br0
+</span></span><span class=line><span class=cl>    192.168.2.14/32 via 192.168.2.13 src 192.168.2.13
+</span></span><span class=line><span class=cl>    192.168.2.12/32 via 192.168.2.13 src 192.168.2.13
+</span></span><span class=line><span class=cl>    192.168.2.0/16 via 192.168.2.64 dev br1
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vrrp_instance EX_1 <span class=o>{</span>
+</span></span><span class=line><span class=cl>    state BACKUP 
+</span></span><span class=line><span class=cl>    interface br1 
+</span></span><span class=line><span class=cl>    mcast_src_ip 192.168.2.64 
+</span></span><span class=line><span class=cl>    virtual_router_id <span class=m>100</span> 
+</span></span><span class=line><span class=cl>    priority <span class=m>100</span> 
+</span></span><span class=line><span class=cl>    advert_int <span class=m>2</span> 
+</span></span><span class=line><span class=cl>    authentication <span class=o>{</span> 
+</span></span><span class=line><span class=cl>        auth_type PASS
+</span></span><span class=line><span class=cl>        auth_pass YOUR_PASSWORD 
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    virtual_ipaddress <span class=o>{</span> 
+</span></span><span class=line><span class=cl>        192.168.1.66 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.67 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.68 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.69 dev br0
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vrrp_instance EX_2 <span class=o>{</span>
+</span></span><span class=line><span class=cl>    state BACKUP
+</span></span><span class=line><span class=cl>    interface br1
+</span></span><span class=line><span class=cl>    mcast_src_ip 192.168.2.64
+</span></span><span class=line><span class=cl>    virtual_router_id <span class=m>101</span>
+</span></span><span class=line><span class=cl>    priority <span class=m>50</span>
+</span></span><span class=line><span class=cl>    advert_int <span class=m>2</span>
+</span></span><span class=line><span class=cl>    authentication <span class=o>{</span>
+</span></span><span class=line><span class=cl>        auth_type PASS
+</span></span><span class=line><span class=cl>        auth_pass YOUR_PASSWORD
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    virtual_ipaddress <span class=o>{</span>
+</span></span><span class=line><span class=cl>        192.168.1.76 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.77 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.78 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.79 dev br0
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vrrp_instance INT_1 <span class=o>{</span>
+</span></span><span class=line><span class=cl>    state BACKUP
+</span></span><span class=line><span class=cl>    interface br1
+</span></span><span class=line><span class=cl>    mcast_src_ip 192.168.2.64
+</span></span><span class=line><span class=cl>    virtual_router_id <span class=m>102</span>
+</span></span><span class=line><span class=cl>    priority <span class=m>100</span>
+</span></span><span class=line><span class=cl>    advert_int <span class=m>2</span>
+</span></span><span class=line><span class=cl>    authentication <span class=o>{</span>
+</span></span><span class=line><span class=cl>        auth_type PASS
+</span></span><span class=line><span class=cl>        auth_pass YOUR_PASSWORD
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    virtual_ipaddress <span class=o>{</span>
+</span></span><span class=line><span class=cl>        192.168.2.12 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.16 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.17 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.18 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.19 dev br1
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vrrp_instance INT_2 <span class=o>{</span>
+</span></span><span class=line><span class=cl>    state BACKUP
+</span></span><span class=line><span class=cl>    interface br1
+</span></span><span class=line><span class=cl>    mcast_src_ip 192.168.2.64
+</span></span><span class=line><span class=cl>    virtual_router_id <span class=m>103</span>
+</span></span><span class=line><span class=cl>    priority <span class=m>50</span>
+</span></span><span class=line><span class=cl>    advert_int <span class=m>2</span>
+</span></span><span class=line><span class=cl>    authentication <span class=o>{</span>
+</span></span><span class=line><span class=cl>        auth_type PASS
+</span></span><span class=line><span class=cl>        auth_pass YOUR_PASSWORD
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    virtual_ipaddress <span class=o>{</span>
+</span></span><span class=line><span class=cl>        192.168.2.20 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.21 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.22 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.23 dev br1
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=服务器-2-配置>服务器-2 配置</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span><span class=lnt>93
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>! Configuration File <span class=k>for</span> keepalived
+</span></span><span class=line><span class=cl>global_defs <span class=o>{</span>
+</span></span><span class=line><span class=cl>    router_id server-2
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>static_ipaddress <span class=o>{</span>
+</span></span><span class=line><span class=cl>    192.168.1.65/23 dev br0
+</span></span><span class=line><span class=cl>    192.168.2.14 dev br1
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>static_routes <span class=o>{</span>
+</span></span><span class=line><span class=cl>    default via 192.168.1.1 dev br0
+</span></span><span class=line><span class=cl>    192.168.2.13/32 via 192.168.2.14 src 192.168.2.14
+</span></span><span class=line><span class=cl>    192.168.2.12/32 via 192.168.2.14 src 192.168.2.14
+</span></span><span class=line><span class=cl>    192.168.2.0/16 via 192.168.2.65 dev br1
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vrrp_instance EX_1 <span class=o>{</span>
+</span></span><span class=line><span class=cl>    state BACKUP 
+</span></span><span class=line><span class=cl>    interface br1
+</span></span><span class=line><span class=cl>    mcast_src_ip 192.168.2.65
+</span></span><span class=line><span class=cl>    virtual_router_id <span class=m>100</span>
+</span></span><span class=line><span class=cl>    priority <span class=m>50</span>     
+</span></span><span class=line><span class=cl>    advert_int <span class=m>2</span>  
+</span></span><span class=line><span class=cl>    authentication <span class=o>{</span> 
+</span></span><span class=line><span class=cl>        auth_type PASS
+</span></span><span class=line><span class=cl>        auth_pass YOUR_PASSWORD
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    virtual_ipaddress <span class=o>{</span>  
+</span></span><span class=line><span class=cl>        192.168.1.66 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.67 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.68 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.69 dev br0
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vrrp_instance EX_2 <span class=o>{</span>
+</span></span><span class=line><span class=cl>    state BACKUP
+</span></span><span class=line><span class=cl>    interface br1
+</span></span><span class=line><span class=cl>    mcast_src_ip 192.168.2.65
+</span></span><span class=line><span class=cl>    virtual_router_id <span class=m>101</span>
+</span></span><span class=line><span class=cl>    priority <span class=m>100</span>
+</span></span><span class=line><span class=cl>    advert_int <span class=m>2</span>
+</span></span><span class=line><span class=cl>    authentication <span class=o>{</span>
+</span></span><span class=line><span class=cl>        auth_type PASS
+</span></span><span class=line><span class=cl>        auth_pass YOUR_PASSWORD
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    virtual_ipaddress <span class=o>{</span>
+</span></span><span class=line><span class=cl>        192.168.1.76 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.77 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.78 dev br0
+</span></span><span class=line><span class=cl>        192.168.1.79 dev br0
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vrrp_instance INT_1 <span class=o>{</span>
+</span></span><span class=line><span class=cl>    state BACKUP
+</span></span><span class=line><span class=cl>    interface br1
+</span></span><span class=line><span class=cl>    mcast_src_ip 192.168.2.65
+</span></span><span class=line><span class=cl>    virtual_router_id <span class=m>102</span>
+</span></span><span class=line><span class=cl>    priority <span class=m>50</span>
+</span></span><span class=line><span class=cl>    advert_int <span class=m>2</span>
+</span></span><span class=line><span class=cl>    authentication <span class=o>{</span>
+</span></span><span class=line><span class=cl>        auth_type PASS
+</span></span><span class=line><span class=cl>        auth_pass YOUR_PASSWORD
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    virtual_ipaddress <span class=o>{</span>
+</span></span><span class=line><span class=cl>        192.168.2.12 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.16 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.17 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.18 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.19 dev br1
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vrrp_instance INT_2 <span class=o>{</span>
+</span></span><span class=line><span class=cl>    state BACKUP
+</span></span><span class=line><span class=cl>    interface br1
+</span></span><span class=line><span class=cl>    mcast_src_ip 192.168.2.65
+</span></span><span class=line><span class=cl>    virtual_router_id <span class=m>103</span>
+</span></span><span class=line><span class=cl>    priority <span class=m>100</span>
+</span></span><span class=line><span class=cl>    advert_int <span class=m>2</span>
+</span></span><span class=line><span class=cl>    authentication <span class=o>{</span>
+</span></span><span class=line><span class=cl>        auth_type PASS
+</span></span><span class=line><span class=cl>        auth_pass YOUR_PASSWORD
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    virtual_ipaddress <span class=o>{</span>
+</span></span><span class=line><span class=cl>        192.168.2.20 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.21 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.22 dev br1
+</span></span><span class=line><span class=cl>        192.168.2.23 dev br1
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=配置要点解析>配置要点解析</h4><ol><li><p><strong>优先级设置</strong>：服务器-1在外部网络VRRP实例（EX_1）和内部网络VRRP实例（INT_1）中设置为100，为主节点；服务器-2在EX_2和INT_2中设置为100，为主节点。这种设计实现了负载均衡的同时确保高可用。</p></li><li><p><strong>非抢占模式</strong>：配置中的<code>#nopreempt</code>注释表明采用非抢占模式，即主节点恢复后不会立即抢占资源，避免网络震荡。</p></li><li><p><strong>双网络架构</strong>：分别处理外部网络（EX实例）和内部网络（INT实例）的流量，实现网络隔离和独立高可用。</p></li><li><p><strong>认证机制</strong>：使用简单的密码认证确保VRRP通信的安全性。</p></li></ol><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[业务系统客户端] --&gt; B[外部网络]
+    B --&gt; C[浮动IP 192.168.1.66-69]
+    C --&gt; D[Keepalived VIP]
+    
+    E[内部业务系统] --&gt; F[内部网络]
+    F --&gt; G[浮动IP 192.168.2.12-23]
+    G --&gt; H[Keepalived VIP]
+    
+    D --&gt; I[服务器-1/服务器-2]
+    H --&gt; I
+    
+    I --&gt; J[业务系统服务]</code></pre></div></div><h2 id=haproxy内网服务负载均衡>HAProxy内网服务负载均衡</h2><h3 id=tcp模式负载均衡>TCP模式负载均衡</h3><h4 id=部署架构>部署架构</h4><p>针对业务系统的两个核心服务（杀毒服务和投递服务），我们在服务器-1和服务器-2上部署了HAProxy实现负载均衡。这种架构的优势在于：</p><ol><li><strong>服务可用性</strong>：单台网关故障不会影响后端客户业务系统</li><li><strong>负载分担</strong>：多台服务器共同承担服务压力</li><li><strong>透明切换</strong>：后端配置无需感知具体的服务器变化</li></ol><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[客户端系统] --&gt; B[HAProxy负载均衡器]
+    B --&gt; C[服务器-1]
+    B --&gt; D[服务器-2]
+    B --&gt; E[服务器-3]
+    B --&gt; F[服务器-4]
+    
+    C --&gt; G[杀毒服务6600]
+    D --&gt; G
+    E --&gt; G
+    F --&gt; G
+    
+    C --&gt; H[投递服务8025]
+    D --&gt; H
+    E --&gt; H
+    F --&gt; H
+    
+    C --&gt; I[反垃圾引擎8070]
+    D --&gt; I</code></pre></div></div><h4 id=haproxy配置详解>HAProxy配置详解</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#---------------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl><span class=c1># 杀毒服务负载均衡配置</span>
+</span></span><span class=line><span class=cl><span class=c1>#---------------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>listen kill-virus-service
+</span></span><span class=line><span class=cl>    <span class=nb>bind</span> *:6600
+</span></span><span class=line><span class=cl>    mode tcp
+</span></span><span class=line><span class=cl>    balance     roundrobin
+</span></span><span class=line><span class=cl>    server  server-1-antivirus 192.168.1.64:6600 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>    server  server-2-antivirus 192.168.1.65:6600 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>    server  server-3-antivirus 192.168.1.66:6600 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>    server  server-4-antivirus 192.168.1.67:6600 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>    server  server-5-antivirus 192.168.1.69:6600 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>    server  server-6-antivirus 192.168.1.71:6600 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>    server  server-7-antivirus 192.168.1.73:6600 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#---------------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl><span class=c1># 投递服务负载均衡配置</span>
+</span></span><span class=line><span class=cl><span class=c1>#---------------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>listen delivery-service
+</span></span><span class=line><span class=cl>    <span class=nb>bind</span> *:8025
+</span></span><span class=line><span class=cl>    mode tcp
+</span></span><span class=line><span class=cl>    balance     roundrobin
+</span></span><span class=line><span class=cl>    server  server-1-smtp 192.168.1.64:8025 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>    server  server-2-smtp 192.168.1.65:8025 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>    server  server-3-smtp 192.168.1.69:8025 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>    server  server-4-smtp 192.168.1.73:8025 weight <span class=m>1</span> maxconn <span class=m>10000</span> check inter 10s  
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#---------------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl><span class=c1># 反垃圾引擎服务负载均衡配置</span>
+</span></span><span class=line><span class=cl><span class=c1>#---------------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>listen cac-service
+</span></span><span class=line><span class=cl>    <span class=nb>bind</span> *:8070
+</span></span><span class=line><span class=cl>    mode tcp
+</span></span><span class=line><span class=cl>    balance     roundrobin
+</span></span><span class=line><span class=cl>    server  server-1-cac 192.168.1.68:8070 weight <span class=m>1</span> maxconn <span class=m>20000</span> check inter 10s</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=健康检查与统计>健康检查与统计</h3><h4 id=健康检查机制>健康检查机制</h4><p>HAProxy提供了完善的健康检查机制：</p><ol><li><strong>连接检查</strong>：通过<code>check</code>参数启用</li><li><strong>检查间隔</strong>：<code>inter 10s</code>表示每10秒检查一次</li><li><strong>最大连接数</strong>：<code>maxconn</code>限制每个服务器的最大连接数</li><li><strong>权重设置</strong>：<code>weight</code>参数用于分配流量权重</li></ol><h4 id=统计功能>统计功能</h4><p>HAProxy内置Web统计界面，可以通过配置启用：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>listen stats
+</span></span><span class=line><span class=cl>    <span class=nb>bind</span> *:8404
+</span></span><span class=line><span class=cl>    mode http
+</span></span><span class=line><span class=cl>    stats <span class=nb>enable</span>
+</span></span><span class=line><span class=cl>    stats uri /stats
+</span></span><span class=line><span class=cl>    stats refresh 30s
+</span></span><span class=line><span class=cl>    stats auth admin:YOUR_PASSWORD
+</span></span><span class=line><span class=cl>    stats realm HAProxy<span class=se>\ </span>Statistics
+</span></span><span class=line><span class=cl>    stats hide-version
+</span></span><span class=line><span class=cl>    stats auth admin:admin123</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=状态监控>状态监控</h4><p>通过以下命令监控HAProxy状态：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 查看HAProxy进程状态</span>
+</span></span><span class=line><span class=cl>systemctl status haproxy
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看HAProxy统计信息</span>
+</span></span><span class=line><span class=cl>curl http://192.168.1.100:8404/stats
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看连接状态</span>
+</span></span><span class=line><span class=cl>ss -tulnp <span class=p>|</span> grep haproxy
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看日志</span>
+</span></span><span class=line><span class=cl>tail -f /var/log/haproxy.log</span></span></code></pre></td></tr></table></div></div></div></div><h2 id=网络性能调优网卡软中断优化>网络性能调优：网卡软中断优化</h2><h3 id=硬中断与软中断原理>硬中断与软中断原理</h3><h4 id=什么是中断>什么是中断？</h4><p>中断是由于接收来自外围硬件（相对于CPU和内存）的异步信号或者来自软件的同步信号，而进行的相应硬件、软件处理。发出这样的信号称为进行中断请求（interrupt request, IRQ）。</p><h4 id=硬中断与软中断的区别>硬中断与软中断的区别</h4><p><strong>硬中断</strong>：</p><ul><li>外围硬件发给CPU或内存的异步信号</li><li>需要有中断控制器参与</li><li>处理速度快，直接以硬件方式引发</li><li>可以通过设置CPU的屏蔽位进行屏蔽</li></ul><p><strong>软中断</strong>：</p><ul><li>由软件系统本身发给操作系统内核的中断信号</li><li>通常是由硬中断处理程序或进程调度程序触发</li><li>以CPU指令的形式指示CPU进行处理</li><li>不能屏蔽，属于系统调用的一部分</li></ul><h4 id=中断处理流程>中断处理流程</h4><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[硬件事件] --&gt; B[硬中断触发]
+    B --&gt; C[保存CPU上下文]
+    C --&gt; D[执行硬中断处理程序]
+    D --&gt; E[触发软中断]
+    E --&gt; F[软中断处理]
+    F --&gt; G[恢复CPU上下文]
+    G --&gt; H[返回原程序]</code></pre></div></div><h3 id=问题定位过程>问题定位过程</h3><h4 id=症状识别>症状识别</h4><p>业务网关高峰期出现网络丢包问题，CPU0软中断%sys高达90%，说明网络处理成为系统瓶颈。</p><h4 id=监控工具使用>监控工具使用</h4><p><strong>查看中断分布情况</strong>：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 查看各CPU的中断统计</span>
+</span></span><span class=line><span class=cl>cat /proc/interrupts <span class=p>|</span> head -20
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看每个CPU的中断分布</span>
+</span></span><span class=line><span class=cl>cat /proc/interrupts <span class=p>|</span> grep <span class=s2>&#34;CPU0&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 使用itop工具实时查看</span>
+</span></span><span class=line><span class=cl>itop
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看系统负载</span>
+</span></span><span class=line><span class=cl>uptime
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看网络统计</span>
+</span></span><span class=line><span class=cl>netstat -s</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>详细分析步骤</strong>：</p><ol><li><strong>确定问题CPU</strong>：通过<code>/proc/interrupts</code>查看哪个CPU处理中断最多</li><li><strong>定位中断源</strong>：分析是哪个网卡或设备产生的高中断</li><li><strong>分析网络流量</strong>：使用<code>iftop</code>、<code>nethogs</code>等工具查看流量模式</li><li><strong>检查驱动程序</strong>：确认网卡驱动版本是否支持优化</li></ol><h3 id=rpsrfs优化方案>RPS/RFS优化方案</h3><h4 id=rpsreceive-packet-steering>RPS（Receive Packet Steering）</h4><p>RPS允许将接收到的网络包分发到多个CPU核心处理，避免单个CPU过载。</p><p><strong>配置方法</strong>：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 查看当前网卡CPU亲和性</span>
+</span></span><span class=line><span class=cl>cat /proc/net/dev <span class=p>|</span> grep -E <span class=s2>&#34;eth[0-9]+&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 设置RPS，允许所有CPU处理网卡中断</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> ffffffff &gt; /sys/class/net/eth0/queues/rx-0/rps_cpus
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证配置</span>
+</span></span><span class=line><span class=cl>cat /sys/class/net/eth0/queues/rx-0/rps_cpus
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看RPS统计</span>
+</span></span><span class=line><span class=cl>cat /proc/net/softnet_stat</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=rfsreceive-flow-steering>RFS（Receive Flow Steering）</h4><p>RFS进一步优化，将属于同一个网络流的包调度到相同的CPU处理，提高缓存命中率。</p><p><strong>配置方法</strong>：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 启用RFS</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>32768</span> &gt; /sys/class/net/eth0/queues/rx-0/rps_flow_cnt
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 设置RFS过滤器</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>2</span> &gt; /proc/sys/net/core/rps_sock_flow_entries
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证RFS配置</span>
+</span></span><span class=line><span class=cl>cat /sys/class/net/eth0/queues/rx-0/rps_flow_cnt</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=综合优化配置>综合优化配置</h4><p><strong>优化脚本示例</strong>：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 获取网卡名称</span>
+</span></span><span class=line><span class=cl><span class=nv>interface</span><span class=o>=</span><span class=s2>&#34;eth0&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启用RPS</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> ffffffff &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-0/rps_cpus
+</span></span><span class=line><span class=cl><span class=nb>echo</span> ffffffff &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-1/rps_cpus
+</span></span><span class=line><span class=cl><span class=nb>echo</span> ffffffff &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-2/rps_cpus
+</span></span><span class=line><span class=cl><span class=nb>echo</span> ffffffff &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-3/rps_cpus
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启用RFS</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>32768</span> &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-0/rps_flow_cnt
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>32768</span> &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-1/rps_flow_cnt
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>32768</span> &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-2/rps_flow_cnt
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>32768</span> &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-3/rps_flow_cnt
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启用中断合并</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>1</span> &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-0/rps_flow_cnt
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>1</span> &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-1/rps_flow_cnt
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>1</span> &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-2/rps_flow_cnt
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>1</span> &gt; /sys/class/net/<span class=nv>$interface</span>/queues/rx-3/rps_flow_cnt
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 调整网卡队列长度</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>1000</span> &gt; /proc/sys/net/core/netdev_max_backlog
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 调整TCP缓冲区</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>65536</span> &gt; /proc/sys/net/core/rmem_max
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>65536</span> &gt; /proc/sys/net/core/wmem_max
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启用TCP BBR拥塞控制</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s1>&#39;tcp_bbr&#39;</span> &gt; /proc/sys/net/ipv4/tcp_congestion_control
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证配置</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;RPS配置:&#34;</span>
+</span></span><span class=line><span class=cl>cat /sys/class/net/<span class=nv>$interface</span>/queues/rx-0/rps_cpus
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;RFS配置:&#34;</span>
+</span></span><span class=line><span class=cl>cat /sys/class/net/<span class=nv>$interface</span>/queues/rx-0/rps_flow_cnt</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=优化效果验证>优化效果验证</h4><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[优化前] --&gt; B[软中断90%]
+    A --&gt; C[网络丢包]
+    A --&gt; D[单CPU过载]
+    
+    E[优化后] --&gt; F[软中断30%]
+    E --&gt; G[零丢包]
+    E --&gt; H[多CPU负载均衡]
+    
+    B --&gt; I[RPS/RFS优化]
+    C --&gt; I
+    D --&gt; I
+    
+    I --&gt; F
+    I --&gt; G
+    I --&gt; H</code></pre></div></div><p><strong>验证命令</strong>：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 监控中断使用情况</span>
+</span></span><span class=line><span class=cl>watch -n <span class=m>1</span> <span class=s2>&#34;cat /proc/interrupts | grep eth0&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 监控CPU使用情况</span>
+</span></span><span class=line><span class=cl>mpstat <span class=m>1</span> <span class=m>5</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 监控网络性能</span>
+</span></span><span class=line><span class=cl>ping -c <span class=m>100</span> 192.168.1.1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 检查丢包情况</span>
+</span></span><span class=line><span class=cl>netstat -s <span class=p>|</span> grep packet</span></span></code></pre></td></tr></table></div></div></div></div><h2 id=总结>总结</h2><p>本文详细介绍了Linux高可用与负载均衡的实战方案，主要包含以下关键点：</p><h3 id=1-keepalived双机热备架构>1. Keepalived双机热备架构</h3><p>通过VRRP协议实现了高可用的网络架构，配置要点包括：</p><ul><li>多实例设计分别处理外部和内部网络流量</li><li>优先级设置实现主备负载均衡</li><li>非抢占模式避免网络震荡</li><li>认证机制确保通信安全</li></ul><h3 id=2-haproxy负载均衡实现>2. HAProxy负载均衡实现</h3><p>为业务系统的核心服务提供了高可用负载均衡：</p><ul><li>TCP模式负载均衡确保服务可用性</li><li>健康检查机制自动剔除故障节点</li><li>统计功能便于运维监控</li><li>多服务统一管理简化配置</li></ul><h3 id=3-网络性能优化实践>3. 网络性能优化实践</h3><p>针对软中断过高问题的解决方案：</p><ul><li>RPS技术实现接收包的多CPU分发</li><li>RFS技术优化网络流处理</li><li>综合配置解决网络瓶颈</li><li>实时监控验证优化效果</li></ul><h3 id=4-运维建议>4. 运维建议</h3><ol><li><strong>定期监控</strong>：建立完善的监控体系，及时发现系统瓶颈</li><li><strong>容量规划</strong>：根据业务增长预测，提前进行扩容规划</li><li><strong>故障演练</strong>：定期进行故障切换演练，确保高可用机制有效</li><li><strong>文档维护</strong>：保持配置文档的更新，便于故障排查和团队协作</li></ol><p>通过这些技术方案的综合运用，可以构建一个稳定、高效、可扩展的Linux网络服务架构，为业务系统提供可靠的基础设施支撑。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/linux/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Linux
+</a><a class=tag-chip href=/tags/keepalived/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Keepalived
+</a><a class=tag-chip href=/tags/haproxy/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Haproxy
+</a><a class=tag-chip href=/tags/load-balancing/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Load-Balancing
+</a><a class=tag-chip href=/tags/performance/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Performance</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.ad1361ea29e6d5f390afc5de93c34baa5b46fd431d66608fd0a2e16e4cb0000a.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>
