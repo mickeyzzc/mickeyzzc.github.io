@@ -1,0 +1,1163 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/posts/telemetry/deepflow-agent-proto-dev/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/telemetry/deepflow-agent-proto-dev/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2023-11-25 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2023-11-25 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.58e2def5baec2ea09b04bf7800a130a4cbd71c3d46ad0178ae4e74e3d3a3581c.css integrity="sha256-WOLe9brsLqCbBL94AKEwpMvXHD1GrQF4rk5049OjWBw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":false,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#概述>概述：</a></li><li><a href=#如何分析一个协议mongodb>如何分析一个协议(MongoDB)</a><ul><li><a href=#协议文档的分析思路>协议文档的分析思路</a></li><li><a href=#mongodb协议操作码说明表>MongoDB协议操作码说明表</a></li><li><a href=#对最常见的操作码op_msg分析>对最常见的操作码<code>OP_MSG</code>分析</a></li></ul></li><li><a href=#在deepflow-agent扩展一个协议解析采集>在<code>DeepFlow Agent</code>扩展一个协议解析采集</a><ul><li><a href=#deepflow-agent的开发文档概要><code>DeepFlow Agent</code>的开发文档概要</a></li><li><a href=#代码指引>代码指引</a><ul><li><a href=#定义一个协议并用一个常量标识>定义一个协议，并用一个常量标识。</a></li><li><a href=#为新协议准备解析逻辑>为新协议准备解析逻辑</a></li></ul></li></ul></li><li><a href=#利用wasm插件扩展deepflow的协议采集>利用<code>Wasm</code>插件扩展<code>DeepFlow</code>的协议采集</a><ul><li><a href=#kafka协议分析><code>Kafka</code>协议分析</a><ul><li><a href=#kafka的header和data概览><code>Kafka</code>的<code>Header</code>和<code>Data</code>概览</a></li><li><a href=#kafka的fetch-api>Kafka的Fetch API</a></li><li><a href=#kafka的produce-api>Kafka的Produce API</a></li></ul></li><li><a href=#kafka协议deepflow-agent原生解码>Kafka协议DeepFlow Agent原生解码</a></li><li><a href=#deepflow-agent的-wasm-插件><code>DeepFlow Agent</code>的 <code>Wasm</code> 插件</a><ul><li><a href=#wasm-go-sdk-的框架>Wasm Go SDK 的框架</a></li><li><a href=#插件代码指引>插件代码指引</a></li><li><a href=#加载插件和效果展示>加载插件和效果展示</a></li></ul></li></ul></li><li><a href=#结语>结语</a><ul><li><a href=#原生rust扩展>原生Rust扩展</a></li><li><a href=#wasm插件扩展>Wasm插件扩展</a></li></ul></li><li><a href=#附录>附录</a></li></ul></nav></div></nav></div></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>eBPF系列之：DeepFlow 扩展协议解析实践（MongoDB协议与Kafka协议）</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2023-11-25T00:00:00+00:00>November 25, 2023</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/ebpf/>EBPF</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/tcp/>Tcp</a>, <a href=/tags/deepflow/>DeepFlow</a>, <a href=/tags/ebpf/>EBPF</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>8131 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>17 分钟阅读</span></span></div></header><div class=Content><ul><li><a href=#%E6%A6%82%E8%BF%B0>概述：</a></li><li><a href=#%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90%E4%B8%80%E4%B8%AA%E5%8D%8F%E8%AE%AEmongodb>如何分析一个协议(MongoDB)</a><ul><li><a href=#%E5%8D%8F%E8%AE%AE%E6%96%87%E6%A1%A3%E7%9A%84%E5%88%86%E6%9E%90%E6%80%9D%E8%B7%AF>协议文档的分析思路</a></li><li><a href=#mongodb%E5%8D%8F%E8%AE%AE%E6%93%8D%E4%BD%9C%E7%A0%81%E8%AF%B4%E6%98%8E%E8%A1%A8>MongoDB协议操作码说明表</a></li><li><a href=#%E5%AF%B9%E6%9C%80%E5%B8%B8%E8%A7%81%E7%9A%84%E6%93%8D%E4%BD%9C%E7%A0%81op_msg%E5%88%86%E6%9E%90>对最常见的操作码<code>OP_MSG</code>分析</a></li></ul></li><li><a href=#%E5%9C%A8deepflow-agent%E6%89%A9%E5%B1%95%E4%B8%80%E4%B8%AA%E5%8D%8F%E8%AE%AE%E8%A7%A3%E6%9E%90%E9%87%87%E9%9B%86>在<code>DeepFlow Agent</code>扩展一个协议解析采集</a><ul><li><a href=#deepflow-agent%E7%9A%84%E5%BC%80%E5%8F%91%E6%96%87%E6%A1%A3%E6%A6%82%E8%A6%81><code>DeepFlow Agent</code>的开发文档概要</a></li><li><a href=#%E4%BB%A3%E7%A0%81%E6%8C%87%E5%BC%95>代码指引</a><ul><li><a href=#%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E5%8D%8F%E8%AE%AE%E5%B9%B6%E7%94%A8%E4%B8%80%E4%B8%AA%E5%B8%B8%E9%87%8F%E6%A0%87%E8%AF%86>定义一个协议，并用一个常量标识。</a></li><li><a href=#%E4%B8%BA%E6%96%B0%E5%8D%8F%E8%AE%AE%E5%87%86%E5%A4%87%E8%A7%A3%E6%9E%90%E9%80%BB%E8%BE%91>为新协议准备解析逻辑</a><ul><li><a href=#%E5%AE%9A%E4%B9%89%E7%BB%93%E6%9E%84%E4%BD%93>定义结构体</a></li><li><a href=#%E5%AE%9E%E7%8E%B0l7protocolparserinterface>实现 <code>L7ProtocolParserInterface</code></a></li></ul></li></ul></li></ul></li><li><a href=#%E5%88%A9%E7%94%A8wasm%E6%8F%92%E4%BB%B6%E6%89%A9%E5%B1%95deepflow%E7%9A%84%E5%8D%8F%E8%AE%AE%E9%87%87%E9%9B%86>利用<code>Wasm</code>插件扩展<code>DeepFlow</code>的协议采集</a><ul><li><a href=#kafka%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90><code>Kafka</code>协议分析</a><ul><li><a href=#kafka%E7%9A%84header%E5%92%8Cdata%E6%A6%82%E8%A7%88><code>Kafka</code>的<code>Header</code>和<code>Data</code>概览</a></li><li><a href=#kafka%E7%9A%84fetch-api>Kafka的Fetch API</a></li><li><a href=#kafka%E7%9A%84produce-api>Kafka的Produce API</a></li></ul></li><li><a href=#kafka%E5%8D%8F%E8%AE%AEdeepflow-agent%E5%8E%9F%E7%94%9F%E8%A7%A3%E7%A0%81>Kafka协议DeepFlow Agent原生解码</a></li><li><a href=#deepflow-agent%E7%9A%84-wasm-%E6%8F%92%E4%BB%B6><code>DeepFlow Agent</code>的 <code>Wasm</code> 插件</a><ul><li><a href=#wasm-go-sdk-%E7%9A%84%E6%A1%86%E6%9E%B6>Wasm Go SDK 的框架</a></li><li><a href=#%E6%8F%92%E4%BB%B6%E4%BB%A3%E7%A0%81%E6%8C%87%E5%BC%95>插件代码指引</a></li></ul></li></ul></li><li><a href=#%E7%BB%93%E8%AF%AD>结语</a><ul><li><a href=#%E5%8E%9F%E7%94%9Frust%E6%89%A9%E5%B1%95>原生Rust扩展</a></li><li><a href=#wasm%E6%8F%92%E4%BB%B6%E6%89%A9%E5%B1%95>Wasm插件扩展</a></li></ul></li><li><a href=#%E9%99%84%E5%BD%95>附录</a></li></ul><div style=position:relative;padding-bottom:75%;width:100%;height:0><iframe src="//player.bilibili.com/player.html?isOutside=true&aid=921401645&bvid=BV1Nu4y1A7ZC&cid=1345829549&p=1&autoplay=false" scrolling=no border=0 frameborder=no framespacing=0 allowfullscreen style=position:absolute;height:100%;width:100%></iframe></div><h2 id=概述>概述：</h2><p><code>MongoDB</code> 目前使用广泛，但是缺乏有效的可观测能力。
+<code>DeepFlow</code> 在可观测能力上是很优秀的解决方案，但是却缺少了对 <code>MongoDB</code> 协议的支持。
+该文是为 <code>DeepFlow</code> 扩展了 <code>MongoDB</code> 协议解析，增强 <code>MongoDB</code> 生态的可观测能力，简要描述了从协议文档分析到在 <code>DeepFlow</code> 内实现代码解析的过程拆解。</p><h2 id=如何分析一个协议mongodb>如何分析一个协议(MongoDB)</h2><h3 id=协议文档的分析思路>协议文档的分析思路</h3><p>首先要从官方网站找到协议解析的文档，在协议文档<a href=https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/#standard-message-header title=https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/#standard-message-header>《mongodb-wire-protocol#standard-message-header》</a>中，可以看到<code>MongoDB</code>的协议头结构体描述如下：</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>struct</span> <span class=n>MsgHeader</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>int32</span>   <span class=n>messageLength</span><span class=p>;</span>     <span class=c1>// total message size, including this
+</span></span></span><span class=line><span class=cl>    <span class=n>int32</span>   <span class=n>requestID</span><span class=p>;</span>         <span class=c1>// identifier for this message
+</span></span></span><span class=line><span class=cl>    <span class=n>int32</span>   <span class=n>responseTo</span><span class=p>;</span>        <span class=c1>// requestID from the original request
+</span></span></span><span class=line><span class=cl>                               <span class=c1>//   (used in responses from the database)
+</span></span></span><span class=line><span class=cl>    <span class=n>int32</span>   <span class=n>opCode</span><span class=p>;</span>            <span class=c1>// message type
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>上述结构代码理解为下图所示：</p><p><img src=/posts/ebpf/images/MongoDB-Msg-Header.svg alt></p><blockquote><p>注意，在协议文档<a href=https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/ title=https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/>《mongodb-wire-protocol》</a>有一段说明，MongoDB协议是用了字节小端顺序。</p><blockquote><p><strong>Byte Ordering</strong><br>All integers in the MongoDB wire protocol use <strong>little-endian byte order: that is, least-significant</strong></p></blockquote></blockquote><p>接下来从实际的抓包看一下实际的数据是长什么样子的。
+<img src=/posts/ebpf/images/mongo-pcap.png alt></p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>0000   a3 00 00 00 0a 50 88 48 23 00 00 00 dd 07 00 00
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>0010   00 00 00 00 00 8e 00 00 00 01 6f 6b 00 00 00 00
+</span></span><span class=line><span class=cl>0020   00 00 00 f0 3f 11 6f 70 65 72 61 74 69 6f 6e 54
+</span></span><span class=line><span class=cl>0030   69 6d 65 00 01 00 00 00 bc 1d c3 64 03 24 63 6c
+</span></span><span class=line><span class=cl>0040   75 73 74 65 72 54 69 6d 65 00 58 00 00 00 11 63
+</span></span><span class=line><span class=cl>0050   6c 75 73 74 65 72 54 69 6d 65 00 01 00 00 00 bc
+</span></span><span class=line><span class=cl>0060   1d c3 64 03 73 69 67 6e 61 74 75 72 65 00 33 00
+</span></span><span class=line><span class=cl>0070   00 00 05 68 61 73 68 00 14 00 00 00 00 29 12 d4
+</span></span><span class=line><span class=cl>0080   7f 78 52 55 42 04 29 2f b7 36 85 39 c1 47 66 05
+</span></span><span class=line><span class=cl>0090   de 12 6b 65 79 49 64 00 01 00 00 00 8c d2 e4 63
+</span></span><span class=line><span class=cl>00a0   00 00 00</span></span></code></pre></td></tr></table></div></div></div></div><blockquote><p>上述的抓包数据简单拆解到如下信息：</p><ul><li>字段<code>messageLength</code>为<code>a3 00 00 00</code> ：即 消息长度为 <code>a3</code></li><li>字段<code>requestID</code>为<code>0a 50 88 48</code>：即 请求ID为<code>4888500a</code></li><li>字段<code>responseTo</code>为<code>23 00 00 00</code>：即 对ID为<code>23</code>的响应</li><li>字段<code>opCode</code>为<code>dd 07 00 00</code>：即 命令号为 <code>7dd</code>，十进制是<code>2013</code>，对应协议文档中的<code>OP_MSG</code>指令。</li></ul></blockquote><h3 id=mongodb协议操作码说明表>MongoDB协议操作码说明表</h3><table><thead><tr><th>操作码名称</th><th>操作码</th><th>操作码说明</th><th>额外说明</th></tr></thead><tbody><tr><td>OP_COMPRESSED</td><td>2012</td><td>使用压缩</td><td></td></tr><tr><td>OP_MSG</td><td>2013</td><td>Send a message using the standard format. Used for both client requests and database replies.</td><td></td></tr><tr><td>OP_REPLY</td><td>1</td><td>通过responseTo指定响应客户端请求。</td><td>Deprecated in MongoDB 5.0. Removed in MongoDB 5.1.</td></tr><tr><td>OP_UPDATE</td><td>2001</td><td>更新文档</td><td>Deprecated in MongoDB 5.0. Removed in MongoDB 5.1.</td></tr><tr><td>OP_INSERT</td><td>2002</td><td>插入文档</td><td>Deprecated in MongoDB 5.0. Removed in MongoDB 5.1.</td></tr><tr><td>RESERVED</td><td>2003</td><td>略</td><td></td></tr><tr><td>OP_QUERY</td><td>2004</td><td>查询文档</td><td>Deprecated in MongoDB 5.0. Removed in MongoDB 5.1.</td></tr><tr><td>OP_GET_MORE</td><td>2005</td><td>略</td><td>Deprecated in MongoDB 5.0. Removed in MongoDB 5.1.</td></tr><tr><td>OP_DELETE</td><td>2006</td><td>删除文档</td><td>Deprecated in MongoDB 5.0. Removed in MongoDB 5.1.</td></tr><tr><td>OP_KILL_CURSORS</td><td>2007</td><td>略</td><td>Deprecated in MongoDB 5.0. Removed in MongoDB 5.1.</td></tr></tbody></table><h3 id=对最常见的操作码op_msg分析>对最常见的操作码<code>OP_MSG</code>分析</h3><p>从协议文档 <a href=https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/#op_msg>《mongodb-wire-protocol#op_msg》</a> 查看<code>OP_MSG</code>的结构体</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=n>OP_MSG</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>MsgHeader</span> <span class=n>header</span><span class=p>;</span>              <span class=c1>// standard message header
+</span></span></span><span class=line><span class=cl>    <span class=n>uint32</span> <span class=n>flagBits</span><span class=p>;</span>               <span class=c1>// message flags
+</span></span></span><span class=line><span class=cl>    <span class=n>Sections</span><span class=p>[]</span> <span class=n>sections</span><span class=p>;</span>           <span class=c1>// data sections
+</span></span></span><span class=line><span class=cl>    <span class=n>optional</span><span class=o>&lt;</span><span class=n>uint32</span><span class=o>&gt;</span> <span class=n>checksum</span><span class=p>;</span>     <span class=c1>// optional CRC-32C checksum
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><blockquote><p><code>OP_MSG</code>需要关注的解码内容在<code>Sections</code>，只需要判断<code>kind</code>为<code>0</code>和<code>1</code>的情况，其中：</p><ul><li>0：后面直接用<code>BSON</code>解码；</li><li>1：先偏移<code>int32</code>和<code>c_string</code>占用的<code>byte</code>后，用<code>BSON</code>解码后面的内容</li></ul></blockquote><p><img src=/posts/ebpf/images/MongoDB-OPMSG.svg alt></p><p>从实际抓包看一下原始数据。如下所示，MongoDB协议的操作码<code>OP_MSG</code>内容从第十六（从0开始数，后续文档统一按此规律）字节开始。
+<img src=/posts/ebpf/images/mongo-op-msg-pcap.png alt></p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>0000   a3 00 00 00 0a 50 88 48 23 00 00 00 dd 07 00 00
+</span></span><span class=line><span class=cl>0010   00 00 00 00 
+</span></span><span class=line><span class=cl>                   00 
+</span></span><span class=line><span class=cl>                      8e 00 00 00 01 6f 6b 00 00 00 00
+</span></span><span class=line><span class=cl>0020   00 00 00 f0 3f 11 6f 70 65 72 61 74 69 6f 6e 54
+</span></span><span class=line><span class=cl>0030   69 6d 65 00 01 00 00 00 bc 1d c3 64 03 24 63 6c
+</span></span><span class=line><span class=cl>0040   75 73 74 65 72 54 69 6d 65 00 58 00 00 00 11 63
+</span></span><span class=line><span class=cl>0050   6c 75 73 74 65 72 54 69 6d 65 00 01 00 00 00 bc
+</span></span><span class=line><span class=cl>0060   1d c3 64 03 73 69 67 6e 61 74 75 72 65 00 33 00
+</span></span><span class=line><span class=cl>0070   00 00 05 68 61 73 68 00 14 00 00 00 00 29 12 d4
+</span></span><span class=line><span class=cl>0080   7f 78 52 55 42 04 29 2f b7 36 85 39 c1 47 66 05
+</span></span><span class=line><span class=cl>0090   de 12 6b 65 79 49 64 00 01 00 00 00 8c d2 e4 63
+</span></span><span class=line><span class=cl>00a0   00 00 00</span></span></code></pre></td></tr></table></div></div></div></div><blockquote><p>不需要关心字段<code>flagBits</code>，偏移4个字节后从第四个字节判断字段<code>kind</code>类型。由此判断后面为<code>BSON</code>结构数据。</p></blockquote><p>到这里我们已经基本了解到<code>MongoDB</code>协议的数据结构和解码思路了，接下来我们开始在<code>DeepFlow Agent</code>中尝试实现解码观察。</p><h2 id=在deepflow-agent扩展一个协议解析采集>在<code>DeepFlow Agent</code>扩展一个协议解析采集</h2><h3 id=deepflow-agent的开发文档概要><code>DeepFlow Agent</code>的开发文档概要</h3><blockquote><p>前提，<code>DeepFlow Agent</code>的原生开发需要掌握<code>Rust</code>语言的基础开发能力。
+接下来先参考官方文档<a href=https://github.com/deepflowio/deepflow/blob/main/docs/HOW_TO_SUPPORT_YOUR_PROTOCOL_CN.MD title=https://github.com/deepflowio/deepflow/blob/main/docs/HOW_TO_SUPPORT_YOUR_PROTOCOL_CN.MD>《HOW_TO_SUPPORT_YOUR_PROTOCOL_CN》</a>了解几个关键信息</p></blockquote><ul><li><p><code>L7Protocol</code> 用于标识协议常量
+源码位置：<code>deepflow/agent/crates/public/src/l7_protocol.rs</code></p></li><li><p><code>L7ProtocolParser</code> 主要用于协议判断和解析出 <code>L7ProtocolInfo</code>(七层协议的基础结构信息)
+源码位置：<code>deepflow/agent/src/common/l7_protocol_log.rs</code></p></li><li><p><code>L7ProtocolInfo</code> 由 <code>L7ProtocolParser</code> 解析出来，并且用于后续会话聚合
+源码位置：<code>deepflow/agent/src/common/l7_protocol_info.rs</code></p></li><li><p><code>L7ProtocolInfoInterface</code> 七层协议结构<code>L7ProtocolInfo</code> 都需要实现这个接口来处理特征逻辑
+源码位置：<code>deepflow/agent/src/common/l7_protocol_info.rs</code></p></li><li><p><code>L7ProtocolSendLog</code> 统一发送到 <code>deepflow-server</code> 的结构
+源码位置：<code>deepflow/agent/src/flow_generator/protocol_logs/pb_adapter.rs</code></p></li></ul><blockquote><p>在 <code>deepflow-agent</code> 中开发的大致步骤：</p><ul><li>在 <code>“deepflow/agent/crates/public/src/l7_protocol.rs”</code> 添加对应协议名称和协议号。</li><li><code>L7ProtocolParser::parse_payload()</code> 需要返回 <code>L7ProtocolInfo</code>，所以需要先定义一个结构，实现 <code>L7ProtocolInfoInterface</code> 接口并且添加到  <code>L7ProtocolInfo</code> 这个枚举。</li><li>实现 <code>L7ProtocolParserInterface</code> 接口，并添加到<code>“deepflow/agent/src/common/l7_protocol_log.rs”</code>中的 <code>impl_protocol_parser! </code>宏。</li><li>在 <code>deepflow-server</code> 中只需增加一个常量用于搜索提示即可。</li></ul></blockquote><h3 id=代码指引>代码指引</h3><h4 id=定义一个协议并用一个常量标识>定义一个协议，并用一个常量标识。</h4><blockquote><p>源码位置：<code>deepflow/agent/crates/public/src/l7_protocol.rs</code>，<code>Agent</code> 通过遍历所有支持协议判断一个流的应用层协议。
+这里说明一下，由于业界的通用应用协议没有一个约束字段来定义应用协议类型，所以在大量网络包是通过遍历已知协议解码逻辑来判断应用层协议的。</p></blockquote><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>enum</span> <span class=nc>L7Protocol</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[num_enum(default)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Unknown</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Other</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>1</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// HTTP
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Http1</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>20</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Http2</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>21</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Http1TLS</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>22</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Http2TLS</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>23</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// RPC
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Dubbo</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>40</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Grpc</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>41</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>SofaRPC</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>43</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>FastCGI</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>44</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// SQL
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>MySQL</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>60</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>PostgreSQL</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>61</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// NoSQL
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Redis</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>80</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>   </span><span class=n>MongoDB</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>81</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// MQ
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Kafka</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>100</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=no>MQTT</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>101</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// INFRA
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=no>DNS</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>120</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Custom</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>127</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Max</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>255</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=nb>From</span><span class=o>&lt;</span><span class=nb>String</span><span class=o>&gt;</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>L7Protocol</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>from</span><span class=p>(</span><span class=n>l7_protocol_str</span>: <span class=nb>String</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>Self</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>l7_protocol_str</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>l7_protocol_str</span><span class=p>.</span><span class=n>to_lowercase</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>match</span><span class=w> </span><span class=n>l7_protocol_str</span><span class=p>.</span><span class=n>as_str</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;http&#34;</span><span class=w> </span><span class=o>|</span><span class=w> </span><span class=s>&#34;https&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>Http1</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;dubbo&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>Dubbo</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;grpc&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>Grpc</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;fastcgi&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>FastCGI</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;custom&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>Custom</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;sofarpc&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>SofaRPC</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;mysql&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>MySQL</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>           </span><span class=s>&#34;mongodb&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>MongoDB</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;postgresql&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>PostgreSQL</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;redis&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>Redis</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;kafka&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>Kafka</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;mqtt&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=no>MQTT</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;dns&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=no>DNS</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>_</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=bp>Self</span>::<span class=n>Unknown</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=为新协议准备解析逻辑>为新协议准备解析逻辑</h4><h5 id=定义结构体>定义结构体</h5><p>在<code>“deepflow/agent/src/flow_generator/protocol_logs/”</code>该路径下找一个目录建立相关的协议解析逻辑代码文件，该案例的代码文件放在上述目录下的<code>“sql/mongo.rs”</code>。</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>struct</span> <span class=nc>MongoDBInfo</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>msg_type</span>: <span class=nc>LogMessageType</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(rename = </span><span class=s>&#34;req_len&#34;</span><span class=cp>)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>req_len</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(rename = </span><span class=s>&#34;resp_len&#34;</span><span class=cp>)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>resp_len</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//// 参考“deepflow/agent/src/flow_generator/protocol_logs/pb_adapter.rs” 
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//   准备要处理的结构体。
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//   其中“request_id”、“response_id”、“op_code”和“op_code_name”是
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//   从mongodb header解析出来的关键信息。
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(rename = </span><span class=s>&#34;request_id&#34;</span><span class=cp>)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>request_id</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(rename = </span><span class=s>&#34;response_id&#34;</span><span class=cp>)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>response_id</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(rename = </span><span class=s>&#34;op_code&#34;</span><span class=cp>)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>op_code</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(skip)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>op_code_name</span>: <span class=nb>String</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//// “request”、“response”和“response_code”是
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//   从mongodb协议主体内容解析出来的所需信息。
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(rename = </span><span class=s>&#34;request_resource&#34;</span><span class=cp>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>request</span>: <span class=nb>String</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(skip)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>response</span>: <span class=nb>String</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(rename = </span><span class=s>&#34;response_code&#34;</span><span class=cp>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>response_code</span>: <span class=kt>i32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>////
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(rename = </span><span class=s>&#34;response_status&#34;</span><span class=cp>)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>status</span>: <span class=nc>L7ResponseStatus</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h5 id=实现l7protocolparserinterface>实现 <code>L7ProtocolParserInterface</code></h5><ul><li>先看源码结构逻辑（以下只显示需处理函数，不需处理的保留默认逻辑即可）</li></ul><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=cp>#[enum_dispatch]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>trait</span><span class=w> </span><span class=n>L7ProtocolParserInterface</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>check_payload</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>payload</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>],</span><span class=w> </span><span class=n>param</span>: <span class=kp>&amp;</span><span class=nc>ParseParam</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>bool</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 协议解析
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>parse_payload</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>payload</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>],</span><span class=w> </span><span class=n>param</span>: <span class=kp>&amp;</span><span class=nc>ParseParam</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=n>L7ParseResult</span><span class=o>&gt;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 返回协议号和协议名称，由于的bitmap使用u128，所以协议号不能超过128.
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 其中 crates/public/src/l7_protocol.rs 里面的 pub const L7_PROTOCOL_xxx 是已实现的协议号.
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ===========================================================================================
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// return protocol number and protocol string. because of bitmap use u128, so the max protocol number can not exceed 128
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// crates/public/src/l7_protocol.rs, pub const L7_PROTOCOL_xxx is the implemented protocol.
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>protocol</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>L7Protocol</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// l4是tcp时是否解析，用于快速过滤协议
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ==============================
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// whether l4 is parsed when tcp, use for quickly protocol filter
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>parsable_on_tcp</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>bool</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// l4是udp是是否解析，用于快速过滤协议
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ==============================
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// whether l4 is parsed when udp, use for quickly protocol filter
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>parsable_on_udp</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>bool</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// return perf data
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>perf_stats</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Option</span><span class=o>&lt;</span><span class=n>L7PerfStats</span><span class=o>&gt;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li><p>解码协议的第一步是如何识别协议，代码中需处理 <code>L7ProtocolParserInterface::check_payload()</code>逻辑</p><ul><li>定义<code>MongoDB</code>协议头并解码</li></ul><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=c1>// 定义MongoDB协议头结构体，并对必要信息字段一一解码
+</span></span></span><span class=line><span class=cl><span class=cp>#[derive(Clone, Debug, Default, Serialize)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>struct</span> <span class=nc>MongoDBHeader</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>length</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>request_id</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>response_to</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>op_code</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>op_code_name</span>: <span class=nb>String</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=n>MongoDBHeader</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>decode</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>payload</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>])</span><span class=w> </span>-&gt; <span class=kt>isize</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=c1>// 对payload前16位以MongoDBHeader结构解码，判断是否符合MongoDB的协议
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>is_request</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>bool</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=c1>// 解码op_code判断是否request
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>get_op_str</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kp>&amp;</span><span class=nb>&#39;static</span> <span class=kt>str</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=c1>// 解码op_code出对应文本描述
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>在<code>L7ProtocolParserInterface::check_payload()</code>调用<code>MongoDB</code>协议头解码逻辑
+在此过程，把<code>protocol(&amp;self)</code>和<code>parsable_on_udp(&amp;self)</code>也一并处理。</li></ul><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=n>L7ProtocolParserInterface</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>MongoDBLog</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>check_payload</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>payload</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>],</span><span class=w> </span><span class=n>param</span>: <span class=kp>&amp;</span><span class=nc>ParseParam</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>bool</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>header</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>MongoDBHeader</span>::<span class=n>default</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>header</span><span class=p>.</span><span class=n>decode</span><span class=p>(</span><span class=n>payload</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=n>header</span><span class=p>.</span><span class=n>is_request</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>protocol</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>L7Protocol</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>L7Protocol</span>::<span class=n>MongoDB</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// udp协议的跳过解码
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>parsable_on_udp</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>bool</span> <span class=p>{</span><span class=kc>false</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>第一步的效果展示
+到这一步的解码将会得到如下展示效果，接下来还需要对具体的协议操作码做进一步解码。
+<img src=/posts/ebpf/images/grafana-deepflow-mongo-01.png alt></li></ul></li><li><p>解码协议的第二步是对关键指令定义结构体和解码接口逻辑实现，对应处理是<code>L7ProtocolParserInterface::parse_payload()</code>代码实现，这里以<code>OP_MSG</code>为例</p><ul><li>定义<code>OP_MSG</code>操作码的结构体并解码</li></ul><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=cp>#[derive(Clone, Debug, Default, Serialize)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>struct</span> <span class=nc>MongoOpMsg</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>flag</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>sections</span>: <span class=nc>Sections</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>checksum</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=kt>u32</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=n>MongoOpMsg</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>decode</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>payload</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>])</span><span class=w> </span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=kt>bool</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=c1>// 略过偏移逻辑
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>_</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>sections</span><span class=p>.</span><span class=n>decode</span><span class=p>(</span><span class=o>&amp;</span><span class=n>payload</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=bp>self</span><span class=p>.</span><span class=n>sections</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>sections</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nb>Ok</span><span class=p>(</span><span class=kc>true</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>对<code>OP_MSG</code>操作码中业务需要关注的字段<code>Sections</code>做进一步解码</li></ul><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=cp>#[derive(Clone, Debug, Default, Serialize)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>struct</span> <span class=nc>Sections</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>kind</span>: <span class=kt>u8</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>kind_name</span>: <span class=nb>String</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// kind: 0 mean doc
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>doc</span>: <span class=nc>Document</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// kind: 1 mean body
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>size</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=kt>i32</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>c_string</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=nb>String</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=n>Sections</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>decode</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>payload</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>])</span><span class=w> </span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=kt>bool</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>match</span><span class=w> </span><span class=bp>self</span><span class=p>.</span><span class=n>kind</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=mi>0</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=c1>// Body}
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=mi>1</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=c1>// Doc}
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=mi>2</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=c1>// Internal}
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>_</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=c1>// Unknown}
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nb>Ok</span><span class=p>(</span><span class=kc>true</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>处理 <code>L7ProtocolParserInterface::parse_payload</code>，返回 <code>L7ProtocolInfo</code></li></ul><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=cp>#[derive(Clone, Debug, Default, Serialize)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>struct</span> <span class=nc>MongoDBLog</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>info</span>: <span class=nc>MongoDBInfo</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[serde(skip)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>perf_stats</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=n>L7PerfStats</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=n>L7ProtocolParserInterface</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>MongoDBLog</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>parse_payload</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>payload</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>],</span><span class=w> </span><span class=n>param</span>: <span class=kp>&amp;</span><span class=nc>ParseParam</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=n>L7ParseResult</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>info</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>MongoDBInfo</span>::<span class=n>default</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=bp>self</span><span class=p>.</span><span class=n>parse</span><span class=p>(</span><span class=n>payload</span><span class=p>,</span><span class=w> </span><span class=n>param</span><span class=p>.</span><span class=n>l4_protocol</span><span class=p>,</span><span class=w> </span><span class=n>param</span><span class=p>.</span><span class=n>direction</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>info</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>  </span><span class=c1>// 解码得到L7ProtocolInfo
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=n>MongoDBLog</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>parse</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=n>payload</span>:<span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>],</span><span class=n>proto</span>:<span class=nc>IpProtocol</span><span class=p>,</span><span class=n>dir</span>:<span class=nc>PacketDirection</span><span class=p>,</span><span class=n>info</span>:<span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>MongoDBInfo</span><span class=p>,)</span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=kt>bool</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=c1>// 解码指令获取请求和响应等信息}
+</span></span></span><span class=line><span class=cl><span class=w>	    </span><span class=c1>// command decode
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>match</span><span class=w> </span><span class=n>info</span><span class=p>.</span><span class=n>op_code</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=no>_OP_MSG</span><span class=w> </span><span class=k>if</span><span class=w> </span><span class=n>payload</span><span class=p>.</span><span class=n>len</span><span class=p>()</span><span class=w> </span><span class=o>&gt;</span><span class=w> </span><span class=no>_MSG_DOC_SECTION_OFFSET</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=c1>// OP_MSG
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>msg_body</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>MongoOpMsg</span>::<span class=n>default</span><span class=p>();</span><span class=w>	
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=c1>// TODO: Message Flags
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=n>msg_body</span><span class=p>.</span><span class=n>decode</span><span class=p>(</span><span class=o>&amp;</span><span class=n>payload</span><span class=p>[</span><span class=no>_MSG_DOC_SECTION_OFFSET</span><span class=o>..</span><span class=p>])</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>为<code>MongoDBInfo</code>实现<code>L7ProtocolInfoInterface</code></li></ul><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=n>L7ProtocolInfoInterface</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>MongoDBInfo</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>session_id</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Option</span><span class=o>&lt;</span><span class=kt>u32</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 这里返回流标识id，例如 http2 返回 streamid，dns 返回 transaction id，如果没有就返回 None
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>merge_log</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>other</span>: <span class=nc>L7ProtocolInfo</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=c1>// 这里的self必定是请求，other必定是响应
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=n>L7ProtocolInfo</span>::<span class=n>MongoDBInfo</span><span class=p>(</span><span class=n>other</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>other</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=bp>self</span><span class=p>.</span><span class=n>merge</span><span class=p>(</span><span class=n>other</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nb>Ok</span><span class=p>(())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>app_proto_head</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Option</span><span class=o>&lt;</span><span class=n>AppProtoHead</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=c1>// 这里返回一个 AppProtoHead 结构，返回 None 直接丢弃这段数据
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nb>Some</span><span class=p>(</span><span class=n>AppProtoHead</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>proto</span>: <span class=nc>L7Protocol</span>::<span class=n>MongoDB</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>is_tls</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>bool</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=bp>self</span><span class=p>.</span><span class=n>is_tls</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>为<code>MongoDBInfo</code>实现<code>L7ProtocolSendLog</code></li></ul><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=nb>From</span><span class=o>&lt;</span><span class=n>MongoDBInfo</span><span class=o>&gt;</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>L7ProtocolSendLog</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>from</span><span class=p>(</span><span class=n>f</span>: <span class=nc>MongoDBInfo</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>Self</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>log</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>L7ProtocolSendLog</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=c1>// 这里需要把 info 转换成统一的发送结构 L7ProtocolSendLog
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=n>log</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 参考源码来自：deepflow/agent/src/flow_generator/protocol_logs/pb_adapter.rs
+</span></span></span><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>struct</span> <span class=nc>L7ProtocolSendLog</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>req_len</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=kt>u32</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>resp_len</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=kt>u32</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>row_effect</span>: <span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>req</span>: <span class=nc>L7Request</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>resp</span>: <span class=nc>L7Response</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>version</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=nb>String</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>trace_info</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=n>TraceInfo</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=n>ext_info</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=n>ExtendedInfo</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>把实现<code>L7ProtocolParserInterface</code>的接口，添加到<code>deepflow/agent/src/common/l7_protocol_log.rs</code>中的<code>impl_protocol_parser!</code>宏。</li></ul><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=fm>impl_protocol_parser!</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=k>enum</span> <span class=nc>L7ProtocolParser</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// http have two version but one parser, can not place in macro param.
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// custom must in frist so can not place in macro
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=no>DNS</span><span class=p>(</span><span class=n>DnsLog</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>SofaRPC</span><span class=p>(</span><span class=n>SofaRpcLog</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>MySQL</span><span class=p>(</span><span class=n>MysqlLog</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>Kafka</span><span class=p>(</span><span class=n>KafkaLog</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>Redis</span><span class=p>(</span><span class=n>RedisLog</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>       </span><span class=n>MongoDB</span><span class=p>(</span><span class=n>MongoDBLog</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>PostgreSQL</span><span class=p>(</span><span class=n>PostgresqlLog</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>Dubbo</span><span class=p>(</span><span class=n>DubboLog</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>FastCGI</span><span class=p>(</span><span class=n>FastCGILog</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=no>MQTT</span><span class=p>(</span><span class=n>MqttLog</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// add protocol below
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>第二步的效果
+<img src=/posts/ebpf/images/grafana-deepflow-mongo-02.png alt></li></ul></li><li><p>通过<code>perf_states</code>统计记录<code>QPS</code>、<code>耗时</code>和<code>异常</code>情况</p></li></ul><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=n>L7ProtocolParserInterface</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>MongoDBLog</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>parse_payload</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>payload</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>],</span><span class=w> </span><span class=n>param</span>: <span class=kp>&amp;</span><span class=nc>ParseParam</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=n>L7ParseResult</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>info</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>MongoDBInfo</span>::<span class=n>default</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=bp>self</span><span class=p>.</span><span class=n>parse</span><span class=p>(</span><span class=n>payload</span><span class=p>,</span><span class=w> </span><span class=n>param</span><span class=p>.</span><span class=n>l4_protocol</span><span class=p>,</span><span class=w> </span><span class=n>param</span><span class=p>.</span><span class=n>direction</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>info</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>  </span><span class=c1>// 解码得到L7ProtocolInfo
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>info</span><span class=p>.</span><span class=n>cal_rrt</span><span class=p>(</span><span class=n>param</span><span class=p>,</span><span class=w> </span><span class=nb>None</span><span class=p>).</span><span class=n>map</span><span class=p>(</span><span class=o>|</span><span class=n>rrt</span><span class=o>|</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>info</span><span class=p>.</span><span class=n>rrt</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>rrt</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>           </span><span class=bp>self</span><span class=p>.</span><span class=n>perf_stats</span><span class=p>.</span><span class=n>as_mut</span><span class=p>().</span><span class=n>map</span><span class=p>(</span><span class=o>|</span><span class=n>p</span><span class=o>|</span><span class=w> </span><span class=n>p</span><span class=p>.</span><span class=n>update_rrt</span><span class=p>(</span><span class=n>rrt</span><span class=p>));</span><span class=w> </span><span class=c1>// 耗时
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=n>MongoDBLog</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>parse</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>,</span><span class=n>payload</span>:<span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>],</span><span class=n>proto</span>:<span class=nc>IpProtocol</span><span class=p>,</span><span class=n>dir</span>:<span class=nc>PacketDirection</span><span class=p>,</span><span class=n>info</span>:<span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>MongoDBInfo</span><span class=p>,)</span><span class=w> </span>-&gt; <span class=nb>Result</span><span class=o>&lt;</span><span class=kt>bool</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=c1>// 解码指令获取请求和响应等信息
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=n>header</span><span class=p>.</span><span class=n>is_request</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>           </span><span class=bp>self</span><span class=p>.</span><span class=n>perf_stats</span><span class=p>.</span><span class=n>as_mut</span><span class=p>().</span><span class=n>map</span><span class=p>(</span><span class=o>|</span><span class=n>p</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>L7PerfStats</span><span class=o>|</span><span class=w> </span><span class=n>p</span><span class=p>.</span><span class=n>inc_req</span><span class=p>());</span><span class=w> </span><span class=c1>// 请求记录
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>           </span><span class=bp>self</span><span class=p>.</span><span class=n>perf_stats</span><span class=p>.</span><span class=n>as_mut</span><span class=p>().</span><span class=n>map</span><span class=p>(</span><span class=o>|</span><span class=n>p</span><span class=o>|</span><span class=w> </span><span class=n>p</span><span class=p>.</span><span class=n>inc_resp</span><span class=p>());</span><span class=w> </span><span class=c1>// 响应记录
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>match</span><span class=w> </span><span class=n>info</span><span class=p>.</span><span class=n>op_code</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=no>_OP_REPLY</span><span class=w> </span><span class=k>if</span><span class=w> </span><span class=n>payload</span><span class=p>.</span><span class=n>len</span><span class=p>()</span><span class=w> </span><span class=o>&gt;</span><span class=w> </span><span class=no>_HEADER_SIZE</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>msg_body</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>MongoOpReply</span>::<span class=n>default</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>msg_body</span><span class=p>.</span><span class=n>decode</span><span class=p>(</span><span class=o>&amp;</span><span class=n>payload</span><span class=p>[</span><span class=no>_HEADER_SIZE</span><span class=o>..</span><span class=p>])</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=k>if</span><span class=w> </span><span class=o>!</span><span class=n>msg_body</span><span class=p>.</span><span class=n>reply_ok</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>                   </span><span class=bp>self</span><span class=p>.</span><span class=n>perf_stats</span><span class=p>.</span><span class=n>as_mut</span><span class=p>().</span><span class=n>map</span><span class=p>(</span><span class=o>|</span><span class=n>p</span><span class=o>|</span><span class=w> </span><span class=n>p</span><span class=p>.</span><span class=n>inc_resp_err</span><span class=p>());</span><span class=c1>// 异常记录
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>效果如图：
+<img src=/posts/ebpf/images/grafana-deepflow-mongo-03.png alt></p><ul><li>最后在<code>server</code>补充服务端的协议识别
+以下两部分内容在代码文件<code>server/libs/datatype/flow.go</code>中</li></ul><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>L7Protocol</span><span class=w> </span><span class=kt>uint8</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>const</span><span class=w> </span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_UNKNOWN</span><span class=w>    </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_OTHER</span><span class=w>      </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_HTTP_1</span><span class=w>     </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>20</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_HTTP_2</span><span class=w>     </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>21</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_HTTP_1_TLS</span><span class=w> </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>22</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_HTTP_2_TLS</span><span class=w> </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>23</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_DUBBO</span><span class=w>      </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>40</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_GRPC</span><span class=w>       </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>41</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_SOFARPC</span><span class=w>    </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>43</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_FASTCGI</span><span class=w>    </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>44</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_MYSQL</span><span class=w>      </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>60</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_POSTGRE</span><span class=w>    </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>61</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_REDIS</span><span class=w>      </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>80</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>   </span><span class=nx>L7_PROTOCOL_MONGODB</span><span class=w>    </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>81</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_KAFKA</span><span class=w>      </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>100</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_MQTT</span><span class=w>       </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>101</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_DNS</span><span class=w>        </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>120</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>L7_PROTOCOL_CUSTOM</span><span class=w>     </span><span class=nx>L7Protocol</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>127</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>L7Protocol</span><span class=p>)</span><span class=w> </span><span class=nf>String</span><span class=p>()</span><span class=w> </span><span class=kt>string</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>formatted</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=s>&#34;&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>switch</span><span class=w> </span><span class=nx>p</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>case</span><span class=w> </span><span class=nx>L7_PROTOCOL_HTTP_1</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;HTTP&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>case</span><span class=w> </span><span class=nx>L7_PROTOCOL_DNS</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;DNS&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>case</span><span class=w> </span><span class=nx>L7_PROTOCOL_MYSQL</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;MySQL&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>case</span><span class=w> </span><span class=nx>L7_PROTOCOL_POSTGRE</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;PostgreSQL&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>case</span><span class=w> </span><span class=nx>L7_PROTOCOL_REDIS</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;Redis&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>   </span><span class=k>case</span><span class=w> </span><span class=nx>L7_PROTOCOL_MONGODB</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>       </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;MongoDB&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>case</span><span class=w> </span><span class=nx>L7_PROTOCOL_DUBBO</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;Dubbo&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>case</span><span class=w> </span><span class=nx>L7_PROTOCOL_GRPC</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;gRPC&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>case</span><span class=w> </span><span class=nx>L7_PROTOCOL_CUSTOM</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;Custom&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>case</span><span class=w> </span><span class=nx>L7_PROTOCOL_OTHER</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;Others&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>default</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>formatted</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;N/A&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nx>formatted</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><code>server/querier/db_descriptions/clickhouse/tag/enum/l7_protocol</code></p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=w>	</span><span class=err>#</span><span class=w> </span><span class=nx>Value</span><span class=w> </span><span class=p>,</span><span class=w> </span><span class=nx>DisplayName</span><span class=w>     </span><span class=p>,</span><span class=w> </span><span class=nx>Description</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>0</span><span class=w>       </span><span class=p>,</span><span class=w> </span><span class=nx>N</span><span class=o>/</span><span class=nx>A</span><span class=w>             </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>1</span><span class=w>       </span><span class=p>,</span><span class=w> </span><span class=nx>Others</span><span class=w>          </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>20</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>HTTP</span><span class=w>            </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>21</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>HTTP2</span><span class=w>           </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>22</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>HTTP1_TLS</span><span class=w>       </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>23</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>HTTP2_TLS</span><span class=w>       </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>40</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>Dubbo</span><span class=w>           </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>41</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>gRPC</span><span class=w>            </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>43</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>SOFARPC</span><span class=w>         </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>44</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>FastCGI</span><span class=w>         </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>60</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>MySQL</span><span class=w>           </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>61</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>PostgreSQL</span><span class=w>      </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>80</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>Redis</span><span class=w>           </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>+</span><span class=w>	</span><span class=mi>81</span><span class=w>      </span><span class=p>,</span><span class=w> </span><span class=nx>MongoDB</span><span class=w>         </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>100</span><span class=w>     </span><span class=p>,</span><span class=w> </span><span class=nx>Kafka</span><span class=w>           </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>101</span><span class=w>     </span><span class=p>,</span><span class=w> </span><span class=nx>MQTT</span><span class=w>            </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>120</span><span class=w>     </span><span class=p>,</span><span class=w> </span><span class=nx>DNS</span><span class=w>             </span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=mi>127</span><span class=w>     </span><span class=p>,</span><span class=w> </span><span class=nx>Custom</span><span class=w>          </span><span class=p>,</span></span></span></code></pre></td></tr></table></div></div></div></div><p>到这里已经完成<code>DeepFlow Agent</code>的原生协议扩展了，参考《<a href=https://mp.weixin.qq.com/s/-jWYq2rTRaTueuN0sAb3lA># 完整指南：如何编译、打包和部署二次开发的 DeepFlow</a> 》编译程序发布即可。</p><p>如果想快速实现一个协议采集解析，或者不熟悉Rust语言呢？我们还有一个选择，就是利用Wasm插件快速扩展协议解码。</p><h2 id=利用wasm插件扩展deepflow的协议采集>利用<code>Wasm</code>插件扩展<code>DeepFlow</code>的协议采集</h2><blockquote><p>该案例是用<code>Wasm</code>扩展<code>Kafka</code>协议支持<code>Topic</code>的实践。
+首先还是参考Kafka的官方文档对<a href=https://kafka.apache.org/protocol.html>Kafka协议</a>做一个简单的分析</p></blockquote><h3 id=kafka协议分析><code>Kafka</code>协议分析</h3><h4 id=kafka的header和data概览><code>Kafka</code>的<code>Header</code>和<code>Data</code>概览</h4><p><img src=/posts/ebpf/images/Kafka%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90.svg alt></p><h4 id=kafka的fetch-api>Kafka的Fetch API</h4><p><img src=/posts/ebpf/images/Kafka-Fetch-ver7-11.svg alt></p><h4 id=kafka的produce-api>Kafka的Produce API</h4><p><img src=/posts/ebpf/images/Kafka-Produce-ver3-8.svg alt></p><h3 id=kafka协议deepflow-agent原生解码>Kafka协议DeepFlow Agent原生解码</h3><blockquote><p>截止到v6.3.x版本，DeepFlow Agent对Kafka的原生解码如下图所示，还不支持Topic字段的解码，
+且API的解码还没有版本号。
+接下来的插件开发主要解决Topic字段的解码放在resource展示，同时把API的版本号也解析出来。</p></blockquote><p><img src=/posts/ebpf/images/grafana-deepflow-kafka-01.png alt></p><h3 id=deepflow-agent的-wasm-插件><code>DeepFlow Agent</code>的 <code>Wasm</code> 插件</h3><p>参考官方插件文档《 <a href=https://deepflow.io/docs/zh/integration/process/wasm-plugin/#about-wasm-plugin-system>wasm-plugin</a>》，需要注意两点：</p><ul><li><p><code>Agent</code> 通过遍历所有支持协议判断一个流的应用层协议，顺序是：
+<code>HTTP</code> -> <code>Wasm Hook</code> -> <code>DNS</code> -> &mldr;</p></li><li><p>需要使用 <code>Go</code> 版本不低于 <code>1.21</code> 并且 <code>tinygo</code> 版本需要不低于 <code>0.29</code></p></li></ul><h4 id=wasm-go-sdk-的框架>Wasm Go SDK 的框架</h4><ul><li>先对框架有一个大概的认识，如下代码所示，整个框架逻辑都在以下五个接口函数。</li></ul><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span><span class=w> </span><span class=nx>main</span><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=s>&#34;github.com/deepflowio/deepflow-wasm-go-sdk/sdk&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 定义结构，需要实现 sdk.Parser 接口</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>plugin</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>plugin</span><span class=p>)</span><span class=w> </span><span class=nf>HookIn</span><span class=p>()</span><span class=w> </span><span class=p>[]</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>HookBitmap</span><span class=w> </span><span class=p>{</span><span class=k>return</span><span class=w> </span><span class=p>[]</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>HookBitmap</span><span class=p>{}}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// HookIn() 包含 HOOK_POINT_HTTP_REQ 时，http 请求解析完成返回之前会调用。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// HttpReqCtx 包含了 BaseCtx 和已经解析出来的一些 http 头部</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>plugin</span><span class=p>)</span><span class=w> </span><span class=nf>OnHttpReq</span><span class=p>(</span><span class=nx>ctx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>HttpReqCtx</span><span class=p>)</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nx>Action</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>HttpReqActionAbortWithResult</span><span class=p>(</span><span class=kc>nil</span><span class=p>,</span><span class=w> </span><span class=nx>trace</span><span class=p>,</span><span class=w> </span><span class=nx>attr</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>plugin</span><span class=p>)</span><span class=w> </span><span class=nf>OnHttpResp</span><span class=p>(</span><span class=nx>ctx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>HttpRespCtx</span><span class=p>)</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nx>Action</span><span class=w> </span><span class=p>{</span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>ActionNext</span><span class=p>()}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>plugin</span><span class=p>)</span><span class=w> </span><span class=nf>OnCheckPayload</span><span class=p>(</span><span class=nx>baseCtx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>ParseCtx</span><span class=p>)</span><span class=w> </span><span class=p>(</span><span class=kt>uint8</span><span class=p>,</span><span class=w> </span><span class=kt>string</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=s>&#34;ownwasm&#34;</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>plugin</span><span class=p>)</span><span class=w> </span><span class=nf>OnParsePayload</span><span class=p>(</span><span class=nx>baseCtx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>ParseCtx</span><span class=p>)</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nx>ParseAction</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>ParseActionAbortWithL7Info</span><span class=p>([]</span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>L7ProtocolInfo</span><span class=p>{})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// main 需要注册解析器</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>main</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>SetParser</span><span class=p>(</span><span class=nx>plugin</span><span class=p>{})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>Agent 会遍历所有插件调用对应的 Export 函数，但是遍历的行为可以通过返回值控制</li></ul><table><thead><tr><th>返回值</th><th>说明</th></tr></thead><tbody><tr><td>sdk.ActionNext()</td><td>停止当前插件，直接执行下一个插件</td></tr><tr><td>sdk.ActionAbort()</td><td>停止当前插件并且停止遍历</td></tr><tr><td>sdk.ActionAbortWithErr(err)</td><td>停止当前插件，打印错误日志并且停止遍历</td></tr><tr><td>sdk.HttpActionAbortWithResult()</td><td>Agent 停止遍历并且提取相应返回结果</td></tr><tr><td>sdk.ParseActionAbortWithL7Info()</td><td>Agent 停止遍历并且提取相应返回结果</td></tr></tbody></table><blockquote><p>⚠️注意：
+因为该案例不涉及<code>HTTP</code>协议的处理，所以<code>OnHttpReq()</code>和<code>OnHttpResp()</code>直接使用<code>sdk.ActionNext()</code> 跳过即可。
+该案例也不会用到<code>sdk.HttpActionAbortWithResult()</code>。</p></blockquote><ul><li><code>HookBitmap</code>的三个 <code>hook</code> 点</li></ul><table><thead><tr><th>hook点</th><th>说明</th></tr></thead><tbody><tr><td>HOOK_POINT_HTTP_REQ</td><td>表示 http 请求解析完成返回之前</td></tr><tr><td>HOOK_POINT_HTTP_RESP</td><td>表示 http 响应解析完成返回之前</td></tr><tr><td>HOOK_POINT_PAYLOAD_PARSE</td><td>表示协议的判断和解析</td></tr></tbody></table><blockquote><p>⚠️注意：
+因为该案例不涉及<code>HTTP</code>协议的处理，所以<code>HOOK_POINT_HTTP_REQ</code>和<code>HOOK_POINT_HTTP_RESP</code>在
+该案例也不会用到。</p></blockquote><h4 id=插件代码指引>插件代码指引</h4><ul><li>梳理后的<code>Kafka</code>协议的<code>Wasm</code>插件代码框架</li></ul><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span><span class=w> </span><span class=nx>main</span><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=s>&#34;github.com/deepflowio/deepflow-wasm-go-sdk/sdk&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 定义结构，需要实现 sdk.Parser 接口</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>kafkaParser</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>kafkaParser</span><span class=p>)</span><span class=w> </span><span class=nf>HookIn</span><span class=p>()</span><span class=w> </span><span class=p>[]</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>HookBitmap</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=p>[]</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>HookBitmap</span><span class=p>{</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>HOOK_POINT_PAYLOAD_PARSE</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 跳过HTTP协议处理</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>kafkaParser</span><span class=p>)</span><span class=w> </span><span class=nf>OnHttpReq</span><span class=p>(</span><span class=nx>ctx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>HttpReqCtx</span><span class=p>)</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nx>Action</span><span class=w> </span><span class=p>{</span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>ActionNext</span><span class=p>()}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>kafkaParser</span><span class=p>)</span><span class=w> </span><span class=nf>OnHttpResp</span><span class=p>(</span><span class=nx>ctx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>HttpRespCtx</span><span class=p>)</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nx>Action</span><span class=w> </span><span class=p>{</span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>ActionNext</span><span class=p>()}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 协议判断检查</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>kafkaParser</span><span class=p>)</span><span class=w> </span><span class=nf>OnCheckPayload</span><span class=p>(</span><span class=nx>baseCtx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>ParseCtx</span><span class=p>)</span><span class=w> </span><span class=p>(</span><span class=kt>uint8</span><span class=p>,</span><span class=w> </span><span class=kt>string</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=k>return</span><span class=w> </span><span class=mi>100</span><span class=p>,</span><span class=w> </span><span class=s>&#34;kafka&#34;</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 协议解码</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>kafkaParser</span><span class=p>)</span><span class=w> </span><span class=nf>OnParsePayload</span><span class=p>(</span><span class=nx>baseCtx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>ParseCtx</span><span class=p>)</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nx>ParseAction</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>ParseActionAbortWithL7Info</span><span class=p>([]</span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>L7ProtocolInfo</span><span class=p>{})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// main 需要注册解析器</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>main</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=nx>sdk</span><span class=p>.</span><span class=nf>SetParser</span><span class=p>(</span><span class=nx>plugin</span><span class=p>{})}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>协议识别</li></ul><blockquote><p>⚠️注意：以下代码注释</p></blockquote><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>kafkaParser</span><span class=p>)</span><span class=w> </span><span class=nf>OnCheckPayload</span><span class=p>(</span><span class=nx>ctx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>ParseCtx</span><span class=p>)</span><span class=w> </span><span class=p>(</span><span class=kt>uint8</span><span class=p>,</span><span class=w> </span><span class=kt>string</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 跳过UDP协议数据</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>ctx</span><span class=p>.</span><span class=nx>L4</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nx>TCP</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=s>&#34;&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 如果环境有标准规范的端口约定，插件中指定端口会减少协议数据的遍历，优化解码时cpu等资源消耗</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>ctx</span><span class=p>.</span><span class=nx>DstPort</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=mi>9092</span><span class=w> </span><span class=o>||</span><span class=w> </span><span class=nx>ctx</span><span class=p>.</span><span class=nx>DstPort</span><span class=w> </span><span class=p>&gt;</span><span class=w> </span><span class=mi>9093</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=s>&#34;&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 读取抓包数据</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>payload</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>ctx</span><span class=p>.</span><span class=nf>GetPayload</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>sdk</span><span class=p>.</span><span class=nf>Error</span><span class=p>(</span><span class=s>&#34;get payload fail: %v&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=s>&#34;&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 引用&#34;github.com/segmentio/kafka-go/protocol&#34;来解码</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>bl</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>protocol</span><span class=p>.</span><span class=nf>ReadAll</span><span class=p>(</span><span class=nx>protocol</span><span class=p>.</span><span class=nf>NewBytes</span><span class=p>(</span><span class=nx>payload</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>sdk</span><span class=p>.</span><span class=nf>Error</span><span class=p>(</span><span class=s>&#34;read payload fail: %v&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=s>&#34;&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>b</span><span class=p>,</span><span class=w> </span><span class=nx>_</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nf>decodeHeader</span><span class=p>(</span><span class=nx>bl</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=p>!</span><span class=nx>b</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=s>&#34;&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>WASM_KAFKA_PROTOCOL</span><span class=p>,</span><span class=w> </span><span class=s>&#34;kafka&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li><p>协议API解码</p><ul><li>官方代码框架<code>OnParsePayload()</code>的逻辑如下</li></ul><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>plugin</span><span class=p>)</span><span class=w> </span><span class=nf>OnParsePayload</span><span class=p>(</span><span class=nx>baseCtx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>ParseCtx</span><span class=p>)</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nx>ParseAction</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ctx.L7 就是 OnCheckPayload 返回的协议号，可以先根据4层协议或协议号过滤。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>ctx</span><span class=p>.</span><span class=nx>L4</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nx>TCP</span><span class=w> </span><span class=p>{</span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>ActionNext</span><span class=p>()}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>payload</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>ctx</span><span class=p>.</span><span class=nf>GetPayload</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>ActionAbortWithErr</span><span class=p>(</span><span class=nx>err</span><span class=p>)}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// the parse logic here</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cm>/* 关于 L7ProtocolInfo 结构：
+</span></span></span><span class=line><span class=cl><span class=cm>            type L7ProtocolInfo struct {
+</span></span></span><span class=line><span class=cl><span class=cm>                ReqLen    *int       // 请求长度 例如 http 的 content-length
+</span></span></span><span class=line><span class=cl><span class=cm>                RespLen   *int       // 响应长度 例如 http 的 content-length
+</span></span></span><span class=line><span class=cl><span class=cm>                RequestID *uint32    // 子流的id标识，例如 http2 的 stream id，dns 的 transaction id
+</span></span></span><span class=line><span class=cl><span class=cm>                Req       *Request
+</span></span></span><span class=line><span class=cl><span class=cm>                Resp      *Response
+</span></span></span><span class=line><span class=cl><span class=cm>                Trace     *Trace     // 跟踪信息
+</span></span></span><span class=line><span class=cl><span class=cm>                Kv        []KeyVal   // 对应 attribute
+</span></span></span><span class=line><span class=cl><span class=cm>            }
+</span></span></span><span class=line><span class=cl><span class=cm>            type Request struct {
+</span></span></span><span class=line><span class=cl><span class=cm>                ReqType  string  // 对应请求类型
+</span></span></span><span class=line><span class=cl><span class=cm>                Domain   string  // 对应请求域名
+</span></span></span><span class=line><span class=cl><span class=cm>                Resource string  // 对应请求资源
+</span></span></span><span class=line><span class=cl><span class=cm>                Endpoint string  // 对应 endpoint
+</span></span></span><span class=line><span class=cl><span class=cm>            }
+</span></span></span><span class=line><span class=cl><span class=cm>            type Response struct {
+</span></span></span><span class=line><span class=cl><span class=cm>                Status    RespStatus // 对应响应状态
+</span></span></span><span class=line><span class=cl><span class=cm>                Code      *int32     // 对应响应码
+</span></span></span><span class=line><span class=cl><span class=cm>                Result    string     // 对应响应结果
+</span></span></span><span class=line><span class=cl><span class=cm>                Exception string     // 对应响应异常
+</span></span></span><span class=line><span class=cl><span class=cm>            }*/</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>ParseActionAbortWithL7Info</span><span class=p>([]</span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>L7ProtocolInfo</span><span class=p>{})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>Topic字段解码的代码逻辑</li></ul><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>p</span><span class=w> </span><span class=nx>kafkaParser</span><span class=p>)</span><span class=w> </span><span class=nf>OnParsePayload</span><span class=p>(</span><span class=nx>ctx</span><span class=w> </span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>ParseCtx</span><span class=p>)</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nx>Action</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// the parse logic here</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 解码 header base size :</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// req_len(int32) + api_key(int16) + api_ver(int16) + c_id(int32) + client_len(int16)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// = 14</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=kd>var</span><span class=w> </span><span class=nx>header_offset</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>14</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nx>header</span><span class=p>.</span><span class=nx>clientLen</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=kd>var</span><span class=w> </span><span class=nx>topic_size</span><span class=w> </span><span class=kt>int16</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=kd>var</span><span class=w> </span><span class=nx>topic_name</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>switch</span><span class=w> </span><span class=nx>protocol</span><span class=p>.</span><span class=nf>ApiKey</span><span class=p>(</span><span class=nx>header</span><span class=p>.</span><span class=nx>apikey</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>case</span><span class=w> </span><span class=nx>protocol</span><span class=p>.</span><span class=nx>Produce</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>topic_size</span><span class=p>,</span><span class=w> </span><span class=nx>topic_name</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nf>decodeProduce</span><span class=p>(</span><span class=nx>header</span><span class=p>.</span><span class=nx>apiversion</span><span class=p>,</span><span class=w> </span><span class=nx>payload</span><span class=p>[</span><span class=nx>header_offset</span><span class=p>:])</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>case</span><span class=w> </span><span class=nx>protocol</span><span class=p>.</span><span class=nx>Fetch</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>topic_size</span><span class=p>,</span><span class=w> </span><span class=nx>topic_name</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nf>decodeFetch</span><span class=p>(</span><span class=nx>header</span><span class=p>.</span><span class=nx>apiversion</span><span class=p>,</span><span class=w> </span><span class=nx>payload</span><span class=p>[</span><span class=nx>header_offset</span><span class=p>:])</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>topic_size</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=mi>0</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>ActionNext</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>req</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=o>&amp;</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>Request</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>ReqType</span><span class=p>:</span><span class=w>  </span><span class=nx>protocol</span><span class=p>.</span><span class=nf>ApiKey</span><span class=p>(</span><span class=nx>header</span><span class=p>.</span><span class=nx>apikey</span><span class=p>).</span><span class=nf>String</span><span class=p>()</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=s>&#34;_v&#34;</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nx>strconv</span><span class=p>.</span><span class=nf>Itoa</span><span class=p>(</span><span class=nb>int</span><span class=p>(</span><span class=nx>header</span><span class=p>.</span><span class=nx>apiversion</span><span class=p>)),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>Resource</span><span class=p>:</span><span class=w> </span><span class=nx>topic_name</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>sdk</span><span class=p>.</span><span class=nf>ParseActionAbortWithL7Info</span><span class=p>([]</span><span class=o>*</span><span class=nx>sdk</span><span class=p>.</span><span class=nx>L7ProtocolInfo</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>RequestID</span><span class=p>:</span><span class=w> </span><span class=o>&amp;</span><span class=nx>id</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>ReqLen</span><span class=p>:</span><span class=w>    </span><span class=o>&amp;</span><span class=nx>length</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>Req</span><span class=p>:</span><span class=w>       </span><span class=nx>req</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div></li></ul><h4 id=加载插件和效果展示>加载插件和效果展示</h4><p>执行如下命令编译插件，通过CTL方式加载插件</p><div class=code-block-wrapper data-lang=zsh><div class=code-block-header><div class=code-block-meta><span class=code-language>zsh</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-zsh data-lang=zsh><span class=line><span class=cl>➜ deepflow-plugin git:<span class=o>(</span>main<span class=o>)</span> ✗ tinygo build -o build/topic.wasm  -target wasi  -panic<span class=o>=</span><span class=nb>trap</span> -scheduler<span class=o>=</span>none -no-debug ./wasm/kafka/topic.go
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>➜ deepflow-plugin git:<span class=o>(</span>main<span class=o>)</span> ✗ deepflow-ctl plugin create --type wasm --image build/topic.wasm --name topic</span></span></code></pre></td></tr></table></div></div></div></div><p>准备好<code>Agent</code>的配置文件增加如下配置。注意，<code>Agent</code>可以加载多个 <code>Wasm</code> 插件。</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=w>  </span><span class=c>############</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c>## plugin ##</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c>############</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c>## wasm plugin need to load in agent</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>wasm-plugins</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>mongo</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>topic</span></span></span></code></pre></td></tr></table></div></div></div></div><p>执行命令更新配置</p><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>➜ deepflow-plugin git:<span class=o>(</span>main<span class=o>)</span> ✗ deepflow-ctl agent-group-config update -f g-d2d06af17e.yaml</span></span></code></pre></td></tr></table></div></div></div></div><p>当<code>Agent</code>日志出现如下图黄字体内容，即加载成功。
+<img src=/posts/ebpf/images/deepflow-wasm-kafka-01.png alt></p><p>在<code>Grafana</code>上，可以看到原生的<code>Kafka</code>协议被覆盖，出现了几个变化：</p><ul><li><code>Protocol</code> 字段从<code>Kafka</code> 变成 <code>Custom</code></li><li><code>Request type</code>字段的<code>API</code>多了版本号</li><li><code>Request resource</code>字段出现了<code>Topic</code>信息
+<img src=/posts/ebpf/images/grafana-deepflow-kafka-02.png alt></li></ul><h2 id=结语>结语</h2><blockquote><p>最后对比一下两个协议扩展的方式，要注意⚠️的是：
+两者都存在一个共性问题，就是每增加一个协议，识别协议解码的效率相对降低，
+可以通过配置的方式减少需解码的协议数量</p></blockquote><h3 id=原生rust扩展>原生Rust扩展</h3><ul><li><p>优点：</p><ul><li>运行时的资源占用比插件低</li><li>支持的功能比插件的丰富，且定制性更灵活</li></ul></li><li><p>缺点：</p><ul><li>在语言方面的开发难度比插件的大</li><li>相对插件开发而言，新增协议需要改动的地方较多，还涉及到Server的一小部分代码</li></ul></li></ul><h3 id=wasm插件扩展>Wasm插件扩展</h3><ul><li><p>优点：</p><ul><li>用Golang开发相对Rust语言难度较低</li><li>可在运行时通过CLI方式加载</li><li>扩展性强</li></ul></li><li><p>缺点：</p><ul><li>Go 的标准库和第三方库有一定的限制，且调试难度大，导致插件异常较难排除</li><li>由于Wasm本身限制等问题，导致功能相对Rust原生开发较弱</li><li>资源增加，特别是内存方面。</li></ul></li></ul><h2 id=附录>附录</h2><ul><li><a href=https://github.com/deepflowio/deepflow/blob/main/docs/HOW_TO_SUPPORT_YOUR_PROTOCOL_CN.MD title=https://github.com/deepflowio/deepflow/blob/main/docs/HOW_TO_SUPPORT_YOUR_PROTOCOL_CN.MD>DeepFlow 协议开发文档</a></li><li><a href=https://deepflow.io/docs/zh/integration/process/wasm-plugin/#about-wasm-plugin-system title=https://deepflow.io/docs/zh/integration/process/wasm-plugin/#about-wasm-plugin-system>DeepFlow的Wasm 插件系统</a></li><li><a href=https://deepflow.io/blog/035-deepflow-enabling-zero-code-observability-for-applications-by-webAssembly/ title=https://deepflow.io/blog/035-deepflow-enabling-zero-code-observability-for-applications-by-webAssembly/>使用 DeepFlow Wasm 插件实现业务可观测性</a></li><li><a href=https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/ title=https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/>MongoDB协议文档</a></li><li><a href=https://kafka.apache.org/protocol.html title=https://kafka.apache.org/protocol.html>Kafka协议文档</a></li></ul></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/tcp/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Tcp
+</a><a class=tag-chip href=/tags/deepflow/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+DeepFlow
+</a><a class=tag-chip href=/tags/ebpf/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+EBPF</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.ad1361ea29e6d5f390afc5de93c34baa5b46fd431d66608fd0a2e16e4cb0000a.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>
