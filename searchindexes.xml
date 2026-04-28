@@ -1,4 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>用 ESP32 替代虚拟机做网络拨测 —— esp32-blackbox 项目实战</title><url>/posts/iot/esp32-blackbox/</url><categories><category>物联网</category></categories><tags><tag>ESP32</tag><tag>网络拨测</tag><tag>Prometheus</tag><tag>NetBird</tag></tags><content type="html">&lt;![CDATA[ 起因 我在市区不同地方有几个局域网，相互之间大概隔了 10 公里左右。为了让这几个网络能互通，我用 NetBird、ZeroTier、Cloudflare Tunnel 这类工具搭了一套跨地域的虚拟局域网。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>用 ESP32-S3 做了个监控摄像头 —— WiFi、TF 卡、视频输出踩坑实录</title><url>/posts/iot/esp32s3-cam-monitor/</url><categories><category>IOT</category></categories><tags><tag>ESP32-S3</tag><tag>ESP-IDF</tag><tag>摄像头</tag><tag>嵌入式</tag></tags><content type="html">&lt;![CDATA[ 起因 家里养了几只鹦鹉，白天上班的时候没人在家，想随时看看它们在干嘛。需求说起来简单：能实时看画面、能录像存下来、最好还能自动备份到 NAS 上。市面上的摄像头要么价格不便宜，要么要装各种 APP 注册账号绑手机号，隐私方面心里没底——我就是想看看鸟，不想把视频传到别人的服务器上。
+手上正好有一块 Seeed 的 XIAO ESP32-S3 Sense 开发板，自带 OV2640 摄像头，还有 TF 卡槽。ESP32-S3 本身有 WiFi，双核 240MHz，外挂 8MB PSRAM，跑个摄像头应用理论上完全够。于是就打算自己做一个：MiBeeHomeCam。
+既然打算开源，就把功能尽量做全面一些。目标很明确：用 ESP-IDF 从零写一个监控摄像头固件，MJPEG 实时流浏览器直接看，AVI 分段录像存 TF 卡，FTP/WebDAV 自动上传 NAS，再配个 Web 管理界面，加上 Prometheus 指标对接监控系统。后续我还计划做一个 NVR 来收集视频文件做视觉分析，不过那是后话了，这篇只聊摄像头本身。
+最终实现了这些功能：
+浏览器打开设备 IP 就能看实时画面 自动分段录像（默认 5 分钟一段），循环存储不怕卡满 FTP/WebDAV 自动上传到 NAS Web 界面管理配置、浏览/下载/删除录像文件 Prometheus /metrics 端点对接监控系统 WiFi AP/STA 双模式，首次上电手机配网 功能听起来挺完整，但背后的坑是真不少。
+硬件选型 用的是 Seeed XIAO ESP32-S3 Sense 这块板子，体积很小（拇指大小），但该有的都有：
+ESP32-S3 双核 240MHz，8MB Octal PSRAM 板载 OV2640 摄像头（也兼容 OV3660） TF 卡槽（SPI 模式，1-bit SDMMC） WiFi 2.4GHz（注意不支持 5GHz） USB-C 供电 说实话选这块板子主要是看中了体积小和自带摄像头+TF 卡槽，不用额外接线。但后面踩坑的时候才发现，板子本身也有一些&amp;quot;特色&amp;quot;问题。
+WiFi：连接都连不上，还谈什么监控 WiFi 问题是第一个把我搞崩溃的。固件写好了，烧进去，满心期待能看到画面，结果设备怎么都连不上路由器。
+认证超时：auth expired / assoc … ]]></content></entry><entry><title>用 ESP32 替代虚拟机做网络拨测 —— esp32-blackbox 项目实战</title><url>/posts/iot/esp32-blackbox/</url><categories><category>物联网</category></categories><tags><tag>ESP32</tag><tag>网络拨测</tag><tag>Prometheus</tag><tag>NetBird</tag></tags><content type="html">&lt;![CDATA[ 起因 我在市区不同地方有几个局域网，相互之间大概隔了 10 公里左右。为了让这几个网络能互通，我用 NetBird、ZeroTier、Cloudflare Tunnel 这类工具搭了一套跨地域的虚拟局域网。
 网络搭好了，但稳定性怎么保障？毕竟这些隧道要穿过公网，中间的链路质量参差不齐。最直接的办法就是用 Prometheus 的 blackbox_exporter 做拨测——定期 HTTP 请求、Ping、DNS 查询，把结果丢进时序数据库，配上告警规则，出问题第一时间知道。
 但问题来了：blackbox_exporter 得跑在一台机器上。为了一个拨测服务专门开个虚拟机，电费和硬件成本都不划算。家里那台跑 Proxmox 的服务器已经够费电了，再加一台实在没必要。
 正好手上有几块 ESP32 开发板。ESP32 本身就是为网络连接设计的芯片，跑个 HTTP 请求、发个 ICMP 包完全不在话下。功耗还低，USB 供电就能跑，一个月电费几毛钱。于是就有了这个项目：esp32-blackbox。
