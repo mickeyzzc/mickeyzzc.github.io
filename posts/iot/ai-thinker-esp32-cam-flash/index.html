@@ -1,0 +1,241 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - ESP32-CAM 监控：懒得接光敏传感器，闪光灯逻辑写了很久</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/posts/iot/ai-thinker-esp32-cam-flash/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - ESP32-CAM 监控：懒得接光敏传感器，闪光灯逻辑写了很久"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/iot/ai-thinker-esp32-cam-flash/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-08 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-08 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - ESP32-CAM 监控：懒得接光敏传感器，闪光灯逻辑写了很久"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.42aa127c3b05d48d28f1085dd540740341f8023dd8cb337b17da2de23ab41c41.css integrity="sha256-QqoSfDsF1I0o8Qhd1UB0A0H4Aj3YyzN7F9ot4jq0HEE=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#起因>起因</a></li><li><a href=#闪光灯逻辑不接传感器的代价>闪光灯逻辑：不接传感器的代价</a><ul><li><a href=#需求就一句话实现折腾好几天>需求就一句话，实现折腾好几天</a></li><li><a href=#读-ov2640-曝光寄存器不行>读 OV2640 曝光寄存器——不行</a></li><li><a href=#灰度像素采样把摄像头当光敏传感器>灰度像素采样：把摄像头当光敏传感器</a></li><li><a href=#jpeg-大小反推亮度零开销的野路子>JPEG 大小反推亮度：零开销的野路子</a></li><li><a href=#闪光灯控制80-占空比保命>闪光灯控制：80% 占空比保命</a></li><li><a href=#闪光灯只在拍照时用检测的时候绝不开>闪光灯只在拍照时用，检测的时候绝不开</a></li><li><a href=#暗场景自动降动态检测阈值>暗场景自动降动态检测阈值</a></li></ul></li><li><a href=#其他功能>其他功能</a></li><li><a href=#写在后面>写在后面</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
+</a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-md"><span>架构演进</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
+</a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
+</a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span>
+</a><a href=/tags/arm/ class="tag-cloud__item tag-size-xs"><span>arm</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>ESP32-CAM 监控：懒得接光敏传感器，闪光灯逻辑写了很久</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-08T00:00:00+00:00>May 8, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/iot/>IOT</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/esp32-cam/>ESP32-CAM</a>, <a href=/tags/esp-idf/>ESP-IDF</a>, <a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/>摄像头</a>, <a href=/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/>嵌入式</a>, <a href=/tags/%E7%9B%91%E6%8E%A7/>监控</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2760 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>6 分钟阅读</span></span></div></header><div class=Content><h2 id=起因>起因</h2><p>之前用 ESP32-S3 做了个监控摄像头，效果还行。后来翻抽屉发现还有一块 AI-Thinker 的 ESP32-CAM 开发板——就是那种十几块钱、自带 OV2640 摄像头和 TF 卡槽的经典板子。手上有就不用浪费，再做一个吧：<a href=https://github.com/Mi-Bee-Studio/ai-thinker-esp32-cam>ai-thinker-esp32-cam</a>。</p><p>这次还是 ESP-IDF 从零写固件，功能跟上个项目差不多，但针对 AI-Thinker 这块板子做了不少适配。最终实现了这些东西：</p><ul><li>浏览器打开 IP 看 MJPEG 实时画面</li><li>动态检测，检测到动静自动拍照</li><li>暗光环境自动开闪光灯拍照</li><li>拍照存 TF 卡，支持 WebDAV 上传 NAS</li><li>Web 管理界面，手机上就能配参数</li><li>Prometheus <code>/metrics</code> 端点接监控系统</li><li>WiFi AP/STA 双模式，首次上电手机配网</li></ul><p>功能不复杂，但闪光灯那块逻辑花了我好几天。原因很简单：<strong>我懒得接光敏传感器</strong>。省了几根线，多写了几百行代码。</p><h2 id=闪光灯逻辑不接传感器的代价>闪光灯逻辑：不接传感器的代价</h2><h3 id=需求就一句话实现折腾好几天>需求就一句话，实现折腾好几天</h3><p>天黑了自动开闪光灯拍照——需求说起来就这么多。接个光敏电阻到 ADC 口，读个电压值就完事了，半小时搞定的活。但 AI-Thinker ESP32-CAM 的 GPIO 本来就紧张，闪光灯占了 GPIO4，TF 卡占了 GPIO2/14/15，摄像头一堆引脚，剩下的没几个能用了。多接一个传感器还要面包板、杜邦线、分压电阻……光是想想就不想动。</p><p>那就用摄像头本身来感知亮度呗。摄像头不就是个感光元件吗，画面亮就是亮，暗就是暗。问题是固件运行时摄像头一直在以 JPEG 模式输出画面（MJPEG 流和动态检测都要用），得在不影响正常工作的前提下判断环境亮度。</p><h3 id=读-ov2640-曝光寄存器不行>读 OV2640 曝光寄存器——不行</h3><p>第一反应是读 OV2640 的 AEC（Auto Exposure Control）寄存器。理论上曝光值能反映环境亮度：越暗曝光越高，直接读寄存器零延迟零开销，完美。</p><p>实测下来这个寄存器在连续 JPEG 输出模式下根本不靠谱——<code>aec_value</code> 一直稳定在最大值 671 不动弹，不管实际光线怎么变。查了 OV2640 的 datasheet，也没找到明确的说法。可能是连续输出模式下 AEC 反馈回路有 bug，也可能就是这颗 sensor 的"特色"了。总之这条路走不通。</p><h3 id=灰度像素采样把摄像头当光敏传感器>灰度像素采样：把摄像头当光敏传感器</h3><p>读寄存器不行，那就直接读像素。做法不复杂：</p><ol><li>每 30 秒做一次亮度探测</li><li>把摄像头从 JPEG 模式临时切换到灰度模式（GRAYSCALE + QQVGA 160×120）</li><li>抓一帧，遍历所有像素算平均亮度</li><li>切回 JPEG 模式继续干活</li></ol><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>// 切到灰度模式
+</span></span></span><span class=line><span class=cl><span class=kt>esp_err_t</span> <span class=n>ret</span> <span class=o>=</span> <span class=nf>camera_init_grayscale</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=n>ret</span> <span class=o>!=</span> <span class=n>ESP_OK</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>ESP_LOGE</span><span class=p>(</span><span class=n>TAG</span><span class=p>,</span> <span class=s>&#34;Grayscale probe: init failed&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 扔掉前两帧，刚切模式白平衡没稳定
+</span></span></span><span class=line><span class=cl><span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mi>2</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>camera_fb_t</span> <span class=o>*</span><span class=n>fb</span> <span class=o>=</span> <span class=nf>esp_camera_fb_get</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>fb</span><span class=p>)</span> <span class=nf>esp_camera_fb_return</span><span class=p>(</span><span class=n>fb</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 抓一帧算平均亮度
+</span></span></span><span class=line><span class=cl><span class=kt>camera_fb_t</span> <span class=o>*</span><span class=n>fb</span> <span class=o>=</span> <span class=nb>NULL</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=nf>camera_capture</span><span class=p>(</span><span class=o>&amp;</span><span class=n>fb</span><span class=p>)</span> <span class=o>!=</span> <span class=n>ESP_OK</span> <span class=o>||</span> <span class=n>fb</span> <span class=o>==</span> <span class=nb>NULL</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>camera_restore_jpeg</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 灰度模式一个像素一个字节，直接求和取平均
+</span></span></span><span class=line><span class=cl><span class=kt>uint32_t</span> <span class=n>sum</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=p>(</span><span class=kt>size_t</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>fb</span><span class=o>-&gt;</span><span class=n>len</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>sum</span> <span class=o>+=</span> <span class=n>fb</span><span class=o>-&gt;</span><span class=n>buf</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=n>avg</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span><span class=p>)(</span><span class=n>sum</span> <span class=o>/</span> <span class=n>fb</span><span class=o>-&gt;</span><span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=n>pct</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span><span class=p>)((</span><span class=kt>uint32_t</span><span class=p>)</span><span class=n>avg</span> <span class=o>*</span> <span class=mi>100</span> <span class=o>/</span> <span class=mi>255</span><span class=p>);</span>  <span class=c1>// 换算成百分比
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=n>is_dark</span> <span class=o>=</span> <span class=p>(</span><span class=n>pct</span> <span class=o>&lt;</span> <span class=n>cfg</span><span class=o>-&gt;</span><span class=n>flash_threshold</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 切回 JPEG 模式
+</span></span></span><span class=line><span class=cl><span class=nf>camera_restore_jpeg</span><span class=p>();</span></span></span></code></pre></td></tr></table></div></div></div></div><p>QQVGA 160×120 总共 19200 个像素，遍历一遍几百微秒，对性能没什么影响。灰度模式每个像素就是一个字节（0~255），直接求平均就行，简单粗暴。</p><p>不过有个前提条件：<strong>如果有人在浏览器看 MJPEG 画面，就不能做灰度探测</strong>——切模式会导致 MJPEG 流断掉。这种时候只能靠下面的备用方案。</p><h3 id=jpeg-大小反推亮度零开销的野路子>JPEG 大小反推亮度：零开销的野路子</h3><p>有人在线看画面的时候没法切模式，但还得判断亮度。怎么办？答案就藏在每一帧的 JPEG 数据里：<strong>JPEG 文件大小本身就是亮度指标</strong>。</p><p>原理不复杂。暗场景下画面大部分区域是黑的，大面积相同颜色 JPEG 压缩率非常高，文件就小。场景越亮细节越多，文件越大。实际拿 SVGA 分辨率、quality=10 测了一组数据：</p><ul><li>暗光（关灯）：12~14 KB</li><li>正常室内：14~17 KB</li><li>明亮（对着窗户）：17~25 KB</li></ul><p>根据这个做了个线性映射：</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=n>s_brightness</span><span class=p>.</span><span class=n>method</span> <span class=o>!=</span> <span class=mi>2</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 没有灰度数据，用 JPEG 大小估算
+</span></span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>jpeg_kb</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint32_t</span><span class=p>)</span><span class=n>frame_len</span> <span class=o>/</span> <span class=mi>1024</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span> <span class=n>pct</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>jpeg_kb</span> <span class=o>&gt;=</span> <span class=mi>22</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>pct</span> <span class=o>=</span> <span class=mi>100</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>else</span> <span class=k>if</span> <span class=p>(</span><span class=n>jpeg_kb</span> <span class=o>&lt;=</span> <span class=mi>12</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>pct</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>pct</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span><span class=p>)((</span><span class=n>jpeg_kb</span> <span class=o>-</span> <span class=mi>12</span><span class=p>)</span> <span class=o>*</span> <span class=mi>100</span> <span class=o>/</span> <span class=mi>10</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>s_brightness</span><span class=p>.</span><span class=n>method</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>s_brightness</span><span class=p>.</span><span class=n>brightness_pct</span> <span class=o>=</span> <span class=n>pct</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>s_brightness</span><span class=p>.</span><span class=n>is_dark</span> <span class=o>=</span> <span class=p>(</span><span class=n>pct</span> <span class=o>&lt;</span> <span class=n>cfg</span><span class=o>-&gt;</span><span class=n>flash_threshold</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>精度不如灰度采样，但好处是零额外开销——动态检测本来就要抓帧做帧差，JPEG 大小顺手拿到的，不多干一件事。</p><p>两套方案的关系：</p><ul><li>灰度探测（method=2）：精确，但得切模式，有人看画面时不能用</li><li>JPEG 大小推算（method=1）：精度一般，但随时能用，没有任何额外消耗</li></ul><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[每帧动态检测] --&gt; B{灰度探测可用？}
+    B --&gt;|30秒内探测过 &amp; 无 MJPEG 客户端| C[使用灰度探测结果]
+    B --&gt;|MJPEG 客户端在线或超时| D[用 JPEG 大小估算]
+    C --&gt; E{亮度 &lt; 阈值？}
+    D --&gt; E
+    E --&gt;|是| F[标记为暗场景]
+    E --&gt;|否| G[标记为亮场景]
+    F --&gt; H[检测到动态时开闪光灯拍照]
+    G --&gt; I[正常拍照]</code></pre></div></div><h3 id=闪光灯控制80-占空比保命>闪光灯控制：80% 占空比保命</h3><p>AI-Thinker ESP32-CAM 的闪光灯接在 GPIO4 上。这里有个硬件坑：<strong>板子上闪光灯没串限流电阻</strong>。LED 直接挂 GPIO 上，全功率跑的话电流可能超标，时间长搞不好烧板子。</p><p>所以用 LEDC PWM 控制，占空比卡在 80%（205/255），给自己留条后路：</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#define FLASH_GPIO            4
+</span></span></span><span class=line><span class=cl><span class=cp>#define FLASH_LEDC_TIMER      LEDC_TIMER_1   </span><span class=c1>// Timer 0 被 camera XCLK 占了
+</span></span></span><span class=line><span class=cl><span class=cp>#define FLASH_LEDC_CHANNEL    LEDC_CHANNEL_1
+</span></span></span><span class=line><span class=cl><span class=cp>#define FLASH_PWM_FREQ        2000           </span><span class=c1>// 2 kHz
+</span></span></span><span class=line><span class=cl><span class=cp>#define FLASH_PWM_RES         LEDC_TIMER_8_BIT
+</span></span></span><span class=line><span class=cl><span class=cp>#define FLASH_PWM_DUTY        205            </span><span class=c1>// 约 80%
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 开灯
+</span></span></span><span class=line><span class=cl><span class=nf>ledc_set_duty</span><span class=p>(</span><span class=n>FLASH_LEDC_SPEED</span><span class=p>,</span> <span class=n>FLASH_LEDC_CHANNEL</span><span class=p>,</span> <span class=n>FLASH_PWM_DUTY</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=nf>ledc_update_duty</span><span class=p>(</span><span class=n>FLASH_LEDC_SPEED</span><span class=p>,</span> <span class=n>FLASH_LEDC_CHANNEL</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 关灯
+</span></span></span><span class=line><span class=cl><span class=nf>ledc_set_duty</span><span class=p>(</span><span class=n>FLASH_LEDC_SPEED</span><span class=p>,</span> <span class=n>FLASH_LEDC_CHANNEL</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=nf>ledc_update_duty</span><span class=p>(</span><span class=n>FLASH_LEDC_SPEED</span><span class=p>,</span> <span class=n>FLASH_LEDC_CHANNEL</span><span class=p>);</span></span></span></code></pre></td></tr></table></div></div></div></div><p>注意 Timer 和 Channel 不能随便选。摄像头 XCLK 占了 Timer 0 / Channel 0，闪光灯必须用 Timer 1 / Channel 1，不然两个外设打架。这种坑 ESP-IDF 文档里可不会写，烧进去发现不对劲才知道。</p><h3 id=闪光灯只在拍照时用检测的时候绝不开>闪光灯只在拍照时用，检测的时候绝不开</h3><p>这个设计很关键。闪光灯只在做完帧差检测、确认有动态、需要保存照片的那一刻才开。<strong>做帧差比较的时候绝不开灯</strong>。</p><p>原因一想就明白：开灯关灯之间画面亮度剧烈变化，帧差算法一看——好家伙整个画面都在动，直接报个 80% 以上的差异，全成假报警了。</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>static</span> <span class=kt>void</span> <span class=nf>handle_motion_event</span><span class=p>(</span><span class=kt>bool</span> <span class=n>dark_scene</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>camera_fb_t</span> <span class=o>*</span><span class=n>fb</span> <span class=o>=</span> <span class=nb>NULL</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>dark_scene</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>ESP_LOGI</span><span class=p>(</span><span class=n>TAG</span><span class=p>,</span> <span class=s>&#34;Dark scene, flash ON for photo&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 开灯 → 等 200ms → 拍照 → 关灯
+</span></span></span><span class=line><span class=cl>        <span class=nf>ledc_set_duty</span><span class=p>(</span><span class=n>FLASH_LEDC_SPEED</span><span class=p>,</span> <span class=n>FLASH_LEDC_CHANNEL</span><span class=p>,</span> <span class=n>FLASH_PWM_DUTY</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>ledc_update_duty</span><span class=p>(</span><span class=n>FLASH_LEDC_SPEED</span><span class=p>,</span> <span class=n>FLASH_LEDC_CHANNEL</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>vTaskDelay</span><span class=p>(</span><span class=nf>pdMS_TO_TICKS</span><span class=p>(</span><span class=mi>200</span><span class=p>));</span>  <span class=c1>// 等白平衡追上来
+</span></span></span><span class=line><span class=cl>        <span class=nf>camera_capture</span><span class=p>(</span><span class=o>&amp;</span><span class=n>fb</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>ledc_set_duty</span><span class=p>(</span><span class=n>FLASH_LEDC_SPEED</span><span class=p>,</span> <span class=n>FLASH_LEDC_CHANNEL</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>ledc_update_duty</span><span class=p>(</span><span class=n>FLASH_LEDC_SPEED</span><span class=p>,</span> <span class=n>FLASH_LEDC_CHANNEL</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>fb</span> <span class=o>==</span> <span class=nb>NULL</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>camera_capture</span><span class=p>(</span><span class=o>&amp;</span><span class=n>fb</span><span class=p>);</span>  <span class=c1>// 不需要闪光灯就直接拍
+</span></span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// ... 存 TF 卡 / 上传 NAS ...
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>开灯之后等了 200ms 才拍照。刚开灯那会儿白平衡还没反应过来，拍出来颜色是偏的。等一下让 OV2640 的自动白平衡追上来，照片才看得清。</p><h3 id=暗场景自动降动态检测阈值>暗场景自动降动态检测阈值</h3><p>还有个细节：暗场景下 JPEG 帧差值天然偏低（画面暗细节少，压缩后帧间差异小），用正常阈值可能检测不到动态。所以暗场景自动把阈值降到原来的四分之一：</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=n>effective_thresh</span> <span class=o>=</span> <span class=n>dark_scene</span>
+</span></span><span class=line><span class=cl>    <span class=o>?</span> <span class=p>(</span><span class=n>cfg</span><span class=o>-&gt;</span><span class=n>motion_threshold</span> <span class=o>&gt;</span> <span class=mi>20</span> <span class=o>?</span> <span class=n>cfg</span><span class=o>-&gt;</span><span class=n>motion_threshold</span> <span class=o>/</span> <span class=mi>4</span> <span class=o>:</span> <span class=mi>5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=o>:</span> <span class=n>cfg</span><span class=o>-&gt;</span><span class=n>motion_threshold</span><span class=p>;</span></span></span></code></pre></td></tr></table></div></div></div></div><p>不多解释，想一下就能明白为什么。</p><h2 id=其他功能>其他功能</h2><p>闪光灯是花时间最多的部分，其他就没什么好展开的了，列一下：</p><ul><li><strong>MJPEG 流</strong>：双缓冲 + PSRAM，浏览器打开就能看</li><li><strong>WiFi 管理</strong>：AP/STA 双模式，首次上电 AP 配网，之后自动 STA</li><li><strong>TF 卡</strong>：GPIO14 跟摄像头共用，必须等摄像头初始化完再挂载，顺序搞错直接炸</li><li><strong>NAS 上传</strong>：WebDAV/HTTP POST，拍完自动传</li><li><strong>Web 界面</strong>：配参数、看状态、下照片，手机操作</li><li><strong>Prometheus 指标</strong>：<code>/metrics</code> 端点，丢进 Grafana 画面板</li></ul><h2 id=写在后面>写在后面</h2><p>回头看，接个光敏电阻可能半小时就完事了。但用摄像头本身做亮度检测这个思路，倒逼着把 OV2640 的模式切换、JPEG 压缩特性、LEDC PWM 资源分配这些细节都摸了一遍。值不值不好说，反正折腾的过程挺有意思的。</p><p>代码全在 GitHub：<a href=https://github.com/Mi-Bee-Studio/ai-thinker-esp32-cam>Mi-Bee-Studio/ai-thinker-esp32-cam</a>，README 里有构建和烧录步骤。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/esp32-cam/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+ESP32-CAM
+</a><a class=tag-chip href=/tags/esp-idf/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+ESP-IDF
+</a><a class=tag-chip href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+摄像头
+</a><a class=tag-chip href=/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+嵌入式
+</a><a class=tag-chip href=/tags/%E7%9B%91%E6%8E%A7/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+监控</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.93b6a704681d9dbad3752e57c1e95f2c407014828ddbcfea3c6113d0d5a33b13.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>
