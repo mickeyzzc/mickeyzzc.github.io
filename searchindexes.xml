@@ -1,4 +1,21 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>用 ESP32-S3 做了个监控摄像头 —— WiFi、TF 卡、视频输出踩坑实录</title><url>/posts/iot/esp32s3-cam-monitor/</url><categories><category>IOT</category></categories><tags><tag>ESP32-S3</tag><tag>ESP-IDF</tag><tag>摄像头</tag><tag>嵌入式</tag></tags><content type="html">&lt;![CDATA[ 起因 家里养了几只鹦鹉，白天上班的时候没人在家，想随时看看它们在干嘛。需求说起来简单：能实时看画面、能录像存下来、最好还能自动备份到 NAS 上。市面上的摄像头要么价格不便宜，要么要装各种 APP 注册账号绑手机号，隐私方面心里没底——我就是想看看鸟，不想把视频传到别人的服务器上。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>进化：Oh My OpenAgent 配置迭代实录</title><url>/posts/aihelper/oh-my-openagent-config-iteration/</url><categories><category>AI工具</category></categories><tags><tag>智谱AI</tag><tag>GLM-5</tag><tag>OpenCode</tag><tag>AI编程</tag><tag>多模型编排</tag><tag>OpenRouter</tag><tag>免费模型</tag></tags><content type="html">&lt;![CDATA[ 上一篇讲了初始配置的搭建过程，这篇记录跑了两周之后的调整：从单供应商扩展到四层模型池、补了降级链路、踩了 GLM-4.5-air 只分析不写代码的坑。
+文档包含：降级策略设计、免费模型池完整清单和分析、并发控制配置、GLM-4.5-air 替换方案的决策过程。
+上一篇文章写完初始配置，跑了两周，该修的都修出来了。
+从单模型到多供应商 初始配置有个问题：几乎所有 Agent 都绑在智谱 GLM 系列上，免费模型只打了几个酱油位。跑起来发现两个事——
+第一，GLM-4.7-flash 和 GLM-4.5-flash 已经下线了，配置里写的白写。第二，有些 GLM 模型连通性不稳定，glm-4.7-flashx、glm-5v-turbo 直接超时连不上。一旦主模型挂了，没有靠谱的降级链路，整个 Agent 就卡死。
+解决思路很简单：把模型池撑大。智谱 GLM 当主力，NVIDIA 的付费模型当备选，OpenRouter 的免费模型兜底。
+现在的模型来源变成四层：
+层 供应商 用途 1 zhipuai-coding-plan GLM 全系列，核心任务 2 nvidia 多品牌托管（Qwen、Nemotron、Devstral、DeepSeek） 3 openrouter 只用免费模型（free 后缀） 4 opencode 内置 免费保底 降级链路：API 挂了怎么办 这是初始配置里完全缺失的。加了 runtime_fallback 配置：
+json 1 2 3 4 5 6 &amp;#34;runtime_fallback&amp;#34;: { &amp;#34;enabled&amp;#34;: true, &amp;#34;retry_on_errors&amp;#34;: [400, 429, 503, 529], &amp;#34;max_fallback_attempts&amp;#34;: 3, &amp;#34;cooldown_seconds&amp;#34;: 60 } 每个 Agent 和 Category 都配了 fallback_models 数组。主模型 400/429/503/529 错误时，自动按顺序往下切。典型的链路：
+1 glm-5.1 → glm-5-turbo → glm-4.7 → NVIDIA 强模型 → OpenRouter 免费 → opencode 免费保底 实际触发过几次，主要是 429（智谱限流 … ]]></content></entry><entry><title>MiBeeNvr：我写的一个轻量级家用 NVR 系统</title><url>/posts/iot/mibee-nvr-introduction/</url><categories><category>IOT</category></categories><tags><tag>NVR</tag><tag>Go</tag><tag>RTSP</tag><tag>ESP32</tag><tag>小米摄像头</tag><tag>智能家居</tag></tags><content type="html">&lt;![CDATA[ 家里有好几个摄像头，两台小米，一台自己用 ESP32 搭的，还有一台树莓派 CSI 摄像头。之前一直在用一些云存储方案，但总觉得不放心：厂商绑定、依赖网络、费用还不少。索性自己动手，写了个 NVR 系统，就叫 MiBeeNvr。
+为什么做 MiBeeNvr 说实话，我对现有的云存储方案一直不太满意。先说小米摄像头吧，默认只能通过米家 app 查看，录像存储要么靠 SD 卡（容量有限，还得经常插拔），要么就得上云。云存储每个月几十块，而且最关键的是隐私问题——你不知道厂商什么时候会把你的视频数据拿去训练 AI，或者干脆就把数据卖给了第三方。更别提厂商绑定了，想换平台都难。
+ESP32 摄像头也是类似的情况。自己用 ESP32 搭了几个摄像头，录像是存 SD 卡，但查看和回放都不方便。需要一个统一的管理平台。
+市面上其他开源方案我也试过：ZoneMinder 需要 LAMP 堆栈，安装部署比我整个项目还复杂；Shinobi 配置复杂得一塌糊涂；还有些小众项目基本上都没维护了。Frigate 虽然不错，但主要是针对 AI 检测，而且依赖 Docker，太重了。
+说白了就是想要一个：
+单文件二进制，下载就能跑 资源占用要少，树莓派都能跑 支持多种摄像头，特别是小米私有协议 Web 界面要清爽，不用折腾前端 自动清理旧录像，不会占满硬盘 折腾了一圈发现，现成方案都不太合适，那就自己写一个吧。
+MiBeeNvr 是什么 MiBeeNvr 是一个用 Go 写的轻量级 NVR 系统，专门解决家用摄像头的本地存储问题。
+整体架构 先看一张全局架构图，整个系统长这样：
+mermaid graph TB subgraph 摄像头端 CAM1[&amp;#34;📷 小米摄像头&amp;lt;br/&amp;gt;miss 协议&amp;#34;] CAM2[&amp;#34;📷 ESP32 摄像头&amp;lt;br/&amp;gt;HTTP JPEG&amp;#34;] CAM3[&amp;#34;📷 树莓派 CSI&amp;lt;br/&amp;gt;RTSP H.264&amp;#34;] end subgraph 协议桥接 G2RTC[&amp;#34;go2rtc&amp;lt;br/&amp;gt;miss → RTSP&amp;#34;] MTX[&amp;#34;MediaMTX&amp;lt;br/&amp;gt;CSI → RTSP&amp;#34;] end subgraph MiBeeNvr direction TB … ]]></content></entry><entry><title>用 ESP32-S3 做了个监控摄像头 —— WiFi、TF 卡、视频输出踩坑实录</title><url>/posts/iot/esp32s3-cam-monitor/</url><categories><category>IOT</category></categories><tags><tag>ESP32-S3</tag><tag>ESP-IDF</tag><tag>摄像头</tag><tag>嵌入式</tag></tags><content type="html">&lt;![CDATA[ 起因 家里养了几只鹦鹉，白天上班的时候没人在家，想随时看看它们在干嘛。需求说起来简单：能实时看画面、能录像存下来、最好还能自动备份到 NAS 上。市面上的摄像头要么价格不便宜，要么要装各种 APP 注册账号绑手机号，隐私方面心里没底——我就是想看看鸟，不想把视频传到别人的服务器上。
 手上正好有一块 Seeed 的 XIAO ESP32-S3 Sense 开发板，自带 OV2640 摄像头，还有 TF 卡槽。ESP32-S3 本身有 WiFi，双核 240MHz，外挂 8MB PSRAM，跑个摄像头应用理论上完全够。于是就打算自己做一个：MiBeeHomeCam。
 既然打算开源，就把功能尽量做全面一些。目标很明确：用 ESP-IDF 从零写一个监控摄像头固件，MJPEG 实时流浏览器直接看，AVI 分段录像存 TF 卡，FTP/WebDAV 自动上传 NAS，再配个 Web 管理界面，加上 Prometheus 指标对接监控系统。后续我还计划做一个 NVR 来收集视频文件做视觉分析，不过那是后话了，这篇只聊摄像头本身。
 最终实现了这些功能：
