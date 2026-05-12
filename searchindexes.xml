@@ -1,4 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>ESP32-CAM 监控：小试牛刀写一个自助闪光</title><url>/posts/iot/ai-thinker-esp32-cam-flash/</url><categories><category>IOT</category></categories><tags><tag>ESP32-CAM</tag><tag>ESP-IDF</tag><tag>摄像头</tag><tag>嵌入式</tag><tag>监控</tag></tags><content type="html">&lt;![CDATA[ 起因 之前用 ESP32-S3 做了个监控摄像头，效果还行。后来翻抽屉发现还有一块 AI-Thinker 的 ESP32-CAM 开发板——就是那种十几块钱、自带 OV2640 摄像头和 TF 卡槽的经典板子。手上有就不用浪费，再做一个吧：ai-thinker-esp32-cam。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>MiBeeNvr v0.2.0 更新：Docker 部署、HLS 直播、录像合并，以及一份完整的安装指南</title><url>/posts/iot/mibee-nvr-v0.2/</url><categories><category>IOT</category></categories><tags><tag>NVR</tag><tag>Go</tag><tag>RTSP</tag><tag>摄像头</tag><tag>智能家居</tag><tag>HLS</tag></tags><content type="html">&lt;![CDATA[ 上一篇文章介绍了 MiBeeNvr 的基本功能和设计思路，距离 v0.1.0 发布也就一周时间，v0.2.0 紧跟着就出来了。这次更新内容不少，15 个新特性，有些是我自己需要的，有些是来自社区反馈的。
+这篇主要讲三件事：v0.2.0 有什么新东西、怎么从零开始部署、以及一些实际使用中的注意事项。
+v0.2.0 新功能概览 这次更新内容不少，按类别列一下：
+部署相关
+Docker 容器镜像（AMD64 + ARM64），发布到 GHCR 一键安装脚本 curl | bash 自动初始化 + 设置模式，首次启动无需配置文件 mibee-nvr init 交互式配置命令 mibee-nvr health 健康检查 录制和存储
+H.265 全链路支持（录制 + HLS 直播） HTTP JPEG 摄像头接入（ESP32-CAM 直连） 录像段自动合并，减少碎片文件 每摄像头独立保留天数 明文密码自动转 bcrypt hash 直播和协议
+HLS 按需直播流（H.264 / H.265） 子码流回退（带宽有限时自动降级） ONVIF 设备发现（后端框架已搭好） Web 界面
+Chart.js 统计图表（存储趋势 + 每摄像头统计） 明暗主题自动检测 中英文语言切换 响应式布局（手机 + 桌面） 合并进度监控面板 WebDAV 读写模式 挑几个重点展开说说。
+Docker 支持 这应该是挺必要的功能了。v0.1.0 只有二进制文件下载，虽然对老手来说够用了，但很多朋友还是习惯 Docker 一把梭。v0.2.0 提供了官方容器镜像，支持 AMD64 和 ARM64 双架构，发布在 GitHub Container Registry。
+关键点是：支持自动初始化。第一次启动不需要提前准备配置文件，容器会自己生成一份默认配置，然后进入「设置模式」——所有 API 都不需要认证，方便你通过 Web 界面完成首次配置。
+HLS 直播流 之前只能看录像，不能看实时画面。v0.2.0 加了 HLS 直播功能，支持 H.264 和 H.265 两种编码。实现在 Web UI 里点一下就能看，不需要额外装播放器。
+技术细节上用的是 gohlslib，按需生成 HLS 流——有客户端请求的时候才启动，没人看就自动释放资源。还做了异步帧写入，把 HLS 流和录制管线解耦，互不影响。
+另外一个实用的 … ]]></content></entry><entry><title>ESP32-CAM 监控：小试牛刀写一个自助闪光</title><url>/posts/iot/ai-thinker-esp32-cam-flash/</url><categories><category>IOT</category></categories><tags><tag>ESP32-CAM</tag><tag>ESP-IDF</tag><tag>摄像头</tag><tag>嵌入式</tag><tag>监控</tag></tags><content type="html">&lt;![CDATA[ 起因 之前用 ESP32-S3 做了个监控摄像头，效果还行。后来翻抽屉发现还有一块 AI-Thinker 的 ESP32-CAM 开发板——就是那种十几块钱、自带 OV2640 摄像头和 TF 卡槽的经典板子。手上有就不用浪费，再做一个吧：ai-thinker-esp32-cam。
 这次还是 ESP-IDF 从零写固件，功能跟上个项目差不多，但针对 AI-Thinker 这块板子做了不少适配。最终实现了这些东西：
 浏览器打开 IP 看 MJPEG 实时画面 动态检测，检测到动静自动拍照 暗光环境自动开闪光灯拍照 拍照存 TF 卡，支持 WebDAV 上传 NAS Web 管理界面，手机上就能配参数 Prometheus /metrics 端点接监控系统 WiFi AP/STA 双模式，首次上电手机配网 功能不复杂，但闪光灯那块逻辑花了我好几天。原因很简单：我懒得接光敏传感器。省了几根线，多写了几百行代码。
 闪光灯逻辑：不接传感器的代价 需求就一句话，实现折腾好几天 天黑了自动开闪光灯拍照——需求说起来就这么多。接个光敏电阻到 ADC 口，读个电压值就完事了，半小时搞定的活。但 AI-Thinker ESP32-CAM 的 GPIO 本来就紧张，闪光灯占了 GPIO4，TF 卡占了 GPIO2/14/15，摄像头一堆引脚，剩下的没几个能用了。多接一个传感器还要面包板、杜邦线、分压电阻……光是想想就不想动。
