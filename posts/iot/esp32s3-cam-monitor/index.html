@@ -16,9 +16,9 @@
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
 </a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
-</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-md"><span>摄像头</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
-</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
 </a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
 </a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span>
 </a><a href=/tags/arm/ class="tag-cloud__item tag-size-xs"><span>arm</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>用 ESP32-S3 做了个监控摄像头 —— WiFi、TF 卡、视频输出踩坑实录</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -26,9 +26,9 @@
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/iot/>IOT</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/esp32-s3/>ESP32-S3</a>, <a href=/tags/esp-idf/>ESP-IDF</a>, <a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/>摄像头</a>, <a href=/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/>嵌入式</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>5005 字</span>
+<span>5461 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-<span>10 分钟阅读</span></span></div></header><div class=Content><h2 id=起因>起因</h2><p>家里养了几只鹦鹉，白天上班的时候没人在家，想随时看看它们在干嘛。需求说起来简单：能实时看画面、能录像存下来、最好还能自动备份到 NAS 上。市面上的摄像头要么价格不便宜，要么要装各种 APP 注册账号绑手机号，隐私方面心里没底——我就是想看看鸟，不想把视频传到别人的服务器上。</p><p>手上正好有一块 Seeed 的 XIAO ESP32-S3 Sense 开发板，自带 OV2640 摄像头，还有 TF 卡槽。ESP32-S3 本身有 WiFi，双核 240MHz，外挂 8MB PSRAM，跑个摄像头应用理论上完全够。于是就打算自己做一个：<a href=https://github.com/Mi-Bee-Studio/seeed-esp32s3-cam>MiBeeHomeCam</a>。</p><p>既然打算开源，就把功能尽量做全面一些。目标很明确：用 ESP-IDF 从零写一个监控摄像头固件，MJPEG 实时流浏览器直接看，AVI 分段录像存 TF 卡，FTP/WebDAV 自动上传 NAS，再配个 Web 管理界面，加上 Prometheus 指标对接监控系统。后续我还计划做一个 NVR 来收集视频文件做视觉分析，不过那是后话了，这篇只聊摄像头本身。</p><p>最终实现了这些功能：</p><ul><li>浏览器打开设备 IP 就能看实时画面</li><li>自动分段录像（默认 5 分钟一段），循环存储不怕卡满</li><li>FTP/WebDAV 自动上传到 NAS</li><li>Web 界面管理配置、浏览/下载/删除录像文件</li><li>Prometheus <code>/metrics</code> 端点对接监控系统</li><li>WiFi AP/STA 双模式，首次上电手机配网</li></ul><p>功能听起来挺完整，但背后的坑是真不少。</p><h2 id=硬件选型>硬件选型</h2><p>用的是 Seeed XIAO ESP32-S3 Sense 这块板子，体积很小（拇指大小），但该有的都有：</p><ul><li>ESP32-S3 双核 240MHz，8MB Octal PSRAM</li><li>板载 OV2640 摄像头（也兼容 OV3660）</li><li>TF 卡槽（SPI 模式，1-bit SDMMC）</li><li>WiFi 2.4GHz（注意不支持 5GHz）</li><li>USB-C 供电</li></ul><p>说实话选这块板子主要是看中了体积小和自带摄像头+TF 卡槽，不用额外接线。但后面踩坑的时候才发现，板子本身也有一些"特色"问题。</p><h2 id=wifi连接都连不上还谈什么监控>WiFi：连接都连不上，还谈什么监控</h2><p>WiFi 问题是第一个把我搞崩溃的。固件写好了，烧进去，满心期待能看到画面，结果设备怎么都连不上路由器。</p><h3 id=认证超时auth-expired--assoc-expired>认证超时：auth expired / assoc expired</h3><p>串口日志里一直刷这些东西：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<span>11 分钟阅读</span></span></div></header><div class=Content><h2 id=起因>起因</h2><p>家里养了几只鹦鹉，白天上班的时候没人在家，想随时看看它们在干嘛。需求说起来简单：能实时看画面、能录像存下来、最好还能自动备份到 NAS 上。市面上的摄像头要么价格不便宜，要么要装各种 APP 注册账号绑手机号，隐私方面心里没底——我就是想看看鸟，不想把视频传到别人的服务器上。</p><p>手上正好有一块 Seeed 的 XIAO ESP32-S3 Sense 开发板，自带 OV2640 摄像头，还有 TF 卡槽。ESP32-S3 本身有 WiFi，双核 240MHz，外挂 8MB PSRAM，跑个摄像头应用理论上完全够。于是就打算自己做一个：<a href=https://github.com/Mi-Bee-Studio/seeed-esp32s3-cam>MiBeeHomeCam</a>。</p><p>既然打算开源，就把功能尽量做全面一些。目标很明确：用 ESP-IDF 从零写一个监控摄像头固件，MJPEG 实时流浏览器直接看，AVI 分段录像存 TF 卡，FTP/WebDAV 自动上传 NAS，再配个 Web 管理界面，加上 Prometheus 指标对接监控系统。后续我还计划做一个 NVR 来收集视频文件做视觉分析，不过那是后话了，这篇只聊摄像头本身。</p><p>最终实现了这些功能：</p><ul><li>浏览器打开设备 IP 就能看实时画面</li><li>自动分段录像（默认 5 分钟一段），循环存储不怕卡满</li><li>FTP/WebDAV 自动上传到 NAS</li><li>Web 界面管理配置、浏览/下载/删除录像文件</li><li>Prometheus <code>/metrics</code> 端点对接监控系统</li><li>WiFi AP/STA 双模式，首次上电手机配网</li></ul><p>功能听起来挺完整，但背后的坑是真不少。</p><h2 id=硬件选型>硬件选型</h2><p>用的是 Seeed XIAO ESP32-S3 Sense 这块板子，体积很小（拇指大小），但该有的都有：</p><ul><li>ESP32-S3 双核 240MHz，8MB Octal PSRAM</li><li>板载 OV2640 摄像头（也兼容 OV3660）</li><li>TF 卡槽（SPI 模式，1-bit SDMMC）</li><li>WiFi 2.4GHz（注意不支持 5GHz）</li><li>USB-C 供电</li></ul><p>说实话选这块板子主要是看中了体积小和自带摄像头+TF 卡槽，不用额外接线。但后面踩坑的时候才发现，板子本身也有一些"特色"问题。</p><h2 id=wifi连接都连不上还谈什么监控>WiFi：连接都连不上，还谈什么监控</h2><p>WiFi 问题是第一个把我搞崩溃的。固件写好了，烧进去，满心期待能看到画面，结果设备怎么都连不上路由器。</p><h3 id=认证超时auth-expired--assoc-expired>认证超时：auth expired / assoc expired</h3><p>串口日志里一直刷这些东西：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -67,15 +67,24 @@
 </span></span><span class=line><span class=cl>    <span class=nf>ESP_LOGE</span><span class=p>(</span><span class=n>TAG</span><span class=p>,</span> <span class=s>&#34;Failed to create event loop: %s&#34;</span><span class=p>,</span> <span class=nf>esp_err_err_to_name</span><span class=p>(</span><span class=n>ev_err</span><span class=p>));</span>
 </span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>ev_err</span><span class=p>;</span>
 </span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>已经是 <code>INVALID_STATE</code> 就忽略它，说明事件循环已经存在了，没必要 crash。这种问题说白了就是对 ESP-IDF 的事件模型理解不够深，文档里也没明确说这个函数不能重复调用。</p><h3 id=wifi-的其他注意事项>WiFi 的其他注意事项</h3><p>ESP32-S3 只支持 2.4 GHz，5 GHz 路由器的信号搜不到，这个不算坑但得知道。另外 AP/STA 双模式的设计也需要注意状态管理，不能在 AP 模式下去连外网，也不能在 STA 没连上的时候启动 SNTP 时间同步。我的做法是 19 步启动流程里，WiFi 初始化之后根据当前模式决定后续步骤的走向，STA 连接成功后再启动时间同步和录像。</p><p>WiFi 的模式切换流程大致是这样：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[上电] --&gt; B{有 WiFi 配置？}
-    B --&gt;|否| C[进入 AP 热点模式]
-    C --&gt; D[手机配网 192.168.4.1]
-    D --&gt; E[保存凭据并重启]
-    B --&gt;|是| F[STA 连接路由器]
+    A[&#34;上电&#34;] --&gt; B@{shape: diam, label: &#34;有 WiFi 配置？&#34;}
+    B --&gt;|&#34;否&#34;| C[&#34;进入 AP 热点模式&#34;]
+    C --&gt; D[&#34;手机配网 192.168.4.1&#34;]
+    D --&gt; E[&#34;保存凭据并重启&#34;]
+    B --&gt;|&#34;是&#34;| F[&#34;STA 连接路由器&#34;]
     E --&gt; F
-    F --&gt; G{连接成功？}
-    G --&gt;|是| H[同步时间 启动录像]
-    G --&gt;|否| F</code></pre></div></div><h2 id=tf-卡能挂上只是第一步>TF 卡：能挂上只是第一步</h2><p>TF 卡的问题比 WiFi 更隐蔽。WiFi 连不上好歹日志里能看到，TF 卡的问题有时候看起来"正常工作"了，实际上数据是坏的。</p><h3 id=spi-高速模式初始化失败>SPI 高速模式初始化失败</h3><p>XIAO ESP32-S3 Sense 的 TF 卡槽走的是 SPI 模式（1-bit SDMMC），不是 SDMMC 4-bit 模式。这意味着速度上限就比标准 SDMMC 低。我一开始把 SPI 时钟设成了 <code>SDMMC_FREQ_HIGHSPEED</code>（40MHz），想着能快则快。</p><p>结果一堆 TF 卡初始化失败：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+    F --&gt; G@{shape: diam, label: &#34;连接成功？&#34;}
+    G --&gt;|&#34;是&#34;| H[&#34;同步时间 启动录像&#34;]
+    G --&gt;|&#34;否&#34;| F
+
+    classDef decision fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef startup fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef config fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef running fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    class B,G decision
+    class A startup
+    class C,D,E config
+    class F,H running</code></pre></div></div><h2 id=tf-卡能挂上只是第一步>TF 卡：能挂上只是第一步</h2><p>TF 卡的问题比 WiFi 更隐蔽。WiFi 连不上好歹日志里能看到，TF 卡的问题有时候看起来"正常工作"了，实际上数据是坏的。</p><h3 id=spi-高速模式初始化失败>SPI 高速模式初始化失败</h3><p>XIAO ESP32-S3 Sense 的 TF 卡槽走的是 SPI 模式（1-bit SDMMC），不是 SDMMC 4-bit 模式。这意味着速度上限就比标准 SDMMC 低。我一开始把 SPI 时钟设成了 <code>SDMMC_FREQ_HIGHSPEED</code>（40MHz），想着能快则快。</p><p>结果一堆 TF 卡初始化失败：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -100,14 +109,21 @@
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=n>s_segment_cb</span> <span class=o>&amp;&amp;</span> <span class=n>completed_size</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>    <span class=nf>s_segment_cb</span><span class=p>(</span><span class=n>completed_file</span><span class=p>,</span> <span class=n>completed_size</span><span class=p>);</span>
 </span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=热插拔检测>热插拔检测</h3><p>TF 卡热插拔是实际使用中的刚需。我的方案是在 Core 1 上跑一个监控任务，每 10 秒轮询一次 SD 卡状态。拔出时停止录像并设 LED 为错误状态，插入时重新挂载并自动恢复录像。关键是检测到拔出后不能立刻尝试重新挂载，要等检测到插入信号后再操作，不然会疯狂重试挂载。</p><p>整个热插拔的状态机如下：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[上电 初始化 TF 卡] --&gt; B[已挂载]
-    B --&gt; C[自动开始录像
-每5分钟分段写入]
-    C --&gt; E[检测到 TF 卡移除
-LED 双闪报错]
-    E --&gt; G[检测到 TF 卡插入]
-    G --&gt; H[重新挂载 成功]
-    H --&gt; C</code></pre></div></div><h2 id=视频输出能录像--能播放>视频输出：能录像 ≠ 能播放</h2><p>视频输出这块是最让我头疼的。摄像头能采集帧数据、能写入文件、文件大小也正常，但下载下来播放——各种花式报错。</p><h3 id=avi-文件头偏移量写错>AVI 文件头偏移量写错</h3><p>这是最经典的一个 bug。录好的 AVI 文件在播放器里显示 &ldquo;0 帧&rdquo;，文件看起来有数据但就是播放不了。</p><p>根因在 <code>close_segment()</code> 函数里，AVI 头部的回填偏移量算错了：</p><ul><li><code>dwTotalFrames</code> 被写到了偏移量 40 的位置，但实际应该在 48</li><li><code>strh dwLength</code> 被写到了偏移量 136，实际应该在 140</li></ul><p>偏移量差了几个字节，导致播放器读到的帧数和时长都是 0，认为文件里没有视频数据。</p><p>正确的计算方式：</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+    A[&#34;上电 初始化 TF 卡&#34;] --&gt; B[&#34;已挂载&#34;]
+    B --&gt; C[&#34;自动开始录像&lt;br/&gt;每5分钟分段写入&#34;]
+    C --&gt; E[&#34;检测到 TF 卡移除&lt;br/&gt;LED 双闪报错&#34;]
+    E --&gt; G[&#34;检测到 TF 卡插入&#34;]
+    G --&gt; H[&#34;重新挂载 成功&#34;]
+    H --&gt; C
+
+    classDef mounted fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef recording fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef removed fill:#ffebee,stroke:#f44336,stroke-width:2px
+    classDef inserted fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    class A,B,H mounted
+    class C recording
+    class E removed
+    class G inserted</code></pre></div></div><h2 id=视频输出能录像--能播放>视频输出：能录像 ≠ 能播放</h2><p>视频输出这块是最让我头疼的。摄像头能采集帧数据、能写入文件、文件大小也正常，但下载下来播放——各种花式报错。</p><h3 id=avi-文件头偏移量写错>AVI 文件头偏移量写错</h3><p>这是最经典的一个 bug。录好的 AVI 文件在播放器里显示 &ldquo;0 帧&rdquo;，文件看起来有数据但就是播放不了。</p><p>根因在 <code>close_segment()</code> 函数里，AVI 头部的回填偏移量算错了：</p><ul><li><code>dwTotalFrames</code> 被写到了偏移量 40 的位置，但实际应该在 48</li><li><code>strh dwLength</code> 被写到了偏移量 136，实际应该在 140</li></ul><p>偏移量差了几个字节，导致播放器读到的帧数和时长都是 0，认为文件里没有视频数据。</p><p>正确的计算方式：</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -147,23 +163,43 @@ LED 双闪报错]
 </span></span></span><span class=line><span class=cl><span class=p>}</span>
 </span></span><span class=line><span class=cl><span class=n>s_current_file</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=sc>&#39;\0&#39;</span><span class=p>;</span> <span class=c1>// &lt;-- 清空当前文件名
 </span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=mjpeg-实时流的带宽瓶颈>MJPEG 实时流的带宽瓶颈</h3><p>实时视频流这块的限制主要在带宽。ESP32-S3 的 WiFi 吞吐量就那么多，SVGA（800×600）10fps 的 MJPEG 流在信号不好的时候会明显卡顿。我的做法是限制并发客户端最多 2 个，超过直接返回 503。实际使用中，把分辨率降到 VGA（640×480）或者把 JPEG 质量参数调高（数值越大压缩越狠，画质越差但带宽占用小），在 WiFi 信号一般的场景下会流畅很多。</p><h3 id=录像数据流>录像数据流</h3><p>一段完整的录像从采集到上传，经过的流程：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[摄像头采集帧] --&gt; B[写入 AVI 文件]
-    B --&gt; C{分段时长到？}
-    C --&gt;|否| A
-    C --&gt;|是| D[回填 AVI 头部]
-    D --&gt; E[回调：加入上传队列]
-    E --&gt; F[上传到 NAS]
-    F --&gt; G{剩余 &lt; 20%？}
-    G --&gt;|是| H[删除最早录像]
-    G --&gt;|否| A
-    H --&gt; A</code></pre></div></div><h3 id=整体架构>整体架构</h3><p>系统基于 FreeRTOS，双核分工明确——Core 0 专注实时任务确保不丢帧，Core 1 处理非实时任务：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[摄像头采集帧] --&gt; B[PSRAM 双缓冲]
-    B --&gt; C[录像任务 Core0]
-    C --&gt; D[TF 卡 AVI 分段]
-    D --&gt; E[NAS 上传 Core1]
-    E --&gt; F[FTP / WebDAV]
-    B --&gt; G[MJPEG 流]
-    G --&gt; H[浏览器 :80]</code></pre></div></div><p>核心设计是双核分工：Core 0 跑录像任务（高优先级，确保帧采集不被抢占导致丢帧），Core 1 跑上传、SD 监控、健康检测等非实时任务。摄像头帧缓冲分配在 PSRAM 上做双缓冲，没有 PSRAM 这事干不了。</p><p>启动流程是 <code>app_main()</code> 里的 19 步顺序初始化，关键步骤失败会记录错误日志但继续执行（功能降级），不会直接 crash。TF 卡热插拔检测每 10 秒轮询一次，循环存储在剩余空间低于 20% 时自动删除最早的录像。看门狗设了 30 秒超时，真卡死了就 panic 重启。</p><p>Web 管理界面做了 4 个页面：仪表盘看状态、配置页改参数、文件管理器浏览下载删除录像、预览页看实时流。所有配置通过 NVS 持久化，也支持 TF 卡上的配置文件覆盖（方便批量部署）。</p><h2 id=写在后面>写在后面</h2><p>回顾这个项目，最难的不是写功能代码，而是排查那些 &ldquo;明明代码看起来没问题但就是不工作&rdquo; 的 bug。WiFi 发射功率低是硬件问题、TF 卡 SPI 高速模式不稳定是协议兼容问题、AVI 头部偏移量错误是二进制文件格式问题——这些问题每一个都不是看代码能看出来的，都得在实际硬件上运行、用日志和工具一步步排查。</p><p>几个我觉得比较重要的经验：</p><ul><li><strong>AVI/RIFF 文件格式手动拼装很坑</strong>。每个字段的偏移量必须精确计算，建议写完之后用十六进制编辑器对照规范逐一验证，别等播放器报错了再查</li><li><strong>SPI 模式的 TF 卡速度有限</strong>。别想当然设 40MHz，20MHz 稳定比什么都重要</li><li><strong>XIAO ESP32-S3 的 WiFi 要手动设功率</strong>。不然在某些路由器上根本连不上，这个坑 Seeed 官方文档有提但很容易忽略</li><li><strong>VLC 的 <code>-vvv --file-logging</code> 是调试视频文件问题的利器</strong>。能看到每个字段的实际解析值，比猜快多了</li></ul><p>项目开源在 GitHub 上：<a href=https://github.com/Mi-Bee-Studio/seeed-esp32s3-cam>Mi-Bee-Studio/seeed-esp32s3-cam</a>，感兴趣的可以试试。固件可以直接从 Release 下载烧录，不需要自己编译。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/esp32-s3/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+    A[&#34;摄像头采集帧&#34;] --&gt; B[&#34;写入 AVI 文件&#34;]
+    B --&gt; C@{shape: diam, label: &#34;分段时长到？&#34;}
+    C --&gt;|&#34;否&#34;| A
+    C --&gt;|&#34;是&#34;| D[&#34;回填 AVI 头部&#34;]
+    D --&gt; E[&#34;回调：加入上传队列&#34;]
+    E --&gt; F[&#34;上传到 NAS&#34;]
+    F --&gt; G@{shape: diam, label: &#34;剩余 &lt; 20%？&#34;}
+    G --&gt;|&#34;是&#34;| H[&#34;删除最早录像&#34;]
+    G --&gt;|&#34;否&#34;| A
+    H --&gt; A
+
+    classDef capture fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef process fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef decision fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef upload fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef delete fill:#ffebee,stroke:#f44336,stroke-width:2px
+    class A capture
+    class B,D,E process
+    class C,G decision
+    class F upload
+    class H delete</code></pre></div></div><h3 id=整体架构>整体架构</h3><p>系统基于 FreeRTOS，双核分工明确——Core 0 专注实时任务确保不丢帧，Core 1 处理非实时任务：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[&#34;摄像头采集帧&#34;] --&gt; B@{shape: hex, label: &#34;PSRAM 双缓冲&#34;}
+    B --&gt; C[&#34;录像任务 Core0&#34;]
+    C --&gt; D@{shape: doc, label: &#34;TF 卡 AVI 分段&#34;}
+    D --&gt; E[&#34;NAS 上传 Core1&#34;]
+    E --&gt; F[&#34;FTP / WebDAV&#34;]
+    B --&gt; G[&#34;MJPEG 流&#34;]
+    G --&gt; H[&#34;浏览器 :80&#34;]
+
+    classDef capture fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef recording fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef upload fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef streaming fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    class A,B capture
+    class C,D recording
+    class E,F upload
+    class G,H streaming</code></pre></div></div><p>核心设计是双核分工：Core 0 跑录像任务（高优先级，确保帧采集不被抢占导致丢帧），Core 1 跑上传、SD 监控、健康检测等非实时任务。摄像头帧缓冲分配在 PSRAM 上做双缓冲，没有 PSRAM 这事干不了。</p><p>启动流程是 <code>app_main()</code> 里的 19 步顺序初始化，关键步骤失败会记录错误日志但继续执行（功能降级），不会直接 crash。TF 卡热插拔检测每 10 秒轮询一次，循环存储在剩余空间低于 20% 时自动删除最早的录像。看门狗设了 30 秒超时，真卡死了就 panic 重启。</p><p>Web 管理界面做了 4 个页面：仪表盘看状态、配置页改参数、文件管理器浏览下载删除录像、预览页看实时流。所有配置通过 NVS 持久化，也支持 TF 卡上的配置文件覆盖（方便批量部署）。</p><h2 id=写在后面>写在后面</h2><p>回顾这个项目，最难的不是写功能代码，而是排查那些 &ldquo;明明代码看起来没问题但就是不工作&rdquo; 的 bug。WiFi 发射功率低是硬件问题、TF 卡 SPI 高速模式不稳定是协议兼容问题、AVI 头部偏移量错误是二进制文件格式问题——这些问题每一个都不是看代码能看出来的，都得在实际硬件上运行、用日志和工具一步步排查。</p><p>几个我觉得比较重要的经验：</p><ul><li><strong>AVI/RIFF 文件格式手动拼装很坑</strong>。每个字段的偏移量必须精确计算，建议写完之后用十六进制编辑器对照规范逐一验证，别等播放器报错了再查</li><li><strong>SPI 模式的 TF 卡速度有限</strong>。别想当然设 40MHz，20MHz 稳定比什么都重要</li><li><strong>XIAO ESP32-S3 的 WiFi 要手动设功率</strong>。不然在某些路由器上根本连不上，这个坑 Seeed 官方文档有提但很容易忽略</li><li><strong>VLC 的 <code>-vvv --file-logging</code> 是调试视频文件问题的利器</strong>。能看到每个字段的实际解析值，比猜快多了</li></ul><p>项目开源在 GitHub 上：<a href=https://github.com/Mi-Bee-Studio/seeed-esp32s3-cam>Mi-Bee-Studio/seeed-esp32s3-cam</a>，感兴趣的可以试试。固件可以直接从 Release 下载烧录，不需要自己编译。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/esp32-s3/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
 ESP32-S3
 </a><a class=tag-chip href=/tags/esp-idf/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
 ESP-IDF
@@ -182,7 +218,7 @@ ESP-IDF
 </a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
 </a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
-<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.93b6a704681d9dbad3752e57c1e95f2c407014828ddbcfea3c6113d0d5a33b13.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.969793734b42df076360b391e1f301a3fbba79d3d986dd3dabdd63d5c3608def.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 <input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
 <button class=search-close id=search-close aria-label=关闭搜索>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>

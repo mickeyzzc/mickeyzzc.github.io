@@ -1,0 +1,237 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - Zhi主题使用一月记：Mermaid v11升级实战体验</title><meta name=description content="使用Zhi主题一个月后的体验分享，重点介绍Mermaid v11升级的技术细节和实际效果对比"><meta name=keywords content="Hugo,,Mermaid,,v11,,v10,,Zhi,,图表,,AI编程,,主题升级"><link rel=canonical href=/posts/aihelper/hugo-theme-zhi-v11-upgrade/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - Zhi主题使用一月记：Mermaid v11升级实战体验"><meta property="og:description" content="使用Zhi主题一个月后的体验分享，重点介绍Mermaid v11升级的技术细节和实际效果对比"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/aihelper/hugo-theme-zhi-v11-upgrade/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-13 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-13 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - Zhi主题使用一月记：Mermaid v11升级实战体验"><meta name=twitter:description content="使用Zhi主题一个月后的体验分享，重点介绍Mermaid v11升级的技术细节和实际效果对比"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.42aa127c3b05d48d28f1085dd540740341f8023dd8cb337b17da2de23ab41c41.css integrity="sha256-QqoSfDsF1I0o8Qhd1UB0A0H4Aj3YyzN7F9ot4jq0HEE=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#使用一月>使用一月</a></li><li><a href=#为什么升级到-v11>为什么升级到 v11</a></li><li><a href=#技术变化>技术变化</a><ul><li><a href=#mainjs-重写>main.js 重写</a></li><li><a href=#cdn-变更>CDN 变更</a></li></ul></li><li><a href=#v11-vs-v10-功能对比>v11 vs v10 功能对比</a><ul><li><a href=#节点形状扩展>节点形状扩展</a></li><li><a href=#样式控制>样式控制</a></li><li><a href=#新图表类型>新图表类型</a></li><li><a href=#布局引擎>布局引擎</a></li><li><a href=#序列图增强>序列图增强</a></li><li><a href=#主题变量定制>主题变量定制</a></li></ul></li><li><a href=#实际效果对比>实际效果对比</a><ul><li><a href=#v10-风格的图表>v10 风格的图表</a></li><li><a href=#v11-风格的图表>v11 风格的图表</a></li></ul></li><li><a href=#主题集成>主题集成</a></li><li><a href=#升级过程>升级过程</a></li><li><a href=#发布和部署>发布和部署</a></li><li><a href=#ai-的角色>AI 的角色</a></li><li><a href=#总结>总结</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
+</a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
+</a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
+</a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span>
+</a><a href=/tags/arm/ class="tag-cloud__item tag-size-xs"><span>arm</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Zhi主题使用一月记：Mermaid v11升级实战体验</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-13T00:00:00+00:00>May 13, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/ai%E5%B7%A5%E5%85%B7/>AI工具</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/hugo/>Hugo</a>, <a href=/tags/mermaid/>Mermaid</a>, <a href=/tags/zhi/>Zhi</a>, <a href=/tags/ai%E7%BC%96%E7%A8%8B/>AI编程</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2492 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>5 分钟阅读</span></span></div></header><div class=Content><h2 id=使用一月>使用一月</h2><p>距离上一篇 <a href=/posts/aihelper/hugo-theme-zhi-intro/>《给博客换了个主题：从 Hugo NexT 到自写的 Zhi》</a> 文章已经快一个月了。这一个月里，主题一直在稳定运行，没有出现重大问题。NexT 主题的替换是正确的决定，虽然初期有点适应，但现在的体验确实好很多。</p><p>一个月使用下来，主题的稳定性超出预期。当初的顾虑——没有构建工具、纯 Hugo Pipes 能否支持复杂需求——都被事实打脸了。日常维护变得很简单，要改功能不用再翻层层嵌套的 SCSS 文件，一个 CSS 文件搞定。</p><p>但说实话，这一个月也不是完全风平浪静。遇到的问题集中在几个地方，其中最明显的是 Mermaid 的使用体验。</p><h2 id=为什么升级到-v11>为什么升级到 v11</h2><p>用 Zhi 主题写了三四篇文章，发现 Mermaid v10 的局限性越来越明显。问题主要集中在几件事上：</p><p><strong>基本形状太少</strong>。v10 只提供 <code>[rect]</code>、<code>{diamond}</code>、<code>(rounded)</code>、<code>[(cylinder)]</code>、<code>((circle))</code> 这几种基本形状，画稍微复杂一点的架构图就捉襟见肘。想要画个文档图标、六边形、或者梯形，要么用文字替代，要么就得用复杂的代码模拟。</p><p><strong>样式控制弱</strong>。v10 几乎没有样式定制能力，节点只能通过文本内容改变，颜色、边框、字体大小这些基础样式都得靠手动添加 CSS。深色模式下的 Mermaid 图表总是看起来不太协调。</p><p><strong>新图表类型不支持</strong>。v11 引入了很多新的图表类型，比如 <code>architecture</code>（架构图）、<code>kanban</code>（看板图），这些在 v10 中根本不存在。对于技术博客来说，这些新图表类型的实用性很高。</p><p><strong>性能问题</strong>。v10 的初始化方式比较老套，用的是 <code>mermaid.initialize({startOnLoad:true})</code> 这种阻塞式加载，页面加载时会有明显的卡顿。</p><p>综合这些考虑，决定升级到 Mermaid v11。</p><h2 id=技术变化>技术变化</h2><h3 id=mainjs-重写>main.js 重写</h3><p>升级的核心在 <code>main.js</code> 的 <code>initMermaid()</code> 函数。原来的 v10 代码很简单：</p><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=nx>mermaid</span><span class=p>.</span><span class=nx>initialize</span><span class=p>({</span><span class=nx>startOnLoad</span><span class=o>:</span> <span class=kc>true</span><span class=p>});</span></span></span></code></pre></td></tr></table></div></div></div></div><p>v11 改成了 <code>async/await</code> 异步加载模式：</p><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>async</span> <span class=kd>function</span> <span class=nx>initMermaid</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=nx>hasMermaidCode</span> <span class=o>=</span> <span class=nb>document</span><span class=p>.</span><span class=nx>querySelector</span><span class=p>(</span><span class=s1>&#39;code.language-mermaid, pre.mermaid&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=nx>hasMermaidCode</span> <span class=o>||</span> <span class=o>!</span><span class=nb>window</span><span class=p>.</span><span class=nx>mermaid</span><span class=p>)</span> <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=nx>isDark</span> <span class=o>=</span> <span class=nb>document</span><span class=p>.</span><span class=nx>querySelector</span><span class=p>(</span><span class=s1>&#39;[data-theme=&#34;dark&#34;]&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kr>await</span> <span class=nb>window</span><span class=p>.</span><span class=nx>mermaid</span><span class=p>.</span><span class=nx>initialize</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>startOnLoad</span><span class=o>:</span> <span class=kc>false</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>securityLevel</span><span class=o>:</span> <span class=s1>&#39;loose&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>theme</span><span class=o>:</span> <span class=s1>&#39;base&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>themeVariables</span><span class=o>:</span> <span class=nx>isDark</span> <span class=o>?</span> <span class=nx>darkThemeVars</span> <span class=o>:</span> <span class=nx>lightThemeVars</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 处理代码块，替换为 pre 标签
+</span></span></span><span class=line><span class=cl>    <span class=nb>document</span><span class=p>.</span><span class=nx>querySelectorAll</span><span class=p>(</span><span class=s1>&#39;code.language-mermaid&#39;</span><span class=p>).</span><span class=nx>forEach</span><span class=p>(</span><span class=kd>function</span><span class=p>(</span><span class=nx>block</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kd>var</span> <span class=nx>pre</span> <span class=o>=</span> <span class=nb>document</span><span class=p>.</span><span class=nx>createElement</span><span class=p>(</span><span class=s1>&#39;pre&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nx>pre</span><span class=p>.</span><span class=nx>className</span> <span class=o>=</span> <span class=s1>&#39;mermaid&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=nx>pre</span><span class=p>.</span><span class=nx>textContent</span> <span class=o>=</span> <span class=nx>block</span><span class=p>.</span><span class=nx>textContent</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kd>var</span> <span class=nx>wrapper</span> <span class=o>=</span> <span class=nx>block</span><span class=p>.</span><span class=nx>closest</span><span class=p>(</span><span class=s1>&#39;.code-block-wrapper&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=nx>wrapper</span><span class=p>)</span> <span class=p>{</span> <span class=nx>wrapper</span><span class=p>.</span><span class=nx>replaceWith</span><span class=p>(</span><span class=nx>pre</span><span class=p>);</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span> <span class=p>{</span> <span class=nx>block</span><span class=p>.</span><span class=nx>replaceWith</span><span class=p>(</span><span class=nx>pre</span><span class=p>);</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kr>await</span> <span class=nb>window</span><span class=p>.</span><span class=nx>mermaid</span><span class=p>.</span><span class=nx>run</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>主要变化：</p><ol><li>从同步初始化改为异步 <code>async/await</code></li><li>只有检测到 Mermaid 代码块时才加载和初始化</li><li>支持暗色/亮色主题的 <code>themeVariables</code> 动态切换</li><li>主题设置从 <code>default</code> 改为 <code>base</code>，配合自定义 <code>themeVariables</code></li></ol><h3 id=cdn-变更>CDN 变更</h3><p><code>mermaid.html</code> 模板中的 CDN 链接也从版本号固定改为无版本号：</p><div class=code-block-wrapper data-lang=html><div class=code-block-header><div class=code-block-meta><span class=code-language>html</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-html data-lang=html><span class=line><span class=cl><span class=c>&lt;!-- v10 版本固定 --&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;</span><span class=nt>script</span> <span class=na>src</span><span class=o>=</span><span class=s>&#34;https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js&#34;</span><span class=p>&gt;&lt;/</span><span class=nt>script</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c>&lt;!-- v11 无版本号 --&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;</span><span class=nt>script</span> <span class=na>src</span><span class=o>=</span><span class=s>&#34;https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js&#34;</span><span class=p>&gt;&lt;/</span><span class=nt>script</span><span class=p>&gt;</span></span></span></code></pre></td></tr></table></div></div></div></div><p>这样永远使用最新版本，及时获取新功能和 bug 修复。</p><h2 id=v11-vs-v10-功能对比>v11 vs v10 功能对比</h2><h3 id=节点形状扩展>节点形状扩展</h3><p><strong>v10 基本形状</strong>：</p><ul><li><code>[rect]</code> 矩形</li><li><code>{diamond}</code> 菱形</li><li><code>(rounded)</code> 圆角矩形</li><li><code>[(cylinder)]</code> 圆柱形</li><li><code>((circle))</code> 圆形</li></ul><p><strong>v11 扩展形状</strong>：</p><ul><li><code>@{ shape: doc }</code> 文档图标</li><li><code>@{ shape: cyl }</code> 圆柱形</li><li><code>@{ shape: diam }</code> 菱形</li><li><code>@{ shape: hex }</code> 六边形</li><li><code>@{ shape: stadium }</code> 体育场形</li><li><code>@{ shape: rounded }</code> 圆角矩形</li><li><code>@{ shape: trapezoid }</code> 梯形</li><li><code>@{ shape: double-circle }</code> 双圆</li><li><code>@{ shape: circle }</code> 圆形</li></ul><h3 id=样式控制>样式控制</h3><p><strong>v10 几乎没有样式控制能力</strong>，只能通过文本内容来区分节点。</p><p><strong>v11 引入了 <code>classDef</code> 和 <code>class</code></strong>：</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=l>classDef primary fill:#e1f5fe,stroke:#0288d1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>classDef warn fill:#fff3e0,stroke:#ef6c00</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>classDef storage fill:#e8f5e9,stroke:#4caf50</span></span></span></code></pre></td></tr></table></div></div></div></div><p>然后给节点分配样式：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TD
+    A@{ shape: doc, label: &#34;Document&#34; } --&gt; B@{ shape: diam, label: &#34;Decision&#34; }
+    B --&gt;|Yes| C@{ shape: hex, label: &#34;Process&#34; }
+    B --&gt;|No| D@{ shape: cyl, label: &#34;Database&#34; }
+    
+    class A,C primary
+    class B warn
+    class D storage</code></pre></div></div><h3 id=新图表类型>新图表类型</h3><p><strong>v11 新增支持</strong>：</p><ul><li><code>architecture</code> (v11.1+) - 架构图，专门用于系统架构设计</li><li><code>kanban</code> (v11.0+) - 看板图，适合项目管理展示</li><li><code>timeline</code> 改进 - 更好的时间线样式控制</li><li><code>gitgraph</code> - Git 分支图增强</li></ul><h3 id=布局引擎>布局引擎</h3><p><strong>v11 支持 ELK 布局引擎</strong>，对于复杂图表的自动布局效果更好：</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=l>%%{init: {&#39;theme&#39;: &#39;base&#39;, &#39;themeVariables&#39;: {}}}%%</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>graph TD</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>A@{ shape: doc, label: &#34;前端应用&#34; } --&gt; B@{ shape: diam, label: &#34;负载均衡&#34; }</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>B --&gt; C@{ shape: cyl, label: &#34;应用服务器&#34; }</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>C --&gt; D@{ shape: cyl, label: &#34;数据库&#34; }</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>C --&gt; E@{ shape: cyl, label: &#34;缓存&#34; }</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=序列图增强>序列图增强</h3><p><strong>v11 支持矩形背景</strong>，这在 v10 中是没有的：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>sequenceDiagram
+    participant C as 客户端
+    participant S as 服务器
+    
+    rect rgba(76,175,80,0.1)
+        Note over C,S: 认证过程
+        C-&gt;&gt;S: login(username, password)
+        S-&gt;&gt;S: 验证用户信息
+        S-&gt;&gt;C: auth_token
+    end
+    
+    Note over C: 使用 token
+    C-&gt;&gt;S: api_call(auth_token)</code></pre></div></div><h3 id=主题变量定制>主题变量定制</h3><p><strong>v11 通过 <code>themeVariables</code> 全面控制样式</strong>：</p><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kd>var</span> <span class=nx>lightThemeVars</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>background</span><span class=o>:</span> <span class=s1>&#39;#FAFAFA&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>primaryColor</span><span class=o>:</span> <span class=s1>&#39;#EDE9F6&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>primaryBorderColor</span><span class=o>:</span> <span class=s1>&#39;#D5CFF0&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>primaryTextColor</span><span class=o>:</span> <span class=s1>&#39;#1A1A2E&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// ... 更多变量
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>darkThemeVars</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>background</span><span class=o>:</span> <span class=s1>&#39;#1e1e2e&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>primaryColor</span><span class=o>:</span> <span class=s1>&#39;#313244&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>primaryBorderColor</span><span class=o>:</span> <span class=s1>&#39;#45475a&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>primaryTextColor</span><span class=o>:</span> <span class=s1>&#39;#cdd6f4&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// ... 更多变量
+</span></span></span><span class=line><span class=cl><span class=p>};</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=实际效果对比>实际效果对比</h2><h3 id=v10-风格的图表>v10 风格的图表</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph LR
+    A[用户请求] --&gt; B{Nginx}
+    B --&gt;|静态资源| C[CDN]
+    B --&gt;|API 调用| D[Go 服务]
+    D --&gt; E[(PostgreSQL)]
+    D --&gt; F[(Redis)]
+    C --&gt; G[用户浏览器]</code></pre></div></div><p>问题：形状单一、样式单调、缺乏层次感。</p><h3 id=v11-风格的图表>v11 风格的图表</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TD
+    subgraph Collect[采集层]
+        A1@{ shape: doc, label: &#34;Prometheus Agent 1&#34; }
+        A2@{ shape: doc, label: &#34;Prometheus Agent 2&#34; }
+    end
+
+    subgraph VMAgent[vmagent 集群]
+        B1@{ shape: hex, label: &#34;vmagent-0&#34; }
+        B2@{ shape: hex, label: &#34;vmagent-1&#34; }
+    end
+
+    subgraph Storage[存储层]
+        D1@{ shape: cyl, label: &#34;vmstorage-0&#34; }
+        D2@{ shape: cyl, label: &#34;vmstorage-1&#34; }
+    end
+
+    A1 --&gt; B1
+    A2 --&gt; B2
+    B1 --&gt; D1
+    B2 --&gt; D2
+
+    classDef storage fill:#e8f5e9,stroke:#4caf50
+    classDef compute fill:#e3f2fd,stroke:#2196f3
+    class D1,D2 storage
+    class B1,B2 compute</code></pre></div></div><p>优势：形状丰富、样式分层、结构清晰、视觉效果好。</p><h2 id=主题集成>主题集成</h2><p>暗色/亮色切换时，v11 的重新渲染机制比 v10 好很多。v10 中切换主题后 Mermaid 图表不会自动更新，需要刷新页面。</p><p>v11 的实现很巧妙：</p><ol><li>点击主题切换时，给所有 Mermaid 容器添加 <code>re-rendering</code> 类</li><li>200ms 后重新初始化 Mermaid，使用新的 <code>themeVariables</code></li><li>清除容器的 <code>data-processed</code> 属性</li><li>重新注入图表内容</li><li>执行 <code>mermaid.run()</code> 渲染新主题的图表</li><li>移除 <code>re-rendering</code> 类</li></ol><p>这个机制确保了主题切换时图表能平滑过渡。</p><h2 id=升级过程>升级过程</h2><p>实际的升级过程比预想的简单。主要修改了两个文件：</p><ol><li><strong>mermaid.html</strong> - CDN 链接更新</li><li><strong>main.js</strong> - <code>initMermaid()</code> 函数重写</li></ol><p>代码量不大，但调试花了一些时间。主要问题是：</p><ul><li><code>async/await</code> 的错误处理需要完善</li><li>主题变量的暗色模式配色需要反复调整</li><li>重新渲染的延迟时间需要测试确定</li></ul><p>整个升级过程大概花了半天时间，大部分时间花在调试和样式优化上。</p><h2 id=发布和部署>发布和部署</h2><p>这次升级随着 Zhi 主题的 v0.1.0 版本一起发布。GitHub Actions 的 CI/CD 工作流在打 tag 时自动触发：</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Release</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>on</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>push</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>tags</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s1>&#39;v*&#39;</span></span></span></code></pre></td></tr></table></div></div></div></div><p>构建、测试、打包、发布一条龙完成。第一次使用 GitHub Releases 功能，体验比预想的好。</p><h2 id=ai-的角色>AI 的角色</h2><p>这次升级过程中，AI 扮演了重要角色。主要是：</p><ol><li><strong>API 文档查询</strong> - 查询 Mermaid v11 的官方文档，了解新功能</li><li><strong>代码生成</strong> - 根据 v11 API 重写了 <code>initMermaid()</code> 函数</li><li><strong>调试辅助</strong> - 帮助排查 <code>async/await</code> 的异步加载问题</li><li><strong>样式优化</strong> - 提供了 <code>themeVariables</code> 的配色方案建议</li></ol><p>特别值得一提的是，在处理主题切换时的重新渲染逻辑时，AI 的建议很有价值。第一次尝试时直接调用 <code>mermaid.initialize()</code> 会导致内存泄漏，AI 提供的解决方案是通过清除 <code>data-processed</code> 属性来实现正确的重渲染。</p><h2 id=总结>总结</h2><p>从 Mermaid v10 升级到 v11 是值得的。新功能确实带来更好的图表体验，特别是：</p><p><strong>形状扩展</strong>让图表更生动，不再受限于基本图形
+<strong>样式控制</strong>让图表有层次感，技术文档的专业度提升
+<strong>新图表类型</strong>拓展了使用场景
+<strong>异步加载</strong>改善了页面性能
+<strong>主题适配</strong>让暗色模式体验完美</p><p>虽然升级过程有一些技术细节需要处理，但总体来说是成功的体验。Zhi 主题在 Mermaid v11 支持上已经相当完善，能够满足大部分技术博客的图表需求。</p><p>其实还有其他可以升级的地方，比如 MathJax 的新版本、更好的代码高亮样式等。但这些可以留到下次迭代再说。现在的状态已经很稳定，先这样用着吧。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/hugo/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Hugo
+</a><a class=tag-chip href=/tags/mermaid/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Mermaid
+</a><a class=tag-chip href=/tags/zhi/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Zhi
+</a><a class=tag-chip href=/tags/ai%E7%BC%96%E7%A8%8B/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+AI编程</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.969793734b42df076360b391e1f301a3fbba79d3d986dd3dabdd63d5c3608def.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>

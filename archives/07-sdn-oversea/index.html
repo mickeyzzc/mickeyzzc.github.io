@@ -12,13 +12,13 @@
 </a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
 </a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
 <button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#前言邮件海外投递的挑战>前言：邮件海外投递的挑战</a></li><li><a href=#问题分析直连海外投递的痛点>问题分析：直连海外投递的痛点</a><ul><li><a href=#1-网络连通性问题>1. 网络连通性问题</a></li><li><a href=#2-性能瓶颈>2. 性能瓶颈</a></li><li><a href=#3-管理复杂度高>3. 管理复杂度高</a></li></ul></li><li><a href=#整体架构设计>整体架构设计</a><ul><li><a href=#海外mx节点分布>海外MX节点分布</a></li><li><a href=#加速通道设计>加速通道设计</a></li><li><a href=#国内rsdn代理集群>国内RSDN代理集群</a></li></ul></li><li><a href=#sdn智能投递网络>SDN智能投递网络</a><ul><li><a href=#规则管理sdnsvr>规则管理（SDNSVR）</a></li><li><a href=#通道选择策略>通道选择策略</a></li><li><a href=#负载均衡机制>负载均衡机制</a></li></ul></li><li><a href=#mx代理层设计与实现>MX代理层设计与实现</a><ul><li><a href=#mxproxy架构>MXPROXY架构</a></li><li><a href=#配置管理>配置管理</a></li></ul></li><li><a href=#transport路由更新机制>Transport路由更新机制</a><ul><li><a href=#pull配置机制>PULL配置机制</a><ul><li><a href=#自动更新脚本特点>自动更新脚本特点：</a></li></ul></li><li><a href=#push配置机制>PUSH配置机制</a><ul><li><a href=#核心配置文件示例>核心配置文件示例：</a></li></ul></li><li><a href=#邮件投递流程>邮件投递流程</a></li></ul></li><li><a href=#总结与经验>总结与经验</a><ul><li><a href=#技术成果>技术成果</a></li><li><a href=#关键技术点>关键技术点</a></li><li><a href=#实际应用效果>实际应用效果</a></li><li><a href=#未来优化方向>未来优化方向</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#前言邮件海外投递的挑战>前言：邮件海外投递的挑战</a></li><li><a href=#问题分析直连海外投递的痛点>问题分析：直连海外投递的痛点</a><ul><li><a href=#1-网络连通性问题>1. 网络连通性问题</a></li><li><a href=#2-性能瓶颈>2. 性能瓶颈</a></li><li><a href=#3-管理复杂度高>3. 管理复杂度高</a></li></ul></li><li><a href=#整体架构设计>整体架构设计</a><ul><li><a href=#海外mx节点分布>海外MX节点分布</a></li><li><a href=#加速通道设计>加速通道设计</a></li></ul></li><li><a href=#sdn智能投递网络>SDN智能投递网络</a><ul><li><a href=#规则管理sdnsvr>规则管理（SDNSVR）</a></li><li><a href=#通道选择策略>通道选择策略</a></li><li><a href=#负载均衡机制>负载均衡机制</a></li></ul></li><li><a href=#mx代理层设计与实现>MX代理层设计与实现</a><ul><li><a href=#mxproxy架构>MXPROXY架构</a></li><li><a href=#配置管理>配置管理</a></li></ul></li><li><a href=#transport路由更新机制>Transport路由更新机制</a><ul><li><a href=#pull配置机制>PULL配置机制</a><ul><li><a href=#自动更新脚本特点>自动更新脚本特点：</a></li></ul></li><li><a href=#push配置机制>PUSH配置机制</a><ul><li><a href=#核心配置文件示例>核心配置文件示例：</a></li></ul></li><li><a href=#邮件投递流程>邮件投递流程</a></li></ul></li><li><a href=#总结与经验>总结与经验</a><ul><li><a href=#技术成果>技术成果</a></li><li><a href=#关键技术点>关键技术点</a></li><li><a href=#实际应用效果>实际应用效果</a></li><li><a href=#未来优化方向>未来优化方向</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
 </a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
-</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-md"><span>摄像头</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
-</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
 </a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
 </a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span>
 </a><a href=/tags/arm/ class="tag-cloud__item tag-size-xs"><span>arm</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>海外邮件投递加速架构——智能投递网络实践</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -26,9 +26,9 @@
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/architecture/>Architecture</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/email/>Email</a>, <a href=/tags/networking/>Networking</a>, <a href=/tags/architecture/>Architecture</a>, <a href=/tags/mail-delivery/>Mail-Delivery</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>3608 字</span>
+<span>4514 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-<span>8 分钟阅读</span></span></div></header><div class=Content><h2 id=前言邮件海外投递的挑战>前言：邮件海外投递的挑战</h2><p>在全球化业务场景下，邮件投递面临着诸多挑战。海外邮件投递不仅要克服网络延迟问题，还要应对复杂的地缘网络环境。传统的直连海外投递方式常常遇到连接超时、被墙拦截、投递延迟高等问题。同时，国内邮件系统与海外网络的互通性也面临技术挑战。</p><p>为了解决这些问题，我们设计并实现了一套智能投递网络(Smart Delivery Network, SDN)架构，通过多级代理、智能路由和负载均衡机制，有效提升了海外邮件投递的效率和可靠性。</p><h2 id=问题分析直连海外投递的痛点>问题分析：直连海外投递的痛点</h2><h3 id=1-网络连通性问题>1. 网络连通性问题</h3><ul><li><strong>GFW拦截机制</strong>：海外邮件服务器经常受到网络限制，导致连接不稳定</li><li><strong>链路质量差</strong>：直连海外网络路径长，延迟高，丢包率大</li><li><strong>单点故障风险</strong>：依赖单一海外出口，一旦出现问题将影响全部投递</li></ul><h3 id=2-性能瓶颈>2. 性能瓶颈</h3><ul><li><strong>并发连接限制</strong>：单个海外邮件服务器的并发连接数有限</li><li><strong>投递延迟不稳定</strong>：垃圾邮件处理会影响正常邮件的投递效率</li><li><strong>资源竞争</strong>：正常邮件和垃圾邮件共享投递资源</li></ul><h3 id=3-管理复杂度高>3. 管理复杂度高</h3><ul><li><strong>多域名管理困难</strong>：需要为每个域名维护独立的投递配置</li><li><strong>配置更新繁琐</strong>：人工配置容易出错，维护成本高</li><li><strong>监控和故障排查困难</strong>：缺乏统一的监控和管理平台</li></ul><h2 id=整体架构设计>整体架构设计</h2><h3 id=海外mx节点分布>海外MX节点分布</h3><p>我们构建了全球化的MX节点分布体系，涵盖主要海外地区：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<span>10 分钟阅读</span></span></div></header><div class=Content><h2 id=前言邮件海外投递的挑战>前言：邮件海外投递的挑战</h2><p>在全球化业务场景下，邮件投递面临着诸多挑战。海外邮件投递不仅要克服网络延迟问题，还要应对复杂的地缘网络环境。传统的直连海外投递方式常常遇到连接超时、被墙拦截、投递延迟高等问题。同时，国内邮件系统与海外网络的互通性也面临技术挑战。</p><p>为了解决这些问题，我们设计并实现了一套智能投递网络(Smart Delivery Network, SDN)架构，通过多级代理、智能路由和负载均衡机制，有效提升了海外邮件投递的效率和可靠性。</p><h2 id=问题分析直连海外投递的痛点>问题分析：直连海外投递的痛点</h2><h3 id=1-网络连通性问题>1. 网络连通性问题</h3><ul><li><strong>GFW拦截机制</strong>：海外邮件服务器经常受到网络限制，导致连接不稳定</li><li><strong>链路质量差</strong>：直连海外网络路径长，延迟高，丢包率大</li><li><strong>单点故障风险</strong>：依赖单一海外出口，一旦出现问题将影响全部投递</li></ul><h3 id=2-性能瓶颈>2. 性能瓶颈</h3><ul><li><strong>并发连接限制</strong>：单个海外邮件服务器的并发连接数有限</li><li><strong>投递延迟不稳定</strong>：垃圾邮件处理会影响正常邮件的投递效率</li><li><strong>资源竞争</strong>：正常邮件和垃圾邮件共享投递资源</li></ul><h3 id=3-管理复杂度高>3. 管理复杂度高</h3><ul><li><strong>多域名管理困难</strong>：需要为每个域名维护独立的投递配置</li><li><strong>配置更新繁琐</strong>：人工配置容易出错，维护成本高</li><li><strong>监控和故障排查困难</strong>：缺乏统一的监控和管理平台</li></ul><h2 id=整体架构设计>整体架构设计</h2><h3 id=海外mx节点分布>海外MX节点分布</h3><p>我们构建了全球化的MX节点分布体系，涵盖主要海外地区：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -54,75 +54,101 @@
 </span></span><span class=line><span class=cl>亚太节点：
 </span></span><span class=line><span class=cl>- 日本东京：192.168.1.104（示例IP）
 </span></span><span class=line><span class=cl>- 韩国首尔：192.168.1.105（示例IP）</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=加速通道设计>加速通道设计</h3><p>架构中设计了多层加速通道，确保邮件投递的高效性和可靠性：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[国内邮件服务器] --&gt; B[国内北方节点]
-    A --&gt; C[国内南方节点]
-    A --&gt; D[第三方VPS节点]
-    B --&gt; E[核心交换层]
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    
+    A@{ shape: rounded, label: &#34;国内邮件服务器&#34; } --&gt; B@{ shape: hex, label: &#34;国内北方节点&#34; }
+    A --&gt; C@{ shape: hex, label: &#34;国内南方节点&#34; }
+    A --&gt; D@{ shape: hex, label: &#34;第三方VPS节点&#34; }
+    B --&gt; E@{ shape: hex, label: &#34;核心交换层&#34; }
     C --&gt; E
     D --&gt; E
-    E --&gt; F[北美MX代理]
-    E --&gt; G[欧洲MX代理]
-    E --&gt; H[亚太MX代理]
-    F --&gt; I[海外邮件服务器]
+    E --&gt; F@{ shape: hex, label: &#34;北美MX代理&#34; }
+    E --&gt; G@{ shape: hex, label: &#34;欧洲MX代理&#34; }
+    E --&gt; H@{ shape: hex, label: &#34;亚太MX代理&#34; }
+    F --&gt; I@{ shape: rounded, label: &#34;海外邮件服务器&#34; }
     G --&gt; I
-    H --&gt; I</code></pre></div></div><h3 id=国内rsdn代理集群>国内RSDN代理集群</h3><p>在国内主要机房部署了RSDN代理集群，实现智能分流和负载均衡：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    H --&gt; I
+    class A,I primary
+    class B,C,D,E,F,G,H network</code></pre></div></div><p>在国内主要机房部署了RSDN代理集群，实现智能分流和负载均衡：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    
     subgraph &#34;国内RSDN代理集群&#34;
-        A[杭州萧山节点] --&gt; B[&#34;智能投递网络(SDN)&#34;]
-        B --&gt; C[广州信息港节点]
+        A@{ shape: hex, label: &#34;杭州萧山节点&#34; } --&gt; B@{ shape: hex, label: &#34;智能投递网络(SDN)&#34; }
+        B --&gt; C@{ shape: hex, label: &#34;广州信息港节点&#34; }
         C --&gt; B
-        B --&gt; D[阿里云节点]
+        B --&gt; D@{ shape: hex, label: &#34;阿里云节点&#34; }
         D --&gt; B
     end
     
     subgraph &#34;海外MX集群&#34;
-        B --&gt; E[北美MX节点]
-        B --&gt; F[欧洲MX节点]
-        B --&gt; G[亚太MX节点]
+        B --&gt; E@{ shape: hex, label: &#34;北美MX节点&#34; }
+        B --&gt; F@{ shape: hex, label: &#34;欧洲MX节点&#34; }
+        B --&gt; G@{ shape: hex, label: &#34;亚太MX节点&#34; }
     end
     
     subgraph &#34;邮件投递目标&#34;
-        E --&gt; H[企业邮件系统A]
+        E --&gt; H@{ shape: rounded, label: &#34;企业邮件系统A&#34; }
         F --&gt; H
         G --&gt; H
-        B --&gt; I[企业邮件系统B]
-    end</code></pre></div></div><h2 id=sdn智能投递网络>SDN智能投递网络</h2><h3 id=规则管理sdnsvr>规则管理（SDNSVR）</h3><p>SDNSVR是智能投递网络的核心规则管理系统，负责管理和下发投递规则：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+        B --&gt; I@{ shape: rounded, label: &#34;企业邮件系统B&#34; }
+    end
+    class H,I primary
+    class A,B,C,D,E,F,G network</code></pre></div></div><h2 id=sdn智能投递网络>SDN智能投递网络</h2><h3 id=规则管理sdnsvr>规则管理（SDNSVR）</h3><p>SDNSVR是智能投递网络的核心规则管理系统，负责管理和下发投递规则：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    
     subgraph &#34;SDN规则管理&#34;
-        A[SDN规则配置] --&gt; B[SDNRule Server]
-        B --&gt; C{规则匹配}
-        C --&gt;|SDNLocation| D[地域匹配]
-        C --&gt;|SDNNodeName| E[节点名匹配]
-        C --&gt;|域名| F[域名通配匹配]
+        A@{ shape: doc, label: &#34;SDN规则配置&#34; } --&gt; B@{ shape: rounded, label: &#34;SDNRule Server&#34; }
+        B --&gt; C@{ shape: diam, label: &#34;规则匹配&#34; }
+        C --&gt;|SDNLocation| D@{ shape: rounded, label: &#34;地域匹配&#34; }
+        C --&gt;|SDNNodeName| E@{ shape: rounded, label: &#34;节点名匹配&#34; }
+        C --&gt;|域名| F@{ shape: rounded, label: &#34;域名通配匹配&#34; }
     end
     
     subgraph &#34;规则下发&#34;
-        D --&gt; G[生成策略文件 tsdndispatch.so]
+        D --&gt; G@{ shape: doc, label: &#34;生成策略文件 tsdndispatch.so&#34; }
         E --&gt; G
         F --&gt; G
-        G --&gt; H[投递代理 获取规则]
+        G --&gt; H@{ shape: rounded, label: &#34;投递代理 获取规则&#34; }
     end
     
     subgraph &#34;投递执行&#34;
-        H --&gt; I{匹配投递策略}
-        I --&gt;|海外通道| J[SDN Proxy 海外投递]
-        I --&gt;|国内通道| K[本地投递]
-        I --&gt;|垃圾通道| L[垃圾邮件通道]
-    end</code></pre></div></div><h3 id=通道选择策略>通道选择策略</h3><p>智能投递网络采用四级通道机制，根据反垃圾引擎的结果进行分类投递：</p><ol><li><strong>正常邮件通道</strong>：反垃圾引擎标记为正常邮件，通过专用通道快速投递，延迟低</li><li><strong>垃圾邮件通道</strong>：反垃圾引擎标记为垃圾邮件，通过垃圾通道排队投递，延迟不稳定</li><li><strong>退信通道</strong>：反垃圾引擎标记为垃圾的非退信邮件，300秒超时后自动退信</li><li><strong>丢信通道</strong>：反垃圾引擎标记为垃圾的退信邮件，300秒超时且重试2次后自动丢弃</li></ol><h3 id=负载均衡机制>负载均衡机制</h3><p>实现多重负载均衡确保系统稳定性：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+        H --&gt; I@{ shape: diam, label: &#34;匹配投递策略&#34; }
+        I --&gt;|海外通道| J@{ shape: rounded, label: &#34;SDN Proxy 海外投递&#34; }
+        I --&gt;|国内通道| K@{ shape: rounded, label: &#34;本地投递&#34; }
+        I --&gt;|垃圾通道| L@{ shape: rounded, label: &#34;垃圾邮件通道&#34; }
+    end
+    class B,H,K primary
+    class J network
+    class A,C,D,E,F,G,I,L process</code></pre></div></div><h3 id=通道选择策略>通道选择策略</h3><p>智能投递网络采用四级通道机制，根据反垃圾引擎的结果进行分类投递：</p><ol><li><strong>正常邮件通道</strong>：反垃圾引擎标记为正常邮件，通过专用通道快速投递，延迟低</li><li><strong>垃圾邮件通道</strong>：反垃圾引擎标记为垃圾邮件，通过垃圾通道排队投递，延迟不稳定</li><li><strong>退信通道</strong>：反垃圾引擎标记为垃圾的非退信邮件，300秒超时后自动退信</li><li><strong>丢信通道</strong>：反垃圾引擎标记为垃圾的退信邮件，300秒超时且重试2次后自动丢弃</li></ol><h3 id=负载均衡机制>负载均衡机制</h3><p>实现多重负载均衡确保系统稳定性：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    
     subgraph &#34;业务层&#34;
-        A[运维管理平台] --&gt; B[获取域名列表]
-        C[SDNSVR规则服务器] --&gt; D[智能调度]
-        E[&#34;SaaS平台MTA&#34;] --&gt; F[反垃圾引擎]
-        G[&#34;私有化部署MTA&#34;] --&gt; F
+        A@{ shape: rounded, label: &#34;运维管理平台&#34; } --&gt; B@{ shape: process, label: &#34;获取域名列表&#34; }
+        C@{ shape: rounded, label: &#34;SDNSVR规则服务器&#34; } --&gt; D@{ shape: process, label: &#34;智能调度&#34; }
+        E@{ shape: rounded, label: &#34;SaaS平台MTA&#34; } --&gt; F@{ shape: process, label: &#34;反垃圾引擎&#34; }
+        G@{ shape: rounded, label: &#34;私有化部署MTA&#34; } --&gt; F
     end
     
     subgraph &#34;加速层&#34;
-        H[代理负载均衡] --&gt; I[SDN通道01]
-        H --&gt; J[SDN通道02]
-        K[TCP负载均衡] --&gt; I
+        H@{ shape: hex, label: &#34;代理负载均衡&#34; } --&gt; I@{ shape: hex, label: &#34;SDN通道01&#34; }
+        H --&gt; J@{ shape: hex, label: &#34;SDN通道02&#34; }
+        K@{ shape: hex, label: &#34;TCP负载均衡&#34; } --&gt; I
         K --&gt; J
     end
     
     subgraph &#34;服务层&#34;
-        L[MX代理] --&gt; M[MTA投递]
+        L@{ shape: rounded, label: &#34;MX代理&#34; } --&gt; M@{ shape: process, label: &#34;MTA投递&#34; }
         M --&gt; F
         F --&gt;|结果反馈| M
         F --&gt;|通道选择| I
@@ -132,24 +158,32 @@
     B --&gt; H
     D --&gt; K
     I --&gt; E
-    J --&gt; G</code></pre></div></div><h2 id=mx代理层设计与实现>MX代理层设计与实现</h2><h3 id=mxproxy架构>MXPROXY架构</h3><p>MXPROXY是海外邮件投递的核心组件，负责协调各个子系统的运作：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    J --&gt; G
+    class A,C,E,G,L primary
+    class H,I,J,K network
+    class B,D,F,M process</code></pre></div></div><h2 id=mx代理层设计与实现>MX代理层设计与实现</h2><h3 id=mxproxy架构>MXPROXY架构</h3><p>MXPROXY是海外邮件投递的核心组件，负责协调各个子系统的运作：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    
     subgraph &#34;服务层&#34;
-        MXProxy[MX代理] --&gt; MTA[MTA投递服务]
-        MTA --&gt;|传输反垃圾信息| DA[&#34;反垃圾引擎&#34;]
+        MXProxy@{ shape: rounded, label: &#34;MX代理&#34; } --&gt; MTA@{ shape: process, label: &#34;MTA投递服务&#34; }
+        MTA --&gt;|传输反垃圾信息| DA@{ shape: process, label: &#34;反垃圾引擎&#34; }
     end
     
     subgraph &#34;加速层&#34;
-        ProxyLB[代理负载均衡] --&gt; RSDN01[智能投递网络通道01]
-        ProxyLB --&gt; RSDN02[智能投递网络通道02]
-        TCPLB[TCP负载均衡] --&gt; RSDN01
+        ProxyLB@{ shape: hex, label: &#34;代理负载均衡&#34; } --&gt; RSDN01@{ shape: hex, label: &#34;智能投递网络通道01&#34; }
+        ProxyLB --&gt; RSDN02@{ shape: hex, label: &#34;智能投递网络通道02&#34; }
+        TCPLB@{ shape: hex, label: &#34;TCP负载均衡&#34; } --&gt; RSDN01
         TCPLB --&gt; RSDN02
     end
     
     subgraph &#34;业务层&#34;
-        CmOps[&#34;运维管理平台&#34;] --&gt; getDomain[获取域名列表]
-        SDNSVR[规则服务器] --&gt;|获取SDN信息| TCPLB
-        OperatingMTA[&#34;SaaS平台MTA&#34;]
-        NonOperatingMTA[&#34;私有化部署MTA&#34;]
+        CmOps@{ shape: rounded, label: &#34;运维管理平台&#34; } --&gt; getDomain@{ shape: process, label: &#34;获取域名列表&#34; }
+        SDNSVR@{ shape: rounded, label: &#34;规则服务器&#34; } --&gt;|获取SDN信息| TCPLB
+        OperatingMTA@{ shape: rounded, label: &#34;SaaS平台MTA&#34; }
+        NonOperatingMTA@{ shape: rounded, label: &#34;私有化部署MTA&#34; }
     end
     
     MXProxy --&gt;|拉取域名列表| ProxyLB
@@ -159,7 +193,10 @@
     MTA --&gt;|发送邮件信息| DA
     DA --&gt;|获取反垃圾标签| MTA
     DA --&gt;|选择SDN通道| RSDN01
-    DA --&gt;|选择SDN通道| RSDN02</code></pre></div></div><h3 id=配置管理>配置管理</h3><p>MXPROXY的配置采用模块化设计，支持多种配置方式：</p><div class=code-block-wrapper data-lang=nginx><div class=code-block-header><div class=code-block-meta><span class=code-language>nginx</span></div><button class=copy-button aria-label="Copy code">
+    DA --&gt;|选择SDN通道| RSDN02
+    class MXProxy,CmOps,SDNSVR,OperatingMTA,NonOperatingMTA primary
+    class ProxyLB,RSDN01,RSDN02,TCPLB network
+    class MTA,DA,getDomain process</code></pre></div></div><h3 id=配置管理>配置管理</h3><p>MXPROXY的配置采用模块化设计，支持多种配置方式：</p><div class=code-block-wrapper data-lang=nginx><div class=code-block-header><div class=code-block-meta><span class=code-language>nginx</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -225,15 +262,24 @@
 </span></span><span class=line><span class=cl>        <span class=kn>proxy_pass</span> <span class=s>rsdnproxy_6677</span><span class=p>;</span>
 </span></span><span class=line><span class=cl>    <span class=p>}</span>
 </span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=transport路由更新机制>Transport路由更新机制</h2><h3 id=pull配置机制>PULL配置机制</h3><p>对于多域名且更新频率高的邮件系统，采用PULL配置机制：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[扫描域名配置] --&gt; B[获取远程域名列表]
-    B --&gt; C[MD5校验]
-    C --&gt; D{内容变更?}
-    D --&gt;|是| E[生成LUA解析脚本]
-    E --&gt; F[解析域名配置]
-    F --&gt; G[生成transport文件]
-    G --&gt; H[重新加载配置]
-    D --&gt;|否| I[保持现有配置]
-    H --&gt; J[投递服务更新]</code></pre></div></div><h4 id=自动更新脚本特点>自动更新脚本特点：</h4><ol><li><strong>智能MD5校验</strong>：通过MD5值判断配置是否变更</li><li><strong>LUA加速解析</strong>：使用LUA脚本加速配置文件解析</li><li><strong>自动重载机制</strong>：配置变更后自动重新加载服务</li><li><strong>错误恢复机制</strong>：支持配置回滚和错误恢复</li></ol><h3 id=push配置机制>PUSH配置机制</h3><p>对于单一域名且更新频率低的邮件系统，采用PUSH配置机制。</p><h4 id=核心配置文件示例>核心配置文件示例：</h4><div class=code-block-wrapper data-lang=ini><div class=code-block-header><div class=code-block-meta><span class=code-language>ini</span></div><button class=copy-button aria-label="Copy code">
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef alert fill:#ffcdd2,stroke:#c62828,stroke-width:2px
+    
+    A@{ shape: process, label: &#34;扫描域名配置&#34; } --&gt; B@{ shape: process, label: &#34;获取远程域名列表&#34; }
+    B --&gt; C@{ shape: process, label: &#34;MD5校验&#34; }
+    C --&gt; D@{ shape: diam, label: &#34;内容变更?&#34; }
+    D --&gt;|是| E@{ shape: process, label: &#34;生成LUA解析脚本&#34; }
+    E --&gt; F@{ shape: process, label: &#34;解析域名配置&#34; }
+    F --&gt; G@{ shape: doc, label: &#34;生成transport文件&#34; }
+    G --&gt; H@{ shape: process, label: &#34;重新加载配置&#34; }
+    D --&gt;|否| I@{ shape: rounded, label: &#34;保持现有配置&#34; }
+    H --&gt; J@{ shape: process, label: &#34;投递服务更新&#34; }
+    class I primary
+    class A,B,C,E,F,G,H,J process
+    class D alert</code></pre></div></div><h4 id=自动更新脚本特点>自动更新脚本特点：</h4><ol><li><strong>智能MD5校验</strong>：通过MD5值判断配置是否变更</li><li><strong>LUA加速解析</strong>：使用LUA脚本加速配置文件解析</li><li><strong>自动重载机制</strong>：配置变更后自动重新加载服务</li><li><strong>错误恢复机制</strong>：支持配置回滚和错误恢复</li></ol><h3 id=push配置机制>PUSH配置机制</h3><p>对于单一域名且更新频率低的邮件系统，采用PUSH配置机制。</p><h4 id=核心配置文件示例>核心配置文件示例：</h4><div class=code-block-wrapper data-lang=ini><div class=code-block-header><div class=code-block-meta><span class=code-language>ini</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -269,25 +315,35 @@
 </span></span><span class=line><span class=cl><span class=na>RemoteTransSet</span><span class=o>=</span><span class=s>&#34;remote:[192.168.1.101]:8025&#34;</span>
 </span></span><span class=line><span class=cl><span class=na>RemoteDomainUrl</span><span class=o>=</span><span class=s>&#34;http://192.168.1.201/app/getDomainListWithMD5.jsp&#34;</span>
 </span></span><span class=line><span class=cl><span class=na>ConfigFileName</span><span class=o>=</span><span class=s>&#34;0005_c2.cf&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=邮件投递流程>邮件投递流程</h3><p>整个邮件投递流程采用智能路由策略：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[业务系统发信] --&gt; B[投递代理投递]
-    B --&gt; C{反垃圾检查}
-    C --&gt;|正常邮件| D{SDN规则匹配}
-    C --&gt;|垃圾邮件| E[垃圾邮件处理]
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef alert fill:#ffcdd2,stroke:#c62828,stroke-width:2px
     
-    D --&gt;|海外邮件| F{目标IP地域判断}
-    D --&gt;|国内邮件| G[本地投递]
+    A@{ shape: rounded, label: &#34;业务系统发信&#34; } --&gt; B@{ shape: process, label: &#34;投递代理投递&#34; }
+    B --&gt; C@{ shape: diam, label: &#34;反垃圾检查&#34; }
+    C --&gt;|正常邮件| D@{ shape: diam, label: &#34;SDN规则匹配&#34; }
+    C --&gt;|垃圾邮件| E@{ shape: process, label: &#34;垃圾邮件处理&#34; }
     
-    F --&gt;|目标IP≠中国| H[SDN海外通道轮询投递]
+    D --&gt;|海外邮件| F@{ shape: diam, label: &#34;目标IP地域判断&#34; }
+    D --&gt;|国内邮件| G@{ shape: rounded, label: &#34;本地投递&#34; }
+    
+    F --&gt;|目标IP≠中国| H@{ shape: hex, label: &#34;SDN海外通道轮询投递&#34; }
     F --&gt;|目标IP=中国| G
     
-    H --&gt; I[SDN代理1]
-    H --&gt; J[SDN代理2]
-    H --&gt; K[SDN代理N]
+    H --&gt; I@{ shape: hex, label: &#34;SDN代理1&#34; }
+    H --&gt; J@{ shape: hex, label: &#34;SDN代理2&#34; }
+    H --&gt; K@{ shape: hex, label: &#34;SDN代理N&#34; }
     
-    I --&gt; L[投递完成]
+    I --&gt; L@{ shape: rounded, label: &#34;投递完成&#34; }
     J --&gt; L
     K --&gt; L
-    G --&gt; L</code></pre></div></div><h2 id=总结与经验>总结与经验</h2><h3 id=技术成果>技术成果</h3><ol><li><strong>突破GFW拦截</strong>：通过智能投递网络的多通道轮询机制，有效突破网络限制</li><li><strong>提升投递效率</strong>：通过负载均衡和智能路由，大幅提升邮件投递速度</li><li><strong>保障邮件质量</strong>：通过四级通道机制，确保正常邮件不受垃圾邮件影响</li><li><strong>降低运维成本</strong>：通过自动化配置管理和统一监控平台，降低运维复杂度</li></ol><h3 id=关键技术点>关键技术点</h3><ol><li><strong>智能DNS解析</strong>：根据收信人域名智能选择最优投递路径</li><li><strong>多级负载均衡</strong>：实现TCP层和应用层的双重负载均衡</li><li><strong>规则引擎</strong>：灵活的SDN规则管理，支持地域、节点、域名等多种匹配条件</li><li><strong>自动化运维</strong>：配置文件的自动更新和重载机制</li></ol><h3 id=实际应用效果>实际应用效果</h3><p>通过这套智能投递网络架构，我们实现了：</p><ul><li><strong>投递延迟降低</strong>：海外邮件投递延迟从平均30秒降低到5秒以内</li><li><strong>投递成功率提升</strong>：从原来的85%提升到98%以上</li><li><strong>系统稳定性增强</strong>：MTBF（平均无故障时间）从72小时提升到720小时</li><li><strong>运维效率提升</strong>：配置更新时间从小时级降低到分钟级</li></ul><h3 id=未来优化方向>未来优化方向</h3><ol><li><strong>机器学习优化</strong>：引入机器学习算法，根据历史数据预测最佳投递路径</li><li><strong>智能故障诊断</strong>：基于AI的故障预测和自动修复机制</li><li><strong>边缘计算</strong>：在边缘节点部署更多智能处理能力，减少中心节点压力</li><li><strong>安全加固</strong>：增强反垃圾引擎的能力，提高邮件安全性</li></ol><p>这套智能投递网络架构为全球化邮件投递提供了一套完整的解决方案，通过技术创新解决了传统邮件投递的诸多痛点，为企业全球化业务提供了可靠的技术支撑。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/email/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+    G --&gt; L
+    class A,G,L primary
+    class H,I,J,K network
+    class B,E process
+    class C,F alert</code></pre></div></div><h2 id=总结与经验>总结与经验</h2><h3 id=技术成果>技术成果</h3><ol><li><strong>突破GFW拦截</strong>：通过智能投递网络的多通道轮询机制，有效突破网络限制</li><li><strong>提升投递效率</strong>：通过负载均衡和智能路由，大幅提升邮件投递速度</li><li><strong>保障邮件质量</strong>：通过四级通道机制，确保正常邮件不受垃圾邮件影响</li><li><strong>降低运维成本</strong>：通过自动化配置管理和统一监控平台，降低运维复杂度</li></ol><h3 id=关键技术点>关键技术点</h3><ol><li><strong>智能DNS解析</strong>：根据收信人域名智能选择最优投递路径</li><li><strong>多级负载均衡</strong>：实现TCP层和应用层的双重负载均衡</li><li><strong>规则引擎</strong>：灵活的SDN规则管理，支持地域、节点、域名等多种匹配条件</li><li><strong>自动化运维</strong>：配置文件的自动更新和重载机制</li></ol><h3 id=实际应用效果>实际应用效果</h3><p>通过这套智能投递网络架构，我们实现了：</p><ul><li><strong>投递延迟降低</strong>：海外邮件投递延迟从平均30秒降低到5秒以内</li><li><strong>投递成功率提升</strong>：从原来的85%提升到98%以上</li><li><strong>系统稳定性增强</strong>：MTBF（平均无故障时间）从72小时提升到720小时</li><li><strong>运维效率提升</strong>：配置更新时间从小时级降低到分钟级</li></ul><h3 id=未来优化方向>未来优化方向</h3><ol><li><strong>机器学习优化</strong>：引入机器学习算法，根据历史数据预测最佳投递路径</li><li><strong>智能故障诊断</strong>：基于AI的故障预测和自动修复机制</li><li><strong>边缘计算</strong>：在边缘节点部署更多智能处理能力，减少中心节点压力</li><li><strong>安全加固</strong>：增强反垃圾引擎的能力，提高邮件安全性</li></ol><p>这套智能投递网络架构为全球化邮件投递提供了一套完整的解决方案，通过技术创新解决了传统邮件投递的诸多痛点，为企业全球化业务提供了可靠的技术支撑。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/email/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
 Email
 </a><a class=tag-chip href=/tags/networking/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
 Networking
@@ -306,7 +362,7 @@ Mail-Delivery</a></div><div class=donation-section><button class=donation-btn id
 </a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
 </a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
-<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.93b6a704681d9dbad3752e57c1e95f2c407014828ddbcfea3c6113d0d5a33b13.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.969793734b42df076360b391e1f301a3fbba79d3d986dd3dabdd63d5c3608def.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 <input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
 <button class=search-close id=search-close aria-label=关闭搜索>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>

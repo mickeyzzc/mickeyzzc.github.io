@@ -16,9 +16,9 @@
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
 </a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
-</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-md"><span>摄像头</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
-</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
 </a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
 </a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span>
 </a><a href=/tags/arm/ class="tag-cloud__item tag-size-xs"><span>arm</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>VictoriaMetrics指标流聚合三年回顾与现状（2026）</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -26,29 +26,29 @@
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/>可观测性</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/victoriametrics/>VictoriaMetrics</a>, <a href=/tags/prometheus/>Prometheus</a>, <a href=/tags/%E6%8C%87%E6%A0%87%E8%81%9A%E5%90%88/>指标聚合</a>, <a href=/tags/vmagent/>Vmagent</a>, <a href=/tags/stream-metrics-route/>Stream-Metrics-Route</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>2959 字</span>
+<span>2871 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 <span>6 分钟阅读</span></span></div></header><div class=Content><h2 id=前言>前言</h2><p>距离上一篇文章 <a href=https://blog.mickeyzzc.tech/posts/telemetry/stream-metrics-one/>《VictoriaMetrics的指标流聚合能力应用》</a> 发布于 <strong>2023年3月</strong>，至今已经整整三年。这三年里，VictoriaMetrics生态发生了翻天覆地的变化——让我们一起来回顾这篇博客提出的问题，看看官方解决了多少，我们的 <a href=https://github.com/mickeyzzc/stream-metrics-route>stream-metrics-route</a> 项目又在今天的位置。</p><hr><h2 id=一三年前我们遇到的问题回顾>一、三年前我们遇到的问题回顾</h2><p>让我们快速回顾一下2023年博客中提出的核心问题清单：</p><table><thead><tr><th>#</th><th>问题</th><th>2023年状态</th></tr></thead><tbody><tr><td>P1</td><td>采集断点问题</td><td>网络抖动或性能问题导致时间断点，流聚合差值计算被放大</td></tr><tr><td>P2</td><td>巨量数据单点算力极限</td><td>流聚合无历史状态，性能极优但存在单实例瓶颈</td></tr><tr><td>P3</td><td>分布式任务分配</td><td>数据分别给哪个算力点计算？</td></tr><tr><td>P4</td><td>同维度指标乱序丢弃</td><td>多节点计算后同维度指标因时间窗口不同导致后到值被丢弃</td></tr><tr><td>P5</td><td>资源均衡问题</td><td>分布式计算的资源均衡</td></tr><tr><td>P6</td><td>任务ID维度爆炸</td><td>流聚合组件会给每条聚合后时间线插入节点ID，横向扩容后维度标签增加</td></tr></tbody></table><p>为了解决这些问题，我们开发了 <strong>stream-metrics-route</strong>，一个基于Go语言的分布式流聚合网关。</p><hr><h2 id=二三年过去了官方做得怎么样>二、三年过去了，官方做得怎么样？</h2><p>我回顾了VictoriaMetrics从v1.86到v1.138.0的 <a href=https://victoriametrics.github.io/changelog/>Changelog</a> 和 <a href=https://docs.victoriametrics.com/victoriametrics/vmagent/>官方文档</a>，让我们逐个盘点一下官方在这三年里的努力：</p><h3 id=21-已完美解决->2.1 已完美解决 ✅</h3><h4 id=问题p3p5分布式任务分配与资源均衡>问题P3、P5：分布式任务分配与资源均衡</h4><p><strong>官方解决情况：</strong> vmagent现在原生支持了 <code>-remoteWrite.shardByURL</code>，配合一致性哈希分片！</p><p>从v1.86开始原生支持shardByURL，<strong>v1.138.0（2026-03）</strong> 更进一步，将数据分发算法从round-robin升级为 <strong>一致性哈希（consistent hashing）</strong>，大幅降低节点变更时的数据重分配比例 <a href=https://victoriametrics.github.io/changelog/changelog_2024/>Changelog记录</a>。</p><p><strong>vmagent的哈希分片架构演进：</strong></p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
-    subgraph 采集层
-        A1[Prometheus Agent 1]
-        A2[Prometheus Agent 2]
+    subgraph Collect[采集层]
+        A1@{ shape: doc, label: &#34;Prometheus Agent 1&#34; }
+        A2@{ shape: doc, label: &#34;Prometheus Agent 2&#34; }
     end
 
-    subgraph vmagent集群
+    subgraph VMAgent[vmagent 集群]
         direction TB
-        B1[vmagent实例 0]
-        B2[vmagent实例 1]
-        B3[vmagent实例 2]
+        B1(vmagent-0)
+        B2(vmagent-1)
+        B3(vmagent-2)
     end
 
-    subgraph 分片逻辑
-        C[&#34;一致性哈希\nxxHash算法&#34;]
+    subgraph Shard[分片逻辑]
+        C@{ shape: diam, label: &#34;一致性哈希&#34; }
     end
 
-    subgraph 存储层
-        D1[(vmstorage-0)]
-        D2[(vmstorage-1)]
-        D3[(vmstorage-2)]
+    subgraph Storage[存储层]
+        D1@{ shape: cyl, label: &#34;vmstorage-0&#34; }
+        D2@{ shape: cyl, label: &#34;vmstorage-1&#34; }
+        D3@{ shape: cyl, label: &#34;vmstorage-2&#34; }
     end
 
     A1 --&gt;|remote write| B1
@@ -56,20 +56,33 @@
     B1 --&gt; C
     B2 --&gt; C
     B3 --&gt; C
-    C --&gt;|分片 key1| D1
-    C --&gt;|分片 key2| D2
-    C --&gt;|分片 key3| D3</code></pre></div></div><blockquote><p><a href=https://victoriametrics.com/blog/vmagent-how-it-works/index.html>VictoriaMetrics博客</a> 中给出了具体算法实现的sharding部署建议，配合 <a href=https://github.com/VictoriaMetrics/operator/blob/master/docs/resources/vmagent.md>VictoriaMetrics Operator</a> 还支持通过 <code>shardCount</code> 直接管理分片。</p></blockquote><h4 id=问题p2单点算力扩展>问题P2：单点算力扩展</h4><p>现在vmagent支持水平扩展（sharding），可以用 <code>replicas</code> + <code>shardCount</code> 横向扩容，配合HA。详见 <a href=https://github.com/VictoriaMetrics/VictoriaMetrics/issues/5573>Issue #5573讨论</a>。</p><h4 id=乱序延迟数据准确性p1的部分缓解>乱序/延迟数据准确性（P1的部分缓解）</h4><p><strong>v1.112.0（2025-02）</strong> 是关键版本，新增了 <strong>Aggregation Windows</strong> 功能！为histogram和rate计算提供了<strong>双窗口缓冲模式</strong>，flush不立即执行，而是延迟一个 <code>samples_lag</code> 时间，大幅改善延迟数据的准确性，代价是内存翻倍（同时保持两个聚合窗口）。</p><p><strong>Aggregation Windows工作原理：</strong></p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>sequenceDiagram
-    participant Client as 采集端
-    participant VMAgent as vmagent
-    participant Storage as VictoriaMetrics
+    C --&gt;|shard 0| D1
+    C --&gt;|shard 1| D2
+    C --&gt;|shard 2| D3
 
-    Client-&gt;&gt;VMAgent: sample1 @T0
-    VMAgent-&gt;&gt;VMAgent: 缓存到窗口A
-    Client-&gt;&gt;VMAgent: sample2 @T1 (延迟)
-    VMAgent-&gt;&gt;VMAgent: 缓存到窗口B (prev)
-    Note over VMAgent: 双窗口缓冲
-    VMAgent-&gt;&gt;Storage: 聚合结果A @T2
-    VMAgent-&gt;&gt;Storage: 聚合结果B @T3</code></pre></div></div><p>官方文档参见：<a href=https://docs.victoriametrics.com/stream-aggregation/#aggregation-windows>Streaming aggregation - Aggregation windows</a></p><h3 id=22-仍未解决->2.2 仍未解决 ❌</h3><h4 id=真正的分布式流聚合协调>真正的分布式流聚合协调</h4><p>vmagent的流聚合是<strong>单实例内</strong>的聚合，多实例之间<strong>没有协调机制</strong>——如果同一个指标被两个vmagent实例分别聚合，会产生重复或冲突的数据。官方建议通过 <code>without</code>/<code>by</code> 标签来划分实例职责，而不是提供跨实例的分布式协调。</p><h4 id=任务id维度爆炸p6>任务ID维度爆炸P6</h4><p>官方vmagent仍会给聚合后的时间线插入内部标签（如 <code>_aggr</code> 相关标签），但没有类似 <code>stream_task_id</code> 前置标记 + 维度控制的设计。</p><hr><h2 id=三stream-metrics-route的现状与价值>三、stream-metrics-route的现状与价值</h2><h3 id=stream-metrics-route核心代码回顾>stream-metrics-route核心代码回顾：</h3><table><thead><tr><th>文件</th><th>作用</th></tr></thead><tbody><tr><td><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/pkg/router/router.go>router.go</a></td><td>路由核心，根据relabel规则过滤指标</td></tr><tr><td><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/pkg/remote/remotecluster.go#L39-L91>remotecluster.go</a></td><td><strong>双重hashmod调度核心！</strong></td></tr><tr><td><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/pkg/remote/remotewrite.go>remotewrite.go</a></td><td>remote write HTTP客户端</td></tr><tr><td><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/pkg/kafkaclient/kafka.go>kafka.go</a></td><td>Kafka生产者</td></tr></tbody></table><h3 id=核心算法remoteclustergo>核心算法（remotecluster.go）：</h3><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+    classDef storage fill:#e8f5e9,stroke:#4caf50
+    class D1,D2,D3 storage</code></pre></div></div><blockquote><p><a href=https://victoriametrics.com/blog/vmagent-how-it-works/index.html>VictoriaMetrics博客</a> 中给出了具体算法实现的sharding部署建议，配合 <a href=https://github.com/VictoriaMetrics/operator/blob/master/docs/resources/vmagent.md>VictoriaMetrics Operator</a> 还支持通过 <code>shardCount</code> 直接管理分片。</p></blockquote><h4 id=问题p2单点算力扩展>问题P2：单点算力扩展</h4><p>现在vmagent支持水平扩展（sharding），可以用 <code>replicas</code> + <code>shardCount</code> 横向扩容，配合HA。详见 <a href=https://github.com/VictoriaMetrics/VictoriaMetrics/issues/5573>Issue #5573讨论</a>。</p><h4 id=乱序延迟数据准确性p1的部分缓解>乱序/延迟数据准确性（P1的部分缓解）</h4><p><strong>v1.112.0（2025-02）</strong> 是关键版本，新增了 <strong>Aggregation Windows</strong> 功能！为histogram和rate计算提供了<strong>双窗口缓冲模式</strong>，flush不立即执行，而是延迟一个 <code>samples_lag</code> 时间，大幅改善延迟数据的准确性，代价是内存翻倍（同时保持两个聚合窗口）。</p><p><strong>Aggregation Windows工作原理：</strong></p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>sequenceDiagram
+    autonumber
+    participant C as 采集端
+    participant V as vmagent
+    participant S as VictoriaMetrics
+
+    rect rgba(76,175,80,0.1)
+        Note over C,V: 数据采集阶段
+        C-&gt;&gt;V: sample1 @T0
+        V-&gt;&gt;V: 写入窗口A (current)
+    end
+    rect rgba(255,152,0,0.1)
+        Note over C,V: 延迟数据到达
+        C-&gt;&gt;V: sample2 @T1 (延迟)
+        V-&gt;&gt;V: 写入窗口B (previous)
+    end
+    Note over V: 双窗口并行缓冲
+    rect rgba(33,150,243,0.1)
+        Note over V,S: 聚合输出
+        V-&gt;&gt;S: 聚合结果A @T2
+        V-&gt;&gt;S: 聚合结果B @T3
+    end</code></pre></div></div><p>官方文档参见：<a href=https://docs.victoriametrics.com/stream-aggregation/#aggregation-windows>Streaming aggregation - Aggregation windows</a></p><h3 id=22-仍未解决->2.2 仍未解决 ❌</h3><h4 id=真正的分布式流聚合协调>真正的分布式流聚合协调</h4><p>vmagent的流聚合是<strong>单实例内</strong>的聚合，多实例之间<strong>没有协调机制</strong>——如果同一个指标被两个vmagent实例分别聚合，会产生重复或冲突的数据。官方建议通过 <code>without</code>/<code>by</code> 标签来划分实例职责，而不是提供跨实例的分布式协调。</p><h4 id=任务id维度爆炸p6>任务ID维度爆炸P6</h4><p>官方vmagent仍会给聚合后的时间线插入内部标签（如 <code>_aggr</code> 相关标签），但没有类似 <code>stream_task_id</code> 前置标记 + 维度控制的设计。</p><hr><h2 id=三stream-metrics-route的现状与价值>三、stream-metrics-route的现状与价值</h2><h3 id=stream-metrics-route核心代码回顾>stream-metrics-route核心代码回顾：</h3><table><thead><tr><th>文件</th><th>作用</th></tr></thead><tbody><tr><td><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/pkg/router/router.go>router.go</a></td><td>路由核心，根据relabel规则过滤指标</td></tr><tr><td><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/pkg/remote/remotecluster.go#L39-L91>remotecluster.go</a></td><td><strong>双重hashmod调度核心！</strong></td></tr><tr><td><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/pkg/remote/remotewrite.go>remotewrite.go</a></td><td>remote write HTTP客户端</td></tr><tr><td><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/pkg/kafkaclient/kafka.go>kafka.go</a></td><td>Kafka生产者</td></tr></tbody></table><h3 id=核心算法remoteclustergo>核心算法（remotecluster.go）：</h3><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -88,44 +101,49 @@
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Value</span><span class=p>:</span><span class=w> </span><span class=nx>strconv</span><span class=p>.</span><span class=nf>Itoa</span><span class=p>(</span><span class=nx>dime</span><span class=p>),</span><span class=w>           </span><span class=c1>// 插入stream_task_id标签</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=p>})</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=nx>hashnode</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nf>sortLabelsHashKey</span><span class=p>(</span><span class=nx>filterLabels</span><span class=p>)</span><span class=w>  </span><span class=c1>// 第二次hashmod → 节点选择</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=nx>tmpch</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nf>hashMod</span><span class=p>(</span><span class=nx>r</span><span class=p>.</span><span class=nx>uplen</span><span class=p>,</span><span class=w> </span><span class=nx>hashnode</span><span class=p>)</span><span class=w>     </span><span class=c1>// 发往哪个后端writer</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=stream-metrics-route不可替代性分析>stream-metrics-route不可替代性分析</h3><p><strong>结论：</strong> <strong>stream-metrics-route在2026年仍然需要！但定位应从"完整的流聚合网关"调整为</strong>&ldquo;指标分发路由网关 + Kafka集成层&rdquo;**，核心差异化价值：</p><ol><li><strong>双重hashmod调度 + stream_task_id前置注入：</strong> 在网关层就给指标打上 <code>stream_task_id</code>，后续所有节点都按这个ID做一致性路由——这比官方方案更早在数据入口处解决维度控制问题</li><li><strong>多后端异步分发：</strong> 支持Kafka和remote write的异步分发，博客中提到的"同步转发阻塞时间窗口"问题得到了解决</li><li><strong>Prometheus relabeling原生集成</strong></li></ol><hr><h2 id=四推荐混合架构方案2026>四、推荐混合架构方案2026</h2><p><strong>推荐架构：</strong></p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
-    subgraph 采集层
-        direction TB
-        Prometheus[Prometheus/Agent集群]
-        KafkaProducer[业务系统指标]
+</span></span></span><span class=line><span class=cl><span class=nx>tmpch</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nf>hashMod</span><span class=p>(</span><span class=nx>r</span><span class=p>.</span><span class=nx>uplen</span><span class=p>,</span><span class=w> </span><span class=nx>hashnode</span><span class=p>)</span><span class=w>     </span><span class=c1>// 发往哪个后端writer</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=stream-metrics-route不可替代性分析>stream-metrics-route不可替代性分析</h3><p><strong>结论：</strong> <strong>stream-metrics-route在2026年仍然需要！但定位应从"完整的流聚合网关"调整为"指标分发路由网关 + Kafka集成层"，核心差异化价值：</strong></p><ol><li><strong>双重hashmod调度 + stream_task_id前置注入：</strong> 在网关层就给指标打上 <code>stream_task_id</code>，后续所有节点都按这个ID做一致性路由——这比官方方案更早在数据入口处解决维度控制问题</li><li><strong>多后端异步分发：</strong> 支持Kafka和remote write的异步分发，博客中提到的"同步转发阻塞时间窗口"问题得到了解决</li><li><strong>Prometheus relabeling原生集成</strong></li></ol><hr><h2 id=四推荐混合架构方案2026>四、推荐混合架构方案2026</h2><p><strong>推荐架构：</strong></p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph Collect[采集层]
+        Prometheus@{ shape: doc, label: &#34;Prometheus Agent 集群&#34; }
+        KafkaProducer@{ shape: doc, label: &#34;业务系统指标&#34; }
     end
 
-    subgraph 路由层
-        SMR[stream-metrics-route\n双重hashmod\nKafka集成]
+    subgraph Route[路由层]
+        SMR@{ shape: hex, label: &#34;stream-metrics-route&#34; }
     end
 
-    subgraph 聚合层
-        direction TB
-        vmagent0[vmagent-0\nenable_windows: true]
-        vmagent1[vmagent-1\nenable_windows: true]
-        vmagent2[vmagent-2\nenable_windows: true]
+    subgraph Aggregate[聚合层]
+        vmagent0(vmagent-0)
+        vmagent1(vmagent-1)
+        vmagent2(vmagent-2)
     end
 
-    subgraph 存储层
-        Victoria[(VictoriaMetrics Cluster)]
+    subgraph Storage[存储层]
+        Victoria@{ shape: cyl, label: &#34;VictoriaMetrics&#34; }
     end
 
-    subgraph 消费层
-        vmalert[vmalert\nRecord Rules]
-        Grafana[Grafana\n监控面板]
+    subgraph Consume[消费层]
+        vmalert(vmalert)
+        Grafana(Grafana)
     end
 
-    Prometheus --&gt;|remote write| SMR
-    KafkaProducer --&gt;|原始指标| SMR
-    SMR --&gt;|分片1 (stream_task_id=0)| vmagent0
-    SMR --&gt;|分片2 (stream_task_id=1)| vmagent1
-    SMR --&gt;|分片3 (stream_task_id=2)| vmagent2
-    SMR --&gt;|分流到Kafka| KafkaTopic[(Kafka Topic)]
-    vmagent0 --&gt;|聚合指标| Victoria
-    vmagent1 --&gt;|聚合指标| Victoria
-    vmagent2 --&gt;|聚合指标| Victoria
+    Prometheus --&gt; SMR
+    KafkaProducer --&gt; SMR
+    SMR --&gt;|task_id=0| vmagent0
+    SMR --&gt;|task_id=1| vmagent1
+    SMR --&gt;|task_id=2| vmagent2
+    SMR --&gt; Kafka@{ shape: cyl, label: &#34;Kafka Topic&#34; }
+    vmagent0 --&gt; Victoria
+    vmagent1 --&gt; Victoria
+    vmagent2 --&gt; Victoria
     Victoria --&gt; vmalert
-    Victoria --&gt; Grafana</code></pre></div></div><h3 id=关键配置建议>关键配置建议</h3><p><strong>vmagent版本要求：</strong> >= v1.112.0，启用聚合窗口：</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+    Victoria --&gt; Grafana
+
+    classDef route fill:#fff3e0,stroke:#ff9800
+    classDef storage fill:#e8f5e9,stroke:#4caf50
+    classDef consume fill:#e3f2fd,stroke:#2196f3
+    class SMR route
+    class Victoria,Kafka storage
+    class vmalert,Grafana consume</code></pre></div></div><h3 id=关键配置建议>关键配置建议</h3><p><strong>vmagent版本要求：</strong> >= v1.112.0，启用聚合窗口：</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -137,7 +155,7 @@
 </span></span></span><span class=line><span class=cl>- <span class=nt>match</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;http_request_duration_seconds_bucket&#39;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>interval</span><span class=p>:</span><span class=w> </span><span class=l>5m</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>without</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>instance]</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>enable_windows</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>   </span><span class=c># 👈 关键！启用聚合窗口</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>enable_windows</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>   </span><span class=c># 关键！启用聚合窗口</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>outputs</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>rate_sum]</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>部署：</strong> 可参考 <a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/examples/manifests/k8s/deploy.yaml>deploy.yaml示例</a></p><hr><h2 id=五演进建议>五、演进建议</h2><h3 id=51-短期建议>5.1 短期建议</h3><table><thead><tr><th>行动</th><th>说明</th></tr></thead><tbody><tr><td>升级vmagent版本到 >= v1.112.0</td><td>启用 <code>enable_windows: true</code> 改善histogram聚合准确性</td></tr><tr><td>评估是否仍需stream-metrics-route</td><td>如果没有Kafka需求、没有高基数 <code>stream_task_id</code> 控制需求，可以考虑迁移</td></tr></tbody></table><h3 id=52-中期建议>5.2 中期建议</h3><table><thead><tr><th>行动</th><th>说明</th></tr></thead><tbody><tr><td>stream-metrics-route仅作为前置路由层</td><td>保留hashmod任务分配 + Kafka分发</td></tr><tr><td>关闭原始指标的持久化</td><td>只在流聚合后写入storage，减少存储量</td></tr><tr><td>补充元数据管理模块</td><td>博客提到的 <code>ruler-handle-process</code>（动态Record Rule按维度拆分）值得自研或贡献</td></tr></tbody></table><h3 id=53-长期建议>5.3 长期建议</h3><table><thead><tr><th>行动</th><th>说明</th></tr></thead><tbody><tr><td>向官方贡献stream_task_id维度控制机制</td><td>如果这个设计经过生产验证</td></tr><tr><td>完善监控指标</td><td>补充流聚合相关的业务指标（各路由规则的队列深度、分发延迟）</td></tr></tbody></table><hr><h2 id=总结>总结</h2><table><thead><tr><th>维度</th><th>结论</th></tr></thead><tbody><tr><td>博客问题已解决比例</td><td>约50%（2/4核心问题通过官方升级解决，2/4仍需自研或保持现状）</td></tr><tr><td>stream-metrics-route还需要吗？</td><td><strong>仍然需要</strong>，定位调整为"指标分发路由网关 + Kafka集成层"</td></tr><tr><td>推荐架构</td><td>Prometheus → stream-metrics-route → vmagent v1.112.0+ → VictoriaMetrics Storage</td></tr></tbody></table><h3 id=参考链接>参考链接</h3><ul><li><a href=https://docs.victoriametrics.com/victoriametrics/vmagent/>VictoriaMetrics vmagent文档</a></li><li><a href=https://docs.victoriametrics.com/stream-aggregation/>Streaming aggregation官方文档</a></li><li><a href=https://victoriametrics.github.io/changelog/changelog_2024/>Changelog 2024-2026</a></li><li><a href=https://victoriametrics.com/blog/vmagent-how-it-works/index.html>VictoriaMetrics博客 - vmagent如何工作</a></li><li><a href=https://github.com/VictoriaMetrics/operator/blob/master/docs/resources/vmagent.md>VictoriaMetrics Operator - VMAgent</a></li><li><a href=https://github.com/VictoriaMetrics/VictoriaMetrics/issues/5573>Issue #5573 - HA vmagent部署建议</a></li><li><a href=https://github.com/mickeyzzc/stream-metrics-route>stream-metrics-route GitHub仓库</a></li></ul><p>三年过去，VictoriaMetrics生态已经成熟了很多，但我们仍然需要继续前进！</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/victoriametrics/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
 VictoriaMetrics
 </a><a class=tag-chip href=/tags/prometheus/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
@@ -159,7 +177,7 @@ Stream-Metrics-Route</a></div><div class=donation-section><button class=donation
 </a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
 </a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
-<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.93b6a704681d9dbad3752e57c1e95f2c407014828ddbcfea3c6113d0d5a33b13.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.969793734b42df076360b391e1f301a3fbba79d3d986dd3dabdd63d5c3608def.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 <input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
 <button class=search-close id=search-close aria-label=关闭搜索>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>

@@ -16,9 +16,9 @@
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
 </a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
-</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-md"><span>摄像头</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
-</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
 </a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
 </a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span>
 </a><a href=/tags/arm/ class="tag-cloud__item tag-size-xs"><span>arm</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Eyes On You：海量多云异构下的监控平台2022产品化演进之路</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -26,28 +26,28 @@
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/>可观测性</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/prometheus/>Prometheus</a>, <a href=/tags/%E7%9B%91%E6%8E%A7%E5%B9%B3%E5%8F%B0/>监控平台</a>, <a href=/tags/%E4%BA%A7%E5%93%81%E5%8C%96/>产品化</a>, <a href=/tags/%E6%9E%B6%E6%9E%84/>架构</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>2278 字</span>
+<span>2429 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 <span>5 分钟阅读</span></span></div></header><div class=Content><p>在多云部署、全球化组网、服务规模指数级增长的互联网业务场景中，监控平台早已超越“指标采集+告警通知”的基础定位，成为保障全链路稳定性的核心基建。本文基于大型互联网企业监控平台的真实演进历程，拆解2022年监控平台从<strong>规模化覆盖</strong>向<strong>产品化、易用化、智能化</strong>升级的完整规划与落地思路。</p><h2 id=平台现状海量多云异构的规模化挑战>平台现状：海量多云异构的规模化挑战</h2><p>随着业务全球布局，监控平台已进入<strong>超大规模、高度分散、异构混合</strong>的运行阶段，核心现状如下：</p><ul><li>资源规模：全网服务覆盖<strong>四大主流云厂商、多个海内外区域</strong>，包含57套Kubernetes集群、2420台非容器主机，以及百级规模的MySQL、MongoDB、Kafka、Redis、TiDB等中间件实例。</li><li>采集规模：指标采集量三年爆发式增长，2022年日均采集指标超<strong>3249亿条</strong>，峰值采集速率达<strong>376万条/秒</strong>，由122个分布式Prometheus节点分区域处理。</li><li>告警规模：统一接入四大云厂商监控+自建平台告警，每周向50+协作群组推送<strong>22万+条告警事件</strong>。</li></ul><p>当前平台呈现四大核心特征：<strong>多云差异化、多环境隔离、异域分散化、海量数据实时处理</strong>，业界尚无完全标准化的最优解，平台需持续迭代适配业务增长。</p><h2 id=核心痛点从能用到好用的关键鸿沟>核心痛点：从“能用”到“好用”的关键鸿沟</h2><p>经过前期规模化建设，监控平台完成了基础覆盖，但在<strong>产品化、易用性、有效性</strong>上仍存在明显短板，核心问题分为两大维度：</p><h3 id=指标采集处理平台>指标采集处理平台</h3><ol><li>多云厂商基建差异极大，资源自动发现与监控覆盖能力不足</li><li>指标命名不统一、采集节点分散，研发无法自助管理自有服务的监控策略</li><li>自定义监控上报流程繁琐，门槛高，拖慢监控覆盖效率</li></ol><h3 id=统一告警平台>统一告警平台</h3><ol><li>告警来源多、数据结构不统一，缺乏全局管控能力</li><li>告警数量泛滥、噪音过多，大幅降低故障感知与处置效率</li><li>告警事件透明度低，研发/运维无法自主管理与追溯告警生命周期</li></ol><h2 id=2021年建设底座平台化管理能力筑基>2021年建设底座：平台化管理能力筑基</h2><p>2021年聚焦<strong>把平台管理起来</strong>，完成监控平台从“分散工具”到“统一平台”的核心转变，搭建四大核心能力：</p><h3 id=核心系统建设>核心系统建设</h3><ul><li>服务发现注册系统：跨域分布式资源发现与注册，采用Sidecar模式对接CMDB、CICD，自动纳管全量可监控资源</li><li>统一告警平台：实现告警接入、归一化、流转、通知、归档的全生命周期管理</li><li>基础管控能力：告警静默/抑制、统计分析、策略管理、路由分发系统</li><li>可视化前台：面向运维的监控管理与告警处理门户</li></ul><h3 id=2021年监控平台核心架构>2021年监控平台核心架构</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TB
     subgraph 资源与生态层
-        A[主机/容器/中间件/数据库]
-        B[CMDB/CICD第三方系统]
+        A@{ shape: doc, label: &#34;主机/容器/中间件/数据库&#34; }
+        B@{ shape: doc, label: &#34;CMDB/CICD第三方系统&#34; }
     end
     subgraph 采集与发现层
-        C[服务发现注册系统]
-        D[分布式Prometheus集群]
-        E[Exporter/Sidecar采集组件]
+        C@{ shape: doc, label: &#34;服务发现注册系统&#34; }
+        D@{ shape: cyl, label: &#34;分布式Prometheus集群&#34; }
+        E@{ shape: doc, label: &#34;Exporter/Sidecar采集组件&#34; }
     end
     subgraph 告警中枢层
-        F[Alertmanager]
-        G[告警路由系统]
-        H[告警策略/静默/统计]
+        F@{ shape: hex, label: &#34;Alertmanager&#34; }
+        G@{ shape: doc, label: &#34;告警路由系统&#34; }
+        H@{ shape: doc, label: &#34;告警策略/静默/统计&#34; }
     end
     subgraph 通知与展示层
-        I[企业IM/短信]
-        J[个人/群组订阅]
-        K[监控管理WEB UI]
-        L[Grafana可视化]
+        I@{ shape: doc, label: &#34;企业IM/短信&#34; }
+        J@{ shape: doc, label: &#34;个人/群组订阅&#34; }
+        K@{ shape: doc, label: &#34;监控管理WEB UI&#34; }
+        L@{ shape: doc, label: &#34;Grafana可视化&#34; }
     end
     A --&gt; E
     B --&gt; C
@@ -58,7 +58,13 @@
     H --&gt; I
     H --&gt; J
     D --&gt; L
-    H --&gt; K</code></pre></div></div><h2 id=2022上半年规划研发侧一站式监控平台落地>2022上半年规划：研发侧一站式监控平台落地</h2><p>2022年上半年核心目标：<strong>面向研发团队，打造一站式、无感知、易用高效</strong>的监控使用体验，屏蔽底层多云、异域、隔离环境的复杂性，核心建设方向：</p><h3 id=核心设计理念>核心设计理念</h3><ul><li>OneIn：统一入口，无需关注环境、机房、云厂商差异</li><li>覆盖率：CICD+CMDB全链路自动化覆盖，无感接入监控</li><li>自助率：全流程自助操作，实现“Your Data, Your Rules”</li><li>可观测性：Metrics+Tracing+Logging融合打通</li></ul><h3 id=核心功能落地>核心功能落地</h3><ol><li><strong>一站式监控门户</strong>
+    H --&gt; K
+    classDef monitor fill:#e3f2fd,stroke:#1976d2
+    classDef storage fill:#e8f5e9,stroke:#4caf50
+    classDef alert fill:#fce4ec,stroke:#e53935
+    class A,B,C,E,G,H,I,J,K,L monitor
+    class D storage
+    class F alert</code></pre></div></div><h2 id=2022上半年规划研发侧一站式监控平台落地>2022上半年规划：研发侧一站式监控平台落地</h2><p>2022年上半年核心目标：<strong>面向研发团队，打造一站式、无感知、易用高效</strong>的监控使用体验，屏蔽底层多云、异域、隔离环境的复杂性，核心建设方向：</p><h3 id=核心设计理念>核心设计理念</h3><ul><li>OneIn：统一入口，无需关注环境、机房、云厂商差异</li><li>覆盖率：CICD+CMDB全链路自动化覆盖，无感接入监控</li><li>自助率：全流程自助操作，实现“Your Data, Your Rules”</li><li>可观测性：Metrics+Tracing+Logging融合打通</li></ul><h3 id=核心功能落地>核心功能落地</h3><ol><li><strong>一站式监控门户</strong>
 统一整合主机、容器、数据库、中间件全场景监控，支持按IP、业务信息、云厂商、区域快速检索资源。</li><li><strong>分钟级实例监控接入</strong>
 新资源上线后分钟级完成监控部署，无需手动配置，自动化完成采集与告警绑定。</li><li><strong>直观指标可视化</strong>
 提供CPU、内存、磁盘、网络、性能、连接数等多维度实时图表，支持自定义时间范围与刷新频率。</li><li><strong>负责人快速关联</strong>
@@ -86,7 +92,7 @@ Prometheus
 </a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
 </a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
-<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.93b6a704681d9dbad3752e57c1e95f2c407014828ddbcfea3c6113d0d5a33b13.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.969793734b42df076360b391e1f301a3fbba79d3d986dd3dabdd63d5c3608def.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 <input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
 <button class=search-close id=search-close aria-label=关闭搜索>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>

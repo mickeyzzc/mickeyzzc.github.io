@@ -16,9 +16,9 @@
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
 </a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
-</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-md"><span>摄像头</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
-</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
 </a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
 </a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span>
 </a><a href=/tags/arm/ class="tag-cloud__item tag-size-xs"><span>arm</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Linux高可用与负载均衡实战——从Keepalived到性能调优</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -26,24 +26,31 @@
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/linux/>Linux</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/linux/>Linux</a>, <a href=/tags/keepalived/>Keepalived</a>, <a href=/tags/haproxy/>Haproxy</a>, <a href=/tags/load-balancing/>Load-Balancing</a>, <a href=/tags/performance/>Performance</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>4078 字</span>
+<span>4694 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-<span>9 分钟阅读</span></span></div></header><div class=Content><h2 id=前言>前言</h2><p>在现代企业级应用架构中，高可用性和负载均衡是确保系统稳定运行的关键技术。本文将详细介绍如何通过Keepalived实现双机热备，使用HAProxy构建内网服务负载均衡，以及解决网络性能问题中的网卡软中断优化。通过实际案例和详细配置说明，帮助读者理解这些技术的核心原理和实战应用。</p><h2 id=keepalived双机热备部署>Keepalived双机热备部署</h2><h3 id=vrrp原理>VRRP原理</h3><p>虚拟路由冗余协议（Virtual Router Redundancy Protocol, VRRP）是用于实现路由器高可用的协议。在VRRP架构中，多台路由器组成一个虚拟路由器，其中一台作为主路由器（MASTER）负责处理实际的网络流量，其他作为备份路由器（BACKUP）。当主路由器发生故障时，备份路由器会立即接管，确保网络服务的连续性。</p><p>VRRP的核心概念包括：</p><ul><li><strong>虚拟路由器ID（VRID）</strong>：标识一个虚拟路由器组</li><li><strong>虚拟IP地址</strong>：虚拟路由器对外提供的IP地址</li><li><strong>优先级</strong>：决定路由器在组中的角色，数值越高优先级越高</li><li><strong>通告间隔</strong>：路由器发送心跳消息的时间间隔</li><li><strong>认证机制</strong>：确保只有授权的路由器可以加入虚拟路由器组</li></ul><p>在我们的架构中，配置了多个VRRP实例以实现不同网络段的高可用：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[虚拟路由器组] --&gt; B[外部网络VRRP实例]
-    A --&gt; C[内部网络VRRP实例]
-    B --&gt; D[服务器-1 主]
-    B --&gt; E[服务器-2 备份]
-    C --&gt; F[服务器-1 主]
-    C --&gt; G[服务器-2 备份]
+<span>10 分钟阅读</span></span></div></header><div class=Content><h2 id=前言>前言</h2><p>在现代企业级应用架构中，高可用性和负载均衡是确保系统稳定运行的关键技术。本文将详细介绍如何通过Keepalived实现双机热备，使用HAProxy构建内网服务负载均衡，以及解决网络性能问题中的网卡软中断优化。通过实际案例和详细配置说明，帮助读者理解这些技术的核心原理和实战应用。</p><h2 id=keepalived双机热备部署>Keepalived双机热备部署</h2><h3 id=vrrp原理>VRRP原理</h3><p>虚拟路由冗余协议（Virtual Router Redundancy Protocol, VRRP）是用于实现路由器高可用的协议。在VRRP架构中，多台路由器组成一个虚拟路由器，其中一台作为主路由器（MASTER）负责处理实际的网络流量，其他作为备份路由器（BACKUP）。当主路由器发生故障时，备份路由器会立即接管，确保网络服务的连续性。</p><p>VRRP的核心概念包括：</p><ul><li><strong>虚拟路由器ID（VRID）</strong>：标识一个虚拟路由器组</li><li><strong>虚拟IP地址</strong>：虚拟路由器对外提供的IP地址</li><li><strong>优先级</strong>：决定路由器在组中的角色，数值越高优先级越高</li><li><strong>通告间隔</strong>：路由器发送心跳消息的时间间隔</li><li><strong>认证机制</strong>：确保只有授权的路由器可以加入虚拟路由器组</li></ul><p>在我们的架构中，配置了多个VRRP实例以实现不同网络段的高可用：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A@{ shape: rounded, label: &#34;虚拟路由器组&#34; } --&gt; B@{ shape: rounded, label: &#34;外部网络VRRP实例&#34; }
+    A --&gt; C@{ shape: rounded, label: &#34;内部网络VRRP实例&#34; }
+    B --&gt; D@{ shape: rounded, label: &#34;服务器-1 主&#34; }
+    B --&gt; E@{ shape: rounded, label: &#34;服务器-2 备份&#34; }
+    C --&gt; F@{ shape: rounded, label: &#34;服务器-1 主&#34; }
+    C --&gt; G@{ shape: rounded, label: &#34;服务器-2 备份&#34; }
     
-    D --&gt; H[浮动IP1: 192.168.1.66]
-    D --&gt; I[浮动IP2: 192.168.1.67]
+    D --&gt; H@{ shape: hex, label: &#34;浮动IP1: 192.168.1.66&#34; }
+    D --&gt; I@{ shape: hex, label: &#34;浮动IP2: 192.168.1.67&#34; }
     E --&gt; H
     E --&gt; I
-    F --&gt; J[浮动IP3: 192.168.2.12]
-    F --&gt; K[浮动IP4: 192.168.2.16]
+    F --&gt; J@{ shape: hex, label: &#34;浮动IP3: 192.168.2.12&#34; }
+    F --&gt; K@{ shape: hex, label: &#34;浮动IP4: 192.168.2.16&#34; }
     G --&gt; J
-    G --&gt; K</code></pre></div></div><h3 id=完整配置详解>完整配置详解</h3><h4 id=服务器-1-配置>服务器-1 配置</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+    G --&gt; K
+    
+    classDef primary fill:#e3f2fd,stroke:#1976d2
+    classDef network fill:#fff3e0,stroke:#ff9800
+    classDef alert fill:#ffebee,stroke:#f44336
+    class A,B,C primary
+    class D,E,F,G network
+    class H,I,J,K alert</code></pre></div></div><h3 id=完整配置详解>完整配置详解</h3><h4 id=服务器-1-配置>服务器-1 配置</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -418,36 +425,49 @@
 </span></span><span class=line><span class=cl>        192.168.2.23 dev br1
 </span></span><span class=line><span class=cl>    <span class=o>}</span>
 </span></span><span class=line><span class=cl><span class=o>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=配置要点解析>配置要点解析</h4><ol><li><p><strong>优先级设置</strong>：服务器-1在外部网络VRRP实例（EX_1）和内部网络VRRP实例（INT_1）中设置为100，为主节点；服务器-2在EX_2和INT_2中设置为100，为主节点。这种设计实现了负载均衡的同时确保高可用。</p></li><li><p><strong>非抢占模式</strong>：配置中的<code>#nopreempt</code>注释表明采用非抢占模式，即主节点恢复后不会立即抢占资源，避免网络震荡。</p></li><li><p><strong>双网络架构</strong>：分别处理外部网络（EX实例）和内部网络（INT实例）的流量，实现网络隔离和独立高可用。</p></li><li><p><strong>认证机制</strong>：使用简单的密码认证确保VRRP通信的安全性。</p></li></ol><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[业务系统客户端] --&gt; B[外部网络]
-    B --&gt; C[浮动IP 192.168.1.66-69]
-    C --&gt; D[Keepalived VIP]
+    A@{ shape: rounded, label: &#34;业务系统客户端&#34; } --&gt; B@{ shape: rounded, label: &#34;外部网络&#34; }
+    B --&gt; C@{ shape: hex, label: &#34;浮动IP 192.168.1.66-69&#34; }
+    C --&gt; D@{ shape: hex, label: &#34;Keepalived VIP&#34; }
     
-    E[内部业务系统] --&gt; F[内部网络]
-    F --&gt; G[浮动IP 192.168.2.12-23]
-    G --&gt; H[Keepalived VIP]
+    E@{ shape: rounded, label: &#34;内部业务系统&#34; } --&gt; F@{ shape: rounded, label: &#34;内部网络&#34; }
+    F --&gt; G@{ shape: hex, label: &#34;浮动IP 192.168.2.12-23&#34; }
+    G --&gt; H@{ shape: hex, label: &#34;Keepalived VIP&#34; }
     
-    D --&gt; I[服务器-1/服务器-2]
+    D --&gt; I@{ shape: rounded, label: &#34;服务器-1/服务器-2&#34; }
     H --&gt; I
     
-    I --&gt; J[业务系统服务]</code></pre></div></div><h2 id=haproxy内网服务负载均衡>HAProxy内网服务负载均衡</h2><h3 id=tcp模式负载均衡>TCP模式负载均衡</h3><h4 id=部署架构>部署架构</h4><p>针对业务系统的两个核心服务（杀毒服务和投递服务），我们在服务器-1和服务器-2上部署了HAProxy实现负载均衡。这种架构的优势在于：</p><ol><li><strong>服务可用性</strong>：单台网关故障不会影响后端客户业务系统</li><li><strong>负载分担</strong>：多台服务器共同承担服务压力</li><li><strong>透明切换</strong>：后端配置无需感知具体的服务器变化</li></ol><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[客户端系统] --&gt; B[HAProxy负载均衡器]
-    B --&gt; C[服务器-1]
-    B --&gt; D[服务器-2]
-    B --&gt; E[服务器-3]
-    B --&gt; F[服务器-4]
+    I --&gt; J@{ shape: rounded, label: &#34;业务系统服务&#34; }
     
-    C --&gt; G[杀毒服务6600]
+    classDef primary fill:#e3f2fd,stroke:#1976d2
+    classDef network fill:#fff3e0,stroke:#ff9800
+    classDef alert fill:#ffebee,stroke:#f44336
+    class A,E,B,F,I,J primary
+    class C,G,D,H alert</code></pre></div></div><h2 id=haproxy内网服务负载均衡>HAProxy内网服务负载均衡</h2><h3 id=tcp模式负载均衡>TCP模式负载均衡</h3><h4 id=部署架构>部署架构</h4><p>针对业务系统的两个核心服务（杀毒服务和投递服务），我们在服务器-1和服务器-2上部署了HAProxy实现负载均衡。这种架构的优势在于：</p><ol><li><strong>服务可用性</strong>：单台网关故障不会影响后端客户业务系统</li><li><strong>负载分担</strong>：多台服务器共同承担服务压力</li><li><strong>透明切换</strong>：后端配置无需感知具体的服务器变化</li></ol><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A@{ shape: rounded, label: &#34;客户端系统&#34; } --&gt; B@{ shape: hex, label: &#34;HAProxy负载均衡器&#34; }
+    B --&gt; C@{ shape: rounded, label: &#34;服务器-1&#34; }
+    B --&gt; D@{ shape: rounded, label: &#34;服务器-2&#34; }
+    B --&gt; E@{ shape: rounded, label: &#34;服务器-3&#34; }
+    B --&gt; F@{ shape: rounded, label: &#34;服务器-4&#34; }
+    
+    C --&gt; G@{ shape: rounded, label: &#34;杀毒服务6600&#34; }
     D --&gt; G
     E --&gt; G
     F --&gt; G
     
-    C --&gt; H[投递服务8025]
+    C --&gt; H@{ shape: rounded, label: &#34;投递服务8025&#34; }
     D --&gt; H
     E --&gt; H
     F --&gt; H
     
-    C --&gt; I[反垃圾引擎8070]
-    D --&gt; I</code></pre></div></div><h4 id=haproxy配置详解>HAProxy配置详解</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+    C --&gt; I@{ shape: rounded, label: &#34;反垃圾引擎8070&#34; }
+    D --&gt; I
+    
+    classDef primary fill:#e3f2fd,stroke:#1976d2
+    classDef network fill:#fff3e0,stroke:#ff9800
+    classDef process fill:#f3e5f5,stroke:#9c27b0
+    class A,B network
+    class C,D,E,F primary
+    class G,H,I process</code></pre></div></div><h4 id=haproxy配置详解>HAProxy配置详解</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -563,13 +583,20 @@
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=c1># 查看日志</span>
 </span></span><span class=line><span class=cl>tail -f /var/log/haproxy.log</span></span></code></pre></td></tr></table></div></div></div></div><h2 id=网络性能调优网卡软中断优化>网络性能调优：网卡软中断优化</h2><h3 id=硬中断与软中断原理>硬中断与软中断原理</h3><h4 id=什么是中断>什么是中断？</h4><p>中断是由于接收来自外围硬件（相对于CPU和内存）的异步信号或者来自软件的同步信号，而进行的相应硬件、软件处理。发出这样的信号称为进行中断请求（interrupt request, IRQ）。</p><h4 id=硬中断与软中断的区别>硬中断与软中断的区别</h4><p><strong>硬中断</strong>：</p><ul><li>外围硬件发给CPU或内存的异步信号</li><li>需要有中断控制器参与</li><li>处理速度快，直接以硬件方式引发</li><li>可以通过设置CPU的屏蔽位进行屏蔽</li></ul><p><strong>软中断</strong>：</p><ul><li>由软件系统本身发给操作系统内核的中断信号</li><li>通常是由硬中断处理程序或进程调度程序触发</li><li>以CPU指令的形式指示CPU进行处理</li><li>不能屏蔽，属于系统调用的一部分</li></ul><h4 id=中断处理流程>中断处理流程</h4><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[硬件事件] --&gt; B[硬中断触发]
-    B --&gt; C[保存CPU上下文]
-    C --&gt; D[执行硬中断处理程序]
-    D --&gt; E[触发软中断]
-    E --&gt; F[软中断处理]
-    F --&gt; G[恢复CPU上下文]
-    G --&gt; H[返回原程序]</code></pre></div></div><h3 id=问题定位过程>问题定位过程</h3><h4 id=症状识别>症状识别</h4><p>业务网关高峰期出现网络丢包问题，CPU0软中断%sys高达90%，说明网络处理成为系统瓶颈。</p><h4 id=监控工具使用>监控工具使用</h4><p><strong>查看中断分布情况</strong>：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+    A@{ shape: hex, label: &#34;硬件事件&#34; } --&gt; B@{ shape: rounded, label: &#34;硬中断触发&#34; }
+    B --&gt; C@{ shape: rounded, label: &#34;保存CPU上下文&#34; }
+    C --&gt; D@{ shape: rounded, label: &#34;执行硬中断处理程序&#34; }
+    D --&gt; E@{ shape: rounded, label: &#34;触发软中断&#34; }
+    E --&gt; F@{ shape: rounded, label: &#34;软中断处理&#34; }
+    F --&gt; G@{ shape: rounded, label: &#34;恢复CPU上下文&#34; }
+    G --&gt; H@{ shape: stadium, label: &#34;返回原程序&#34; }
+    
+    classDef primary fill:#e3f2fd,stroke:#1976d2
+    classDef process fill:#f3e5f5,stroke:#9c27b0
+    classDef network fill:#fff3e0,stroke:#ff9800
+    class A network
+    class B,C,D,E,F,G primary
+    class H process</code></pre></div></div><h3 id=问题定位过程>问题定位过程</h3><h4 id=症状识别>症状识别</h4><p>业务网关高峰期出现网络丢包问题，CPU0软中断%sys高达90%，说明网络处理成为系统瓶颈。</p><h4 id=监控工具使用>监控工具使用</h4><p><strong>查看中断分布情况</strong>：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -716,21 +743,29 @@
 </span></span><span class=line><span class=cl>cat /sys/class/net/<span class=nv>$interface</span>/queues/rx-0/rps_cpus
 </span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;RFS配置:&#34;</span>
 </span></span><span class=line><span class=cl>cat /sys/class/net/<span class=nv>$interface</span>/queues/rx-0/rps_flow_cnt</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=优化效果验证>优化效果验证</h4><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[优化前] --&gt; B[软中断90%]
-    A --&gt; C[网络丢包]
-    A --&gt; D[单CPU过载]
+    A@{ shape: rounded, label: &#34;优化前&#34; } --&gt; B@{ shape: rounded, label: &#34;软中断90%&#34; }
+    A --&gt; C@{ shape: rounded, label: &#34;网络丢包&#34; }
+    A --&gt; D@{ shape: rounded, label: &#34;单CPU过载&#34; }
     
-    E[优化后] --&gt; F[软中断30%]
-    E --&gt; G[零丢包]
-    E --&gt; H[多CPU负载均衡]
+    E@{ shape: rounded, label: &#34;优化后&#34; } --&gt; F@{ shape: rounded, label: &#34;软中断30%&#34; }
+    E --&gt; G@{ shape: rounded, label: &#34;零丢包&#34; }
+    E --&gt; H@{ shape: rounded, label: &#34;多CPU负载均衡&#34; }
     
-    B --&gt; I[RPS/RFS优化]
+    B --&gt; I@{ shape: rounded, label: &#34;RPS/RFS优化&#34; }
     C --&gt; I
     D --&gt; I
     
     I --&gt; F
     I --&gt; G
-    I --&gt; H</code></pre></div></div><p><strong>验证命令</strong>：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+    I --&gt; H
+    
+    classDef primary fill:#e3f2fd,stroke:#1976d2
+    classDef alert fill:#ffebee,stroke:#f44336
+    classDef success fill:#e8f5e9,stroke:#4caf50
+    classDef process fill:#f3e5f5,stroke:#9c27b0
+    class A,B,C,D alert
+    class E,F,G,H success
+    class I process</code></pre></div></div><p><strong>验证命令</strong>：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -774,7 +809,7 @@ Performance</a></div><div class=donation-section><button class=donation-btn id=d
 </a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
 </a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
-<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.93b6a704681d9dbad3752e57c1e95f2c407014828ddbcfea3c6113d0d5a33b13.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.969793734b42df076360b391e1f301a3fbba79d3d986dd3dabdd63d5c3608def.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 <input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
 <button class=search-close id=search-close aria-label=关闭搜索>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>

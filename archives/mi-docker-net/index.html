@@ -16,9 +16,9 @@
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
 </a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
-</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-md"><span>摄像头</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
-</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
 </a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
 </a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span>
 </a><a href=/tags/arm/ class="tag-cloud__item tag-size-xs"><span>arm</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>跨城区局域网的搭建（基于Docker）</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -26,64 +26,64 @@
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/docker/>Docker</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/docker/>Docker</a>, <a href=/tags/vpn/>VPN</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>2086 字</span>
+<span>2031 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 <span>5 分钟阅读</span></span></div></header><div class=Content><h2 id=概述>概述：</h2><p>当时家里和公司都有服务器，想统一管理，但两边的内网是隔离的。传统的端口映射太麻烦，而且有些服务不想暴露在公网。试过一些方案，最后觉得用 Docker OpenVPN 最省事。</p><p>选择 Docker OpenVPN 而不是传统 VPN，主要是因为容器化部署特别方便，证书管理也简单得多。最后的效果很好，通过域名就能访问远程内网的各种服务，省去了很多配置麻烦。</p><h2 id=网络拓扑>网络拓扑：</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TD
     classDef gateway fill:#e67e22,stroke:#d35400,color:#fff,stroke-width:2px
     classDef lb fill:#2980b9,stroke:#2471a3,color:#fff,stroke-width:2px
-    classDef proxy fill:#5dade2,stroke:#2e86c1,color:#fff
-    classDef vpn fill:#5dade2,stroke:#2e86c1,color:#fff
-    classDef arm fill:#85c1e9,stroke:#2e86c1,color:#333
-    classDef isp fill:#76d7c4,stroke:#1abc9c,color:#333
-    classDef user fill:#bdc3c7,stroke:#7f8c8d,color:#333
-
+    classDef proxy fill:#5dade2,stroke:#2e86c1,color:#fff,stroke-width:1px
+    classDef vpn fill:#5dade2,stroke:#2e86c1,color:#fff,stroke-width:1px
+    classDef arm fill:#85c1e9,stroke:#2e86c1,color:#333,stroke-width:1px
+    classDef isp fill:#76d7c4,stroke:#1abc9c,color:#333,stroke-width:1px
+    classDef user fill:#bdc3c7,stroke:#7f8c8d,color:#333,stroke-width:1px
+    
     subgraph overseas[&#34;海外服务区域&#34;]
-        UserOut[&#34;外网用户&#34;]:::user
-        OS[&#34;海外服务&#34;]
-        CDN[&#34;CDN&#34;]
-        SS1[&#34;SS Server 1&#34;]:::proxy
-        SS2[&#34;SS Server 2&#34;]:::proxy
+        UserOut@{ shape: rounded, label: &#34;外网用户&#34; }:::user
+        OS@{ shape: rounded, label: &#34;海外服务&#34; }:::user
+        CDN@{ shape: rounded, label: &#34;CDN&#34; }:::user
+        SS1@{ shape: hex, label: &#34;SS Server 1&#34; }:::proxy
+        SS2@{ shape: hex, label: &#34;SS Server 2&#34; }:::proxy
         UserOut --&gt;|用户访问| OS
         OS --&gt;|用户访问| CDN
         CDN --&gt;|用户访问| SS2
         OS --&gt;|Shadowsocks| SS1
         OS --&gt;|Shadowsocks| SS2
     end
-
-    GFW[&#34;GFW 防火墙&#34;]:::gateway
-    LB[&#34;负载均衡&#34;]:::lb
-
+    
+    GFW@{ shape: hex, label: &#34;GFW 防火墙&#34; }:::gateway
+    LB@{ shape: hex, label: &#34;负载均衡&#34; }:::lb
+    
     subgraph internal[&#34;内网核心区域&#34;]
         subgraph proxyVpn[&#34;接入代理 &amp; VPN&#34;]
-            UserIn[&#34;内网用户&#34;]:::user
-            Nginx[&#34;Nginx&#34;]:::proxy
-            Haproxy[&#34;Haproxy&#34;]:::proxy
-            OpenVPN[&#34;OpenVPN&#34;]:::vpn
+            UserIn@{ shape: rounded, label: &#34;内网用户&#34; }:::user
+            Nginx@{ shape: hex, label: &#34;Nginx&#34; }:::proxy
+            Haproxy@{ shape: hex, label: &#34;Haproxy&#34; }:::proxy
+            OpenVPN@{ shape: hex, label: &#34;OpenVPN&#34; }:::vpn
             UserIn --&gt;|用户访问| Nginx
             UserIn --&gt;|用户访问| Haproxy
             Nginx &lt;--&gt;|DockerNet| Haproxy
             Haproxy --&gt;|DockerNet| OpenVPN
         end
         subgraph armCluster[&#34;多线出口 ARM 集群&#34;]
-            ARM1[&#34;ARM1&#34;]:::arm --&gt; Telecom[&#34;电信AD&#34;]:::isp
-            ARM2[&#34;ARM2&#34;]:::arm --&gt; Mobile[&#34;移动AD&#34;]:::isp
-            ARM3[&#34;ARM3&#34;]:::arm --&gt; Unicom[&#34;联通AD&#34;]:::isp
+            ARM1@{ shape: rounded, label: &#34;ARM1&#34; }:::arm --&gt; Telecom@{ shape: hex, label: &#34;电信AD&#34; }:::isp
+            ARM2@{ shape: rounded, label: &#34;ARM2&#34; }:::arm --&gt; Mobile@{ shape: hex, label: &#34;移动AD&#34; }:::isp
+            ARM3@{ shape: rounded, label: &#34;ARM3&#34; }:::arm --&gt; Unicom@{ shape: hex, label: &#34;联通AD&#34; }:::isp
         end
-        Mickey[&#34;Mickey&#34;]:::user
+        Mickey@{ shape: rounded, label: &#34;Mickey&#34; }:::user
     end
-
+    
     SS1 --&gt;|Shadowsocks| GFW
     SS2 --&gt;|Shadowsocks| GFW
     GFW --&gt;|Shadowsocks| LB
     LB --&gt;|SS| ARM1
     LB --&gt;|SS| ARM2
     LB --&gt;|SS| ARM3
-
+    
     SS1 -.-&gt;|TCP BBR| GFW
     GFW -.-&gt;|BBR| ARM1
     GFW -.-&gt;|BBR| ARM2
     GFW -.-&gt;|BBR| ARM3
-
+    
     OpenVPN --&gt;|VPN 隧道| Mickey
     Telecom --&gt;|VPN| Mickey
     Mobile --&gt;|VPN| Mickey
@@ -96,39 +96,39 @@
     classDef lb7 fill:#e67e22,stroke:#d35400,color:#fff,stroke-width:1px
     classDef backend fill:#27ae60,stroke:#1e8449,color:#fff,stroke-width:2px
     classDef moduleBox fill:#ecf0f1,stroke:#7f8c8d,stroke-width:1px
-
+    
     subgraph L1_7[&#34;第一层代理 · 七层协议&#34;]
         direction TB
-        C[&#34;客户端&#34;]:::client
-        A1[&#34;第一层代理&#34;]:::proxy7
-        S1[&#34;指向第一层的 stream&#34;]:::streamSelect
-        Cache[&#34;缓存&#34;]:::cache
+        C@{ shape: rounded, label: &#34;客户端&#34; }:::client
+        A1@{ shape: hex, label: &#34;第一层代理&#34; }:::proxy7
+        S1@{ shape: hex, label: &#34;指向第一层的 stream&#34; }:::streamSelect
+        Cache@{ shape: cyl, label: &#34;缓存&#34; }:::cache
         C --&gt; A1
         A1 --&gt; S1
         S1 --&gt; Cache
     end
-
+    
     subgraph L1_4[&#34;第一层代理 · 四层协议&#34;]
         direction TB
-        ST1[&#34;第一层 stream&#34;]:::stream
-        SE1[&#34;选择下一层 stream&#34;]:::streamSelect
+        ST1@{ shape: hex, label: &#34;第一层 stream&#34; }:::stream
+        SE1@{ shape: hex, label: &#34;选择下一层 stream&#34; }:::streamSelect
         S1 --&gt; ST1
         ST1 --&gt; SE1
     end
-
+    
     subgraph L2_4[&#34;第二层代理 · 四层协议&#34;]
         direction TB
-        ST2[&#34;第二层 stream&#34;]:::stream
-        SE2[&#34;选择下一层 stream&#34;]:::streamSelect
+        ST2@{ shape: hex, label: &#34;第二层 stream&#34; }:::stream
+        SE2@{ shape: hex, label: &#34;选择下一层 stream&#34; }:::streamSelect
         SE1 --&gt; ST2
         ST2 --&gt; SE2
     end
-
+    
     subgraph L3_7[&#34;第三层代理 · 七层协议&#34;]
         direction TB
-        A3[&#34;第三层代理&#34;]:::proxy7
-        LB7[&#34;七层协议负载均衡&#34;]:::lb7
-        Backend[&#34;后端系统&#34;]:::backend
+        A3@{ shape: hex, label: &#34;第三层代理&#34; }:::proxy7
+        LB7@{ shape: hex, label: &#34;七层协议负载均衡&#34; }:::lb7
+        Backend@{ shape: rounded, label: &#34;后端系统&#34; }:::backend
         SE2 --&gt; A3
         A3 --&gt; LB7
         LB7 --&gt; Backend
@@ -285,7 +285,7 @@ VPN</a></div><div class=donation-section><button class=donation-btn id=donation-
 </a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
 </a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
-<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.93b6a704681d9dbad3752e57c1e95f2c407014828ddbcfea3c6113d0d5a33b13.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.969793734b42df076360b391e1f301a3fbba79d3d986dd3dabdd63d5c3608def.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 <input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
 <button class=search-close id=search-close aria-label=关闭搜索>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>

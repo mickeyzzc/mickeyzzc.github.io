@@ -16,9 +16,9 @@
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
 </a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
-</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-md"><span>摄像头</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
-</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
 </a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
 </a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span>
 </a><a href=/tags/arm/ class="tag-cloud__item tag-size-xs"><span>arm</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>TCP/IP协议族在OSI模型中的完整分布——一张图看懂网络协议</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -26,57 +26,65 @@
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/networking/>Networking</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/tcp-ip/>Tcp-Ip</a>, <a href=/tags/osi/>Osi</a>, <a href=/tags/networking/>Networking</a>, <a href=/tags/protocol/>Protocol</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>3532 字</span>
+<span>3731 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 <span>8 分钟阅读</span></span></div></header><div class=Content><p>网络通信是现代信息技术的基石，而理解网络协议的工作原理对于每一位开发者和系统管理员来说都至关重要。本文将通过 OSI 模型的框架，详细介绍 TCP/IP 协议族中各个协议在网络层次结构中的分布及其作用。</p><h2 id=什么是-osi-模型>什么是 OSI 模型？</h2><p>OSI（Open Systems Interconnection）模型是一个概念性的网络模型，它将网络通信过程划分为七个层次。这个模型虽然在实际应用中不如 TCP/IP 模型流行，但对于理解网络协议的工作原理非常有帮助。</p><p>OSI 七层模型包括：</p><ol><li><strong>物理层（Physical Layer）</strong>: 传输原始比特流</li><li><strong>数据链路层（Data Link Layer）</strong>: 提供节点间的可靠通信</li><li><strong>网络层（Network Layer）</strong>: 负责路由和转发</li><li><strong>传输层（Transport Layer）</strong>: 提供端到端的通信</li><li><strong>会话层（Session Layer）</strong>: 管理会话连接</li><li><strong>表示层（Presentation Layer）</strong>: 数据格式转换和加密</li><li><strong>应用层（Application Layer）</strong>: 用户接口和应用程序协议</li></ol><h2 id=什么是-tcpip-协议族>什么是 TCP/IP 协议族？</h2><p>TCP/IP（Transmission Control Protocol/Internet Protocol）协议族是互联网的基础协议集合，它比 OSI 模型更加简洁和实用。TCP/IP 协议族通常被分为四层：</p><ol><li><strong>应用层（Application Layer）</strong></li><li><strong>传输层（Transport Layer）</strong></li><li><strong>网络层（Network Layer）</strong>
 4 <strong>网络接口层（Network Interface Layer）</strong></li></ol><h2 id=tcpip-协议族在-osi-模型中的分布>TCP/IP 协议族在 OSI 模型中的分布</h2><p>下面是 TCP/IP 协议族中的各个协议在 OSI 模型中的完整分布图：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef app fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef pres fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef sess fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef trans fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef net fill:#fce4ec,stroke:#e91e63,stroke-width:2px
+    classDef data fill:#ffebee,stroke:#f44336,stroke-width:2px
+    classDef phys fill:#efebe9,stroke:#795548,stroke-width:2px
+    
     subgraph &#34;应用层 Application&#34;
-        A1[HTTP]
-        A2[FTP]
-        A3[SMTP]
-        A4[TELNET]
-        A5[POP3]
-        A6[IMAP4]
-        A7[DNS]
-        A8[DHCP]
-        A9[NFS]
-        A10[SNMP]
+        A1@{ shape: rounded, label: &#34;HTTP&#34; }:::app
+        A2@{ shape: rounded, label: &#34;FTP&#34; }:::app
+        A3@{ shape: rounded, label: &#34;SMTP&#34; }:::app
+        A4@{ shape: rounded, label: &#34;TELNET&#34; }:::app
+        A5@{ shape: rounded, label: &#34;POP3&#34; }:::app
+        A6@{ shape: rounded, label: &#34;IMAP4&#34; }:::app
+        A7@{ shape: rounded, label: &#34;DNS&#34; }:::app
+        A8@{ shape: rounded, label: &#34;DHCP&#34; }:::app
+        A9@{ shape: rounded, label: &#34;NFS&#34; }:::app
+        A10@{ shape: rounded, label: &#34;SNMP&#34; }:::app
     end
     subgraph &#34;表示层 Presentation&#34;
-        B1[SSL/TLS]
-        B2[LDAP]
-        B3[RPC]
+        B1@{ shape: rounded, label: &#34;SSL/TLS&#34; }:::pres
+        B2@{ shape: rounded, label: &#34;LDAP&#34; }:::pres
+        B3@{ shape: rounded, label: &#34;RPC&#34; }:::pres
     end
     subgraph &#34;会话层 Session&#34;
-        C1[RPC]
-        C2[NetBIOS]
-        C3[SMB]
+        C1@{ shape: rounded, label: &#34;RPC&#34; }:::sess
+        C2@{ shape: rounded, label: &#34;NetBIOS&#34; }:::sess
+        C3@{ shape: rounded, label: &#34;SMB&#34; }:::sess
     end
     subgraph &#34;传输层 Transport&#34;
-        D1[TCP 传输控制协议]
-        D2[UDP 用户数据报协议]
+        D1@{ shape: rounded, label: &#34;TCP 传输控制协议&#34; }:::trans
+        D2@{ shape: rounded, label: &#34;UDP 用户数据报协议&#34; }:::trans
     end
     subgraph &#34;网络层 Network&#34;
-        E1[IP]
-        E2[ICMP]
-        E3[IGMP]
-        E4[OSPF]
-        E5[RIP]
-        E6[BGP]
-        E7[ARP]
+        E1@{ shape: rounded, label: &#34;IP&#34; }:::net
+        E2@{ shape: rounded, label: &#34;ICMP&#34; }:::net
+        E3@{ shape: rounded, label: &#34;IGMP&#34; }:::net
+        E4@{ shape: rounded, label: &#34;OSPF&#34; }:::net
+        E5@{ shape: rounded, label: &#34;RIP&#34; }:::net
+        E6@{ shape: rounded, label: &#34;BGP&#34; }:::net
+        E7@{ shape: rounded, label: &#34;ARP&#34; }:::net
     end
     subgraph &#34;数据链路层 Data Link&#34;
-        F1[Ethernet]
-        F2[PPP]
-        F3[HDLC]
-        F4[Frame Relay]
-        F5[ATM]
+        F1@{ shape: rounded, label: &#34;Ethernet&#34; }:::data
+        F2@{ shape: rounded, label: &#34;PPP&#34; }:::data
+        F3@{ shape: rounded, label: &#34;HDLC&#34; }:::data
+        F4@{ shape: rounded, label: &#34;Frame Relay&#34; }:::data
+        F5@{ shape: rounded, label: &#34;ATM&#34; }:::data
     end
     subgraph &#34;物理层 Physical&#34;
-        G1[IEEE 802.3]
-        G2[RS-232]
-        G3[V.35]
-        G4[RJ-45]
+        G1@{ shape: rounded, label: &#34;IEEE 802.3&#34; }:::phys
+        G2@{ shape: rounded, label: &#34;RS-232&#34; }:::phys
+        G3@{ shape: rounded, label: &#34;V.35&#34; }:::phys
+        G4@{ shape: rounded, label: &#34;RJ-45&#34; }:::phys
     end</code></pre></div></div><h2 id=各层协议详解>各层协议详解</h2><h3 id=应用层协议>应用层协议</h3><p>应用层是 OSI 模型的最高层，直接为用户应用程序提供服务。以下是主要的协议：</p><h4 id=httphttps-hypertext-transfer-protocol>HTTP/HTTPS (Hypertext Transfer Protocol)</h4><ul><li><strong>作用</strong>: 用于万维网浏览器和服务器之间的通信</li><li><strong>端口</strong>: 80 (HTTP), 443 (HTTPS)</li><li><strong>特点</strong>: 基于请求-响应模式，无状态协议</li></ul><h4 id=ftp-file-transfer-protocol>FTP (File Transfer Protocol)</h4><ul><li><strong>作用</strong>: 在客户端和服务器之间传输文件</li><li><strong>端口</strong>: 20 (数据), 21 (控制)</li><li><strong>特点</strong>: 支持文件的上传、下载、删除等操作</li></ul><h4 id=smtp-simple-mail-transfer-protocol>SMTP (Simple Mail Transfer Protocol)</h4><ul><li><strong>作用</strong>: 用于发送电子邮件</li><li><strong>端口</strong>: 25</li><li><strong>特点</strong>: 专门用于邮件传输，通常与 POP3/IMAP4 配合使用</li></ul><h4 id=telnet-teletype-network>TELNET (Teletype Network)</h4><ul><li><strong>作用</strong>: 远程登录服务</li><li><strong>端口</strong>: 23</li><li><strong>特点</strong>: 不加密的远程连接协议</li></ul><h4 id=pop3-post-office-protocol-3>POP3 (Post Office Protocol 3)</h4><ul><li><strong>作用</strong>: 从邮件服务器接收电子邮件</li><li><strong>端口</strong>: 110</li><li><strong>特点</strong>: 客户端从服务器下载邮件后，邮件通常会被删除</li></ul><h4 id=imap4-internet-message-access-protocol-4>IMAP4 (Internet Message Access Protocol 4)</h4><ul><li><strong>作用</strong>: 从邮件服务器访问和管理电子邮件</li><li><strong>端口</strong>: 143</li><li><strong>特点</strong>: 支持在服务器上管理邮件，不一定要下载到本地</li></ul><h4 id=dns-domain-name-system>DNS (Domain Name System)</h4><ul><li><strong>作用</strong>: 将域名解析为 IP 地址</li><li><strong>端口</strong>: 53</li><li><strong>特点</strong>: 分布式的命名系统，是互联网的基础设施</li></ul><h4 id=dhcp-dynamic-host-configuration-protocol>DHCP (Dynamic Host Configuration Protocol)</h4><ul><li><strong>作用</strong>: 自动分配 IP 地址给网络设备</li><li><strong>端口</strong>: 67 (服务器), 68 (客户端)</li><li><strong>特点</strong>: 简化了网络管理，支持 IP 地址的动态分配</li></ul><h4 id=nfs-network-file-system>NFS (Network File System)</h4><ul><li><strong>作用</strong>: 在网络上共享文件系统</li><li><strong>端口</strong>: 2049</li><li><strong>特点</strong>: 允许用户像访问本地文件一样访问远程文件</li></ul><h4 id=snmp-simple-network-management-protocol>SNMP (Simple Network Management Protocol)</h4><ul><li><strong>作用</strong>: 网络设备管理和监控</li><li><strong>端口</strong>: 161 (管理器), 162 (代理)</li><li><strong>特点</strong>: 用于收集和配置网络设备信息</li></ul><h3 id=表示层协议>表示层协议</h3><p>表示层负责数据的格式转换、加密和压缩。</p><h4 id=ssltls-secure-sockets-layertransport-layer-security>SSL/TLS (Secure Sockets Layer/Transport Layer Security)</h4><ul><li><strong>作用</strong>: 提供安全的通信通道</li><li><strong>特点</strong>: 支持数据加密、身份验证和数据完整性保护</li><li><strong>应用</strong>: HTTPS, SMTPS, IMAPS 等安全协议</li></ul><h4 id=ldap-lightweight-directory-access-protocol>LDAP (Lightweight Directory Access Protocol)</h4><ul><li><strong>作用</strong>: 访问和维护目录服务</li><li><strong>端口</strong>: 389 (明文), 636 (加密)</li><li><strong>特点</strong>: 用于用户认证、地址查找等服务</li></ul><h4 id=rpc-remote-procedure-call>RPC (Remote Procedure Call)</h4><ul><li><strong>作用</strong>: 允许程序调用另一台计算机上的程序</li><li><strong>特点</strong>: 透明的远程过程调用，隐藏了网络通信的细节</li></ul><h3 id=会话层协议>会话层协议</h3><p>会话层负责建立、管理和终止会话连接。</p><h4 id=rpc-remote-procedure-call-1>RPC (Remote Procedure Call)</h4><ul><li><strong>作用</strong>: 在会话层提供远程过程调用服务</li><li><strong>特点</strong>: 管理远程调用的会话状态</li></ul><h4 id=netbios-network-basic-inputoutput-system>NetBIOS (Network Basic Input/Output System)</h4><ul><li><strong>作用</strong>: 提供网络名称服务和会话服务</li><li><strong>端口</strong>: 137-139</li><li><strong>特点</strong>: 主要用于早期的 Windows 网络环境</li></ul><h4 id=smb-server-message-block>SMB (Server Message Block)</h4><ul><li><strong>作用</strong>: 在计算机间共享文件、打印机和串行端口</li><li><strong>端口</strong>: 445</li><li><strong>特点</strong>: 现代版本的 SMB 支持加密和认证</li></ul><h3 id=传输层协议>传输层协议</h3><p>传输层提供端到端的通信服务，确保数据的可靠传输。</p><h4 id=tcp-transmission-control-protocol>TCP (Transmission Control Protocol)</h4><ul><li><strong>作用</strong>: 提供可靠的、面向连接的数据传输</li><li><strong>特点</strong>:<ul><li>面向连接的通信</li><li>数据包排序和确认</li><li>流量控制和拥塞控制</li><li>可靠的数据传输</li></ul></li></ul><p><strong>TCP 连接建立（三次握手）</strong>:</p><ol><li>客户端发送 SYN 包</li><li>服务器发送 SYN-ACK 包</li><li>客户端发送 ACK 包</li></ol><p><strong>TCP 连接终止（四次挥手）</strong>:</p><ol><li>客户端发送 FIN 包</li><li>服务器发送 ACK 包</li><li>服务器发送 FIN 包</li><li>客户端发送 ACK 包</li></ol><h4 id=udp-user-datagram-protocol>UDP (User Datagram Protocol)</h4><ul><li><strong>作用</strong>: 提供不可靠的、无连接的数据传输</li><li><strong>特点</strong>:<ul><li>无连接通信</li><li>不保证数据包的顺序和可靠性</li><li>开销小，传输效率高</li><li>适用于实时应用</li></ul></li></ul><p><strong>TCP vs UDP 对比</strong>:</p><table><thead><tr><th>特性</th><th>TCP</th><th>UDP</th></tr></thead><tbody><tr><td>连接性</td><td>面向连接</td><td>无连接</td></tr><tr><td>可靠性</td><td>可靠传输</td><td>不可靠传输</td></tr><tr><td>顺序性</td><td>保证顺序</td><td>不保证顺序</td></tr><tr><td>速度</td><td>较慢</td><td>较快</td></tr><tr><td>开销</td><td>较大</td><td>较小</td></tr><tr><td>应用场景</td><td>文件传输、网页浏览</td><td>实时视频、在线游戏</td></tr></tbody></table><h3 id=网络层协议>网络层协议</h3><p>网络层负责数据包的路由和转发，是整个网络的核心层。</p><h4 id=ip-internet-protocol>IP (Internet Protocol)</h4><ul><li><strong>作用</strong>: 在网络中传输数据包</li><li><strong>特点</strong>:<ul><li>无连接的传输服务</li><li>提供逻辑地址（IP 地址）</li><li>负责数据包的路由选择</li><li>支持 IPv4 和 IPv6</li></ul></li></ul><p><strong>IP 数据包结构</strong>:</p><ul><li>版本号</li><li>头部长度</li><li>服务类型</li><li>总长度</li><li>标识符</li><li>标志和片偏移</li><li>TTL（生存时间）</li><li>协议号</li><li>头部校验和</li><li>源 IP 地址</li><li>目标 IP 地址</li></ul><h4 id=icmp-internet-control-message-protocol>ICMP (Internet Control Message Protocol)</h4><ul><li><strong>作用</strong>: 提供有关网络状况的反馈</li><li><strong>特点</strong>:<ul><li>用于网络诊断和错误报告</li><li>支持 ping 命令</li><li>支持路径发现</li></ul></li></ul><p><strong>常见的 ICMP 消息类型</strong>:</p><ul><li>Echo Request/Reply (ping)</li><li>Destination Unreachable</li><li>Time Exceeded</li><li>Parameter Problem</li></ul><h4 id=igmp-internet-group-management-protocol>IGMP (Internet Group Management Protocol)</h4><ul><li><strong>作用</strong>: 管理多播组成员</li><li><strong>特点</strong>:<ul><li>用于 IP 多播</li><li>管理多播路由器</li><li>控制多播组成员</li></ul></li></ul><h4 id=ospf-open-shortest-path-first>OSPF (Open Shortest Path First)</h4><ul><li><strong>作用</strong>: 内部网关路由协议</li><li><strong>特点</strong>:<ul><li>基于 Dijkstra 算法</li><li>支持区域划分</li><li>快速收敛</li><li>无环路路由</li></ul></li></ul><h4 id=rip-routing-information-protocol>RIP (Routing Information Protocol)</h4><ul><li><strong>作用</strong>: 距离矢量路由协议</li><li><strong>特点</strong>:<ul><li>简单易用</li><li>跳数作为度量标准</li><li>最大跳数为 15</li><li>收敛速度较慢</li></ul></li></ul><h4 id=bgp-border-gateway-protocol>BGP (Border Gateway Protocol)</h4><ul><li><strong>作用</strong>: 外部网关路由协议</li><li><strong>特点</strong>:<ul><li>路由策略丰富</li><li>支持大规模网络</li><li>基于路径向量</li><li>互联网的核心协议</li></ul></li></ul><h4 id=arp-address-resolution-protocol>ARP (Address Resolution Protocol)</h4><ul><li><strong>作用</strong>: 将 IP 地址解析为 MAC 地址</li><li><strong>特点</strong>:<ul><li>工作在数据链路层</li><li>使用广播消息</li><li>建立和维护 ARP 缓存表</li></ul></li></ul><h3 id=数据链路层协议>数据链路层协议</h3><p>数据链路层负责在物理网络上提供可靠的数据传输。</p><h4 id=ethernet>Ethernet</h4><ul><li><strong>作用</strong>: 局域网通信标准</li><li><strong>特点</strong>:<ul><li>使用 CSMA/CD 协议</li><li>支持多种传输速率</li><li>广泛应用于局域网</li></ul></li></ul><h4 id=ppp-point-to-point-protocol>PPP (Point-to-Point Protocol)</h4><ul><li><strong>作用</strong>: 点对点通信协议</li><li><strong>特点</strong>:<ul><li>用于串行连接</li><li>支持多种网络层协议</li><li>提供身份验证</li></ul></li></ul><h4 id=hdlc-high-level-data-link-control>HDLC (High-Level Data Link Control)</h4><ul><li><strong>作用</strong>: 面向比特的数据链路层协议</li><li><strong>特点</strong>:<ul><li>适用于广域网</li><li>支持全双工通信</li><li>提供帧同步</li></ul></li></ul><h4 id=frame-relay>Frame Relay</h4><ul><li><strong>作用</strong>: 包交换广域网技术</li><li><strong>特点</strong>:<ul><li>基于虚电路</li><li>高效的数据传输</li><li>简化的网络管理</li></ul></li></ul><h4 id=atm-asynchronous-transfer-mode>ATM (Asynchronous Transfer Mode)</h4><ul><li><strong>作用</strong>: 高速数据传输技术</li><li><strong>特点</strong>:<ul><li>使用固定长度的信元</li><li>支持多种服务类型</li><li>适用于多媒体传输</li></ul></li></ul><h3 id=物理层协议>物理层协议</h3><p>物理层负责传输原始的比特流，是网络通信的最底层。</p><h4 id=ieee-8023>IEEE 802.3</h4><ul><li><strong>作用</strong>: 以太网物理层标准</li><li><strong>特点</strong>:<ul><li>定义了物理层规范</li><li>支持多种传输介质</li><li>包括双绞线、光纤等</li></ul></li></ul><h4 id=rs-232>RS-232</h4><ul><li><strong>作用</strong>：串行通信标准</li><li><strong>特点</strong>:<ul><li>支持点对点连接</li><li>异步通信</li><li>广泛用于设备连接</li></ul></li></ul><h4 id=v35>V.35</h4><ul><li><strong>作用</strong>：宽带数据传输接口标准</li><li><strong>特点</strong>:<ul><li>支持高速数据传输</li><li>主要用于广域网连接</li><li>标准化接口规范</li></ul></li></ul><h4 id=rj-45>RJ-45</h4><ul><li><strong>作用</strong>：网络连接器标准</li><li><strong>特点</strong>:<ul><li>8 针连接器</li><li>用于以太网连接</li><li>支持双绞线连接</li></ul></li></ul><h2 id=协议通信实例>协议通信实例</h2><h3 id=网页访问过程>网页访问过程</h3><p>当你访问一个网站时，各个层次的协议是如何协同工作的？</p><ol><li><strong>应用层</strong>: 浏览器发起 HTTP 请求</li><li><strong>表示层</strong>: 如果使用 HTTPS，SSL/TLS 会加密数据</li><li><strong>会话层</strong>: 建立和管理会话连接</li><li><strong>传输层</strong>: TCP 协议确保数据可靠传输</li><li><strong>网络层</strong>: IP 协议负责数据包的路由和转发</li><li><strong>数据链路层</strong>: 以太网协议在局域网内传输数据</li><li><strong>物理层</strong>: 通过物理介质传输比特流</li></ol><h3 id=邮件发送过程>邮件发送过程</h3><p>发送一封电子邮件时：</p><ol><li><strong>应用层</strong>: MUA（邮件用户代理）通过 SMTP 发送邮件</li><li><strong>传输层</strong>: TCP 确保邮件数据的可靠传输</li><li><strong>网络层</strong>: IP 协议将邮件数据路由到目标服务器</li><li><strong>数据链路层</strong>: 在网络中传输数据包</li><li><strong>物理层</strong>: 通过物理网络传输数据</li></ol><h2 id=常见网络故障诊断>常见网络故障诊断</h2><h3 id=ping-命令的使用>ping 命令的使用</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
@@ -190,7 +198,7 @@ Protocol</a></div><div class=donation-section><button class=donation-btn id=dona
 </a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
 </a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
-<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.93b6a704681d9dbad3752e57c1e95f2c407014828ddbcfea3c6113d0d5a33b13.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.969793734b42df076360b391e1f301a3fbba79d3d986dd3dabdd63d5c3608def.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 <input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
 <button class=search-close id=search-close aria-label=关闭搜索>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>

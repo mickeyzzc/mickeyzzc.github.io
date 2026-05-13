@@ -16,9 +16,9 @@
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
 </a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
-</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-md"><span>摄像头</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
 </a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
-</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
 </a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
 </a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span>
 </a><a href=/tags/arm/ class="tag-cloud__item tag-size-xs"><span>arm</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>用 ESP32 替代虚拟机做网络拨测 —— esp32-blackbox 项目实战</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -26,56 +26,74 @@
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/%E7%89%A9%E8%81%94%E7%BD%91/>物联网</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/esp32/>ESP32</a>, <a href=/tags/%E7%BD%91%E7%BB%9C%E6%8B%A8%E6%B5%8B/>网络拨测</a>, <a href=/tags/prometheus/>Prometheus</a>, <a href=/tags/netbird/>NetBird</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>2328 字</span>
+<span>2557 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-<span>5 分钟阅读</span></span></div></header><div class=Content><h2 id=起因>起因</h2><p>我在市区不同地方有几个局域网，相互之间大概隔了 10 公里左右。为了让这几个网络能互通，我用 NetBird、ZeroTier、Cloudflare Tunnel 这类工具搭了一套跨地域的虚拟局域网。</p><p>网络搭好了，但稳定性怎么保障？毕竟这些隧道要穿过公网，中间的链路质量参差不齐。最直接的办法就是用 Prometheus 的 blackbox_exporter 做拨测——定期 HTTP 请求、Ping、DNS 查询，把结果丢进时序数据库，配上告警规则，出问题第一时间知道。</p><p>但问题来了：blackbox_exporter 得跑在一台机器上。为了一个拨测服务专门开个虚拟机，电费和硬件成本都不划算。家里那台跑 Proxmox 的服务器已经够费电了，再加一台实在没必要。</p><p>正好手上有几块 ESP32 开发板。ESP32 本身就是为网络连接设计的芯片，跑个 HTTP 请求、发个 ICMP 包完全不在话下。功耗还低，USB 供电就能跑，一个月电费几毛钱。于是就有了这个项目：<a href=https://github.com/Mi-Bee-Studio/esp32-blackbox>esp32-blackbox</a>。</p><h2 id=整体架构>整体架构</h2><p>先看下这个系统在整体网络监控里的位置：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TB
+<span>6 分钟阅读</span></span></div></header><div class=Content><h2 id=起因>起因</h2><p>我在市区不同地方有几个局域网，相互之间大概隔了 10 公里左右。为了让这几个网络能互通，我用 NetBird、ZeroTier、Cloudflare Tunnel 这类工具搭了一套跨地域的虚拟局域网。</p><p>网络搭好了，但稳定性怎么保障？毕竟这些隧道要穿过公网，中间的链路质量参差不齐。最直接的办法就是用 Prometheus 的 blackbox_exporter 做拨测——定期 HTTP 请求、Ping、DNS 查询，把结果丢进时序数据库，配上告警规则，出问题第一时间知道。</p><p>但问题来了：blackbox_exporter 得跑在一台机器上。为了一个拨测服务专门开个虚拟机，电费和硬件成本都不划算。家里那台跑 Proxmox 的服务器已经够费电了，再加一台实在没必要。</p><p>正好手上有几块 ESP32 开发板。ESP32 本身就是为网络连接设计的芯片，跑个 HTTP 请求、发个 ICMP 包完全不在话下。功耗还低，USB 供电就能跑，一个月电费几毛钱。于是就有了这个项目：<a href=https://github.com/Mi-Bee-Studio/esp32-blackbox>esp32-blackbox</a>。</p><h2 id=整体架构>整体架构</h2><p>先看下这个系统在整体网络监控里的位置：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TB
     subgraph SiteA[&#34;站点 A（家）&#34;]
-        A1[ESP32 Blackbox]
-        A2[路由器/交换机]
+        A1@{shape: hex, label: &#34;ESP32 Blackbox&#34;}
+        A2[&#34;路由器/交换机&#34;]
         A1 --- A2
     end
     subgraph SiteB[&#34;站点 B（办公室）&#34;]
-        B1[ESP32 Blackbox]
-        B2[路由器/交换机]
+        B1@{shape: hex, label: &#34;ESP32 Blackbox&#34;}
+        B2[&#34;路由器/交换机&#34;]
         B1 --- B2
     end
     subgraph SiteC[&#34;站点 C（其他）&#34;]
-        C1[ESP32 Blackbox]
-        C2[路由器/交换机]
+        C1@{shape: hex, label: &#34;ESP32 Blackbox&#34;}
+        C2[&#34;路由器/交换机&#34;]
         C1 --- C2
     end
-
+    
     subgraph Overlay[&#34;虚拟组网层&#34;]
-        N1[NetBird]
-        N2[ZeroTier]
-        N3[Cloudflare Tunnel]
+        N1[&#34;NetBird&#34;]
+        N2[&#34;ZeroTier&#34;]
+        N3[&#34;Cloudflare Tunnel&#34;]
     end
-
+    
     A2 &lt;--&gt; N1 &lt;--&gt; B2
     B2 &lt;--&gt; N2 &lt;--&gt; C2
     A2 &lt;--&gt; N3 &lt;--&gt; C2
-
+    
     subgraph Monitor[&#34;监控中心&#34;]
-        P[Prometheus]
-        G[Grafana]
+        P@{shape: cyl, label: &#34;Prometheus&#34;}
+        G@{shape: doc, label: &#34;Grafana&#34;}
     end
-
+    
     A1 --&gt;|&#34;:9090/metrics&#34;| P
     B1 --&gt;|&#34;:9090/metrics&#34;| P
     C1 --&gt;|&#34;:9090/metrics&#34;| P
-    P --&gt; G</code></pre></div></div><p>每个站点放一块 ESP32，通过各自的出口网络去做拨测。Prometheus 从各节点的 9090 端口拉取指标，Grafana 负责展示和告警。</p><h2 id=跨地域组网方案>跨地域组网方案</h2><p>简单介绍下用的几个组网工具：</p><ul><li><strong>NetBird</strong>：基于 WireGuard 的 mesh VPN，P2P 打洞成功后延迟很低，管理界面也方便</li><li><strong>ZeroTier</strong>：软件定义的二层虚拟网络，稳定性不错，适合做备用链路</li><li><strong>Cloudflare Tunnel</strong>：反代隧道，不需要公网端口就能暴露内网服务，适合那些不支持 P2P 的场景</li></ul><p>三层组网的好处是互为冗余。NetBird 挂了还有 ZeroTier，都不行了 Cloudflare Tunnel 还能兜底。但冗余越多，需要监控的链路也越多，这也正是 ESP32 拨测发挥作用的地方。</p><h2 id=esp32-blackbox-项目介绍>ESP32 Blackbox 项目介绍</h2><p>项目地址：<a href=https://github.com/Mi-Bee-Studio/esp32-blackbox>github.com/Mi-Bee-Studio/esp32-blackbox</a></p><h3 id=硬件选型>硬件选型</h3><p>目前支持两款芯片：</p><table><thead><tr><th>芯片</th><th>推荐开发板</th><th>特点</th></tr></thead><tbody><tr><td>ESP32-C3</td><td>SuperMini</td><td>便宜，淘宝十来块钱</td></tr><tr><td>ESP32-C6</td><td>XIAO ESP32C6</td><td>支持 WiFi 6，性能更好</td></tr></tbody></table><p>我手上用的是 ESP32-C3 SuperMini，跑这个项目绰绰有余。</p><h3 id=支持的探测类型>支持的探测类型</h3><table><thead><tr><th>协议</th><th>说明</th></tr></thead><tbody><tr><td>HTTP/HTTPS</td><td>GET/POST 请求，状态码校验</td></tr><tr><td>TCP</td><td>TCP 连接测试</td></tr><tr><td>TCP+TLS</td><td>TLS 握手计时</td></tr><tr><td>DNS</td><td>DNS 解析测试</td></tr><tr><td>ICMP Ping</td><td>原生 socket 实现，RTT 测量</td></tr><tr><td>WebSocket/WSS</td><td>WS 连接测试</td></tr></tbody></table><p>基本上 blackbox_exporter 能做的它都能做。</p><h3 id=首次启动零配置>首次启动零配置</h3><p>这个设计我比较满意。第一次上电，ESP32 自动进入 AP 模式，手机连上 <code>ESP32_Blackbox</code> 这个热点（密码 <code>12345678</code>），浏览器打开 <code>192.168.4.1</code> 就能配 WiFi。配完重启就自动连上了，不需要串口操作。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[上电启动] --&gt; B{NVS 有 WiFi 凭据？}
-    B --&gt;|否| C[进入 AP 模式]
-    C --&gt; D[手机连接 ESP32_Blackbox 热点]
+    P --&gt; G
+
+    classDef hardware fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef overlay fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef monitor fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    class A1,B1,C1 hardware
+    class A2,B2,C2,N1,N2,N3 network
+    class SiteA,SiteB,SiteC overlay
+    class P,G monitor</code></pre></div></div><p>每个站点放一块 ESP32，通过各自的出口网络去做拨测。Prometheus 从各节点的 9090 端口拉取指标，Grafana 负责展示和告警。</p><h2 id=跨地域组网方案>跨地域组网方案</h2><p>简单介绍下用的几个组网工具：</p><ul><li><strong>NetBird</strong>：基于 WireGuard 的 mesh VPN，P2P 打洞成功后延迟很低，管理界面也方便</li><li><strong>ZeroTier</strong>：软件定义的二层虚拟网络，稳定性不错，适合做备用链路</li><li><strong>Cloudflare Tunnel</strong>：反代隧道，不需要公网端口就能暴露内网服务，适合那些不支持 P2P 的场景</li></ul><p>三层组网的好处是互为冗余。NetBird 挂了还有 ZeroTier，都不行了 Cloudflare Tunnel 还能兜底。但冗余越多，需要监控的链路也越多，这也正是 ESP32 拨测发挥作用的地方。</p><h2 id=esp32-blackbox-项目介绍>ESP32 Blackbox 项目介绍</h2><p>项目地址：<a href=https://github.com/Mi-Bee-Studio/esp32-blackbox>github.com/Mi-Bee-Studio/esp32-blackbox</a></p><h3 id=硬件选型>硬件选型</h3><p>目前支持两款芯片：</p><table><thead><tr><th>芯片</th><th>推荐开发板</th><th>特点</th></tr></thead><tbody><tr><td>ESP32-C3</td><td>SuperMini</td><td>便宜，淘宝十来块钱</td></tr><tr><td>ESP32-C6</td><td>XIAO ESP32C6</td><td>支持 WiFi 6，性能更好</td></tr></tbody></table><p>我手上用的是 ESP32-C3 SuperMini，跑这个项目绰绰有余。</p><h3 id=支持的探测类型>支持的探测类型</h3><table><thead><tr><th>协议</th><th>说明</th></tr></thead><tbody><tr><td>HTTP/HTTPS</td><td>GET/POST 请求，状态码校验</td></tr><tr><td>TCP</td><td>TCP 连接测试</td></tr><tr><td>TCP+TLS</td><td>TLS 握手计时</td></tr><tr><td>DNS</td><td>DNS 解析测试</td></tr><tr><td>ICMP Ping</td><td>原生 socket 实现，RTT 测量</td></tr><tr><td>WebSocket/WSS</td><td>WS 连接测试</td></tr></tbody></table><p>基本上 blackbox_exporter 能做的它都能做。</p><h3 id=首次启动零配置>首次启动零配置</h3><p>这个设计我比较满意。第一次上电，ESP32 自动进入 AP 模式，手机连上 <code>ESP32_Blackbox</code> 这个热点（密码 <code>12345678</code>），浏览器打开 <code>192.168.4.1</code> 就能配 WiFi。配完重启就自动连上了，不需要串口操作。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[&#34;上电启动&#34;] --&gt; B@{shape: diam, label: &#34;NVS 有 WiFi 凭据？&#34;}
+    B --&gt;|&#34;否&#34;| C[&#34;进入 AP 模式&#34;]
+    C --&gt; D[&#34;手机连接 ESP32_Blackbox 热点&#34;]
     D --&gt; E[&#34;浏览器打开 192.168.4.1&#34;]
-    E --&gt; F[选择 WiFi 并输入密码]
-    F --&gt; G[保存到 NVS]
-    G --&gt; H[重启]
-    B --&gt;|是| I[STA 模式连接 WiFi]
+    E --&gt; F[&#34;选择 WiFi 并输入密码&#34;]
+    F --&gt; G[&#34;保存到 NVS&#34;]
+    G --&gt; H[&#34;重启&#34;]
+    B --&gt;|&#34;是&#34;| I[&#34;STA 模式连接 WiFi&#34;]
     H --&gt; I
-    I --&gt; J[启动探测任务]
-    I --&gt; K[启动 Web 管理界面 :80]
-    I --&gt; L[启动 Metrics 服务 :9090]</code></pre></div></div><h3 id=web-管理界面>Web 管理界面</h3><p>STA 模式下，浏览器打开 ESP32 的 IP 就能看到管理界面：</p><p><img src=/posts/iot/images/esp32-blackbox-web.png alt></p><p>界面上可以直接编辑 JSON 配置，改完点保存就行，不需要重新编译固件。还支持热加载，改了配置 POST 一下 <code>/api/reload</code> 就生效了。</p><h3 id=配置文件格式>配置文件格式</h3><p>探测目标通过 JSON 配置，存在 SPIFFS 文件系统里：</p><div class=code-block-wrapper data-lang=json><div class=code-block-header><div class=code-block-meta><span class=code-language>json</span></div><button class=copy-button aria-label="Copy code">
+    I --&gt; J[&#34;启动探测任务&#34;]
+    I --&gt; K[&#34;启动 Web 管理界面 :80&#34;]
+    I --&gt; L[&#34;启动 Metrics 服务 :9090&#34;]
+
+    classDef decision fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef startup fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef config fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef running fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    class B decision
+    class A startup
+    class C,D,E,F,G config
+    class I,J,K,L running</code></pre></div></div><h3 id=web-管理界面>Web 管理界面</h3><p>STA 模式下，浏览器打开 ESP32 的 IP 就能看到管理界面：</p><p><img src=/posts/iot/images/esp32-blackbox-web.png alt></p><p>界面上可以直接编辑 JSON 配置，改完点保存就行，不需要重新编译固件。还支持热加载，改了配置 POST 一下 <code>/api/reload</code> 就生效了。</p><h3 id=配置文件格式>配置文件格式</h3><p>探测目标通过 JSON 配置，存在 SPIFFS 文件系统里：</p><div class=code-block-wrapper data-lang=json><div class=code-block-header><div class=code-block-meta><span class=code-language>json</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -198,30 +216,37 @@
 </span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>target_label</span><span class=p>:</span><span class=w> </span><span class=l>__address__</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>replacement</span><span class=p>:</span><span class=w> </span><span class=m>192.168.1.100</span><span class=p>:</span><span class=m>9090</span></span></span></code></pre></td></tr></table></div></div></div></div><p>第二种写法用了 <code>/probe</code> 端点，跟原版 blackbox_exporter 的用法一模一样。你甚至可以把 Prometheus 里原来指向 blackbox_exporter 的配置直接改个 IP 指向 ESP32，其他不用动。</p><h2 id=实际部署>实际部署</h2><p>我把几块 ESP32 分别放在不同的站点，每个站点配置不同的探测目标：</p><ul><li>站点 A 的 ESP32 去拨测站点 B、C 的服务</li><li>站点 B 的 ESP32 去拨测站点 A、C 的服务</li><li>站点 C 同理</li></ul><p>这样任意两个站点之间的链路质量都有数据。Grafana 里拉个 Dashboard，延迟、丢包率、HTTP 成功率一目了然。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph LR
     subgraph SiteA[&#34;站点 A&#34;]
-        EA[&#34;ESP32 #1&#34;]
+        EA@{shape: hex, label: &#34;ESP32 #1&#34;}
     end
     subgraph SiteB[&#34;站点 B&#34;]
-        EB[&#34;ESP32 #2&#34;]
+        EB@{shape: hex, label: &#34;ESP32 #2&#34;}
     end
     subgraph SiteC[&#34;站点 C&#34;]
-        EC[&#34;ESP32 #3&#34;]
+        EC@{shape: hex, label: &#34;ESP32 #3&#34;}
     end
     subgraph Monitor[&#34;监控&#34;]
-        P[Prometheus]
-        G[Grafana]
+        P@{shape: cyl, label: &#34;Prometheus&#34;}
+        G@{shape: doc, label: &#34;Grafana&#34;}
     end
-
+    
     EA --&gt;|&#34;拨测 B/C&#34;| EB
     EA --&gt;|&#34;拨测 B/C&#34;| EC
     EB --&gt;|&#34;拨测 A/C&#34;| EA
     EB --&gt;|&#34;拨测 A/C&#34;| EC
     EC --&gt;|&#34;拨测 A/B&#34;| EA
     EC --&gt;|&#34;拨测 A/B&#34;| EB
-
+    
     EA --&gt;|:9090/metrics| P
     EB --&gt;|:9090/metrics| P
     EC --&gt;|:9090/metrics| P
-    P --&gt; G</code></pre></div></div><h2 id=构建--烧录>构建 & 烧录</h2><p>项目基于 ESP-IDF v6.0，提供了几种构建方式：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+    P --&gt; G
+
+    classDef hardware fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef site fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef monitor fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    class EA,EB,EC hardware
+    class SiteA,SiteB,SiteC site
+    class P,G monitor</code></pre></div></div><h2 id=构建--烧录>构建 & 烧录</h2><p>项目基于 ESP-IDF v6.0，提供了几种构建方式：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -255,7 +280,7 @@ NetBird</a></div><div class=donation-section><button class=donation-btn id=donat
 </a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
 </a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
-<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.93b6a704681d9dbad3752e57c1e95f2c407014828ddbcfea3c6113d0d5a33b13.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.1e5d104c3db55456e798301efe26847acf6a9d6611ac20f1538657261708b18c.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.969793734b42df076360b391e1f301a3fbba79d3d986dd3dabdd63d5c3608def.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 <input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
 <button class=search-close id=search-close aria-label=关闭搜索>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
