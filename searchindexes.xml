@@ -1,4 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>MiBeeNvr v0.2.0 更新：Docker 部署、HLS 直播、录像合并，以及一份完整的安装指南</title><url>/posts/iot/mibee-nvr-v0.2/</url><categories><category>IOT</category></categories><tags><tag>NVR</tag><tag>Go</tag><tag>RTSP</tag><tag>摄像头</tag><tag>智能家居</tag><tag>HLS</tag></tags><content type="html">&lt;![CDATA[ 上一篇文章介绍了 MiBeeNvr 的基本功能和设计思路，距离 v0.1.0 发布也就一周时间，v0.2.0 紧跟着就出来了。这次更新内容不少，15 个新特性，有些是我自己需要的，有些是来自社区反馈的。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>VictoriaMetrics指标流聚合三年回顾与现状（2026）</title><url>/posts/telemetry/stream-metrics-two/</url><categories><category>可观测性</category></categories><tags><tag>VictoriaMetrics</tag><tag>Prometheus</tag><tag>指标聚合</tag><tag>vmagent</tag><tag>stream-metrics-route</tag></tags><content type="html">&lt;![CDATA[ 前言 距离上一篇文章 《VictoriaMetrics的指标流聚合能力应用》 发布于 2023年3月，至今已经整整三年。这三年里，VictoriaMetrics生态发生了翻天覆地的变化——让我们一起来回顾这篇博客提出的问题，看看官方解决了多少，我们的 stream-metrics-route 项目又在今天的位置。
+一、三年前我们遇到的问题回顾 让我们快速回顾一下2023年博客中提出的核心问题清单：
+# 问题 2023年状态 P1 采集断点问题 网络抖动或性能问题导致时间断点，流聚合差值计算被放大 P2 巨量数据单点算力极限 流聚合无历史状态，性能极优但存在单实例瓶颈 P3 分布式任务分配 数据分别给哪个算力点计算？ P4 同维度指标乱序丢弃 多节点计算后同维度指标因时间窗口不同导致后到值被丢弃 P5 资源均衡问题 分布式计算的资源均衡 P6 任务ID维度爆炸 流聚合组件会给每条聚合后时间线插入节点ID，横向扩容后维度标签增加 为了解决这些问题，我们开发了 stream-metrics-route，一个基于Go语言的分布式流聚合网关。
+二、三年过去了，官方做得怎么样？ 我回顾了VictoriaMetrics从v1.86到v1.138.0的 Changelog 和 官方文档，让我们逐个盘点一下官方在这三年里的努力：
+2.1 已完美解决 ✅ 问题P3、P5：分布式任务分配与资源均衡 官方解决情况： vmagent现在原生支持了 -remoteWrite.shardByURL，配合一致性哈希分片！
+从v1.86开始原生支持shardByURL，v1.138.0（2026-03） 更进一步，将数据分发算法从round-robin升级为 一致性哈希（consistent hashing），大幅降低节点变更时的数据重分配比例 Changelog记录。
+vmagent的哈希分片架构演进：
+mermaid flowchart LR subgraph 采集层 A1[Prometheus Agent 1] A2[Prometheus Agent 2] end subgraph vmagent集群 direction TB B1[vmagent实例 0] B2[vmagent实例 1] B3[vmagent实例 2] end subgraph 分片逻辑 C[&amp;#34;一致性哈希 … ]]></content></entry><entry><title>MiBeeNvr v0.2.0 更新：Docker 部署、HLS 直播、录像合并，以及一份完整的安装指南</title><url>/posts/iot/mibee-nvr-v0.2/</url><categories><category>IOT</category></categories><tags><tag>NVR</tag><tag>Go</tag><tag>RTSP</tag><tag>摄像头</tag><tag>智能家居</tag><tag>HLS</tag></tags><content type="html">&lt;![CDATA[ 上一篇文章介绍了 MiBeeNvr 的基本功能和设计思路，距离 v0.1.0 发布也就一周时间，v0.2.0 紧跟着就出来了。这次更新内容不少，15 个新特性，有些是我自己需要的，有些是来自社区反馈的。
 这篇主要讲三件事：v0.2.0 有什么新东西、怎么从零开始部署、以及一些实际使用中的注意事项。
 v0.2.0 新功能概览 这次更新内容不少，按类别列一下：
 部署相关
