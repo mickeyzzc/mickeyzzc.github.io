@@ -1,0 +1,947 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - Headless浏览器的隐形陷阱：为什么你的自动化工具抓不到页面早期错误？</title><meta name=description content="深度剖析Headless浏览器无法捕获页面早期错误的原因，以及Puppeteer、Playwright、Selenium、agent-browser等工具的官方解决方案"><meta name=keywords content="Headless,,Chrome,,Puppeteer,,Playwright,,Selenium,,agent-browser,,CDP,,错误捕获,,自动化测试"><link rel=canonical href=/posts/aihelper/headless-browser-early-error-capture/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - Headless浏览器的隐形陷阱：为什么你的自动化工具抓不到页面早期错误？"><meta property="og:description" content="深度剖析Headless浏览器无法捕获页面早期错误的原因，以及Puppeteer、Playwright、Selenium、agent-browser等工具的官方解决方案"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/aihelper/headless-browser-early-error-capture/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-15 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-15 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - Headless浏览器的隐形陷阱：为什么你的自动化工具抓不到页面早期错误？"><meta name=twitter:description content="深度剖析Headless浏览器无法捕获页面早期错误的原因，以及Puppeteer、Playwright、Selenium、agent-browser等工具的官方解决方案"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.ff23690d660c5cbc0c4efdfef2529a5783e0016551270c6bac983c12c0dc329e.css integrity="sha256-/yNpDWYMXLwMTv3+8lKaV4PgAWVRJwxrrJg8EsDcMp4=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#前言>前言</a></li><li><a href=#问题重现那个消失的错误>问题重现：那个消失的错误</a><ul><li><a href=#典型症状>典型症状</a></li><li><a href=#这不是你的问题是工具的历史设计缺陷>这不是你的问题，是工具的历史设计缺陷</a></li></ul></li><li><a href=#问题本质无法逾越的时序陷阱>问题本质：无法逾越的时序陷阱</a><ul><li><a href=#精确的时间线分析>精确的时间线分析</a></li><li><a href=#根本原因>根本原因</a></li></ul></li><li><a href=#哪些框架和工具会受影响>哪些框架和工具会受影响？</a><ul><li><a href=#所有现代前端框架>所有现代前端框架</a></li><li><a href=#所有headless浏览器工具>所有Headless浏览器工具</a></li></ul></li><li><a href=#官方解决方案大全2026年最新>官方解决方案大全（2026年最新）</a><ul><li><a href=#agent-browser-官方解决方案最新>agent-browser 官方解决方案（最新）</a><ul><li><a href=#方法1使用--init-script参数推荐>方法1：使用<code>--init-script</code>参数（推荐）</a></li><li><a href=#方法2使用batch命令推荐用于复杂场景>方法2：使用batch命令（推荐用于复杂场景）</a></li><li><a href=#方法3使用环境变量全局设置>方法3：使用环境变量全局设置</a></li><li><a href=#方法4移除已添加的初始化脚本>方法4：移除已添加的初始化脚本</a></li><li><a href=#完整的error-capturejs文件>完整的error-capture.js文件</a></li><li><a href=#获取捕获到的错误>获取捕获到的错误</a></li><li><a href=#版本要求>版本要求</a></li></ul></li><li><a href=#playwright-官方解决方案原生能力最强>Playwright 官方解决方案（原生能力最强）</a><ul><li><a href=#官方说明>官方说明</a></li><li><a href=#最佳实践实现>最佳实践实现</a></li><li><a href=#重要注意事项>重要注意事项</a></li></ul></li><li><a href=#puppeteer-官方解决方案>Puppeteer 官方解决方案</a><ul><li><a href=#官方说明-1>官方说明</a></li><li><a href=#实现代码>实现代码</a></li></ul></li><li><a href=#selenium-官方解决方案>Selenium 官方解决方案</a><ul><li><a href=#实现代码java>实现代码（Java）</a></li></ul></li></ul></li><li><a href=#通用解决方案html内联脚本注入最后一道防线>通用解决方案：HTML内联脚本注入（最后一道防线）</a><ul><li><a href=#实现原理>实现原理</a></li><li><a href=#通用实现适用于所有框架>通用实现（适用于所有框架）</a></li><li><a href=#各框架的具体放置位置>各框架的具体放置位置</a></li></ul></li><li><a href=#各框架的全局错误处理第二道防线>各框架的全局错误处理（第二道防线）</a><ul><li><a href=#sveltekit>SvelteKit</a></li><li><a href=#nextjs>Next.js</a></li><li><a href=#nuxtjs>Nuxt.js</a></li><li><a href=#react>React</a></li><li><a href=#vue-3>Vue 3</a></li></ul></li><li><a href=#临时调试技巧>临时调试技巧</a><ul><li><a href=#使用非headless模式运行>使用非headless模式运行</a></li><li><a href=#检查构建输出>检查构建输出</a></li><li><a href=#启用chrome的详细日志>启用Chrome的详细日志</a></li></ul></li><li><a href=#常见的早期错误原因>常见的早期错误原因</a></li><li><a href=#最新最佳实践2026年5月更新>最新最佳实践（2026年5月更新）</a></li><li><a href=#结语>结语</a></li><li><a href=#参考文献>参考文献</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
+</a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
+</a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
+</a><a href=/tags/go/ class="tag-cloud__item tag-size-xs"><span>go</span>
+</a><a href=/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Headless浏览器的隐形陷阱：为什么你的自动化工具抓不到页面早期错误？</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-15T00:00:00+00:00>May 15, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/ai%E5%B7%A5%E5%85%B7/>AI工具</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/headless-chrome/>Headless Chrome</a>, <a href=/tags/puppeteer/>Puppeteer</a>, <a href=/tags/playwright/>Playwright</a>, <a href=/tags/selenium/>Selenium</a>, <a href=/tags/agent-browser/>Agent-Browser</a>, <a href=/tags/%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96/>前端自动化</a>, <a href=/tags/%E9%94%99%E8%AF%AF%E6%8D%95%E8%8E%B7/>错误捕获</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>7835 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>16 分钟阅读</span></span></div></header><div class=Content><h2 id=前言>前言</h2><p>如果你正在使用任何基于Headless Chrome的工具（agent-browser、Puppeteer、Playwright、Selenium等）做前端自动化测试、页面监控或错误排查，<strong>100%会遇到这个问题</strong>：</p><p><strong>页面明明白屏崩溃了，但控制台输出为空，错误捕获系统什么都没有抓到</strong>。</p><p>这个问题不是SvelteKit特有的，而是<strong>所有现代前端框架和所有Headless浏览器工具的共性问题</strong>。从React、Vue到Next.js、Nuxt.js，从Puppeteer到Playwright，无一幸免。</p><p><strong>重大更新（2026年5月）</strong>：好消息！所有主流Headless浏览器工具现在都已经提供了<strong>官方解决方案</strong>来彻底解决这个"隐形错误"问题。本文将深度拆解问题本质，并提供从官方推荐到终极方案的完整解决路径。</p><p><strong>技术校验更新（2026年5月15日）</strong>：</p><ol><li>本文已根据最新的技术准确性校验报告进行了全面修正</li><li>特别更新了关于Playwright默认错误捕获能力的描述</li><li><strong>重要更正</strong>：经核实并查阅官方PR，agent-browser的相关信息已全部修正为准确内容：<ul><li>正确官方仓库：<code>vercel-labs/agent-browser</code></li><li>正确PR编号：#1257</li><li>正确合并时间：2026年4月17日</li><li>功能包含：<code>--init-script</code>参数、<code>addinitscript</code>/<code>removeinitscript</code>命令、环境变量支持</li></ul></li></ol><h2 id=问题重现那个消失的错误>问题重现：那个消失的错误</h2><h3 id=典型症状>典型症状</h3><ol><li>本地开发模式运行正常，构建后部署也正常</li><li>用普通Chrome浏览器打开，DevTools控制台清晰地显示着红色错误</li><li>但用Headless工具访问时（<strong>旧版本</strong>）：<ul><li><code>agent-browser console</code> 输出完全为空</li><li>Puppeteer的<code>page.on('pageerror')</code> 没有触发</li><li><strong>注意</strong>：Playwright v1.40+ 已大幅改进此问题，默认会捕获大多数错误</li><li>Selenium的日志系统一片空白</li></ul></li></ol><h3 id=这不是你的问题是工具的历史设计缺陷>这不是你的问题，是工具的历史设计缺陷</h3><p><strong>所有</strong>高层封装的Headless浏览器工具都曾有这个致命缺陷：它们的错误捕获代码是在<strong>页面加载完成之后</strong>才注入的。</p><p>而现代前端框架的错误，恰恰发生在<strong>页面加载过程中</strong>。这是一个被广泛讨论的行业问题，在GitHub上有数千个相关issue。</p><h2 id=问题本质无法逾越的时序陷阱>问题本质：无法逾越的时序陷阱</h2><h3 id=精确的时间线分析>精确的时间线分析</h3><p>让我们把整个过程拆解到毫秒级，你就会明白为什么错误曾经永远抓不到：</p><table><thead><tr><th>时间点</th><th>发生的事件</th><th>旧版工具的错误捕获系统状态</th><th>新版Playwright状态</th></tr></thead><tbody><tr><td>T0</td><td>浏览器开始请求HTML</td><td>未初始化</td><td>已初始化</td></tr><tr><td>T1</td><td>HTML下载完成，开始解析</td><td>未初始化</td><td>已初始化</td></tr><tr><td>T2</td><td>解析到框架入口脚本并开始执行</td><td>未初始化</td><td>已初始化</td></tr><tr><td>T3</td><td>框架初始化开始（ReactDOM.render、createApp、kit.start()等）</td><td>未初始化</td><td>已初始化</td></tr><tr><td>T4</td><td>组件初始化时抛出未处理的Promise拒绝或同步错误</td><td>未初始化</td><td>正在捕获</td></tr><tr><td>T5</td><td>浏览器触发<code>DOMContentLoaded</code>事件</td><td>未初始化</td><td>正在捕获</td></tr><tr><td>T6</td><td>浏览器触发<code>load</code>事件</td><td>未初始化</td><td>正在捕获</td></tr><tr><td>T7</td><td>Headless工具检测到页面加载完成</td><td>未初始化</td><td>正在捕获</td></tr><tr><td>T8</td><td>Headless工具注入错误捕获代码</td><td>已错过错误</td><td>已捕获完成</td></tr><tr><td>T9</td><td>你执行命令获取错误</td><td>返回空</td><td>返回完整错误列表</td></tr></tbody></table><h3 id=根本原因>根本原因</h3><p><strong>Headless浏览器的错误捕获必须在页面加载前注入监听器</strong>，这需要直接操作Chrome DevTools Protocol (CDP)的<code>Runtime.enable</code>方法。</p><p>而<strong>几乎所有</strong>高层封装的自动化工具，都没有在正确的时机调用这个方法——直到最近。</p><h2 id=哪些框架和工具会受影响>哪些框架和工具会受影响？</h2><h3 id=所有现代前端框架>所有现代前端框架</h3><p><strong>100%的现代前端框架都会遇到这个问题</strong>，只是严重程度不同：</p><table><thead><tr><th>框架</th><th>受影响程度</th><th>最常见的早期错误类型</th></tr></thead><tbody><tr><td><strong>SvelteKit</strong></td><td>⭐⭐⭐⭐⭐</td><td>unhandled Promise rejection</td></tr><tr><td><strong>Next.js (App Router)</strong></td><td>⭐⭐⭐⭐⭐</td><td>hydration mismatch、server component错误</td></tr><tr><td><strong>Nuxt.js 3</strong></td><td>⭐⭐⭐⭐⭐</td><td>Nitro服务器错误、Vue渲染错误</td></tr><tr><td><strong>React + Vite</strong></td><td>⭐⭐⭐⭐</td><td>组件初始化错误、环境变量未定义</td></tr><tr><td><strong>Vue 3 + Vite</strong></td><td>⭐⭐⭐⭐</td><td>setup函数错误、第三方库不兼容</td></tr><tr><td><strong>Angular</strong></td><td>⭐⭐⭐</td><td>模块加载错误、依赖注入失败</td></tr><tr><td><strong>Solid.js</strong></td><td>⭐⭐⭐⭐</td><td>响应式系统错误、hydration错误</td></tr><tr><td><strong>Astro</strong></td><td>⭐⭐⭐</td><td>岛屿组件加载错误、集成插件错误</td></tr></tbody></table><h3 id=所有headless浏览器工具>所有Headless浏览器工具</h3><p>同样，<strong>所有</strong>基于Headless Chrome的自动化工具都曾有这个问题，但现在大部分都已修复：</p><table><thead><tr><th>工具</th><th>受影响程度（最新版本）</th><th>官方是否提供解决方案</th><th>修复版本</th><th>原生捕获能力</th></tr></thead><tbody><tr><td><strong>agent-browser</strong></td><td>⭐⭐⭐⭐⭐</td><td>✅ 已提供完美解决方案</td><td>2026年4月17日后构建版</td><td>弱</td></tr><tr><td><strong>Playwright</strong></td><td>⭐⭐</td><td>✅ 已提供完美解决方案</td><td>v1.9+</td><td>强（v1.40+大幅改进）</td></tr><tr><td><strong>Puppeteer</strong></td><td>⭐⭐⭐⭐</td><td>✅ 已提供完美解决方案</td><td>v1.0+</td><td>中</td></tr><tr><td><strong>Selenium</strong></td><td>⭐⭐⭐⭐⭐</td><td>✅ 已提供解决方案</td><td>v4.0+</td><td>弱</td></tr><tr><td><strong>Cypress</strong></td><td>⭐⭐</td><td>✅ 已提供解决方案</td><td>v3.0+</td><td>中</td></tr><tr><td><strong>TestCafe</strong></td><td>⭐⭐⭐</td><td>✅ 已提供解决方案</td><td>v1.18+</td><td>中</td></tr></tbody></table><p><strong>重要说明</strong>：Playwright是目前原生错误捕获能力最强的工具。从v1.40版本开始，它默认会在页面创建时立即启用CDP Runtime域，能够捕获绝大多数框架初始化阶段的错误，包括SvelteKit和Next.js的hydration错误。</p><h2 id=官方解决方案大全2026年最新>官方解决方案大全（2026年最新）</h2><p>所有官方解决方案的核心思想都是一致的：<strong>在页面加载前注入错误捕获脚本</strong>。下面是各个工具的官方推荐实现方式。</p><h3 id=agent-browser-官方解决方案最新>agent-browser 官方解决方案（最新）</h3><p><strong>官方确认</strong>：在<strong>2026年4月17日合并的PR #1257</strong>中，Vercel Labs正式为agent-browser添加了<strong>预导航初始化脚本</strong>功能，彻底解决了早期错误捕获问题。</p><p>该PR标题为"feat(react): React introspection, Web Vitals, and SPA primitives"，除了React开发工具支持外，还包含了完整的启动生命周期原语，其中就包括我们需要的错误捕获功能。</p><h4 id=方法1使用--init-script参数推荐>方法1：使用<code>--init-script</code>参数（推荐）</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 从文件加载初始化脚本，在第一次导航前执行</span>
+</span></span><span class=line><span class=cl>agent-browser open --init-script ./error-capture.js http://localhost:5173</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=方法2使用batch命令推荐用于复杂场景>方法2：使用batch命令（推荐用于复杂场景）</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 先启动浏览器，再添加初始化脚本，最后导航</span>
+</span></span><span class=line><span class=cl>agent-browser batch <span class=se>\
+</span></span></span><span class=line><span class=cl>  <span class=s1>&#39;[&#34;open&#34;]&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>  <span class=s1>&#39;[&#34;addinitscript&#34;, &#34;window.__earlyErrors = []; window.onerror = (m,s,l,c,e) =&gt; __earlyErrors.push({type:\&#34;sync_error\&#34;,message:m,source:s,line:l,column:c,stack:e?.stack,timestamp:new Date().toISOString()}); window.addEventListener(\&#34;unhandledrejection\&#34;, e =&gt; {e.preventDefault(); __earlyErrors.push({type:\&#34;unhandled_promise_rejection\&#34;,reason:e.reason?.message||String(e.reason),stack:e.reason?.stack,timestamp:new Date().toISOString()});});&#34;]&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>  <span class=s1>&#39;[&#34;navigate&#34;, &#34;http://localhost:5173&#34;]&#39;</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=方法3使用环境变量全局设置>方法3：使用环境变量全局设置</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 对所有agent-browser命令生效，支持多个脚本用逗号分隔</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>AGENT_BROWSER_INIT_SCRIPTS</span><span class=o>=</span><span class=s2>&#34;./error-capture.js,./another-script.js&#34;</span>
+</span></span><span class=line><span class=cl>agent-browser open http://localhost:5173</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=方法4移除已添加的初始化脚本>方法4：移除已添加的初始化脚本</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 查看所有已添加的初始化脚本及其ID</span>
+</span></span><span class=line><span class=cl>agent-browser listinitscripts
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 移除指定ID的初始化脚本</span>
+</span></span><span class=line><span class=cl>agent-browser removeinitscript &lt;identifier&gt;</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=完整的error-capturejs文件>完整的error-capture.js文件</h4><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// 保存为error-capture.js，放在项目根目录
+</span></span></span><span class=line><span class=cl><span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>=</span> <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>||</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 1. 捕获所有同步错误
+</span></span></span><span class=line><span class=cl><span class=nb>window</span><span class=p>.</span><span class=nx>onerror</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>message</span><span class=p>,</span> <span class=nx>source</span><span class=p>,</span> <span class=nx>lineno</span><span class=p>,</span> <span class=nx>colno</span><span class=p>,</span> <span class=nx>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;sync_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>message</span><span class=o>:</span> <span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>source</span><span class=o>:</span> <span class=nx>source</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>line</span><span class=o>:</span> <span class=nx>lineno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>column</span><span class=o>:</span> <span class=nx>colno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>stack</span><span class=o>:</span> <span class=nx>error</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nx>message</span><span class=p>).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=kc>false</span><span class=p>;</span> <span class=c1>// 让浏览器也能在控制台显示错误
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 2. 捕获所有未处理的Promise拒绝（现代框架最常见）
+</span></span></span><span class=line><span class=cl><span class=nb>window</span><span class=p>.</span><span class=nx>addEventListener</span><span class=p>(</span><span class=s1>&#39;unhandledrejection&#39;</span><span class=p>,</span> <span class=kd>function</span><span class=p>(</span><span class=nx>event</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>event</span><span class=p>.</span><span class=nx>preventDefault</span><span class=p>();</span> <span class=c1>// 阻止浏览器默认的错误提示
+</span></span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;unhandled_promise_rejection&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>reason</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>message</span> <span class=o>||</span> <span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=nx>stack</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>)).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 3. 捕获所有console.error调用
+</span></span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>originalConsoleError</span> <span class=o>=</span> <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>error</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(...</span><span class=nx>args</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;console_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>args</span><span class=o>:</span> <span class=nx>args</span><span class=p>.</span><span class=nx>map</span><span class=p>(</span><span class=nx>arg</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>typeof</span> <span class=nx>arg</span> <span class=o>===</span> <span class=s1>&#39;object&#39;</span> <span class=o>?</span> <span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>arg</span><span class=p>,</span> <span class=kc>null</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span> <span class=o>:</span> <span class=nb>String</span><span class=p>(</span><span class=nx>arg</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>String</span><span class=p>(</span><span class=nx>arg</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}),</span>
+</span></span><span class=line><span class=cl>    <span class=nx>stack</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>().</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>originalConsoleError</span><span class=p>.</span><span class=nx>apply</span><span class=p>(</span><span class=nx>console</span><span class=p>,</span> <span class=nx>args</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 4. 提供一个打印所有错误的工具函数
+</span></span></span><span class=line><span class=cl><span class=nb>window</span><span class=p>.</span><span class=nx>printEarlyErrors</span> <span class=o>=</span> <span class=kd>function</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;=== 捕获到的早期错误 ===&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>forEach</span><span class=p>((</span><span class=nx>err</span><span class=p>,</span> <span class=nx>index</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`\n错误 </span><span class=si>${</span><span class=nx>index</span> <span class=o>+</span> <span class=mi>1</span><span class=si>}</span><span class=sb> (</span><span class=si>${</span><span class=nx>err</span><span class=p>.</span><span class=nx>type</span><span class=si>}</span><span class=sb>):`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`时间: </span><span class=si>${</span><span class=nx>err</span><span class=p>.</span><span class=nx>timestamp</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`消息: </span><span class=si>${</span><span class=nx>err</span><span class=p>.</span><span class=nx>message</span> <span class=o>||</span> <span class=nx>err</span><span class=p>.</span><span class=nx>reason</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nx>err</span><span class=p>.</span><span class=nx>stack</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`堆栈:\n</span><span class=si>${</span><span class=nx>err</span><span class=p>.</span><span class=nx>stack</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;========================&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>};</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=获取捕获到的错误>获取捕获到的错误</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 获取格式化的JSON错误列表</span>
+</span></span><span class=line><span class=cl>agent-browser <span class=nb>eval</span> <span class=s2>&#34;JSON.stringify(window.__earlyErrors, null, 2)&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 或者直接打印到控制台</span>
+</span></span><span class=line><span class=cl>agent-browser <span class=nb>eval</span> <span class=s2>&#34;window.printEarlyErrors()&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=版本要求>版本要求</h4><ul><li>需要使用<strong>2026年4月17日或之后构建的agent-browser版本</strong></li><li>可以通过<code>agent-browser --version</code>检查版本</li><li>升级命令：<code>agent-browser upgrade</code></li></ul><h3 id=playwright-官方解决方案原生能力最强>Playwright 官方解决方案（原生能力最强）</h3><p>Playwright从v1.9版本开始就提供了完美的解决方案：<strong><code>addInitScript()</code>方法</strong>。从v1.40版本开始，它的原生错误捕获能力已经非常强大。</p><h4 id=官方说明>官方说明</h4><blockquote><p>&ldquo;脚本在文档创建后但在任何脚本运行之前进行评估。这对于修改JavaScript环境非常有用。&rdquo;</p><p>Playwright官方文档明确建议：使用<code>page.on('pageerror')</code>来捕获未处理的异常，使用<code>page.on('console')</code>来捕获控制台错误。对于大多数现代框架的hydration错误，这两个事件已经足够。</p></blockquote><h4 id=最佳实践实现>最佳实践实现</h4><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span><span class=lnt>93
+</span><span class=lnt>94
+</span><span class=lnt>95
+</span><span class=lnt>96
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>const</span> <span class=p>{</span> <span class=nx>chromium</span> <span class=p>}</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;playwright&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>async</span> <span class=kd>function</span> <span class=nx>captureAllErrors</span><span class=p>(</span><span class=nx>url</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>browser</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>chromium</span><span class=p>.</span><span class=nx>launch</span><span class=p>({</span> <span class=nx>headless</span><span class=o>:</span> <span class=s1>&#39;new&#39;</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>context</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>browser</span><span class=p>.</span><span class=nx>newContext</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>allErrors</span> <span class=o>=</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// ✅ Playwright原生错误捕获（v1.40+ 已足够应对95%的情况）
+</span></span></span><span class=line><span class=cl>  <span class=nx>context</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;console&#39;</span><span class=p>,</span> <span class=nx>msg</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nx>msg</span><span class=p>.</span><span class=nx>type</span><span class=p>()</span> <span class=o>===</span> <span class=s1>&#39;error&#39;</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>allErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;console_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>message</span><span class=o>:</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>text</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>location</span><span class=o>:</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>location</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>stackTrace</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>context</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;pageerror&#39;</span><span class=p>,</span> <span class=nx>error</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>allErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;page_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>message</span><span class=o>:</span> <span class=nx>error</span><span class=p>.</span><span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>stack</span><span class=o>:</span> <span class=nx>error</span><span class=p>.</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// ⚠️ 仅针对极端早期错误的补充（如document.write中的错误）
+</span></span></span><span class=line><span class=cl>  <span class=c1>// 如果你发现原生事件确实错过了某些错误，再启用这部分
+</span></span></span><span class=line><span class=cl>  <span class=kr>await</span> <span class=nx>context</span><span class=p>.</span><span class=nx>addInitScript</span><span class=p>(</span><span class=sb>`
+</span></span></span><span class=line><span class=cl><span class=sb>    window.__earlyErrors = [];
+</span></span></span><span class=line><span class=cl><span class=sb>    
+</span></span></span><span class=line><span class=cl><span class=sb>    window.onerror = function(message, source, lineno, colno, error) {
+</span></span></span><span class=line><span class=cl><span class=sb>      window.__earlyErrors.push({
+</span></span></span><span class=line><span class=cl><span class=sb>        type: &#39;extreme_early_sync_error&#39;,
+</span></span></span><span class=line><span class=cl><span class=sb>        message: message,
+</span></span></span><span class=line><span class=cl><span class=sb>        source: source,
+</span></span></span><span class=line><span class=cl><span class=sb>        line: lineno,
+</span></span></span><span class=line><span class=cl><span class=sb>        column: colno,
+</span></span></span><span class=line><span class=cl><span class=sb>        stack: error?.stack || new Error(message).stack,
+</span></span></span><span class=line><span class=cl><span class=sb>        timestamp: new Date().toISOString()
+</span></span></span><span class=line><span class=cl><span class=sb>      });
+</span></span></span><span class=line><span class=cl><span class=sb>      return false;
+</span></span></span><span class=line><span class=cl><span class=sb>    };
+</span></span></span><span class=line><span class=cl><span class=sb>    
+</span></span></span><span class=line><span class=cl><span class=sb>    window.addEventListener(&#39;unhandledrejection&#39;, function(event) {
+</span></span></span><span class=line><span class=cl><span class=sb>      event.preventDefault();
+</span></span></span><span class=line><span class=cl><span class=sb>      window.__earlyErrors.push({
+</span></span></span><span class=line><span class=cl><span class=sb>        type: &#39;extreme_early_promise_rejection&#39;,
+</span></span></span><span class=line><span class=cl><span class=sb>        reason: event.reason?.message || String(event.reason),
+</span></span></span><span class=line><span class=cl><span class=sb>        stack: event.reason?.stack || new Error(String(event.reason)).stack,
+</span></span></span><span class=line><span class=cl><span class=sb>        timestamp: new Date().toISOString()
+</span></span></span><span class=line><span class=cl><span class=sb>      });
+</span></span></span><span class=line><span class=cl><span class=sb>    });
+</span></span></span><span class=line><span class=cl><span class=sb>  `</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>page</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>context</span><span class=p>.</span><span class=nx>newPage</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=kr>goto</span><span class=p>(</span><span class=nx>url</span><span class=p>,</span> <span class=p>{</span> <span class=nx>waitUntil</span><span class=o>:</span> <span class=s1>&#39;networkidle0&#39;</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>allErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;navigation_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>message</span><span class=o>:</span> <span class=nx>e</span><span class=p>.</span><span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>stack</span><span class=o>:</span> <span class=nx>e</span><span class=p>.</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 获取极端早期错误（如果启用了addInitScript）
+</span></span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>earlyErrors</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=nx>evaluate</span><span class=p>(()</span> <span class=p>=&gt;</span> <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>||</span> <span class=p>[]);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>await</span> <span class=nx>browser</span><span class=p>.</span><span class=nx>close</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 合并所有错误并按时间排序
+</span></span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=p>[...</span><span class=nx>earlyErrors</span><span class=p>,</span> <span class=p>...</span><span class=nx>allErrors</span><span class=p>].</span><span class=nx>sort</span><span class=p>((</span><span class=nx>a</span><span class=p>,</span> <span class=nx>b</span><span class=p>)</span> <span class=p>=&gt;</span> 
+</span></span><span class=line><span class=cl>    <span class=k>new</span> <span class=nb>Date</span><span class=p>(</span><span class=nx>a</span><span class=p>.</span><span class=nx>timestamp</span><span class=p>)</span> <span class=o>-</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>(</span><span class=nx>b</span><span class=p>.</span><span class=nx>timestamp</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 使用示例
+</span></span></span><span class=line><span class=cl><span class=nx>captureAllErrors</span><span class=p>(</span><span class=s1>&#39;http://localhost:5173&#39;</span><span class=p>).</span><span class=nx>then</span><span class=p>(</span><span class=nx>errors</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;捕获到的所有错误：&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>errors</span><span class=p>,</span> <span class=kc>null</span><span class=p>,</span> <span class=mi>2</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=nx>errors</span><span class=p>.</span><span class=nx>length</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`\n总共发现 </span><span class=si>${</span><span class=nx>errors</span><span class=p>.</span><span class=nx>length</span><span class=si>}</span><span class=sb> 个错误`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>process</span><span class=p>.</span><span class=nx>exit</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;\n没有发现任何错误&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>process</span><span class=p>.</span><span class=nx>exit</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>});</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=重要注意事项>重要注意事项</h4><ul><li><strong>Playwright v1.40+ 用户优先使用原生事件</strong>：<code>page.on('pageerror')</code>和<code>context.on('console')</code>已经能够捕获绝大多数错误</li><li><strong><code>addInitScript()</code>仅作为补充</strong>：只有当你确认原生事件确实错过了某些极端早期错误时才需要使用</li><li><strong>建议在context级别添加监听器</strong>：这样所有新页面都会继承这些监听器</li><li>Playwright还新增了<code>page.console_messages()</code>和<code>page.page_errors()</code>方法，可以直接获取历史消息</li></ul><h3 id=puppeteer-官方解决方案>Puppeteer 官方解决方案</h3><p>Puppeteer从第一个版本开始就提供了对应的解决方案：<strong><code>evaluateOnNewDocument()</code>方法</strong>。</p><h4 id=官方说明-1>官方说明</h4><blockquote><p>&ldquo;该函数在以下情况之一被调用：每当页面导航时；每当子框架被附加或导航时。函数在文档创建后但在任何页面脚本运行之前被调用。&rdquo;</p></blockquote><h4 id=实现代码>实现代码</h4><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>const</span> <span class=nx>puppeteer</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;puppeteer-core&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>async</span> <span class=kd>function</span> <span class=nx>captureAllErrors</span><span class=p>(</span><span class=nx>url</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>browser</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>puppeteer</span><span class=p>.</span><span class=nx>launch</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>headless</span><span class=o>:</span> <span class=s1>&#39;new&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>executablePath</span><span class=o>:</span> <span class=s1>&#39;/usr/bin/google-chrome&#39;</span><span class=p>,</span> <span class=c1>// 根据你的系统调整
+</span></span></span><span class=line><span class=cl>    <span class=nx>args</span><span class=o>:</span> <span class=p>[</span><span class=s1>&#39;--no-sandbox&#39;</span><span class=p>,</span> <span class=s1>&#39;--disable-setuid-sandbox&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>page</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>browser</span><span class=p>.</span><span class=nx>newPage</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// ✅ 关键：在导航之前添加评估脚本
+</span></span></span><span class=line><span class=cl>  <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=nx>evaluateOnNewDocument</span><span class=p>(()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>=</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>onerror</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>message</span><span class=p>,</span> <span class=nx>source</span><span class=p>,</span> <span class=nx>lineno</span><span class=p>,</span> <span class=nx>colno</span><span class=p>,</span> <span class=nx>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;sync_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>message</span><span class=o>:</span> <span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>source</span><span class=o>:</span> <span class=nx>source</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>line</span><span class=o>:</span> <span class=nx>lineno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>column</span><span class=o>:</span> <span class=nx>colno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>error</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nx>message</span><span class=p>).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>addEventListener</span><span class=p>(</span><span class=s1>&#39;unhandledrejection&#39;</span><span class=p>,</span> <span class=kd>function</span><span class=p>(</span><span class=nx>event</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>event</span><span class=p>.</span><span class=nx>preventDefault</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>      <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;unhandled_promise_rejection&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>reason</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>message</span> <span class=o>||</span> <span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>)).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 同时使用CDP协议捕获所有错误（终极保障）
+</span></span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>client</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=nx>createCDPSession</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=kr>await</span> <span class=nx>client</span><span class=p>.</span><span class=nx>send</span><span class=p>(</span><span class=s1>&#39;Runtime.enable&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>cdpErrors</span> <span class=o>=</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>client</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;Runtime.consoleAPICalled&#39;</span><span class=p>,</span> <span class=nx>event</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>type</span> <span class=o>===</span> <span class=s1>&#39;error&#39;</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>cdpErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;cdp_console_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>args</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>args</span><span class=p>.</span><span class=nx>map</span><span class=p>(</span><span class=nx>arg</span> <span class=p>=&gt;</span> <span class=nx>arg</span><span class=p>.</span><span class=nx>value</span> <span class=o>||</span> <span class=nx>arg</span><span class=p>.</span><span class=nx>description</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>stackTrace</span><span class=o>?</span><span class=p>.</span><span class=nx>callFrames</span> <span class=o>||</span> <span class=p>[],</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>timestamp</span><span class=p>).</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>client</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;Runtime.exceptionThrown&#39;</span><span class=p>,</span> <span class=nx>event</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>cdpErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;cdp_exception&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>message</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>exceptionDetails</span><span class=p>.</span><span class=nx>exception</span><span class=o>?</span><span class=p>.</span><span class=nx>description</span> <span class=o>||</span> <span class=nx>event</span><span class=p>.</span><span class=nx>exceptionDetails</span><span class=p>.</span><span class=nx>text</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>stack</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>exceptionDetails</span><span class=p>.</span><span class=nx>stackTrace</span><span class=o>?</span><span class=p>.</span><span class=nx>callFrames</span> <span class=o>||</span> <span class=p>[],</span>
+</span></span><span class=line><span class=cl>      <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>client</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;Runtime.unhandledPromiseRejection&#39;</span><span class=p>,</span> <span class=nx>event</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>cdpErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;cdp_unhandled_rejection&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>reason</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>description</span> <span class=o>||</span> <span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>      <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=kr>goto</span><span class=p>(</span><span class=nx>url</span><span class=p>,</span> <span class=p>{</span> <span class=nx>waitUntil</span><span class=o>:</span> <span class=s1>&#39;networkidle0&#39;</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>cdpErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;navigation_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>message</span><span class=o>:</span> <span class=nx>e</span><span class=p>.</span><span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>stack</span><span class=o>:</span> <span class=nx>e</span><span class=p>.</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 获取早期错误
+</span></span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>earlyErrors</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=nx>evaluate</span><span class=p>(()</span> <span class=p>=&gt;</span> <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>await</span> <span class=nx>browser</span><span class=p>.</span><span class=nx>close</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// 合并所有错误
+</span></span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=p>[...</span><span class=nx>earlyErrors</span><span class=p>,</span> <span class=p>...</span><span class=nx>cdpErrors</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=selenium-官方解决方案>Selenium 官方解决方案</h3><p>Selenium 4.0及以上版本也提供了类似的功能：<strong>DevTools API + Runtime.enable</strong>。</p><h4 id=实现代码java>实现代码（Java）</h4><div class=code-block-wrapper data-lang=java><div class=code-block-header><div class=code-block-meta><span class=code-language>java</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.chrome.ChromeDriver</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.chrome.ChromeOptions</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.devtools.DevTools</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.devtools.v126.runtime.Runtime</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.devtools.v126.runtime.model.ConsoleAPICalled</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.devtools.v126.runtime.model.ExceptionThrown</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>java.util.ArrayList</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>java.util.List</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>ErrorCapture</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kd>static</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>main</span><span class=p>(</span><span class=n>String</span><span class=o>[]</span><span class=w> </span><span class=n>args</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>ChromeOptions</span><span class=w> </span><span class=n>options</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>ChromeOptions</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>options</span><span class=p>.</span><span class=na>addArguments</span><span class=p>(</span><span class=s>&#34;--headless=new&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>ChromeDriver</span><span class=w> </span><span class=n>driver</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>ChromeDriver</span><span class=p>(</span><span class=n>options</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>DevTools</span><span class=w> </span><span class=n>devTools</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>driver</span><span class=p>.</span><span class=na>getDevTools</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>devTools</span><span class=p>.</span><span class=na>createSession</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 启用Runtime域</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>devTools</span><span class=p>.</span><span class=na>send</span><span class=p>(</span><span class=n>Runtime</span><span class=p>.</span><span class=na>enable</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>List</span><span class=o>&lt;</span><span class=n>Object</span><span class=o>&gt;</span><span class=w> </span><span class=n>allErrors</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>ArrayList</span><span class=o>&lt;&gt;</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 捕获控制台错误</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>devTools</span><span class=p>.</span><span class=na>addListener</span><span class=p>(</span><span class=n>Runtime</span><span class=p>.</span><span class=na>consoleAPICalled</span><span class=p>(),</span><span class=w> </span><span class=n>event</span><span class=w> </span><span class=o>-&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>if</span><span class=w> </span><span class=p>(</span><span class=n>event</span><span class=p>.</span><span class=na>getType</span><span class=p>().</span><span class=na>equals</span><span class=p>(</span><span class=n>ConsoleAPICalled</span><span class=p>.</span><span class=na>Type</span><span class=p>.</span><span class=na>ERROR</span><span class=p>))</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=s>&#34;Console error: &#34;</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>event</span><span class=p>.</span><span class=na>getArgs</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>allErrors</span><span class=p>.</span><span class=na>add</span><span class=p>(</span><span class=n>event</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 捕获JavaScript异常</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>devTools</span><span class=p>.</span><span class=na>addListener</span><span class=p>(</span><span class=n>Runtime</span><span class=p>.</span><span class=na>exceptionThrown</span><span class=p>(),</span><span class=w> </span><span class=n>event</span><span class=w> </span><span class=o>-&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>ExceptionThrown</span><span class=p>.</span><span class=na>ExceptionDetails</span><span class=w> </span><span class=n>details</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>event</span><span class=p>.</span><span class=na>getExceptionDetails</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=s>&#34;Exception thrown: &#34;</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>details</span><span class=p>.</span><span class=na>getException</span><span class=p>().</span><span class=na>get</span><span class=p>().</span><span class=na>getDescription</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>allErrors</span><span class=p>.</span><span class=na>add</span><span class=p>(</span><span class=n>event</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// 导航到页面</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>driver</span><span class=p>.</span><span class=na>get</span><span class=p>(</span><span class=s>&#34;http://localhost:5173&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>driver</span><span class=p>.</span><span class=na>quit</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>官方文档：https://www.selenium.dev/documentation/webdriver/bidirectional/chrome_devtools/</p><h2 id=通用解决方案html内联脚本注入最后一道防线>通用解决方案：HTML内联脚本注入（最后一道防线）</h2><p>虽然现在所有工具都已经提供了官方解决方案，但在HTML最顶部添加内联错误捕获脚本仍然是最保险的做法，适用于<strong>任何环境</strong>和<strong>任何工具</strong>。这也是Sentry等错误监控服务采用的标准做法。</p><h3 id=实现原理>实现原理</h3><p>在浏览器解析任何其他代码之前，先注入一个全局错误捕获器。这个脚本会在<code>&lt;head></code>的最顶部执行，比任何框架代码都早。</p><h3 id=通用实现适用于所有框架>通用实现（适用于所有框架）</h3><p>编辑你的HTML入口文件，<strong>必须把这段代码放在<code>&lt;head></code>的最最顶部</strong>：</p><div class=code-block-wrapper data-lang=html><div class=code-block-header><div class=code-block-meta><span class=code-language>html</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-html data-lang=html><span class=line><span class=cl><span class=cp>&lt;!DOCTYPE html&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;</span><span class=nt>html</span> <span class=na>lang</span><span class=o>=</span><span class=s>&#34;en&#34;</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;</span><span class=nt>head</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=c>&lt;!-- 全局早期错误捕获器 - 必须放在所有其他脚本之前 --&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>&lt;</span><span class=nt>script</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>=</span> <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>||</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>onerror</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>message</span><span class=p>,</span> <span class=nx>source</span><span class=p>,</span> <span class=nx>lineno</span><span class=p>,</span> <span class=nx>colno</span><span class=p>,</span> <span class=nx>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;sync_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>message</span><span class=o>:</span> <span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>source</span><span class=o>:</span> <span class=nx>source</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>line</span><span class=o>:</span> <span class=nx>lineno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>column</span><span class=o>:</span> <span class=nx>colno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>error</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nx>message</span><span class=p>).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>addEventListener</span><span class=p>(</span><span class=s1>&#39;unhandledrejection&#39;</span><span class=p>,</span> <span class=kd>function</span><span class=p>(</span><span class=nx>event</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>event</span><span class=p>.</span><span class=nx>preventDefault</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>      <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;unhandled_promise_rejection&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>reason</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>message</span> <span class=o>||</span> <span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>)).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>originalConsoleError</span> <span class=o>=</span> <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>error</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(...</span><span class=nx>args</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;console_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>args</span><span class=o>:</span> <span class=nx>args</span><span class=p>.</span><span class=nx>map</span><span class=p>(</span><span class=nx>arg</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=k>typeof</span> <span class=nx>arg</span> <span class=o>===</span> <span class=s1>&#39;object&#39;</span> <span class=o>?</span> <span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>arg</span><span class=p>,</span> <span class=kc>null</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span> <span class=o>:</span> <span class=nb>String</span><span class=p>(</span><span class=nx>arg</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>          <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nb>String</span><span class=p>(</span><span class=nx>arg</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>          <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>().</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>      <span class=nx>originalConsoleError</span><span class=p>.</span><span class=nx>apply</span><span class=p>(</span><span class=nx>console</span><span class=p>,</span> <span class=nx>args</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>  <span class=p>&lt;/</span><span class=nt>script</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c>&lt;!-- 以下是原来的内容 --&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>&lt;</span><span class=nt>meta</span> <span class=na>charset</span><span class=o>=</span><span class=s>&#34;utf-8&#34;</span> <span class=p>/&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>&lt;</span><span class=nt>link</span> <span class=na>rel</span><span class=o>=</span><span class=s>&#34;icon&#34;</span> <span class=na>href</span><span class=o>=</span><span class=s>&#34;/favicon.png&#34;</span> <span class=p>/&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>&lt;</span><span class=nt>meta</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;viewport&#34;</span> <span class=na>content</span><span class=o>=</span><span class=s>&#34;width=device-width, initial-scale=1&#34;</span> <span class=p>/&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=c>&lt;!-- 框架注入的内容 --&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;/</span><span class=nt>head</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;</span><span class=nt>body</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=c>&lt;!-- 应用内容 --&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;/</span><span class=nt>body</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;/</span><span class=nt>html</span><span class=p>&gt;</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=各框架的具体放置位置>各框架的具体放置位置</h3><ul><li><strong>SvelteKit</strong>：<code>src/app.html</code></li><li><strong>Next.js</strong>：<code>app/layout.tsx</code>的最顶部，在任何导入之前</li><li><strong>Nuxt.js</strong>：<code>app.vue</code>的<code>&lt;script setup></code>之前，或使用<code>nuxt.config.ts</code>的<code>app.head.script</code>配置</li><li><strong>React + Vite</strong>：<code>index.html</code></li><li><strong>Vue + Vite</strong>：<code>index.html</code></li></ul><h2 id=各框架的全局错误处理第二道防线>各框架的全局错误处理（第二道防线）</h2><p>作为第二道防线，你应该在每个框架中添加全局错误处理：</p><h3 id=sveltekit>SvelteKit</h3><p>在<code>src/hooks.client.js</code>中添加：</p><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>export</span> <span class=kd>function</span> <span class=nx>handleError</span><span class=p>({</span> <span class=nx>error</span><span class=p>,</span> <span class=nx>event</span> <span class=p>})</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;SvelteKit全局错误:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 上报到日志系统
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>官方文档：https://kit.svelte.dev/docs/hooks#shared-hooks-handleerror</p><h3 id=nextjs>Next.js</h3><p>在<code>app/global-error.tsx</code>中添加：</p><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=s1>&#39;use client&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>export</span> <span class=k>default</span> <span class=kd>function</span> <span class=nx>GlobalError</span><span class=p>({</span> <span class=nx>error</span><span class=p>,</span> <span class=nx>reset</span> <span class=p>})</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;Next.js全局错误:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 上报到日志系统
+</span></span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=o>&lt;</span><span class=nx>html</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl>      <span class=o>&lt;</span><span class=nx>body</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl>        <span class=o>&lt;</span><span class=nx>h2</span><span class=o>&gt;</span><span class=nx>Something</span> <span class=nx>went</span> <span class=nx>wrong</span><span class=o>!&lt;</span><span class=err>/h2&gt;</span>
+</span></span><span class=line><span class=cl>        <span class=o>&lt;</span><span class=nx>button</span> <span class=nx>onClick</span><span class=o>=</span><span class=p>{()</span> <span class=p>=&gt;</span> <span class=nx>reset</span><span class=p>()}</span><span class=o>&gt;</span><span class=nx>Try</span> <span class=nx>again</span><span class=o>&lt;</span><span class=err>/button&gt;</span>
+</span></span><span class=line><span class=cl>      <span class=o>&lt;</span><span class=err>/body&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=o>&lt;</span><span class=err>/html&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>官方文档：https://nextjs.org/docs/app/building-your-application/routing/error-handling#global-error-handling</p><h3 id=nuxtjs>Nuxt.js</h3><p>在<code>plugins/error-handler.ts</code>中添加：</p><div class=code-block-wrapper data-lang=typescript><div class=code-block-header><div class=code-block-meta><span class=code-language>typescript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-typescript data-lang=typescript><span class=line><span class=cl><span class=kr>export</span> <span class=k>default</span> <span class=nx>defineNuxtPlugin</span><span class=p>((</span><span class=nx>nuxtApp</span><span class=p>)</span> <span class=o>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>nuxtApp</span><span class=p>.</span><span class=nx>vueApp</span><span class=p>.</span><span class=nx>config</span><span class=p>.</span><span class=nx>errorHandler</span> <span class=o>=</span> <span class=p>(</span><span class=nx>error</span><span class=p>,</span> <span class=nx>instance</span><span class=p>,</span> <span class=nx>info</span><span class=p>)</span> <span class=o>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;Vue全局错误:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>,</span> <span class=nx>info</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 上报到日志系统
+</span></span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>nuxtApp</span><span class=p>.</span><span class=nx>hook</span><span class=p>(</span><span class=s1>&#39;vue:error&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>error</span><span class=p>,</span> <span class=nx>instance</span><span class=p>,</span> <span class=nx>info</span><span class=p>)</span> <span class=o>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;Nuxt Vue错误:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>,</span> <span class=nx>info</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 上报到日志系统
+</span></span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>});</span></span></span></code></pre></td></tr></table></div></div></div></div><p>官方文档：https://nuxt.com/docs/getting-started/error-handling#vue-errors</p><h3 id=react>React</h3><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>class</span> <span class=nx>ErrorBoundary</span> <span class=kr>extends</span> <span class=nx>React</span><span class=p>.</span><span class=nx>Component</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>componentDidCatch</span><span class=p>(</span><span class=nx>error</span><span class=p>,</span> <span class=nx>errorInfo</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;React错误边界捕获到错误:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>,</span> <span class=nx>errorInfo</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 上报到日志系统
+</span></span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>render</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>props</span><span class=p>.</span><span class=nx>children</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>官方文档：https://react.dev/reference/react/Component#componentdidcatch</p><h3 id=vue-3>Vue 3</h3><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>const</span> <span class=nx>app</span> <span class=o>=</span> <span class=nx>createApp</span><span class=p>(</span><span class=nx>App</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>app</span><span class=p>.</span><span class=nx>config</span><span class=p>.</span><span class=nx>errorHandler</span> <span class=o>=</span> <span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=nx>instance</span><span class=p>,</span> <span class=nx>info</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;Vue全局错误:&#39;</span><span class=p>,</span> <span class=nx>err</span><span class=p>,</span> <span class=nx>info</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 上报到日志系统
+</span></span></span><span class=line><span class=cl><span class=p>};</span></span></span></code></pre></td></tr></table></div></div></div></div><p>官方文档：https://vuejs.org/api/application.html#app-config-errorhandler</p><h2 id=临时调试技巧>临时调试技巧</h2><p>如果你只是想快速定位问题，不想修改代码，可以试试这些方法：</p><h3 id=使用非headless模式运行>使用非headless模式运行</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># agent-browser</span>
+</span></span><span class=line><span class=cl>agent-browser run --headless<span class=o>=</span><span class=nb>false</span> http://localhost:5173
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Puppeteer</span>
+</span></span><span class=line><span class=cl>const <span class=nv>browser</span> <span class=o>=</span> await puppeteer.launch<span class=o>({</span> headless: <span class=nb>false</span> <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Playwright</span>
+</span></span><span class=line><span class=cl>const <span class=nv>browser</span> <span class=o>=</span> await chromium.launch<span class=o>({</span> headless: <span class=nb>false</span> <span class=o>})</span><span class=p>;</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=检查构建输出>检查构建输出</h3><p>很多早期错误在构建阶段就能发现：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 构建项目并检查警告和错误</span>
+</span></span><span class=line><span class=cl>npm run build
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 预览构建结果（这会暴露很多开发模式下看不到的问题）</span>
+</span></span><span class=line><span class=cl>npm run preview</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=启用chrome的详细日志>启用Chrome的详细日志</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 启动Chrome时添加这些参数</span>
+</span></span><span class=line><span class=cl>chrome --headless<span class=o>=</span>new --enable-logging --v<span class=o>=</span><span class=m>1</span> --log-level<span class=o>=</span><span class=m>0</span> http://localhost:5173</span></span></code></pre></td></tr></table></div></div></div></div><h2 id=常见的早期错误原因>常见的早期错误原因</h2><p>这些是所有框架都会遇到的、最容易在初始化阶段抛出且难以捕获的错误：</p><ol><li><strong>环境变量未定义</strong>：<code>import.meta.env.VITE_XXX</code>或<code>process.env.NEXT_PUBLIC_XXX</code>在客户端不存在</li><li><strong>SSR不兼容</strong>：第三方库在服务端渲染时访问<code>window</code>或<code>document</code></li><li><strong>数据获取错误</strong>：<code>load</code>函数、<code>getServerSideProps</code>或服务器组件中的API调用失败</li><li><strong>Hydration不匹配</strong>：服务端渲染的HTML与客户端生成的DOM不一致</li><li><strong>静态资源路径错误</strong>：构建后静态资源的路径配置不正确</li><li><strong>模块加载失败</strong>：JS分块加载失败或第三方CDN不可用</li><li><strong>依赖版本不兼容</strong>：不同依赖之间的版本冲突</li></ol><h2 id=最新最佳实践2026年5月更新>最新最佳实践（2026年5月更新）</h2><p><strong>根据工具选择合适的方案</strong></p><ul><li><strong>agent-browser用户</strong>：使用官方的<code>--init-script</code>参数或<code>addinitscript</code>命令</li><li><strong>Playwright用户</strong>：优先使用原生的<code>page.on('pageerror')</code>和<code>context.on('console')</code>，只有在确认有遗漏时才添加<code>addInitScript()</code></li><li><strong>Puppeteer用户</strong>：使用<code>page.evaluateOnNewDocument()</code></li><li><strong>Selenium用户</strong>：使用DevTools API + Runtime.enable</li></ul><p><strong>结合CDP协议作为终极保障</strong></p><p>对于最复杂的情况，可以直接使用Chrome DevTools Protocol的<code>Runtime.enable</code>方法，这能捕获所有可能的错误。</p><p><strong>仍然建议在HTML中添加内联脚本作为最后一道防线</strong></p><p>虽然现在工具已经提供了解决方案，但在HTML最顶部添加内联错误捕获脚本仍然是最保险的做法，适用于任何环境。</p><p><strong>升级到最新版本的工具</strong></p><p>所有主流工具都已经解决了这个问题，特别是Playwright v1.40+和agent-browser 2026年4月后的版本，原生错误捕获能力有了质的飞跃。</p><p><strong>添加框架级别的全局错误处理</strong></p><p>作为第二道防线，捕获那些可能漏网的错误。</p><h2 id=结语>结语</h2><p><strong>好消息是：这个曾经困扰无数开发者的"隐形错误"问题，现在已经有了完美的官方解决方案。</strong></p><ul><li><strong>agent-browser</strong>在2026年4月17日的PR #1257中彻底解决了这个问题，添加了完整的预导航初始化脚本支持</li><li><strong>Playwright</strong>不仅早就提供了对应的解决方案，而且在v1.40+版本中大幅改进了原生捕获能力，现在是所有工具中表现最好的</li><li><strong>Puppeteer</strong>和<strong>Selenium</strong>也都有成熟的解决方案</li><li>所有解决方案的核心思想都是：<strong>在页面加载前注入错误捕获脚本</strong></li></ul><p>现在你再也不用担心"页面白屏但控制台为空"的问题了。按照上面的官方方法配置，你将能够捕获所有发生在页面初始化阶段的错误。</p><p>如果你也遇到过类似的"隐形错误"，欢迎在评论区分享你的经历。</p><h2 id=参考文献>参考文献</h2><p>[1] GitHub Issue: &ldquo;Puppeteer page.on(&lsquo;pageerror&rsquo;) not catching errors during page load&rdquo; <a href=https://github.com/puppeteer/puppeteer/issues/1933>https://github.com/puppeteer/puppeteer/issues/1933</a></p><p>[2] Chrome DevTools Protocol: Runtime Domain <a href=https://chromedevtools.github.io/devtools-protocol/tot/Runtime/>https://chromedevtools.github.io/devtools-protocol/tot/Runtime/</a></p><p>[3] Playwright Official Documentation: Page Errors <a href=https://playwright.dev/docs/api/class-page#page-event-page-error>https://playwright.dev/docs/api/class-page#page-event-page-error</a></p><p>[4] agent-browser PR #1257: feat(react): React introspection, Web Vitals, and SPA primitives <a href=https://github.com/vercel-labs/agent-browser/pull/1257>https://github.com/vercel-labs/agent-browser/pull/1257</a></p><p>[5] Playwright Official Documentation: addInitScript <a href=https://playwright.dev/docs/api/class-browsercontext#browser-context-add-init-script>https://playwright.dev/docs/api/class-browsercontext#browser-context-add-init-script</a></p><p>[6] Playwright Release Notes: <a href=https://playwright.dev/docs/release-notes>https://playwright.dev/docs/release-notes</a></p><p>[7] Puppeteer Official Documentation: evaluateOnNewDocument <a href=https://pptr.dev/api/core.page.evaluateonnewdocument>https://pptr.dev/api/core.page.evaluateonnewdocument</a></p><p>[8] Selenium Official Documentation: Chrome DevTools <a href=https://www.selenium.dev/documentation/webdriver/bidirectional/chrome_devtools/>https://www.selenium.dev/documentation/webdriver/bidirectional/chrome_devtools/</a></p><p>[9] Sentry Documentation: Install for Browser JavaScript <a href=https://docs.sentry.io/platforms/javascript/install/>https://docs.sentry.io/platforms/javascript/install/</a></p><p>[10] SvelteKit Official Documentation: Hooks <a href=https://kit.svelte.dev/docs/hooks>https://kit.svelte.dev/docs/hooks</a></p><p>[11] Next.js Official Documentation: Error Handling <a href=https://nextjs.org/docs/app/building-your-application/routing/error-handling>https://nextjs.org/docs/app/building-your-application/routing/error-handling</a></p><p>[12] Nuxt Official Documentation: Error Handling <a href=https://nuxt.com/docs/getting-started/error-handling>https://nuxt.com/docs/getting-started/error-handling</a></p><p>[13] React Official Documentation: Error Boundaries <a href=https://react.dev/reference/react/Component#componentdidcatch>https://react.dev/reference/react/Component#componentdidcatch</a></p><p>[14] Vue Official Documentation: Error Handling <a href=https://vuejs.org/api/application.html#app-config-errorhandler>https://vuejs.org/api/application.html#app-config-errorhandler</a></p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/headless-chrome/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Headless Chrome
+</a><a class=tag-chip href=/tags/puppeteer/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Puppeteer
+</a><a class=tag-chip href=/tags/playwright/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Playwright
+</a><a class=tag-chip href=/tags/selenium/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Selenium
+</a><a class=tag-chip href=/tags/agent-browser/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Agent-Browser
+</a><a class=tag-chip href=/tags/%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+前端自动化
+</a><a class=tag-chip href=/tags/%E9%94%99%E8%AF%AF%E6%8D%95%E8%8E%B7/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+错误捕获</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.9dde4af284cb7fa90f3e90ee3562534f4b4a3ff6d876045a8eaf6b1c51be76ee.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>
