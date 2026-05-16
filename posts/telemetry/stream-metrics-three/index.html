@@ -1,0 +1,330 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - 从Hashmod到Jump Consistent Hash——stream-metrics-route哈希算法升级实录</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/posts/telemetry/stream-metrics-three/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - 从Hashmod到Jump Consistent Hash——stream-metrics-route哈希算法升级实录"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/telemetry/stream-metrics-three/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-16 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-16 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - 从Hashmod到Jump Consistent Hash——stream-metrics-route哈希算法升级实录"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.ff23690d660c5cbc0c4efdfef2529a5783e0016551270c6bac983c12c0dc329e.css integrity="sha256-/yNpDWYMXLwMTv3+8lKaV4PgAWVRJwxrrJg8EsDcMp4=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#前言>前言</a></li><li><a href=#问题hashmod-的扩缩容灾难>问题：Hashmod 的扩缩容灾难</a></li><li><a href=#候选算法评估>候选算法评估</a><ul><li><a href=#环状一致性哈希-ring-hash>环状一致性哈希 (Ring Hash)</a></li><li><a href=#rendezvous-哈希-hrw>Rendezvous 哈希 (HRW)</a></li><li><a href=#maglev-哈希>Maglev 哈希</a></li><li><a href=#jump-consistent-hash>Jump Consistent Hash</a></li></ul></li><li><a href=#算法决策流程>算法决策流程</a></li><li><a href=#jump-consistent-hash-原理深入>Jump Consistent Hash 原理深入</a><ul><li><a href=#算法直觉>算法直觉</a></li><li><a href=#扩容影响对比>扩容影响对比</a></li></ul></li><li><a href=#迁移实施>迁移实施</a><ul><li><a href=#代码变更>代码变更</a></li><li><a href=#破坏性评估>破坏性评估</a></li><li><a href=#迁移后的扩缩容行为>迁移后的扩缩容行为</a></li></ul></li><li><a href=#性能分析>性能分析</a><ul><li><a href=#基准特征>基准特征</a></li><li><a href=#生产环境收益>生产环境收益</a></li></ul></li><li><a href=#理论基础>理论基础</a></li><li><a href=#总结>总结</a><ul><li><a href=#参考链接>参考链接</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
+</a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai编程</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>架构演进</span>
+</a><a href=/tags/docker/ class="tag-cloud__item tag-size-sm"><span>docker</span>
+</a><a href=/tags/go/ class="tag-cloud__item tag-size-xs"><span>go</span>
+</a><a href=/tags/victoriametrics/ class="tag-cloud__item tag-size-xs"><span>victoriametrics</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>从Hashmod到Jump Consistent Hash——stream-metrics-route哈希算法升级实录</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-16T00:00:00+00:00>May 16, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/>可观测性</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/victoriametrics/>VictoriaMetrics</a>, <a href=/tags/prometheus/>Prometheus</a>, <a href=/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C/>一致性哈希</a>, <a href=/tags/stream-metrics-route/>Stream-Metrics-Route</a>, <a href=/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/>分布式系统</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>5318 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>11 分钟阅读</span></span></div></header><div class=Content><h2 id=前言>前言</h2><p>在 <a href=/posts/telemetry/stream-metrics-two/>上一篇</a> 中，我们回顾了 stream-metrics-route 三年来的演进，提到了"双重hashmod调度"是整个网关的核心调度机制。但在生产环境持续运行中，hashmod 的一个致命缺陷暴露得越来越明显——<strong>每次扩缩容都引发全量数据重分配</strong>。</p><p>本文将深入记录我们从 <code>hash % N</code>（hashmod）迁移到 <strong>Jump Consistent Hash</strong> 的完整决策过程：评估了哪些候选算法、为什么最终选择了 Jump Hash、以及迁移前后的具体影响。</p><blockquote><p>本篇技术细节基于 <a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/docs/consistent-hash-evaluation_zh.md>stream-metrics-route 的评估文档</a>。</p></blockquote><hr><h2 id=问题hashmod-的扩缩容灾难>问题：Hashmod 的扩缩容灾难</h2><p>stream-metrics-route 原始实现使用最朴素的 <code>hash % N</code> 来分配指标到后端节点：</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>hashMod</span><span class=p>(</span><span class=nx>mode</span><span class=w> </span><span class=kt>int</span><span class=p>,</span><span class=w> </span><span class=nx>hash</span><span class=w> </span><span class=kt>uint32</span><span class=p>)</span><span class=w> </span><span class=kt>int</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>mode</span><span class=w> </span><span class=o>&lt;=</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nb>int</span><span class=p>(</span><span class=nx>hash</span><span class=w> </span><span class=o>%</span><span class=w> </span><span class=nb>uint32</span><span class=p>(</span><span class=nx>mode</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>这个算法简洁到几乎不需要解释，但它有一个致命缺陷：<strong>当节点数 N 变化时，几乎所有键的分配结果都会改变</strong>。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    subgraph Before[&#34;扩容前：3节点 N=3&#34;]
+        direction LR
+        K1[&#34;key:A hash%3=0&#34;] --&gt; N1[&#34;节点0&#34;]
+        K2[&#34;key:B hash%3=1&#34;] --&gt; N2[&#34;节点1&#34;]
+        K3[&#34;key:C hash%3=2&#34;] --&gt; N3[&#34;节点2&#34;]
+        K4[&#34;key:D hash%3=0&#34;] --&gt; N1
+        K5[&#34;key:E hash%3=1&#34;] --&gt; N2
+        K6[&#34;key:F hash%3=2&#34;] --&gt; N3
+    end
+
+    subgraph After[&#34;扩容后：4节点 N=4 — 100%重分配!&#34;]
+        direction LR
+        K1b[&#34;key:A hash%4=0&#34;] --&gt; N1b[&#34;节点0&#34;]
+        K2b[&#34;key:B hash%4=1&#34;] --&gt; N2b[&#34;节点1&#34;]
+        K3b[&#34;key:C hash%4=2&#34;] --&gt; N3b[&#34;节点2&#34;]
+        K4b[&#34;key:D hash%4=0&#34;] --&gt; N1b
+        K5b[&#34;key:E hash%4=1&#34;] --&gt; N2b
+        K6b[&#34;key:F hash%4=2&#34;] --&gt; N4b[&#34;节点3 NEW&#34;]
+    end
+
+    Before ---|&#34;加一个节点&#34;| After
+
+    style N4b fill:#ffcdd2,stroke:#f44336
+    style After fill:#fff8e1,stroke:#ff9800</code></pre></div></div><p>这在指标路由场景下意味着什么？</p><ul><li><strong>所有时间序列的完全重新分配</strong>：每条指标被发往不同的 <code>stream_task_id</code></li><li><strong>下游 vmagent 聚合状态被破坏</strong>：流聚合的内存状态依赖 <code>stream_task_id</code> 来做去重，ID 变了，聚合计数器归零重来</li><li><strong>迁移过程中负载不平衡</strong>：大量时间线在同一时刻重新散开</li><li><strong>不必要的网络风暴</strong>：所有后端节点同时收到全新数据集</li></ul><p>当你的后端从 100 个扩展到 101 个时，<strong>100% 的指标都被重新路由</strong>——这不是"多搬一点"的问题，而是"全部推倒重来"。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>sequenceDiagram
+    autonumber
+    participant GW as 网关
+    participant V0 as vmagent-0
+    participant V1 as vmagent-1
+    participant V2 as vmagent-2
+    participant V3 as vmagent-3 新
+
+    Note over GW: N=3 to N=4 扩容触发
+
+    rect rgba(244,67,54,0.1)
+        Note over GW,V3: 100% 指标重分配
+        GW-&gt;&gt;V0: key_A 原本在节点0
+        GW-&gt;&gt;V1: key_B 原本在节点1
+        GW-&gt;&gt;V2: key_C 原本在节点2
+        GW-&gt;&gt;V3: key_D 可能被路由到新节点
+        GW-&gt;&gt;V0: key_E 可能换了目标
+        Note over V0,V3: 大部分 key 的目标节点都变了
+    end
+
+    rect rgba(255,152,0,0.1)
+        Note over V0,V3: vmagent 流聚合状态全部失效
+        V0--&gt;&gt;V0: 内部状态清空 重新累积
+        V1--&gt;&gt;V1: 内部状态清空 重新累积
+        V2--&gt;&gt;V2: 内部状态清空 重新累积
+        V3--&gt;&gt;V3: 从零开始
+    end</code></pre></div></div><p>对于生产环境来说，这种"扩展一次就要全部推倒"的行为是不可接受的。我们需要一个<strong>一致性哈希</strong>算法——当节点变化时，尽量少的键需要重新映射。</p><hr><h2 id=候选算法评估>候选算法评估</h2><p>我们评估了五种主流的分片算法，从四个维度进行对比：</p><table><thead><tr><th>算法</th><th>时间复杂度</th><th>内存使用</th><th>平衡质量</th><th>迁移成本 (N→N+1)</th></tr></thead><tbody><tr><td>hash % N (hashmod)</td><td>O(1)</td><td>O(1)</td><td>良好</td><td><strong>100%</strong> 重新分片</td></tr><tr><td>环状一致性哈希</td><td>O(log N)</td><td>O(N)</td><td>中等（需要虚拟节点）</td><td>~K/N</td></tr><tr><td>Rendezvous (HRW) 哈希</td><td>O(N)</td><td>O(1)</td><td>良好</td><td>~K/N</td></tr><tr><td>Jump Consistent Hash</td><td>O(1)</td><td>O(1)</td><td><strong>优秀</strong></td><td><strong>~K/(N+1)</strong></td></tr><tr><td>Maglev 哈希</td><td>O(1)</td><td>O(N*M)</td><td>良好</td><td>取决于表格</td></tr></tbody></table><p>下面逐一分析每个算法在 stream-metrics-route 场景下的适配性。</p><h3 id=环状一致性哈希-ring-hash>环状一致性哈希 (Ring Hash)</h3><p>环状一致性哈希是最经典的一致性哈希实现，被 Dynamo、Cassandra 等系统广泛采用。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph Ring[&#34;哈希环 0 to 2^32-1&#34;]
+        direction TB
+        N1[&#34;Node0 at 30deg&#34;]
+        N2[&#34;Node1 at 150deg&#34;]
+        N3[&#34;Node2 at 270deg&#34;]
+    end
+
+    K1[&#34;key:A hash=20deg&#34;] --&gt;|&#34;顺时针最近&#34;| N1
+    K2[&#34;key:B hash=100deg&#34;] --&gt;|&#34;顺时针最近&#34;| N2
+    K3[&#34;key:C hash=200deg&#34;] --&gt;|&#34;顺时针最近&#34;| N3
+
+    style N1 fill:#ffcdd2,stroke:#e53935
+    style N2 fill:#c8e6c9,stroke:#43a047
+    style N3 fill:#bbdefb,stroke:#1e88e5
+    style Ring fill:#fafafa,stroke:#999</code></pre></div></div><p><strong>优点：</strong> 伸缩性好，新增节点只影响相邻区间的键。</p><p><strong>缺点：</strong> 裸环的平衡性很差——节点少时，某些节点可能分到远超 1/N 的键空间。解决方案是引入<strong>虚拟节点</strong>（Virtual Nodes），每个物理节点在环上对应多个虚拟节点，但这带来了两个问题：</p><ul><li><strong>内存开销</strong>：100 个后端 × 150 个虚拟节点 = 15000 个环节点需要维护</li><li><strong>调参复杂</strong>：虚拟节点数量需要根据后端数量和键的分布来调优，没有"设一次就好"的参数</li></ul><p>对于 stream-metrics-route 这种轻量网关，引入一个需要调参和维护的环结构，太重了。</p><h3 id=rendezvous-哈希-hrw>Rendezvous 哈希 (HRW)</h3><p>Rendezvous 哈希也叫 Highest Random Weight (HRW)，思路非常直观：<strong>对每个 (key, node) 对计算一个权重值，选权重最高的节点</strong>。</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 伪代码：对每个节点计算权重</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>for</span><span class=w> </span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>node</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=nx>nodes</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>weight</span><span class=p>[</span><span class=nf>hash</span><span class=p>(</span><span class=nx>key</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nx>node</span><span class=p>)</span><span class=w> </span><span class=o>%</span><span class=w> </span><span class=nx>MAX_INT</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 选最大 weight 的节点</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>优点：</strong> 平衡性优秀，实现简单，不需要虚拟节点。</p><p><strong>缺点：</strong> 每次查找需要和<strong>所有节点</strong>计算权重——O(N) 复杂度。当节点数 N 很大时（比如几百个 vmagent 实例），每次路由都要做 N 次哈希计算。</p><p>在我们的场景下，网关每秒处理数十万条指标，每条都要做两次路由（任务分区 + 节点选择），O(N) 复杂度意味着<strong>性能与节点数线性负相关</strong>。这对于一个追求极低延迟的网关来说是不理想的。</p><h3 id=maglev-哈希>Maglev 哈希</h3><p>Maglev 哈希由 Google 设计，被用于 Maglev 负载均衡器。它通过预计算一张<strong>查找表</strong>来实现 O(1) 的路由查找。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    K[&#34;输入 key&#34;] --&gt; H[&#34;hash key mod M&#34;]
+    H --&gt; L0[&#34;slot 0: Node2&#34;]
+    H --&gt; L1[&#34;slot 1: Node0&#34;]
+    H --&gt; L2[&#34;slot 2: Node1&#34;]
+    H --&gt; L3[&#34;slot 3: ...&#34;]
+    H --&gt; LM[&#34;slot M-1: Node0&#34;]
+
+    L0 --&gt; N[&#34;目标节点&#34;]
+    L1 --&gt; N
+    L2 --&gt; N
+    L3 --&gt; N
+    LM --&gt; N
+
+    style H fill:#e3f2fd,stroke:#2196f3
+    style N fill:#e8f5e9,stroke:#4caf50</code></pre></div></div><p><strong>优点：</strong> 查找确实是 O(1)，Google 内部大规模使用。</p><p><strong>缺点：</strong> 查找表的大小 M 通常远大于节点数 N（一般 M &#187; 100*N），这意味着：</p><ul><li><strong>内存开销</strong>：O(N*M) 的空间，节点多时表非常大</li><li><strong>表重建</strong>：节点变化时需要重新生成整个查找表</li><li><strong>最小失败域</strong>：查找表的质量取决于节点的 permutation 生成，某些节点组合可能产生较差的分布</li></ul><p>对于 stream-metrics-route 来说，我们不需要 Maglev 的"最小失败域"特性（这是网络负载均衡器关心的问题），却要承担它带来的内存和复杂度。</p><h3 id=jump-consistent-hash>Jump Consistent Hash</h3><p>最后来看我们最终选择的算法。Jump Consistent Hash 来自 Google 2014 年的一篇论文：<em>&ldquo;A Fast, Minimal Memory, Consistent Hash Algorithm&rdquo;</em>。</p><p>它的核心思路用一个直觉来描述：<strong>想象你在扔一个特制的骰子，来决定每个键"跳"到哪个桶。当桶数增加时，已有的键只有很小的概率被"跳"到新桶里。</strong></p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>JumpConsistentHash</span><span class=p>(</span><span class=nx>key</span><span class=w> </span><span class=kt>uint64</span><span class=p>,</span><span class=w> </span><span class=nx>numBuckets</span><span class=w> </span><span class=kt>int</span><span class=p>)</span><span class=w> </span><span class=kt>int</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>numBuckets</span><span class=w> </span><span class=o>&lt;=</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>var</span><span class=w> </span><span class=nx>b</span><span class=w> </span><span class=kt>int64</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=o>-</span><span class=mi>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>var</span><span class=w> </span><span class=nx>j</span><span class=w> </span><span class=kt>int64</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=nx>j</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nb>int64</span><span class=p>(</span><span class=nx>numBuckets</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>b</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>j</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>key</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>key</span><span class=o>*</span><span class=mi>2862933555777941757</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mi>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>j</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>int64</span><span class=p>(</span><span class=nb>float64</span><span class=p>(</span><span class=nx>b</span><span class=o>+</span><span class=mi>1</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=p>(</span><span class=nb>float64</span><span class=p>(</span><span class=nb>int64</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span><span class=o>&lt;&lt;</span><span class=mi>31</span><span class=p>)</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=nb>float64</span><span class=p>((</span><span class=nx>key</span><span class=o>&gt;&gt;</span><span class=mi>33</span><span class=p>)</span><span class=o>+</span><span class=mi>1</span><span class=p>)))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nb>int</span><span class=p>(</span><span class=nx>b</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>约 15 行代码，<strong>零内存分配</strong>，<strong>无查找表</strong>，<strong>无虚拟节点</strong>。</p><p><strong>关键特性：</strong></p><ol><li><strong>最小迁移</strong>：N → N+1 时，只有约 1/(N+1) 的键需要重新映射</li><li><strong>O(1) 时间复杂度</strong>：和 hashmod 一样快</li><li><strong>优秀分布</strong>：数学上证明桶间均匀分布</li><li><strong>零配置</strong>：没有需要调的参数</li></ol><p>这正是我们需要的——<strong>hashmod 的性能和简洁，加上一致性哈希的最小迁移</strong>。</p><hr><h2 id=算法决策流程>算法决策流程</h2><p>下面的流程图展示了我们评估候选算法的决策逻辑：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    Start[&#34;需要一致性哈希&#34;] --&gt; Q1{&#34;需要 O(1) 查找?&#34;}
+    Q1 --&gt;|否| Ring[&#34;环状一致性哈希&lt;br/&gt;O(log N)，需虚拟节点&#34;]
+    Q1 --&gt;|是| Q2{&#34;可接受 O(N) 内存?&#34;}
+    Q2 --&gt;|是| Q3{&#34;需要最小失败域?&#34;}
+    Q3 --&gt;|是| Maglev[&#34;Maglev 哈希&lt;br/&gt;O(N*M) 内存&#34;]
+    Q3 --&gt;|否| Q4{&#34;可接受 O(N) 时间?&#34;}
+    Q4 --&gt;|是| HRW[&#34;Rendezvous (HRW)&lt;br/&gt;O(N) 时间，O(1) 内存&#34;]
+    Q4 --&gt;|否| Jump[&#34;✅ Jump Consistent Hash&lt;br/&gt;O(1) 时间，O(1) 内存&#34;]
+    Q2 --&gt;|否| Jump
+
+    style Jump fill:#c8e6c9,stroke:#4caf50,stroke-width:3px
+    style Ring fill:#fff3e0,stroke:#ff9800
+    style HRW fill:#fff3e0,stroke:#ff9800
+    style Maglev fill:#fff3e0,stroke:#ff9800</code></pre></div></div><p>对于 stream-metrics-route 的场景——高性能网关、每秒数十万指标、追求最小迁移和零配置——Jump Consistent Hash 是唯一同时满足所有约束的选择。</p><hr><h2 id=jump-consistent-hash-原理深入>Jump Consistent Hash 原理深入</h2><h3 id=算法直觉>算法直觉</h3><p>Jump Consistent Hash 的核心思想可以通过以下过程理解：</p><ol><li>从桶 0 开始</li><li>不断"跳"到更高的桶编号</li><li>每次跳跃的概率随桶数增加而递减</li><li>最终落在的桶就是结果</li></ol><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>sequenceDiagram
+    autonumber
+    participant Key as Key hash值
+    participant B0 as 桶 0
+    participant B1 as 桶 1
+    participant B2 as 桶 2
+    participant B3 as 桶 3
+
+    Note over Key: numBuckets = 4
+    Key-&gt;&gt;B0: b=-1 j=0 初始化
+    Key-&gt;&gt;Key: key = key * constant &#43; 1
+    Key-&gt;&gt;B1: j = 1*(2^31/high_key) = 2
+    Note over B0,B1: 跳过桶0 b=0
+    Key-&gt;&gt;Key: key = key * constant &#43; 1
+    Key-&gt;&gt;B2: j = 3*(2^31/high_key) = 3
+    Note over B1,B2: 跳过桶1 b=2
+    Key-&gt;&gt;Key: key = key * constant &#43; 1
+    Key-&gt;&gt;B3: j = 4*(2^31/high_key) = 7
+    Note over B2,B3: 跳过桶2 b=3
+    Note over Key,B3: j=7 &gt; numBuckets=4 停止
+    Note over B3: 结果: 桶 3</code></pre></div></div><p>关键点在于：<strong>当桶数从 N 增加到 N+1 时，只有落在 j=N 处的那次"跳跃"才会改变已有的分配结果</strong>。这从数学上保证了约 1/(N+1) 的迁移率。</p><h3 id=扩容影响对比>扩容影响对比</h3><p>下面的图直观展示了 hashmod 和 Jump Hash 在扩容时的行为差异：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph Hashmod[&#34;Hashmod: 100 to 101 节点&#34;]
+        direction TB
+        HM_Before[&#34;100个 key 各自归属节点0-99&#34;]
+        HM_After[&#34;扩到101节点&lt;br/&gt;hash_101 不等于 hash_100&lt;br/&gt;100% 的 key 重新分配&#34;]
+        HM_Before --&gt; HM_After
+    end
+
+    subgraph Jump[&#34;Jump Hash: 100 to 101 节点&#34;]
+        direction TB
+        JH_Stay[&#34;约 99 个 key 保持原分配&lt;br/&gt;99.01% 不变&#34;]
+        JH_Move[&#34;约 1 个 key 移到新节点&lt;br/&gt;约 0.99% 迁移&#34;]
+        JH_Stay
+        JH_Move
+    end
+
+    Hashmod ---|&#34;同一场景&#34;| Jump
+
+    style HM_After fill:#ffcdd2,stroke:#f44336
+    style JH_Stay fill:#c8e6c9,stroke:#4caf50
+    style JH_Move fill:#fff9c4,stroke:#fdd835</code></pre></div></div><p>以具体的数字来说：</p><ul><li><strong>Hashmod</strong>：100 → 101 节点，100% 的 <code>stream_task_id</code> 值改变</li><li><strong>Jump Hash</strong>：100 → 101 节点，仅约 0.99% 的 <code>stream_task_id</code> 值改变</li></ul><p>这意味着在扩容操作期间，Jump Hash 下的 vmagent 流聚合状态几乎不受影响——99% 的聚合窗口继续正常累积，只有约 1% 需要重新初始化。</p><hr><h2 id=迁移实施>迁移实施</h2><h3 id=代码变更>代码变更</h3><p>变更非常集中——只替换了哈希函数，路由架构和双哈希逻辑完全保持不变。</p><p><strong>旧版本（hashmod）：</strong></p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>hash</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>SortLabelsHashKey</span><span class=p>(</span><span class=nx>ts</span><span class=p>.</span><span class=nx>Labels</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>dime</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>hashMod</span><span class=p>(</span><span class=nx>r</span><span class=p>.</span><span class=nx>dimension</span><span class=p>,</span><span class=w> </span><span class=nx>hash</span><span class=p>)</span><span class=w>     </span><span class=c1>// hash % N → 任务分区ID</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// ...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>hashnode</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>SortLabelsHashKey</span><span class=p>(</span><span class=nx>tmpLabels</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>tmpch</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>hashMod</span><span class=p>(</span><span class=nx>r</span><span class=p>.</span><span class=nx>uplen</span><span class=p>,</span><span class=w> </span><span class=nx>hashnode</span><span class=p>)</span><span class=w>     </span><span class=c1>// hash % N → 节点选择</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>新版本（Jump Consistent Hash）：</strong></p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>hash</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>SortLabelsHashKey</span><span class=p>(</span><span class=nx>ts</span><span class=p>.</span><span class=nx>Labels</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>dime</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>JumpConsistentHash</span><span class=p>(</span><span class=nb>uint64</span><span class=p>(</span><span class=nx>hash</span><span class=p>),</span><span class=w> </span><span class=nx>r</span><span class=p>.</span><span class=nx>dimension</span><span class=p>)</span><span class=w>  </span><span class=c1>// stream_task_id</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// ...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>hashnode</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>SortLabelsHashKey</span><span class=p>(</span><span class=nx>tmpLabels</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>tmpch</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>JumpConsistentHash</span><span class=p>(</span><span class=nb>uint64</span><span class=p>(</span><span class=nx>hashnode</span><span class=p>),</span><span class=w> </span><span class=nx>r</span><span class=p>.</span><span class=nx>uplen</span><span class=p>)</span><span class=w> </span><span class=c1>// 节点选择</span></span></span></code></pre></td></tr></table></div></div></div></div><p>注意 <code>SortLabelsHashKey</code> 中的 FNV-32a 哈希计算、<code>filterLabels</code> 功能、熔断器和重试逻辑——<strong>全部保持不变</strong>。变更仅限于最终的路由函数调用。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph Pipeline[&#34;指标处理流水线&#34;]
+        A[&#34;接收指标&#34;] --&gt; B[&#34;relabel 规则&#34;]
+        B --&gt; C[&#34;filterLabels&#34;]
+        C --&gt; D[&#34;FNV-32a 哈希&#34;]
+        D --&gt; E[&#34;路由函数&#34;]
+        E --&gt; F[&#34;异步分发&#34;]
+    end
+
+    Note1[&#34;仅此步骤变更&lt;br/&gt;hashmod to Jump Hash&#34;] -.-&gt; E
+
+    style E fill:#fff9c4,stroke:#fdd835,stroke-width:3px
+    style A fill:#e8f5e9,stroke:#4caf50
+    style B fill:#e8f5e9,stroke:#4caf50
+    style C fill:#e8f5e9,stroke:#4caf50
+    style D fill:#e8f5e9,stroke:#4caf50
+    style F fill:#e8f5e9,stroke:#4caf50</code></pre></div></div><h3 id=破坏性评估>破坏性评估</h3><p>迁移有一个<strong>轻微的破坏性变更</strong>：所有指标的 <code>stream_task_id</code> 值会改变。</p><p>但这个变更的影响有限：</p><ol><li><code>stream_task_id</code> 是 vmagent 用于聚合去重的<strong>透明标签</strong>——它的具体值不重要，只要同一维度内保持一致即可</li><li>静态 YAML 配置意味着节点变更本就需要重启</li><li>可以在维护窗口期间做一次性切换，无需灰度逻辑</li></ol><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    subgraph Migration[&#34;迁移流程&#34;]
+        direction TB
+        M1[&#34;1. 确认维护窗口&#34;]
+        M2[&#34;2. 停止 stream-metrics-route&#34;]
+        M3[&#34;3. 更新二进制 含 Jump Hash&#34;]
+        M4[&#34;4. 启动服务&#34;]
+        M5[&#34;5. 验证指标路由分布&#34;]
+        M1 --&gt; M2 --&gt; M3 --&gt; M4 --&gt; M5
+    end
+
+    subgraph Impact[&#34;影响范围&#34;]
+        I1[&#34;stream_task_id 值全部变化&#34;]
+        I2[&#34;vmagent 聚合状态重新初始化&#34;]
+        I3[&#34;relabel/filterLabels 逻辑不变&#34;]
+        I4[&#34;熔断器/重试逻辑不变&#34;]
+    end
+
+    Migration -.-&gt;|&#34;一次性影响&#34;| Impact
+
+    style I1 fill:#fff9c4,stroke:#fdd835
+    style I2 fill:#fff9c4,stroke:#fdd835
+    style I3 fill:#e8f5e9,stroke:#4caf50
+    style I4 fill:#e8f5e9,stroke:#4caf50</code></pre></div></div><h3 id=迁移后的扩缩容行为>迁移后的扩缩容行为</h3><p>迁移完成后，日常的扩缩容操作变得非常优雅：</p><table><thead><tr><th>操作</th><th>Hashmod 行为</th><th>Jump Hash 行为</th></tr></thead><tbody><tr><td>3 → 4 节点</td><td>100% 重分配</td><td>~25% 迁移</td></tr><tr><td>10 → 11 节点</td><td>100% 重分配</td><td>~9.1% 迁移</td></tr><tr><td>100 → 101 节点</td><td>100% 重分配</td><td><strong>~0.99% 迁移</strong></td></tr><tr><td>100 → 100 节点（无变化）</td><td>无影响</td><td>无影响</td></tr></tbody></table><p>随着集群规模增大，Jump Hash 的优势越明显——这正是我们的生产环境所在（百级 vmagent 实例）。</p><hr><h2 id=性能分析>性能分析</h2><h3 id=基准特征>基准特征</h3><table><thead><tr><th>指标</th><th>Hashmod</th><th>Jump Hash</th></tr></thead><tbody><tr><td>时间复杂度</td><td>O(1)</td><td>O(1)</td></tr><tr><td>内存分配</td><td>无</td><td>无</td></tr><tr><td>代码行数</td><td>~5 行</td><td>~15 行</td></tr><tr><td>查找表</td><td>不需要</td><td>不需要</td></tr><tr><td>确定性</td><td>✅ 相同输入→相同输出</td><td>✅ 相同输入→相同输出</td></tr></tbody></table><p>虽然 Jump Hash 内部有一个 <code>for</code> 循环，但由于跳跃特性，循环次数的期望值是 O(ln N)，对于我们的节点规模（通常 &lt; 200），实际执行次数极少。与 hashmod 相比，<strong>没有可观测的额外 CPU 开销</strong>。</p><h3 id=生产环境收益>生产环境收益</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph Before[&#34;迁移前 Hashmod&#34;]
+        direction TB
+        B1[&#34;扩容触发&#34;]
+        B2[&#34;100% 重分配&#34;]
+        B3[&#34;聚合状态全部失效&#34;]
+        B4[&#34;数据准确性下降&#34;]
+        B5[&#34;监控告警误报&#34;]
+        B1 --&gt; B2 --&gt; B3 --&gt; B4 --&gt; B5
+    end
+
+    subgraph After[&#34;迁移后 Jump Hash&#34;]
+        direction TB
+        A1[&#34;扩容触发&#34;]
+        A2[&#34;约 1% 重分配&#34;]
+        A3[&#34;99% 聚合状态不受影响&#34;]
+        A4[&#34;数据准确性保持&#34;]
+        A5[&#34;无感扩容&#34;]
+        A1 --&gt; A2 --&gt; A3 --&gt; A4 --&gt; A5
+    end
+
+    Before ---|&#34;同一操作&#34;| After
+
+    style B5 fill:#ffcdd2,stroke:#f44336
+    style A5 fill:#c8e6c9,stroke:#4caf50</code></pre></div></div><p>总结 Jump Hash 带来的生产环境优势：</p><ol><li><strong>优雅扩展</strong>：增量添加后端不会导致完全重新平衡</li><li><strong>稳定聚合</strong>：扩展操作期间保持 vmagent 聚合状态的连续性</li><li><strong>减少负载</strong>：迁移期间最小化网络流量和处理开销</li><li><strong>可预测行为</strong>：分布质量有数学保证，不存在"运气差分布不均"的情况</li></ol><hr><h2 id=理论基础>理论基础</h2><p>Jump Consistent Hash 并非凭空发明，它有严格的数学证明支撑：</p><blockquote><p><em>&ldquo;A Fast, Minimal Memory, Consistent Hash Algorithm&rdquo;</em> by John Lamping and Eric Veach, Google, 2014
+<a href=http://arxiv.org/abs/1406.2294>http://arxiv.org/abs/1406.2294</a></p></blockquote><p>论文证明了两个关键性质：</p><ol><li><strong>均匀分布</strong>：每个桶获得约 1/N 的键，分布质量不劣于 hashmod</li><li><strong>最小迁移</strong>：N → N+1 时，恰好有 K/(N+1) 的键需要重新映射，这是理论上的最优值</li></ol><p>该算法已被 Google 内部多个系统（包括 Spanner 的 tablet 路由）使用，经过大规模生产验证。</p><hr><h2 id=总结>总结</h2><p>这次从 hashmod 到 Jump Consistent Hash 的迁移，用一句话概括：</p><blockquote><p><strong>用同样的 O(1) 性能，换来从 100% 到 1% 的迁移成本降低。</strong></p></blockquote><table><thead><tr><th>维度</th><th>结论</th></tr></thead><tbody><tr><td>性能影响</td><td>无额外开销，O(1) 不变</td></tr><tr><td>代码变更量</td><td>极小，仅替换哈希函数调用</td></tr><tr><td>迁移破坏性</td><td>一次性 stream_task_id 重映射，维护窗口内完成</td></tr><tr><td>长期收益</td><td>扩缩容操作对生产环境几乎无感</td></tr></tbody></table><p>对于任何使用 <code>hash % N</code> 做分片的指标路由系统，如果面临节点动态伸缩的需求，Jump Consistent Hash 都是值得考虑的升级路径——零成本的性能，巨大的运维收益。</p><h3 id=参考链接>参考链接</h3><ul><li><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/docs/consistent-hash-evaluation_zh.md>stream-metrics-route 一致性哈希评估文档</a></li><li><a href=http://arxiv.org/abs/1406.2294>Jump Consistent Hash 论文</a></li><li><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/v0.1.2/pkg/common/relabel.go#L83>原始 hashmod 实现</a></li><li><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/pkg/common/relabel.go#L83>Jump Consistent Hash 实现</a></li><li><a href=/posts/telemetry/stream-metrics-two/>上一篇：VictoriaMetrics指标流聚合三年回顾</a></li></ul></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/victoriametrics/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+VictoriaMetrics
+</a><a class=tag-chip href=/tags/prometheus/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Prometheus
+</a><a class=tag-chip href=/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+一致性哈希
+</a><a class=tag-chip href=/tags/stream-metrics-route/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Stream-Metrics-Route
+</a><a class=tag-chip href=/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+分布式系统</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>
