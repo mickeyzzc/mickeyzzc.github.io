@@ -1,0 +1,319 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - security-collector-exporter v0.3.0：eBPF 加持的实时安全监控</title><meta name=description content="从 v0.1.0 的静态安全配置采集到 v0.3.0 的 eBPF 实时内核级安全事件监控，记录了踩过的坑和最终稳定的方案。五类 BPF 程序覆盖进程、网络、文件、提权和内核模块，配合自适应采样和零竞争预聚合。"><meta name=keywords content="eBPF,,Prometheus,exporter,,Linux安全监控,,内核监控,,cilium/ebpf"><link rel=canonical href=/posts/telemetry/security-collector-exporter-ebpf-v030/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - security-collector-exporter v0.3.0：eBPF 加持的实时安全监控"><meta property="og:description" content="从 v0.1.0 的静态安全配置采集到 v0.3.0 的 eBPF 实时内核级安全事件监控，记录了踩过的坑和最终稳定的方案。五类 BPF 程序覆盖进程、网络、文件、提权和内核模块，配合自适应采样和零竞争预聚合。"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/telemetry/security-collector-exporter-ebpf-v030/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-19 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-19 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - security-collector-exporter v0.3.0：eBPF 加持的实时安全监控"><meta name=twitter:description content="从 v0.1.0 的静态安全配置采集到 v0.3.0 的 eBPF 实时内核级安全事件监控，记录了踩过的坑和最终稳定的方案。五类 BPF 程序覆盖进程、网络、文件、提权和内核模块，配合自适应采样和零竞争预聚合。"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.ff23690d660c5cbc0c4efdfef2529a5783e0016551270c6bac983c12c0dc329e.css integrity="sha256-/yNpDWYMXLwMTv3+8lKaV4PgAWVRJwxrrJg8EsDcMp4=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#从静态到实时>从静态到实时</a></li><li><a href=#ebpf-采集了什么>eBPF 采集了什么</a></li><li><a href=#整体架构>整体架构</a></li><li><a href=#v020-踩的坑>v0.2.0 踩的坑</a><ul><li><a href=#bpf-程序本身的-bug>BPF 程序本身的 bug</a></li><li><a href=#arm-设备上的阻塞问题>ARM 设备上的阻塞问题</a></li><li><a href=#ci-构建问题>CI 构建问题</a></li></ul></li><li><a href=#v030-怎么修的>v0.3.0 怎么修的</a><ul><li><a href=#bpf-程序修复>BPF 程序修复</a></li><li><a href=#聚合器重写>聚合器重写</a></li><li><a href=#arm-阻塞修复>ARM 阻塞修复</a></li><li><a href=#ci-修复>CI 修复</a></li></ul></li><li><a href=#两个有意思的设计>两个有意思的设计</a><ul><li><a href=#自适应采样>自适应采样</a></li><li><a href=#space-saving-top-n>Space-Saving Top-N</a></li></ul></li><li><a href=#部署方式>部署方式</a></li><li><a href=#版本回顾>版本回顾</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-lg"><span>架构</span>
+</a><a href=/tags/go/ class="tag-cloud__item tag-size-md"><span>go</span>
+</a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-xs"><span>架构演进</span>
+</a><a href=/tags/docker/ class="tag-cloud__item tag-size-xs"><span>docker</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>security-collector-exporter v0.3.0：eBPF 加持的实时安全监控</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-19T00:00:00+00:00>May 19, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/>可观测性</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/prometheus/>Prometheus</a>, <a href=/tags/ebpf/>EBPF</a>, <a href=/tags/linux/>Linux</a>, <a href=/tags/%E5%AE%89%E5%85%A8%E7%9B%91%E6%8E%A7/>安全监控</a>, <a href=/tags/go/>Go</a>, <a href=/tags/exporter/>Exporter</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>3260 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>7 分钟阅读</span></span></div></header><div class=Content><h2 id=从静态到实时>从静态到实时</h2><p>上一篇文章介绍了 <a href=../security-collector-exporter-v010/>security-collector-exporter v0.1.0</a>——把 Linux 安全配置状态变成 Prometheus 指标。但 v0.1.0 本质上还是"快照式"的：定时读 <code>/etc</code>、<code>/proc</code>，抓的是某一时刻的静态配置。</p><p>安全运维里有一块是快照覆盖不了的：<strong>实时发生的安全事件</strong>。有人在跑反弹 shell、有进程在提权、有异常的网络连接、有人在加载内核模块——这些事发生了就过去了，你下次 scrape 的时候根本看不到。</p><p>eBPF 是解决这个问题的天然工具。它能挂载到内核的各种 hook 点上（tracepoint、kprobe），在内核态就完成数据聚合，零拷贝、低开销。从 v0.2.0 开始，security-collector-exporter 加入了完整的 eBPF 支持，经过 v0.3.0 的修 bug 和稳定性打磨，终于算是能用了。</p><h2 id=ebpf-采集了什么>eBPF 采集了什么</h2><p>五个独立的 BPF 程序，分别挂载到不同的内核 hook 点，覆盖五类安全事件：</p><table><thead><tr><th>BPF 程序</th><th>挂载点</th><th>监控内容</th></tr></thead><tbody><tr><td>process.c</td><td><code>sys_enter_execve</code>, <code>sched_process_exit</code></td><td>进程执行、退出、活跃进程数</td></tr><tr><td>network.c</td><td><code>inet_sock_set_state</code></td><td>TCP/UDP 连接建立、活跃连接、连接错误</td></tr><tr><td>file.c</td><td><code>sys_enter_openat</code></td><td>敏感文件访问操作（按严重级别分类）</td></tr><tr><td>privilege.c</td><td><code>sys_enter_setuid/setgid/capset</code></td><td>提权行为（setuid/setgid/capset）</td></tr><tr><td>kernel.c</td><td><code>sys_enter_init_module/finit_module</code></td><td>内核模块加载/卸载</td></tr></tbody></table><p>暴露的 Prometheus 指标：</p><div class=code-block-wrapper data-lang=text><div class=code-block-header><div class=code-block-meta><span class=code-language>text</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl># 进程指标（标签: type=system/user/container/suspicious）
+</span></span><span class=line><span class=cl>security_ebpf_process_exec_total
+</span></span><span class=line><span class=cl>security_ebpf_process_exit_total
+</span></span><span class=line><span class=cl>security_ebpf_process_active_count
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 网络指标（标签: direction=in/out, protocol=tcp/udp）
+</span></span><span class=line><span class=cl>security_ebpf_connect_total
+</span></span><span class=line><span class=cl>security_ebpf_connect_active
+</span></span><span class=line><span class=cl>security_ebpf_connect_error_total{type=&#34;timeout|refused|reset&#34;}
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 文件访问指标（标签: severity=critical/warning/info, operation=read/write）
+</span></span><span class=line><span class=cl>security_ebpf_file_access_total
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 提权指标（标签: type=setuid/setgid/capset, result=success/failure）
+</span></span><span class=line><span class=cl>security_ebpf_privilege_escalation_total
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 内核模块指标（标签: action=load/load_file）
+</span></span><span class=line><span class=cl>security_ebpf_kernel_module_total
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 元信息
+</span></span><span class=line><span class=cl>security_ebpf_up{status=&#34;active|degraded|disabled&#34;}
+</span></span><span class=line><span class=cl>security_ebpf_sample_rate</span></span></code></pre></td></tr></table></div></div></div></div><p>其中进程分类挺有意思——不是简单地区分 system/user，而是四类：<code>system</code>（系统路径下的进程）、<code>user</code>（用户进程）、<code>container</code>（通过 cgroup ID 检测容器进程）、<code>suspicious</code>（可疑的解释器调用）。这样在 PromQL 里就能精准过滤：</p><div class=code-block-wrapper data-lang=promql><div class=code-block-header><div class=code-block-meta><span class=code-language>promql</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-promql data-lang=promql><span class=line><span class=cl><span class=c1># 查容器里执行的进程数</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nv>security_ebpf_process_exec_total</span><span class=p>{</span><span class=nl>type</span><span class=o>=</span><span class=p>&#34;</span><span class=s>container</span><span class=p>&#34;}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1># 查可疑进程执行</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nv>security_ebpf_process_exec_total</span><span class=p>{</span><span class=nl>type</span><span class=o>=</span><span class=p>&#34;</span><span class=s>suspicious</span><span class=p>&#34;}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=整体架构>整体架构</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>---
+config:
+  theme: base
+  themeVariables:
+    fontSize: 15px
+    fontFamily: &#34;system-ui, sans-serif&#34;
+---
+flowchart TB
+
+    subgraph kernel[&#34;🐧 Linux 内核&#34;]
+        tp1[&#34;tracepoint: sys_enter_execve&#34;]
+        tp2[&#34;tracepoint: sched_process_exit&#34;]
+        tp3[&#34;tracepoint: inet_sock_set_state&#34;]
+        tp4[&#34;tracepoint: sys_enter_openat&#34;]
+        tp5[&#34;tracepoint: sys_enter_setuid/setgid/capset&#34;]
+        tp6[&#34;tracepoint: sys_enter_init_module&#34;]
+    end
+
+    subgraph bpf[&#34;🔧 eBPF 程序（内核态）&#34;]
+        bp1[&#34;process.c&#34;]
+        bp2[&#34;network.c&#34;]
+        bp3[&#34;file.c&#34;]
+        bp4[&#34;privilege.c&#34;]
+        bp5[&#34;kernel.c&#34;]
+    end
+
+    subgraph maps[&#34;📊 BPF Maps（percpu_array）&#34;]
+        m1[&#34;进程计数 map&lt;br/&gt;exec/exit/active&#34;]
+        m2[&#34;网络计数 map&lt;br/&gt;connect/active/error&#34;]
+        m3[&#34;文件访问 map&lt;br/&gt;severity × operation&#34;]
+        m4[&#34;提权计数 map&lt;br/&gt;type × result&#34;]
+        m5[&#34;内核模块 map&lt;br/&gt;load/load_file&#34;]
+    end
+
+    subgraph go[&#34;⚙️ Go 用户态&#34;]
+        mgr[&#34;Manager&lt;br/&gt;加载 BPF &#43; 挂载 tracepoint&#34;]
+        agg[&#34;Aggregator&lt;br/&gt;读取 percpu_array &#43; delta 追踪&#34;]
+        smp[&#34;AdaptiveSampler&lt;br/&gt;自适应采样率&#34;]
+        col[&#34;EbpfCollector&lt;br/&gt;Prometheus 指标暴露&#34;]
+    end
+
+    tp1 --&gt; bp1
+    tp2 --&gt; bp1
+    tp3 --&gt; bp2
+    tp4 --&gt; bp3
+    tp5 --&gt; bp4
+    tp6 --&gt; bp5
+
+    bp1 --&gt; m1
+    bp2 --&gt; m2
+    bp3 --&gt; m3
+    bp4 --&gt; m4
+    bp5 --&gt; m5
+
+    m1 --&gt; agg
+    m2 --&gt; agg
+    m3 --&gt; agg
+    m4 --&gt; agg
+    m5 --&gt; agg
+
+    mgr --&gt; bp1
+    mgr --&gt; bp2
+    mgr --&gt; bp3
+    mgr --&gt; bp4
+    mgr --&gt; bp5
+
+    agg --&gt; col
+    smp --&gt; col
+    col --&gt;|&#34;/metrics :9102&#34;| prom[&#34;📊 Prometheus&#34;]</code></pre></div></div><p>数据流分三层：</p><ul><li><strong>内核态</strong>：BPF 程序挂在 tracepoint 上，事件发生时直接在 percpu_array map 里递增计数器。percpu 的好处是每个 CPU 独立计数，<strong>零锁竞争</strong>。</li><li><strong>用户态聚合</strong>：Go 侧的 Aggregator 每 5 秒读一次 percpu_array，把所有 CPU 的值求和，做 delta 追踪算 RPS。</li><li><strong>自适应采样</strong>：AdaptiveSampler 每 10 秒评估一次实际事件量，超过目标 RPS 的 2 倍就加倍采样率，低于一半就恢复。</li></ul><h2 id=v020-踩的坑>v0.2.0 踩的坑</h2><p>v0.2.0 是 eBPF 功能的首个版本，代码量不小（新增 ~4000 行），但发布后跑起来就发现了不少问题。</p><h3 id=bpf-程序本身的-bug>BPF 程序本身的 bug</h3><p><strong>网络 BPF 的结构体字段错误</strong>。<code>inet_sock_set_state</code> 这个 tracepoint 的内核结构体里没有 <code>skbaddr</code> 字段，但 v0.2.0 的 <code>network.c</code> 里引用了它。BPF verifier 直接拒绝加载，网络监控整个挂掉。</p><p><strong>UDP kprobe 不存在</strong>。v0.2.0 尝试用 kprobe 来追踪 UDP 连接，但目标内核上根本没有对应的 kprobe tracer。加载失败但没有优雅处理。</p><p><strong>进程退出分类不准</strong>。<code>sched_process_exit</code> 触发时，拿不到进程当初被 execve 分类时的类别。v0.2.0 没有做 PID 到类别的映射，导致 exit 事件的分类和 exec 不一致。</p><p><strong>提权检测的 map 类型错误</strong>。privilege.c 用的是 <code>PERCPU_ARRAY</code>，但在多 CPU 并发写入同一个 key 时存在竞争条件。换成 <code>PERCPU_HASH</code> 才解决。</p><h3 id=arm-设备上的阻塞问题>ARM 设备上的阻塞问题</h3><p>这是一个比较隐蔽的 bug。在 ARM 设备（树莓派之类）上，端口版本探测（<code>process_info.go</code> 里的 Java 版本检测逻辑）会卡住 <code>Collect()</code> 周期。原因是某些进程（比如 <code>mediamtx</code>）的版本命令会 hang 住，没有超时机制，整个 Prometheus scrape 就超时了。</p><h3 id=ci-构建问题>CI 构建问题</h3><p>BPF 程序需要用 <code>clang</code> 编译 C 代码生成字节码（<code>*_bpf.o</code>），然后通过 <code>go:embed</code> 嵌入到 Go 二进制里。v0.2.0 把 <code>.o</code> 文件加到了 <code>.gitignore</code>，CI 环境（<code>ubuntu-latest</code>）没有 clang，构建直接失败。</p><h2 id=v030-怎么修的>v0.3.0 怎么修的</h2><h3 id=bpf-程序修复>BPF 程序修复</h3><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>// process.c: 新增 PID hash map，execve 时存类别，exit 时取回
+</span></span></span><span class=line><span class=cl><span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__uint</span><span class=p>(</span><span class=n>type</span><span class=p>,</span> <span class=n>BPF_MAP_TYPE_HASH</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__uint</span><span class=p>(</span><span class=n>max_entries</span><span class=p>,</span> <span class=mi>65536</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__type</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>__u64</span><span class=p>);</span>    <span class=cm>/* pid_tgid */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__type</span><span class=p>(</span><span class=n>value</span><span class=p>,</span> <span class=n>__u32</span><span class=p>);</span>  <span class=cm>/* category */</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=n>pid_category</span> <span class=nf>SEC</span><span class=p>(</span><span class=s>&#34;.maps&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// execve 时存入
+</span></span></span><span class=line><span class=cl><span class=n>__u64</span> <span class=n>pid_tgid</span> <span class=o>=</span> <span class=nf>bpf_get_current_pid_tgid</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=nf>bpf_map_update_elem</span><span class=p>(</span><span class=o>&amp;</span><span class=n>pid_category</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>pid_tgid</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>category</span><span class=p>,</span> <span class=n>BPF_ANY</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// exit 时取出
+</span></span></span><span class=line><span class=cl><span class=n>__u32</span> <span class=o>*</span><span class=n>cat_ptr</span> <span class=o>=</span> <span class=nf>bpf_map_lookup_elem</span><span class=p>(</span><span class=o>&amp;</span><span class=n>pid_category</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>pid_tgid</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=n>cat_ptr</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>category</span> <span class=o>=</span> <span class=o>*</span><span class=n>cat_ptr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nf>bpf_map_delete_elem</span><span class=p>(</span><span class=o>&amp;</span><span class=n>pid_category</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>pid_tgid</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// BPF 启动前已存在的进程，用 comm 名猜测分类
+</span></span></span><span class=line><span class=cl>    <span class=n>category</span> <span class=o>=</span> <span class=nf>classify_by_comm</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><code>classify_by_comm()</code> 是一个 fallback——对于 eBPF 加载之前就已经跑着的进程，拿不到 execve 事件，就通过进程名的前四个字节做粗粒度匹配（<code>syst</code> → systemd、<code>sshd</code> → sshd 等等）。BPF verifier 不允许循环，所以只能硬编码逐字节比较。</p><h3 id=聚合器重写>聚合器重写</h3><p>v0.2.0 的 Aggregator 是用内存数组模拟 percpu 数据的（simulation 模式）。v0.3.0 彻底重写，直接读取真实的 BPF percpu_array maps，并加了 delta 追踪：</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// ReadAndUpdateFromMaps 读取所有 COUNTER 类型的 BPF maps，计算增量</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>a</span><span class=w> </span><span class=o>*</span><span class=nx>Aggregator</span><span class=p>)</span><span class=w> </span><span class=nf>ReadAndUpdateFromMaps</span><span class=p>()</span><span class=w> </span><span class=kt>uint64</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 对每个 counter map 的每个 key：</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//   当前值 - 上一次的值 = delta</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//   累加 delta 得到总事件数，喂给 AdaptiveSampler</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// processActive 和 connectActive 是 GAUGE，不参与 delta</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=arm-阻塞修复>ARM 阻塞修复</h3><p>三个改动一起解决了这个问题：</p><ul><li><code>executeVersionCommand</code> 加了 3 秒超时（<code>context.WithTimeout</code>）</li><li>版本探测结果为空时缓存 5 分钟（避免反复探测已知不响应的进程）</li><li><code>getVersionFromBinary</code> 用 <code>io.LimitReader</code> 只读前 1MB（之前会读整个二进制文件，对大文件很慢）</li></ul><h3 id=ci-修复>CI 修复</h3><p>把编译好的 <code>*_bpf.o</code> 文件提交到 git。这些是架构无关的 BPF ELF 字节码（不是 x86 或 ARM 机器码），所以不存在跨平台问题。CI 不再需要 clang 工具链。</p><h2 id=两个有意思的设计>两个有意思的设计</h2><h3 id=自适应采样>自适应采样</h3><p>高负载场景下 eBPF 事件量可能非常大（几万到几十万 events/sec）。AdaptiveSampler 的思路是：设定一个目标 RPS（默认 5000），每 10 秒评估一次实际 RPS——超过目标的 2 倍就加倍采样率（采得更稀疏），低于目标的一半就减半采样率（采得更密集）。采样率范围限制在 1 ~ 10000 之间。</p><p>这个采样率会作为 <code>security_ebpf_sample_rate</code> 指标暴露出来，查询时可以据此还原真实值：</p><div class=code-block-wrapper data-lang=promql><div class=code-block-header><div class=code-block-meta><span class=code-language>promql</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-promql data-lang=promql><span class=line><span class=cl><span class=c1># 近似还原真实的进程执行速率</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nv>security_ebpf_process_exec_total</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nv>security_ebpf_sample_rate</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=space-saving-top-n>Space-Saving Top-N</h3><p>代码里还实现了一个 <a href=https://www.cs.ucsb.edu/research/tech-reports/2005-23>Space-Saving 算法</a>，用于在高基数数据流中维护 Top-K 频繁项。固定数量的计数器（默认 100 个），新 key 来了如果还有空位就占一个，没空位就替换当前计数最小的那个并继承其计数。O(1) 更新，O(K log K) 查询 Top-N。这个组件为后续的"谁在频繁执行 / 谁在频繁连网"这类查询做了准备。</p><h2 id=部署方式>部署方式</h2><p>启用 eBPF 需要额外参数：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>  --name security-exporter <span class=se>\
+</span></span></span><span class=line><span class=cl>  --privileged <span class=se>\
+</span></span></span><span class=line><span class=cl>  -p 9102:9102 <span class=se>\
+</span></span></span><span class=line><span class=cl>  ghcr.io/mickeyzzc/security-collector-exporter:0.3.0 <span class=se>\
+</span></span></span><span class=line><span class=cl>  --ebpf.enabled <span class=se>\
+</span></span></span><span class=line><span class=cl>  --ebpf.sample-rate<span class=o>=</span><span class=m>1</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>  --ebpf.max-events-per-second<span class=o>=</span><span class=m>5000</span></span></span></code></pre></td></tr></table></div></div></div></div><p>不传 <code>--ebpf.enabled</code> 的话就只跑 v0.1.0 的静态采集器，完全不影响。</p><p>内核要求 Linux 5.4+（需要 BTF 支持）。跑不了 eBPF 的环境会自动降级到 <code>degraded</code> 状态，<code>security_ebpf_up{status="degraded"}</code> 为 0，只跑传统采集器。</p><p>几个有用的 eBPF 告警规则：</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># eBPF 监控降级</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>alert</span><span class=p>:</span><span class=w> </span><span class=l>EbpfMonitoringDegraded</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>expr</span><span class=p>:</span><span class=w> </span><span class=l>security_ebpf_up{status=&#34;degraded&#34;} == 1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>severity</span><span class=p>:</span><span class=w> </span><span class=l>warning</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># 可疑进程执行</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>alert</span><span class=p>:</span><span class=w> </span><span class=l>SuspiciousProcessExecuted</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>expr</span><span class=p>:</span><span class=w> </span><span class=l>increase(security_ebpf_process_exec_total{type=&#34;suspicious&#34;}[5m]) &gt; 0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>severity</span><span class=p>:</span><span class=w> </span><span class=l>critical</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># 提权失败次数突增（可能在暴力提权）</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>alert</span><span class=p>:</span><span class=w> </span><span class=l>PrivilegeEscalationAttempts</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>expr</span><span class=p>:</span><span class=w> </span><span class=l>increase(security_ebpf_privilege_escalation_total{result=&#34;failure&#34;}[10m]) &gt; 5</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>severity</span><span class=p>:</span><span class=w> </span><span class=l>critical</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># 内核模块加载</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>alert</span><span class=p>:</span><span class=w> </span><span class=l>KernelModuleLoaded</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>expr</span><span class=p>:</span><span class=w> </span><span class=l>increase(security_ebpf_kernel_module_total{action=&#34;load&#34;}[5m]) &gt; 0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>severity</span><span class=p>:</span><span class=w> </span><span class=l>warning</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=版本回顾>版本回顾</h2><div class=code-block-wrapper data-lang=text><div class=code-block-header><div class=code-block-meta><span class=code-language>text</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl>v0.1.0 (2026-05-14)  静态安全配置采集，15 类指标
+</span></span><span class=line><span class=cl>v0.2.0 (2026-05-18)  eBPF 实时监控，5 类 BPF 程序，~4000 行新代码
+</span></span><span class=line><span class=cl>v0.3.0 (2026-05-19)  BPF bug 修复、ARM 兼容、CI 修复、文档清理</span></span></code></pre></td></tr></table></div></div></div></div><p>项目地址：<a href=https://github.com/mickeyzzc/security-collector-exporter>github.com/mickeyzzc/security-collector-exporter</a></p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/prometheus/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Prometheus
+</a><a class=tag-chip href=/tags/ebpf/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+EBPF
+</a><a class=tag-chip href=/tags/linux/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Linux
+</a><a class=tag-chip href=/tags/%E5%AE%89%E5%85%A8%E7%9B%91%E6%8E%A7/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+安全监控
+</a><a class=tag-chip href=/tags/go/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Go
+</a><a class=tag-chip href=/tags/exporter/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Exporter</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>
