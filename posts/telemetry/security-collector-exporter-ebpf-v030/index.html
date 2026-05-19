@@ -26,7 +26,7 @@
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/>可观测性</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/prometheus/>Prometheus</a>, <a href=/tags/ebpf/>EBPF</a>, <a href=/tags/linux/>Linux</a>, <a href=/tags/%E5%AE%89%E5%85%A8%E7%9B%91%E6%8E%A7/>安全监控</a>, <a href=/tags/go/>Go</a>, <a href=/tags/exporter/>Exporter</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>3260 字</span>
+<span>3420 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 <span>7 分钟阅读</span></span></div></header><div class=Content><h2 id=从静态到实时>从静态到实时</h2><p>上一篇文章介绍了 <a href=../security-collector-exporter-v010/>security-collector-exporter v0.1.0</a>——把 Linux 安全配置状态变成 Prometheus 指标。但 v0.1.0 本质上还是"快照式"的：定时读 <code>/etc</code>、<code>/proc</code>，抓的是某一时刻的静态配置。</p><p>安全运维里有一块是快照覆盖不了的：<strong>实时发生的安全事件</strong>。有人在跑反弹 shell、有进程在提权、有异常的网络连接、有人在加载内核模块——这些事发生了就过去了，你下次 scrape 的时候根本看不到。</p><p>eBPF 是解决这个问题的天然工具。它能挂载到内核的各种 hook 点上（tracepoint、kprobe），在内核态就完成数据聚合，零拷贝、低开销。从 v0.2.0 开始，security-collector-exporter 加入了完整的 eBPF 支持，经过 v0.3.0 的修 bug 和稳定性打磨，终于算是能用了。</p><h2 id=ebpf-采集了什么>eBPF 采集了什么</h2><p>五个独立的 BPF 程序，分别挂载到不同的内核 hook 点，覆盖五类安全事件：</p><table><thead><tr><th>BPF 程序</th><th>挂载点</th><th>监控内容</th></tr></thead><tbody><tr><td>process.c</td><td><code>sys_enter_execve</code>, <code>sched_process_exit</code></td><td>进程执行、退出、活跃进程数</td></tr><tr><td>network.c</td><td><code>inet_sock_set_state</code></td><td>TCP/UDP 连接建立、活跃连接、连接错误</td></tr><tr><td>file.c</td><td><code>sys_enter_openat</code></td><td>敏感文件访问操作（按严重级别分类）</td></tr><tr><td>privilege.c</td><td><code>sys_enter_setuid/setgid/capset</code></td><td>提权行为（setuid/setgid/capset）</td></tr><tr><td>kernel.c</td><td><code>sys_enter_init_module/finit_module</code></td><td>内核模块加载/卸载</td></tr></tbody></table><p>暴露的 Prometheus 指标：</p><div class=code-block-wrapper data-lang=text><div class=code-block-header><div class=code-block-meta><span class=code-language>text</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
@@ -84,75 +84,70 @@
 </span></span></span><span class=line><span class=cl><span class=nv>security_ebpf_process_exec_total</span><span class=p>{</span><span class=nl>type</span><span class=o>=</span><span class=p>&#34;</span><span class=s>container</span><span class=p>&#34;}</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>
 </span></span></span><span class=line><span class=cl><span class=c1># 查可疑进程执行</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=nv>security_ebpf_process_exec_total</span><span class=p>{</span><span class=nl>type</span><span class=o>=</span><span class=p>&#34;</span><span class=s>suspicious</span><span class=p>&#34;}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=整体架构>整体架构</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>---
-config:
-  theme: base
-  themeVariables:
-    fontSize: 15px
-    fontFamily: &#34;system-ui, sans-serif&#34;
----
-flowchart TB
+</span></span></span><span class=line><span class=cl><span class=nv>security_ebpf_process_exec_total</span><span class=p>{</span><span class=nl>type</span><span class=o>=</span><span class=p>&#34;</span><span class=s>suspicious</span><span class=p>&#34;}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=整体架构>整体架构</h2><p>架构分两大层：内核态负责采集和预聚合，用户态负责读取和暴露指标。</p><p>内核态的 5 个 BPF 程序挂载到 14 个 tracepoint 上，事件发生时直接在 percpu_array map 里递增计数器，零锁竞争：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
 
-    subgraph kernel[&#34;🐧 Linux 内核&#34;]
-        tp1[&#34;tracepoint: sys_enter_execve&#34;]
-        tp2[&#34;tracepoint: sched_process_exit&#34;]
-        tp3[&#34;tracepoint: inet_sock_set_state&#34;]
-        tp4[&#34;tracepoint: sys_enter_openat&#34;]
-        tp5[&#34;tracepoint: sys_enter_setuid/setgid/capset&#34;]
-        tp6[&#34;tracepoint: sys_enter_init_module&#34;]
+    classDef tp fill:#E3F2FD,stroke:#1565C0,color:#1565C0
+    classDef bpf fill:#FFF3E0,stroke:#E65100,color:#BF360C
+    classDef map fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+
+    subgraph tp[&#34;Tracepoints&#34;]
+        t1@{ shape: rounded, label: &#34;execve / exit&#34; }
+        t2@{ shape: rounded, label: &#34;tcp state change&#34; }
+        t3@{ shape: rounded, label: &#34;openat&#34; }
+        t4@{ shape: rounded, label: &#34;setuid / setgid / capset&#34; }
+        t5@{ shape: rounded, label: &#34;init_module&#34; }
     end
 
-    subgraph bpf[&#34;🔧 eBPF 程序（内核态）&#34;]
-        bp1[&#34;process.c&#34;]
-        bp2[&#34;network.c&#34;]
-        bp3[&#34;file.c&#34;]
-        bp4[&#34;privilege.c&#34;]
-        bp5[&#34;kernel.c&#34;]
+    subgraph bpf[&#34;BPF 程序&#34;]
+        p@{ shape: proc, label: &#34;process.c\n进程追踪&#34; }
+        n@{ shape: proc, label: &#34;network.c\n网络连接&#34; }
+        f@{ shape: proc, label: &#34;file.c\n文件访问&#34; }
+        v@{ shape: proc, label: &#34;privilege.c\n提权检测&#34; }
+        k@{ shape: proc, label: &#34;kernel.c\n内核模块&#34; }
     end
 
-    subgraph maps[&#34;📊 BPF Maps（percpu_array）&#34;]
-        m1[&#34;进程计数 map&lt;br/&gt;exec/exit/active&#34;]
-        m2[&#34;网络计数 map&lt;br/&gt;connect/active/error&#34;]
-        m3[&#34;文件访问 map&lt;br/&gt;severity × operation&#34;]
-        m4[&#34;提权计数 map&lt;br/&gt;type × result&#34;]
-        m5[&#34;内核模块 map&lt;br/&gt;load/load_file&#34;]
+    subgraph maps[&#34;percpu_array Maps&#34;]
+        m1@{ shape: cyl, label: &#34;exec / exit / active&#34; }
+        m2@{ shape: cyl, label: &#34;connect / error&#34; }
+        m3@{ shape: cyl, label: &#34;access by severity&#34; }
+        m4@{ shape: cyl, label: &#34;escalation by type&#34; }
+        m5@{ shape: cyl, label: &#34;module by action&#34; }
     end
 
-    subgraph go[&#34;⚙️ Go 用户态&#34;]
-        mgr[&#34;Manager&lt;br/&gt;加载 BPF &#43; 挂载 tracepoint&#34;]
-        agg[&#34;Aggregator&lt;br/&gt;读取 percpu_array &#43; delta 追踪&#34;]
-        smp[&#34;AdaptiveSampler&lt;br/&gt;自适应采样率&#34;]
-        col[&#34;EbpfCollector&lt;br/&gt;Prometheus 指标暴露&#34;]
+    t1 --&gt; p --&gt; m1
+    t2 --&gt; n --&gt; m2
+    t3 --&gt; f --&gt; m3
+    t4 --&gt; v --&gt; m4
+    t5 --&gt; k --&gt; m5
+
+    class t1,t2,t3,t4,t5 tp
+    class p,n,f,v,k bpf
+    class m1,m2,m3,m4,m5 map</code></pre></div></div><p>用户态的 Manager 加载 BPF 程序并挂载 tracepoint，Aggregator 每 5 秒从 percpu_array 读取聚合数据（带 delta 追踪算 RPS），最终由 EbpfCollector 暴露为 Prometheus 指标：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+
+    classDef datasource fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    classDef component fill:#EDE7F6,stroke:#4527A0,color:#311B92
+    classDef endpoint fill:#FCE4EC,stroke:#C62828,color:#B71C1C
+
+    maps@{ shape: cyl, label: &#34;BPF percpu_array Maps&#34; }
+
+    subgraph go[&#34;Go 用户态&#34;]
+        mgr@{ shape: notch-rect, label: &#34;Manager\n加载 &amp; 挂载&#34; }
+        agg@{ shape: proc, label: &#34;Aggregator\n读取 &#43; delta 追踪&#34; }
+        smp@{ shape: notch-rect, label: &#34;AdaptiveSampler\n自适应采样率&#34; }
+        col@{ shape: proc, label: &#34;EbpfCollector&#34; }
     end
 
-    tp1 --&gt; bp1
-    tp2 --&gt; bp1
-    tp3 --&gt; bp2
-    tp4 --&gt; bp3
-    tp5 --&gt; bp4
-    tp6 --&gt; bp5
+    prom@{ shape: stadium, label: &#34;Prometheus :9102/metrics&#34; }
 
-    bp1 --&gt; m1
-    bp2 --&gt; m2
-    bp3 --&gt; m3
-    bp4 --&gt; m4
-    bp5 --&gt; m5
-
-    m1 --&gt; agg
-    m2 --&gt; agg
-    m3 --&gt; agg
-    m4 --&gt; agg
-    m5 --&gt; agg
-
-    mgr --&gt; bp1
-    mgr --&gt; bp2
-    mgr --&gt; bp3
-    mgr --&gt; bp4
-    mgr --&gt; bp5
-
+    maps --&gt;|&#34;每 5s 读取&#34;| agg
+    mgr -.-&gt;|&#34;生命周期&#34;| maps
     agg --&gt; col
-    smp --&gt; col
-    col --&gt;|&#34;/metrics :9102&#34;| prom[&#34;📊 Prometheus&#34;]</code></pre></div></div><p>数据流分三层：</p><ul><li><strong>内核态</strong>：BPF 程序挂在 tracepoint 上，事件发生时直接在 percpu_array map 里递增计数器。percpu 的好处是每个 CPU 独立计数，<strong>零锁竞争</strong>。</li><li><strong>用户态聚合</strong>：Go 侧的 Aggregator 每 5 秒读一次 percpu_array，把所有 CPU 的值求和，做 delta 追踪算 RPS。</li><li><strong>自适应采样</strong>：AdaptiveSampler 每 10 秒评估一次实际事件量，超过目标 RPS 的 2 倍就加倍采样率，低于一半就恢复。</li></ul><h2 id=v020-踩的坑>v0.2.0 踩的坑</h2><p>v0.2.0 是 eBPF 功能的首个版本，代码量不小（新增 ~4000 行），但发布后跑起来就发现了不少问题。</p><h3 id=bpf-程序本身的-bug>BPF 程序本身的 bug</h3><p><strong>网络 BPF 的结构体字段错误</strong>。<code>inet_sock_set_state</code> 这个 tracepoint 的内核结构体里没有 <code>skbaddr</code> 字段，但 v0.2.0 的 <code>network.c</code> 里引用了它。BPF verifier 直接拒绝加载，网络监控整个挂掉。</p><p><strong>UDP kprobe 不存在</strong>。v0.2.0 尝试用 kprobe 来追踪 UDP 连接，但目标内核上根本没有对应的 kprobe tracer。加载失败但没有优雅处理。</p><p><strong>进程退出分类不准</strong>。<code>sched_process_exit</code> 触发时，拿不到进程当初被 execve 分类时的类别。v0.2.0 没有做 PID 到类别的映射，导致 exit 事件的分类和 exec 不一致。</p><p><strong>提权检测的 map 类型错误</strong>。privilege.c 用的是 <code>PERCPU_ARRAY</code>，但在多 CPU 并发写入同一个 key 时存在竞争条件。换成 <code>PERCPU_HASH</code> 才解决。</p><h3 id=arm-设备上的阻塞问题>ARM 设备上的阻塞问题</h3><p>这是一个比较隐蔽的 bug。在 ARM 设备（树莓派之类）上，端口版本探测（<code>process_info.go</code> 里的 Java 版本检测逻辑）会卡住 <code>Collect()</code> 周期。原因是某些进程（比如 <code>mediamtx</code>）的版本命令会 hang 住，没有超时机制，整个 Prometheus scrape 就超时了。</p><h3 id=ci-构建问题>CI 构建问题</h3><p>BPF 程序需要用 <code>clang</code> 编译 C 代码生成字节码（<code>*_bpf.o</code>），然后通过 <code>go:embed</code> 嵌入到 Go 二进制里。v0.2.0 把 <code>.o</code> 文件加到了 <code>.gitignore</code>，CI 环境（<code>ubuntu-latest</code>）没有 clang，构建直接失败。</p><h2 id=v030-怎么修的>v0.3.0 怎么修的</h2><h3 id=bpf-程序修复>BPF 程序修复</h3><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+    smp -.-&gt;|&#34;采样率&#34;| col
+    col --&gt;|&#34;/metrics&#34;| prom
+
+    class maps datasource
+    class mgr,agg,smp,col component
+    class prom endpoint</code></pre></div></div><p>中间的自适应采样器（AdaptiveSampler）每 10 秒评估一次实际事件量，超过目标 RPS 的 2 倍就加倍采样率（采得更稀疏），低于一半就恢复（采得更密集），防止高负载下 eBPF 事件量压垮用户态。</p><h2 id=v020-踩的坑>v0.2.0 踩的坑</h2><p>v0.2.0 是 eBPF 功能的首个版本，代码量不小（新增 ~4000 行），但发布后跑起来就发现了不少问题。</p><h3 id=bpf-程序本身的-bug>BPF 程序本身的 bug</h3><p><strong>网络 BPF 的结构体字段错误</strong>。<code>inet_sock_set_state</code> 这个 tracepoint 的内核结构体里没有 <code>skbaddr</code> 字段，但 v0.2.0 的 <code>network.c</code> 里引用了它。BPF verifier 直接拒绝加载，网络监控整个挂掉。</p><p><strong>UDP kprobe 不存在</strong>。v0.2.0 尝试用 kprobe 来追踪 UDP 连接，但目标内核上根本没有对应的 kprobe tracer。加载失败但没有优雅处理。</p><p><strong>进程退出分类不准</strong>。<code>sched_process_exit</code> 触发时，拿不到进程当初被 execve 分类时的类别。v0.2.0 没有做 PID 到类别的映射，导致 exit 事件的分类和 exec 不一致。</p><p><strong>提权检测的 map 类型错误</strong>。privilege.c 用的是 <code>PERCPU_ARRAY</code>，但在多 CPU 并发写入同一个 key 时存在竞争条件。换成 <code>PERCPU_HASH</code> 才解决。</p><h3 id=arm-设备上的阻塞问题>ARM 设备上的阻塞问题</h3><p>这是一个比较隐蔽的 bug。在 ARM 设备（树莓派之类）上，端口版本探测（<code>process_info.go</code> 里的 Java 版本检测逻辑）会卡住 <code>Collect()</code> 周期。原因是某些进程（比如 <code>mediamtx</code>）的版本命令会 hang 住，没有超时机制，整个 Prometheus scrape 就超时了。</p><h3 id=ci-构建问题>CI 构建问题</h3><p>BPF 程序需要用 <code>clang</code> 编译 C 代码生成字节码（<code>*_bpf.o</code>），然后通过 <code>go:embed</code> 嵌入到 Go 二进制里。v0.2.0 把 <code>.o</code> 文件加到了 <code>.gitignore</code>，CI 环境（<code>ubuntu-latest</code>）没有 clang，构建直接失败。</p><h2 id=v030-怎么修的>v0.3.0 怎么修的</h2><h3 id=bpf-程序修复>BPF 程序修复</h3><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
