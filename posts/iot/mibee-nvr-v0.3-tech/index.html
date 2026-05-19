@@ -1,0 +1,178 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - MiBeeNvr v0.3.0: 小米摄像头内置支持与架构演进之路</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/posts/iot/mibee-nvr-v0.3-tech/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - MiBeeNvr v0.3.0: 小米摄像头内置支持与架构演进之路"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/iot/mibee-nvr-v0.3-tech/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-19 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-19 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - MiBeeNvr v0.3.0: 小米摄像头内置支持与架构演进之路"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.ff23690d660c5cbc0c4efdfef2529a5783e0016551270c6bac983c12c0dc329e.css integrity="sha256-/yNpDWYMXLwMTv3+8lKaV4PgAWVRJwxrrJg8EsDcMp4=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#架构演变从外部依赖到内置实现的曲折之路>架构演变：从外部依赖到内置实现的曲折之路</a><ul><li><a href=#第一阶段go2rtc-外部依赖-v010-时代>第一阶段：go2rtc 外部依赖 (v0.1.0 时代)</a></li><li><a href=#第二阶段插件架构实验-v020-到-v030-之间>第二阶段：插件架构实验 (v0.2.0 到 v0.3.0 之间)</a></li><li><a href=#第三阶段回归简洁-v030>第三阶段：回归简洁 (v0.3.0)</a></li></ul></li><li><a href=#小米摄像头功能详解>小米摄像头功能详解</a><ul><li><a href=#内置-cs2-p2p-协议>内置 CS2 P2P 协议</a></li><li><a href=#云端认证流程>云端认证流程</a></li><li><a href=#配置示例>配置示例</a></li><li><a href=#web-界面>Web 界面</a></li></ul></li><li><a href=#归档录像独特的摄像机管理方式>归档录像：独特的摄像机管理方式</a><ul><li><a href=#三态摄像头管理>三态摄像头管理</a></li><li><a href=#归档流程>归档流程</a></li><li><a href=#归档后管理>归档后管理</a></li></ul></li><li><a href=#其他-v030-亮点>其他 v0.3.0 亮点</a><ul><li><a href=#安全加固>安全加固</a></li><li><a href=#前端全面升级>前端全面升级</a></li><li><a href=#hls-改进>HLS 改进</a></li></ul></li><li><a href=#总结--开源链接>总结 + 开源链接</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-md"><span>架构</span>
+</a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-md"><span>监控</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-xs"><span>摄像头</span>
+</a><a href=/tags/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/ class="tag-cloud__item tag-size-xs"><span>智能家居</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>MiBeeNvr v0.3.0: 小米摄像头内置支持与架构演进之路</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-19T00:00:00+00:00>May 19, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/iot/>IOT</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/nvr/>NVR</a>, <a href=/tags/go/>Go</a>, <a href=/tags/%E5%B0%8F%E7%B1%B3%E6%91%84%E5%83%8F%E5%A4%B4/>小米摄像头</a>, <a href=/tags/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/>智能家居</a>, <a href=/tags/rtsp/>RTSP</a>, <a href=/tags/cs2/>CS2</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2139 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>5 分钟阅读</span></span></div></header><div class=Content><p>v0.2.0 发布之后又折腾了不少，这次 v0.3.0 带来了几个重量级更新：小米摄像头内置支持、归档录像功能，以及一大波安全加固。说实话，从外部依赖到内置实现的架构演进过程，比我想象的要曲折得多。</p><p>上一篇介绍了 v0.2.0 的 15 个新功能（<a href=/posts/iot/mibee-nvr-v0.2/>v0.2.0 更新</a>），没看过第一篇的可以先看 <a href=/posts/iot/mibee-nvr-introduction/>MiBeeNvr 介绍</a>。这次 v0.3.0 主要聚焦在小米摄像头的深度集成上，完整更新列表见 <a href=https://github.com/Mi-Bee-Studio/MiBeeNvr/releases/tag/v0.3.0>GitHub Release Notes</a>。</p><h2 id=架构演变从外部依赖到内置实现的曲折之路>架构演变：从外部依赖到内置实现的曲折之路</h2><p>小米摄像头支持的开发过程，是我做过最有趣的架构实验之一。整个过程经历了三个截然不同的阶段，每个阶段都有其独特的教训。</p><h3 id=第一阶段go2rtc-外部依赖-v010-时代>第一阶段：go2rtc 外部依赖 (v0.1.0 时代)</h3><p>早期的 MiBeeNvr 完全依赖 go2rtc 来处理小米摄像头的协议转换：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TB
+    subgraph &#34;小米摄像头&#34;
+        A[Camera]
+    end
+    
+    subgraph &#34;外部容器&#34;
+        B[go2rtc]
+    end
+    
+    subgraph &#34;MiBeeNvr&#34;
+        C[RTSP 客户端]
+        D[HLS 编码]
+        E[存储管理]
+    end
+    
+    A --&gt;|&#34;miss 协议&#34;| B
+    B --&gt;|&#34;RTSP&#34;| C
+    C --&gt;|HLS| D
+    D --&gt;|存储| E
+    
+    classDef hardware fill:#e3f2fd,stroke:#1976d2
+    classDef process fill:#e8f5e9,stroke:#4caf50
+    classDef storage fill:#fff3e0,stroke:#ff9800
+    classDef network fill:#f3e5f5,stroke:#9c27b0
+    
+    class A hardware
+    class B process
+    class C,D,E storage</code></pre></div></div><p>说实话，这个方案一开始看起来很优雅：用一个现成的 Docker 容器解决协议转换问题，主程序专心做 NVR 功能。但很快问题就来了：</p><ol><li><strong>CS2 P2P 连接不稳定</strong>：小米摄像头的 P2P 连接大约 20 分钟就会超时卡死</li><li><strong>调试困难</strong>：go2rtc 是独立项目，出了问题很难定位</li><li><strong>运维复杂</strong>：需要管理两个 Docker 容器，端口冲突、资源争抢问题不断</li></ol><p>归根结底，把核心功能依赖到外部容器上，本身就是个设计上的失误。</p><h3 id=第二阶段插件架构实验-v020-到-v030-之间>第二阶段：插件架构实验 (v0.2.0 到 v0.3.0 之间)</h3><p>吸取教训之后，我决定把 go2rtc 的 Xiaomi 代码移植到 MiBeeNvr 里，做成插件系统。当时的想法很好：</p><ul><li>通过 Go 接口注册实现协议解耦</li><li>使用 <code>init()</code> 基础的插件机制</li><li>甚至实验了 gRPC 进程隔离</li></ul><p>听起来很美好对吧？让架构变得可扩展，牺牲一点性能换来开发便利性。结果现实给了我一记响亮的耳光：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph &#34;小米摄像头&#34;
+        A[Camera]
+    end
+    
+    subgraph &#34;插件进程&#34;
+        B[Plugin Process]
+        C[gRPC 通信]
+    end
+    
+    subgraph &#34;MiBeeNvr 主程序&#34;
+        D[主 NVR 引擎]
+        E[HLS 编码]
+        F[存储管理]
+    end
+    
+    A --&gt;|&#34;miss 协议&#34;| B
+    B --&gt;|gRPC| C
+    C --&gt;|处理| D
+    D --&gt;|HLS| E
+    E --&gt;|存储| F
+    
+    classDef hardware fill:#e3f2fd,stroke:#1976d2
+    classDef process fill:#e8f5e9,stroke:#4caf50
+    classDef storage fill:#fff3e0,stroke:#ff9800
+    classDef network fill:#f3e5f5,stroke:#9c27b0
+    
+    class A hardware
+    class B,C process
+    class D,E,F storage</code></pre></div></div><p>实际使用中发现的问题：</p><ol><li><strong>架构过度复杂</strong>：实时预览多了好几层中间环节，性能下降明显</li><li><strong>资源消耗增加</strong>：额外的进程和通信开销</li><li><strong>新人门槛高</strong>：代码库变得难以理解，一个简单的功能需要跨进程通信</li></ol><p>折腾了一圈才发现，有时候最简单的方案反而是最好的。</p><h3 id=第三阶段回归简洁-v030>第三阶段：回归简洁 (v0.3.0)</h3><p>最终在 v0.3.0 中，我彻底移除了插件系统，将 Xiaomi 代码迁移到内置的 <code>internal/xiaomi/</code> 包中：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TB
+    subgraph &#34;小米摄像头&#34;
+        A[Camera]
+    end
+    
+    subgraph &#34;MiBeeNvr 核心&#34;
+        B[internal/xiaomi/ 包]
+        C[核心 NVR 引擎]
+        D[HLS 编码]
+        E[存储管理]
+    end
+    
+    A --&gt;|&#34;miss 协议&#34;| B
+    B --&gt;|直接处理| C
+    C --&gt;|HLS| D
+    D --&gt;|存储| E
+    
+    classDef hardware fill:#e3f2fd,stroke:#1976d2
+    classDef process fill:#e8f5e9,stroke:#4caf50
+    classDef storage fill:#fff3e0,stroke:#ff9800
+    
+    class A hardware
+    class B,C,D,E process</code></pre></div></div><p>正如 Release Notes 中所说：</p><blockquote><p>&ldquo;Plugin System Removed — Xiaomi migrated from gRPC plugin to built-in internal/xiaomi/ package&rdquo;</p><p>&ldquo;Full Xiaomi IP camera integration — no plugins, no external dependencies&rdquo;</p></blockquote><p>现在的架构就是一个单二进制文件，无需外部进程，无需 Docker 依赖。有时候，对于这个阶段的项目，简洁性比扩展性更重要。</p><h2 id=小米摄像头功能详解>小米摄像头功能详解</h2><h3 id=内置-cs2-p2p-协议>内置 CS2 P2P 协议</h3><p>现在 MiBeeNvr 直接支持小米摄像头的 CS2 P2P 协议，不再需要 go2rtc 这个中间人。</p><h3 id=云端认证流程>云端认证流程</h3><p>完整的认证流程包括：</p><ol><li>使用小米账号登录</li><li>获取 passToken</li><li>自动发现设备列表</li><li>建立直连</li></ol><p>支持的设备类型包括：</p><ul><li><code>.camera.</code> - 普通摄像头</li><li><code>.cateye.</code> - 猫眼摄像头</li><li><code>.feeder.</code> - 喂养器（HLC8 型号）</li></ul><h3 id=配置示例>配置示例</h3><p>在 <code>mibeenvr.yaml</code> 中添加小米摄像头配置：</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>xiaomi</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>user_id</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;123456789&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>token</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;your_passToken&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>region</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;cn&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>cameras</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>id</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;xiaomi-living&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;客厅小米&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;xiaomi&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>encoding</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;h264&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>did</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;device_id_here&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>vendor</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;cs2&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>true</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=web-界面>Web 界面</h3><p>Web 界面提供了完整的账号管理功能：</p><ul><li>小米账号登录页面</li><li>自动发现摄像头</li><li>一键添加功能</li></ul><p>说实话，这个认证流程比我想象的要复杂，但最终实现出来的用户体验还算不错。</p><p>实际界面是这样的：</p><figure><img src=/posts/iot/images/v0.3.0-mibeenvr-xiaomi.png alt=小米设备自动发现界面 width=100%></figure><h2 id=归档录像独特的摄像机管理方式>归档录像：独特的摄像机管理方式</h2><p>归档录像功能是这次 v0.3.0 的一大亮点。这个需求的场景很简单：当你需要移除一个摄像头（坏了、搬家、升级）但又想保留历史录像时，传统 NVR 系统通常的做法是直接删除所有相关数据。</p><p>MiBeeNvr 提供了更人性化的解决方案：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    A[活跃摄像头] --&gt; B[停止录制]
+    B --&gt; C[合并片段]
+    C --&gt; D[标记归档]
+    D --&gt; E[从配置移除]
+    E --&gt; F[录像保留]
+    
+    classDef process fill:#e8f5e9,stroke:#4caf50
+    classDef storage fill:#fff3e0,stroke:#ff9800
+    classDef network fill:#f3e5f5,stroke:#9c27b0
+    
+    class A,B,C,E process
+    class D,F storage</code></pre></div></div><h3 id=三态摄像头管理>三态摄像头管理</h3><p>摄像头现在有三种状态：</p><ul><li><strong>Active</strong> - 正在录制</li><li><strong>Disabled</strong> - 已暂停</li><li><strong>Archived</strong> - 只读（历史记录）</li></ul><h3 id=归档流程>归档流程</h3><p>归档操作很直观：</p><ol><li>在摄像头列表中点击"归档"</li><li>弹出确认对话框</li><li>输入 &ldquo;DELETE&rdquo; 确认</li><li>系统自动合并片段并标记归档</li><li>摄像头从实时列表移除，但录像完整保留</li></ol><h3 id=归档后管理>归档后管理</h3><p>归档后的录像支持：</p><ul><li>播放历史录像</li><li>下载单个录像文件</li><li>删除指定录像</li><li>设置归档组保留期限</li></ul><p>实际效果如下：</p><p><figure><img src=/posts/iot/images/v0.3.0-mibeenvr-arch.png alt=归档摄像头管理界面 width=100%></figure>说实话，这个功能是我在使用其他 NVR 系统时最想要的。大多数系统在移除摄像头时直接一刀切删除，完全没有保留历史数据的意识。</p><h2 id=其他-v030-亮点>其他 v0.3.0 亮点</h2><h3 id=安全加固>安全加固</h3><p>这次 v0.3.0 包含了 15+ 个安全修复：</p><ul><li>路径验证加强</li><li>认证机制硬化</li><li>速率限制优化</li><li>安全头设置</li><li>SQL 注入防护</li></ul><h3 id=前端全面升级>前端全面升级</h3><p>前端完成了 Svelte 5 的完整迁移：</p><ul><li>运行模式 (runes) 语法</li><li>移除所有遗留语法</li><li>国际化 500+ 个键值</li></ul><h3 id=hls-改进>HLS 改进</h3><p>HLS 播放器优化：</p><ul><li>指数退避自动重试</li><li>僵尸播放器检测</li><li>子流降级支持</li></ul><h2 id=总结--开源链接>总结 + 开源链接</h2><p>v0.3.0 从 v0.2.0 到现在，总共 141 个提交，45 个新功能，48 个修复。从外部依赖到插件实验，再到内置简洁实现的架构演进，让我深刻体会到：</p><p>有时候，最"正确"的架构并不是最灵活的那个。对于一个当前阶段的项目，简洁性往往比扩展性更重要。</p><p>开源地址：</p><ul><li>GitHub: <a href=https://github.com/Mi-Bee-Studio/MiBeeNvr>https://github.com/Mi-Bee-Studio/MiBeeNvr</a></li><li>Gitee: <a href=https://gitee.com/Mi-Bee-Studio/MiBeeNvr>https://gitee.com/Mi-Bee-Studio/MiBeeNvr</a></li></ul><p>折腾了这么久，小米摄像头的支持终于稳定了。如果你也在折腾智能家居，不妨试试看。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/nvr/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+NVR
+</a><a class=tag-chip href=/tags/go/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Go
+</a><a class=tag-chip href=/tags/%E5%B0%8F%E7%B1%B3%E6%91%84%E5%83%8F%E5%A4%B4/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+小米摄像头
+</a><a class=tag-chip href=/tags/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+智能家居
+</a><a class=tag-chip href=/tags/rtsp/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+RTSP
+</a><a class=tag-chip href=/tags/cs2/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+CS2</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>

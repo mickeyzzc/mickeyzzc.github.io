@@ -1,4 +1,31 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>security-collector-exporter v0.3.0：eBPF 加持的实时安全监控</title><url>/posts/telemetry/security-collector-exporter-ebpf-v030/</url><categories><category>可观测性</category></categories><tags><tag>Prometheus</tag><tag>eBPF</tag><tag>Linux</tag><tag>安全监控</tag><tag>Go</tag><tag>Exporter</tag></tags><content type="html">&lt;![CDATA[ 从静态到实时 上一篇文章介绍了 security-collector-exporter v0.1.0——把 Linux 安全配置状态变成 Prometheus 指标。但 v0.1.0 本质上还是&amp;quot;快照式&amp;quot;的：定时读 /etc、/proc，抓的是某一时刻的静态配置。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><search><entry><title>MiBeeNvr v0.3.0: 小米摄像头内置支持与架构演进之路</title><url>/posts/iot/mibee-nvr-v0.3-tech/</url><categories><category>IOT</category></categories><tags><tag>NVR</tag><tag>Go</tag><tag>小米摄像头</tag><tag>智能家居</tag><tag>RTSP</tag><tag>CS2</tag></tags><content type="html">&lt;![CDATA[ v0.2.0 发布之后又折腾了不少，这次 v0.3.0 带来了几个重量级更新：小米摄像头内置支持、归档录像功能，以及一大波安全加固。说实话，从外部依赖到内置实现的架构演进过程，比我想象的要曲折得多。
+上一篇介绍了 v0.2.0 的 15 个新功能（v0.2.0 更新），没看过第一篇的可以先看 MiBeeNvr 介绍。这次 v0.3.0 主要聚焦在小米摄像头的深度集成上，完整更新列表见 GitHub Release Notes。
+架构演变：从外部依赖到内置实现的曲折之路 小米摄像头支持的开发过程，是我做过最有趣的架构实验之一。整个过程经历了三个截然不同的阶段，每个阶段都有其独特的教训。
+第一阶段：go2rtc 外部依赖 (v0.1.0 时代) 早期的 MiBeeNvr 完全依赖 go2rtc 来处理小米摄像头的协议转换：
+mermaid graph TB subgraph &amp;#34;小米摄像头&amp;#34; A[Camera] end subgraph &amp;#34;外部容器&amp;#34; B[go2rtc] end subgraph &amp;#34;MiBeeNvr&amp;#34; C[RTSP 客户端] D[HLS 编码] E[存储管理] end A --&amp;gt;|&amp;#34;miss 协议&amp;#34;| B B --&amp;gt;|&amp;#34;RTSP&amp;#34;| C C --&amp;gt;|HLS| D D --&amp;gt;|存储| E classDef hardware fill:#e3f2fd,stroke:#1976d2 classDef process fill:#e8f5e9,stroke:#4caf50 classDef storage fill:#fff3e0,stroke:#ff9800 classDef network fill:#f3e5f5,stroke:#9c27b0 class A hardware class B process class C,D,E storage 说实话，这个方案一开始看起来很优雅：用一个现成的 Docker 容器解决协议转换问题，主程序专心做 NVR 功能。但很快问题就来了：
+CS2 P2P 连接不稳定：小米摄像头的 P2P 连接大约 20 分钟就会超时卡死 调试困难：go2rtc 是独立项目，出了问题很难定位 运维复杂：需要管理两个 Docker 容器 … ]]></content></entry><entry><title>MiBeeNvr v0.3.0: 小米摄像头一键接入，录像永不丢失</title><url>/posts/iot/mibee-nvr-v0.3-promo/</url><categories><category>IOT</category></categories><tags><tag>NVR</tag><tag>小米摄像头</tag><tag>智能家居</tag><tag>录像</tag><tag>开源</tag></tags><content type="html">&lt;![CDATA[ 家里有小米摄像头？想把录像存到自己手里，不靠云存储？
+作为一个家里装了几个小米摄像头的用户，我一直有个烦恼：每次想看门口的录像，都得先登录小米云，加载半天还经常转圈。而且云存储按天收费，一个月下来也不是小数目。有时候换摄像头，之前的录像就全没了，想想都觉得可惜。
+MiBeeNvr 就是为了解决这些问题而生的。它是一个完全免费的开源工具，能让你的小米摄像头录像直接存在自己的电脑或 NAS 上，不用依赖云服务，想怎么看就怎么看。
+小米摄像头，直接支持 3步搞定：
+打开 MiBeeNvr 网页 → 用小米账号登录 → 所有你的摄像头都列出来了 点&amp;quot;添加&amp;quot; → 录像自动开始，就这么简单 随时打开网页 → 看实时画面或者回放以前的录像 实际界面是这样的：
+哪些摄像头能用？基本都能用：
+小米智能摄像机系列 小米猫眼 小米看护摄像机 配置也很简洁：
+yaml 1 2 3 4 5 6 7 cameras: - id: &amp;#34;living-room&amp;#34; name: &amp;#34;客厅摄像头&amp;#34; protocol: &amp;#34;xiaomi&amp;#34; encoding: &amp;#34;h264&amp;#34; did: &amp;#34;your_device_id&amp;#34; enabled: true 最关键的是，不需要额外的 Docker 容器做协议转换，一切都已经内置在一个程序里了。
+归档录像 — 删了摄像头，录像还在 去年装的门口摄像头，最近想换个新的。但之前几个月的录像还有用，不想丢。以前这事儿根本没法解决，摄像头一删，录像全没。
+现在好了，MiBeeNvr 的归档功能让一切变得简单：
+点击&amp;quot;归档&amp;quot; → 输入 DELETE 确认 → 摄像头被删除，但录像完好无损。
+归档的录像能干嘛？能播放、能下载、能单个删除，还能设置保留多久。完全按照你的需求来。
+普通删除 vs 归档删除的区别：
+操作 摄像头 录像 直接删除 删除 全部删除 归档 删除 永久保留 归档后的界面：
+为什么选 MiBeeNvr 完全免费开源，不用花一分钱。 数据存在自己手里，隐私有保障。 不依赖云服务，稳定可靠，不怕厂商跑路。 单个二进制文件，下载即可运行。 Docker 一键部署，技术小白也能搞定。 网页界面操作，不用记命令行。
+用了一圈下来，发现这种简单实用的工具才是最靠谱的。
+快速上手 部署只需要一条命令：
+bash 1 2 3 4 5 docker run -d --name mibee-nvr \ --restart unless-stopped \ -p 9090:9090 \ -v ./data:/data \ ghcr.io/mi-bee-studio/mibeenvr:latest 浏览器打开 http://你的IP:9090，第一次使用时简单设置一下，然后就可以添加摄像头了。
+想了解技术细节？看看这篇 v0.3.0 技术帖
+还没用过 MiBeeNvr？先看看这个 MiBeeNvr 介绍
+开源地址 GitHub: https://github.com/Mi-Bee-Studio/MiBeeNvr Gitee: https://gitee.com/Mi-Bee-Studio/MiBeeNvr
+试试看吧，说不定你家的小米摄像头也能这么简单管理。
+]]></content></entry><entry><title>security-collector-exporter v0.3.0：eBPF 加持的实时安全监控</title><url>/posts/telemetry/security-collector-exporter-ebpf-v030/</url><categories><category>可观测性</category></categories><tags><tag>Prometheus</tag><tag>eBPF</tag><tag>Linux</tag><tag>安全监控</tag><tag>Go</tag><tag>Exporter</tag></tags><content type="html">&lt;![CDATA[ 从静态到实时 上一篇文章介绍了 security-collector-exporter v0.1.0——把 Linux 安全配置状态变成 Prometheus 指标。但 v0.1.0 本质上还是&amp;quot;快照式&amp;quot;的：定时读 /etc、/proc，抓的是某一时刻的静态配置。
 安全运维里有一块是快照覆盖不了的：实时发生的安全事件。有人在跑反弹 shell、有进程在提权、有异常的网络连接、有人在加载内核模块——这些事发生了就过去了，你下次 scrape 的时候根本看不到。
 eBPF 是解决这个问题的天然工具。它能挂载到内核的各种 hook 点上（tracepoint、kprobe），在内核态就完成数据聚合，零拷贝、低开销。从 v0.2.0 开始，security-collector-exporter 加入了完整的 eBPF 支持，经过 v0.3.0 的修 bug 和稳定性打磨，终于算是能用了。
 eBPF 采集了什么 五个独立的 BPF 程序，分别挂载到不同的内核 hook 点，覆盖五类安全事件：
