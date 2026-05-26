@@ -1,0 +1,187 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - MiBeeHive：我给自己工作室造的「蜂巢」工具箱</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/posts/mibee-oss/mibeehive-introduction/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - MiBeeHive：我给自己工作室造的「蜂巢」工具箱"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/mibee-oss/mibeehive-introduction/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-26 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-26 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - MiBeeHive：我给自己工作室造的「蜂巢」工具箱"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.ff23690d660c5cbc0c4efdfef2529a5783e0016551270c6bac983c12c0dc329e.css integrity="sha256-/yNpDWYMXLwMTv3+8lKaV4PgAWVRJwxrrJg8EsDcMp4=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#为什么做-mibeehive>为什么做 MiBeeHive</a></li><li><a href=#mibeehive-是什么>MiBeeHive 是什么</a><ul><li><a href=#整体架构>整体架构</a></li><li><a href=#采蜜foraging-版本管理>采蜜（Foraging）— 版本管理</a></li><li><a href=#筑巢provisioning-系统安装>筑巢（Provisioning）— 系统安装</a></li><li><a href=#分享sharing-webdav-文件共享>分享（Sharing）— WebDAV 文件共享</a></li><li><a href=#容器管理>容器管理</a></li><li><a href=#仪表盘>仪表盘</a></li></ul></li><li><a href=#技术选型>技术选型</a></li><li><a href=#实际部署>实际部署</a></li><li><a href=#关于蜂巢这个名字>关于「蜂巢」这个名字</a></li><li><a href=#开源地址>开源地址</a><ul><li><a href=#写在最后>写在最后</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-md"><span>架构</span>
+</a><a href=/tags/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/ class="tag-cloud__item tag-size-sm"><span>智能家居</span>
+</a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-sm"><span>监控</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai编程</span>
+</a><a href=/tags/docker/ class="tag-cloud__item tag-size-xs"><span>docker</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>MiBeeHive：我给自己工作室造的「蜂巢」工具箱</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-26T00:00:00+00:00>May 26, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/mibeeoss/>MiBeeOSS</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/go/>Go</a>, <a href=/tags/devops/>Devops</a>, <a href=/tags/pxe/>PXE</a>, <a href=/tags/webdav/>WebDAV</a>, <a href=/tags/docker/>Docker</a>, <a href=/tags/arm64/>ARM64</a>, <a href=/tags/%E8%87%AA%E6%89%98%E7%AE%A1/>自托管</a>, <a href=/tags/%E5%BC%80%E6%BA%90/>开源</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>3604 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>8 分钟阅读</span></span></div></header><div class=Content><p>做运维出身，后来转开发，维护的项目越来越多。各种中间件、数据库、监控组件……每次升级版本都是一场体力活：去官网找下载链接、比对版本号、手动下载到内网、再分发到各台机器。以前写了一堆 Shell 脚本定期拉取最新版本到局域网，能用但不好用——脚本散落在各处，加新软件得手写解析逻辑，出错了也没什么日志可查。</p><p>后来工作室的机器越来越多，装系统也成了问题。几十台 ARM64 小主机，一台台插 U 盘装？还是算了。加上日常打包的容器镜像管理，各种 Registry 来回同步……</p><p>索性用 Go 重写一套，把版本管理、无人值守装系统、容器管理全部做到一个工具里。这就是 MiBeeHive。</p><h2 id=为什么做-mibeehive>为什么做 MiBeeHive</h2><p>说白了就是被逼出来的。我工作室的日常运维大概有这么几个痛点：</p><p><strong>版本更新太麻烦</strong>。Prometheus 出新版了，VictoriaMetrics 出新版了，Grafana 出新版了……一堆组件都得跟上。以前用 Shell 脚本 + cron 定时从 GitHub API 抓 release，但每个软件源的解析逻辑都不一样，维护起来头大。而且脚本一旦出问题，你可能好几天都不知道新版本没拉下来。</p><p><strong>装系统太低效</strong>。ARM64 设备不像 x86 有现成的 Cobbler/MAAS 方案，轻量级的 PXE 服务基本找不到。每次新来一批设备，不是手装就是写 SD 卡，效率极低。</p><p><strong>容器镜像管理太分散</strong>。自己的项目打包成镜像后，推到 Docker Hub 又慢又不稳定（国内网络你懂的），想在内网搞个 Registry 做缓存和分发，但管理界面又是个问题。</p><p><strong>文件共享太原始</strong>。内网传文件要么用 scp，要么搭个 NFS/Samba，配置复杂而且没有 Web 界面。就想简单地通过浏览器上传下载个文件。</p><p>找了一圈现成方案：Gitea Release 只管自己的仓库；Nexus/Artifactory 太重了，Java 系的，吃内存；各种 PXE 方案都是 x86 为主的；轻量 WebDAV 服务器倒是有几个，但功能太单一。</p><p>我的需求其实很简单：</p><ul><li>一个二进制文件，下载就能跑</li><li>ARM64 优先，资源占用要少（我的 NAS 只有 469MB 内存）</li><li>Web 界面管理，不用 SSH 上去改配置</li><li>把版本管理、装系统、容器、文件共享都搞定</li></ul><p>没有现成的，那就自己造。</p><h2 id=mibeehive-是什么>MiBeeHive 是什么</h2><p>MiBeeHive 是一个用 Go 写的轻量级工作室文件工具平台，名字来源于「蜂巢」——蜜蜂采蜜（Foraging）、筑巢（Provisioning）、分享（Sharing），正好对应三个核心模块。</p><h3 id=整体架构>整体架构</h3><p>MiBeeHive 围绕三个核心模块展开，每个模块职责明确：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph 源头
+        SRC@{shape: hex, label: &#34;6 种软件源&#34;}
+    end
+
+    subgraph MiBeeHive
+        FORAGE[&#34;采蜜&lt;br/&gt;版本管理&#34;]
+        PROV[&#34;筑巢&lt;br/&gt;系统安装&#34;]
+        SHARE[&#34;分享&lt;br/&gt;文件共享&#34;]
+        CTNR[&#34;容器&lt;br/&gt;Docker 管理&#34;]
+        DASH[&#34;仪表盘&#34;]
+    end
+
+    SRC --&gt;|&#34;抓取&#34;| FORAGE
+    FORAGE --&gt; DASH
+    PROV --&gt; DASH
+    SHARE --&gt; DASH
+    CTNR --&gt; DASH
+
+    classDef src fill:#E3F2FD,stroke:#1565C0,color:#1565C0
+    classDef mod fill:#FFF3E0,stroke:#E65100,color:#BF360C
+    classDef hub fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    class SRC src
+    class FORAGE,PROV,SHARE,CTNR mod
+    class DASH hub</code></pre></div></div><p>采蜜从 6 种公开软件源抓取版本；筑巢提供 PXE 无人值守装系统；分享通过 WebDAV 共享文件；容器模块管理 Docker 和 Registry。仪表盘聚合所有模块状态。</p><p>再看内部层次，整个系统是一条简洁的数据链路：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    REQ[&#34;HTTP 请求&#34;] --&gt; MW[&#34;中间件&lt;br/&gt;JWT / TLS / 限流&#34;]
+    MW --&gt; HDL[&#34;Handler&#34;] --&gt; SVC[&#34;Service&#34;] --&gt; REPO[&#34;Repository&#34;]
+    REPO --&gt; DB@{shape: cyl, label: &#34;SQLite&#34;}
+
+    classDef layer fill:#FFF3E0,stroke:#E65100,color:#BF360C
+    classDef store fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    class REQ,MW,HDL,SVC,REPO layer
+    class DB store</code></pre></div></div><p>标准分层：Handler → Service → Repository → SQLite。前端 Preact SPA 通过 <code>go:embed</code> 嵌入二进制，部署只需一个文件。</p><p>用户和设备通过不同方式接入：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    BR[&#34;浏览器&#34;] --&gt; API[&#34;REST API&lt;br/&gt;:9090&#34;]
+    PXE[&#34;PXE 设备&#34;] --&gt;|&#34;网络启动&#34;| PXES[&#34;PXE 端点&#34;]
+    DAV[&#34;WebDAV 客户端&#34;] --&gt;|&#34;文件读写&#34;| DAVS[&#34;WebDAV 服务&#34;]
+    DK[&#34;Docker CLI&#34;] --&gt;|&#34;push/pull&#34;| REG[&#34;Registry&#34;]
+
+    API --&gt; CORE[&#34;MiBeeHive 核心&#34;]
+    PXES --&gt; CORE
+    DAVS --&gt; CORE
+    REG --&gt; CORE
+
+    classDef client fill:#E3F2FD,stroke:#1565C0,color:#1565C0
+    classDef endpoint fill:#FFF3E0,stroke:#E65100,color:#BF360C
+    classDef core fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    class BR,PXE,DAV,DK client
+    class API,PXES,DAVS,REG endpoint
+    class CORE core</code></pre></div></div><p>四种接入方式覆盖所有场景：浏览器管后台、PXE 装系统、WebDAV 传文件、Docker CLI 推拉镜像。</p><h3 id=采蜜foraging-版本管理>采蜜（Foraging）— 版本管理</h3><p>这个模块解决的是「怎么把开源软件的最新版本快速拉到内网」的问题。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    SRC[&#34;软件源&#34;] --&gt;|&#34;定时调度&#34;| SCHED[&#34;解析版本&#34;]
+    SCHED --&gt;|&#34;发现新版&#34;| DL[&#34;下载队列&#34;]
+    DL --&gt;|&#34;SHA256 校验&#34;| STORE@{shape: cyl, label: &#34;本地存储&#34;}
+
+    classDef input fill:#E3F2FD,stroke:#1565C0,color:#1565C0
+    classDef proc fill:#FFF3E0,stroke:#E65100,color:#BF360C
+    classDef out fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    class SRC input
+    class SCHED,DL proc
+    class STORE out</code></pre></div></div><p>目前支持 6 种软件源：</p><ul><li><strong>GitHub Releases</strong> — 最常用，通过 API 获取最新 release 资产</li><li><strong>Go Proxy</strong> — 直接拉取 Go 编译工具链</li><li><strong>HashiCorp</strong> — Terraform、Consul、Vault 等产品</li><li><strong>Grafana</strong> — Grafana、Loki、Tempo 等</li><li><strong>NPM</strong> — 前端工具链</li><li><strong>PyPI</strong> — Python 包</li></ul><p>每个源都通过 Web UI 配置，支持 API Token 管理、定时调度、自动重试和完整性校验。以前要写 6 套 Shell 脚本的事情，现在在页面上点点就搞定了。</p><p>目前支持 6 种软件源：</p><ul><li><strong>GitHub Releases</strong> — 最常用，通过 API 获取最新 release 资产</li><li><strong>Go Proxy</strong> — 直接拉取 Go 编译工具链</li><li><strong>HashiCorp</strong> — Terraform、Consul、Vault 等产品</li><li><strong>Grafana</strong> — Grafana、Loki、Tempo 等</li><li><strong>NPM</strong> — 前端工具链</li><li><strong>PyPI</strong> — Python 包</li></ul><p>每个源都通过 Web UI 配置，支持 API Token 管理、定时调度、自动重试和完整性校验。以前要写 6 套 Shell 脚本的事情，现在在页面上点点就搞定了。</p><h3 id=筑巢provisioning-系统安装>筑巢（Provisioning）— 系统安装</h3><p>这个模块解决的是「批量给设备装系统」的问题。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>sequenceDiagram
+    participant CLIENT as ARM64 设备
+    participant DHCP as DHCP 服务
+    participant PXE as MiBeeHive PXE
+    participant TFTP as TFTP/HTTP
+    participant WEB as Web 管理界面
+
+    Note over WEB,PXE: 1. 管理员通过 Web 配置安装模板
+    WEB-&gt;&gt;PXE: 创建 preseed/kickstart/autoinstall 配置
+
+    Note over CLIENT,DHCP: 2. 设备网络启动
+    CLIENT-&gt;&gt;DHCP: DHCP 请求 (PXE)
+    DHCP--&gt;&gt;CLIENT: 返回 PXE 服务器地址
+    CLIENT-&gt;&gt;PXE: 请求启动配置
+
+    Note over PXE,TFTP: 3. 下发安装配置
+    PXE-&gt;&gt;CLIENT: 返回 bootloader &#43; kickstart URL
+    CLIENT-&gt;&gt;TFTP: 下载内核和 initrd
+    CLIENT-&gt;&gt;TFTP: 下载 ISO（流式传输）
+
+    Note over CLIENT: 4. 无人值守安装
+    CLIENT-&gt;&gt;CLIENT: 自动分区、安装、配置</code></pre></div></div><p>核心能力：</p><ul><li><strong>PXE 服务</strong> — 设备插上网线开机就装，不用 U 盘</li><li><strong>OS 模板生成</strong> — 支持 Debian preseed、RHEL kickstart、Ubuntu autoinstall，在 Web 上填表就行</li><li><strong>ISO 管理</strong> — 自动发现主流发行版的最新 ISO，流式下载，省磁盘</li><li><strong>配置预览</strong> — 生成模板后可以直接预览完整配置文件，确认没问题再部署</li></ul><p>以前装 10 台机器得折腾一天，现在配置好模板，开机就装，基本不用管。</p><h3 id=分享sharing-webdav-文件共享>分享（Sharing）— WebDAV 文件共享</h3><p>这个最简单也最实用：一个 WebDAV 服务器，匿名只读 + 管理员读写，支持 HTTPS。</p><p>内网传文件再也不用 scp 了，浏览器直接拖拽上传，或者用 WebDAV 客户端挂载为本地磁盘。Windows Explorer、macOS Finder、Linux 的 davfs2 都能直接连。</p><h3 id=容器管理>容器管理</h3><p>这个是后来加的模块。自己的项目打包成镜像后，需要一个地方管理和分发。</p><ul><li>Docker 容器的增删改查、启停、日志查看、资源统计</li><li>多 Registry 支持，镜像同步</li><li>Tag 保留策略，自动清理旧版本</li><li>应用模板，一键部署常用服务</li></ul><h3 id=仪表盘>仪表盘</h3><p>所有模块的聚合视图：</p><ul><li>系统状态：CPU、内存、磁盘实时图表</li><li>模块卡片：各模块的关键指标一目了然</li><li>活动时间线：最近的抓取、下载事件</li><li>快捷操作：常用功能一键直达</li></ul><h2 id=技术选型>技术选型</h2><p>选技术的时候有几个硬性约束：</p><ol><li><strong>单二进制</strong>：ARM64 小主机上不想装 Java Runtime、Node.js 之类的东西</li><li><strong>低内存</strong>：目标设备只有 469MB RAM</li><li><strong>纯 Go</strong>：不依赖 CGO，交叉编译方便</li><li><strong>不引入重框架</strong>：不用 chi/gin/echo，不用 npm，不用 cron 库</li></ol><p>最终方案：</p><table><thead><tr><th>层</th><th>选型</th><th>理由</th></tr></thead><tbody><tr><td>后端</td><td>Go 1.22+ stdlib HTTP</td><td>标准库够用，Go 1.22 支持方法+路径路由</td></tr><tr><td>数据库</td><td>SQLite (modernc.org/sqlite)</td><td>纯 Go 实现，无 CGO，单文件</td></tr><tr><td>前端</td><td>Preact + HTM + TailwindCSS CDN</td><td>无需 npm 构建，go:embed 嵌入</td></tr><tr><td>图表</td><td>Chart.js CDN</td><td>轻量，CDN 加载不占二进制体积</td></tr><tr><td>容器</td><td>Docker Engine API</td><td>直接调用，不依赖 docker CLI</td></tr></tbody></table><p>前端用的是 Preact + HTM 的组合，不用 JSX、不用编译、不用 npm，直接写 JS 就行。整个前端 38 个模块，打包后嵌入 Go 二进制，部署时只需要一个文件。</p><h2 id=实际部署>实际部署</h2><p>我这边用一台 ARM64 小主机跑的，469MB 内存，32GB 存储。跑 MiBeeHive 本体大概占 30-40MB 内存，非常轻量。</p><p>systemd 服务配置：</p><div class=code-block-wrapper data-lang=ini><div class=code-block-header><div class=code-block-meta><span class=code-language>ini</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=k>[Unit]</span>
+</span></span><span class=line><span class=cl><span class=na>Description</span><span class=o>=</span><span class=s>MiBeeHive</span>
+</span></span><span class=line><span class=cl><span class=na>After</span><span class=o>=</span><span class=s>network-online.target</span>
+</span></span><span class=line><span class=cl><span class=na>Wants</span><span class=o>=</span><span class=s>network-online.target</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>[Service]</span>
+</span></span><span class=line><span class=cl><span class=na>Type</span><span class=o>=</span><span class=s>simple</span>
+</span></span><span class=line><span class=cl><span class=na>User</span><span class=o>=</span><span class=s>mibeehive</span>
+</span></span><span class=line><span class=cl><span class=na>ExecStart</span><span class=o>=</span><span class=s>/opt/mibeehive/mibeehive</span>
+</span></span><span class=line><span class=cl><span class=na>WorkingDirectory</span><span class=o>=</span><span class=s>/opt/mibeehive</span>
+</span></span><span class=line><span class=cl><span class=na>Restart</span><span class=o>=</span><span class=s>on-failure</span>
+</span></span><span class=line><span class=cl><span class=na>RestartSec</span><span class=o>=</span><span class=s>5</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 安全加固</span>
+</span></span><span class=line><span class=cl><span class=na>NoNewPrivileges</span><span class=o>=</span><span class=s>true</span>
+</span></span><span class=line><span class=cl><span class=na>ProtectSystem</span><span class=o>=</span><span class=s>strict</span>
+</span></span><span class=line><span class=cl><span class=na>ReadWritePaths</span><span class=o>=</span><span class=s>/opt/mibeehive</span>
+</span></span><span class=line><span class=cl><span class=na>PrivateTmp</span><span class=o>=</span><span class=s>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>[Install]</span>
+</span></span><span class=line><span class=cl><span class=na>WantedBy</span><span class=o>=</span><span class=s>multi-user.target</span></span></span></code></pre></td></tr></table></div></div></div></div><p>保存到 <code>/etc/systemd/system/mibeehive.service</code>，<code>systemctl enable --now mibeehive</code> 就完事了。</p><h2 id=关于蜂巢这个名字>关于「蜂巢」这个名字</h2><p>MiBeeHive，&ldquo;Mi&rdquo; 是我 Mickey 的缩写，&ldquo;Bee&rdquo; 来自 Mi-Bee Studio，&ldquo;Hive&rdquo; 是蜂巢。三个核心模块的名字也都和蜜蜂有关：</p><ul><li><strong>Foraging（采蜜）</strong> — 从各种软件源「采」最新版本回来</li><li><strong>Provisioning（筑巢）</strong> — 给新设备「筑」好运行环境</li><li><strong>Sharing（分享）</strong> — 蜂巢里的资源「分享」给所有人</li></ul><p>虽然有点中二，但好记。</p><h2 id=开源地址>开源地址</h2><p>MiBeeHive 已经开源，感兴趣的可以下载试玩：</p><ul><li><strong>MiBeeHive</strong>：https://github.com/Mi-Bee-Studio/MiBeeHive （AGPL-3.0 许可证）</li></ul><p>文档比较全，架构、部署、API 参考都有。</p><h3 id=写在最后>写在最后</h3><p>这个项目本质上就是我自己为了解决个人日常问题而造的工具。个人精力有限，前期基本只会围绕我自己遇到的实际需求来迭代，不会刻意追求功能全面。</p><p>如果你刚好也有类似的需求，可以下载试试看，觉得有用就好。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/go/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Go
+</a><a class=tag-chip href=/tags/devops/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Devops
+</a><a class=tag-chip href=/tags/pxe/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+PXE
+</a><a class=tag-chip href=/tags/webdav/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+WebDAV
+</a><a class=tag-chip href=/tags/docker/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Docker
+</a><a class=tag-chip href=/tags/arm64/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+ARM64
+</a><a class=tag-chip href=/tags/%E8%87%AA%E6%89%98%E7%AE%A1/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+自托管
+</a><a class=tag-chip href=/tags/%E5%BC%80%E6%BA%90/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+开源</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>
