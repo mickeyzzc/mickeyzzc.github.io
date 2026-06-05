@@ -26,55 +26,28 @@
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/mibeeoss/>MiBeeOSS</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/nvr/>NVR</a>, <a href=/tags/go/>Go</a>, <a href=/tags/%E5%BB%B6%E6%97%B6%E6%91%84%E5%BD%B1/>延时摄影</a>, <a href=/tags/%E8%BD%AC%E7%A0%81/>转码</a>, <a href=/tags/onvif/>ONVIF</a>, <a href=/tags/h.265/>H.265</a>, <a href=/tags/ll-hls/>LL-HLS</a>, <a href=/tags/%E5%BC%80%E6%BA%90/>开源</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>4090 字</span>
+<span>4397 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-<span>9 分钟阅读</span></span></div></header><div class=Content><p>v0.5.0 之后又肝了 55 个提交。v0.6.0 的核心功能是<strong>延时摄影录制管道</strong>——从配置、录制、JPEG 帧服务到滚动合并，形成了一套完整的 timelapse 工作流。同时带来了三阶段 Web 转码界面、ONVIF 增强、H.265 SPS 补丁、文档全面重构等更新。完整列表见 <a href=https://github.com/Mi-Bee-Studio/MiBeeNvr/releases/tag/v0.6.0>GitHub Release Notes</a>。</p><p>没看过之前版本的可以先看 <a href=/posts/mibee-oss/mibee-nvr-v0.5/>v0.5.0 技术帖</a> 和 <a href=/posts/iot/mibee-nvr-v0.4-tech/>v0.4.0 技术帖</a>。</p><h2 id=延时摄影录制管道>延时摄影录制管道</h2><p>v0.6.0 新增了完整的 timelapse 功能。从架构上看，它不是一个简单的定时截图，而是一个多阶段管道：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
-    subgraph &#34;采集层&#34;
-        RTSP[&#34;RTSP 源\nh264/h265&#34;]
-        MJPEG[&#34;HTTP MJPEG 源\njpeg 帧&#34;]
-    end
+<span>9 分钟阅读</span></span></div></header><div class=Content><p>MiBeeNvr 连续跑了几周录像后，存储最先告急。单路 1080p 摄像头每天要写几十 GB，30 天留存一件 1TB 硬盘就没了大半。社区里不少朋友反馈了同样的问题，讨论中延时摄影和转码保存的方案呼声最高——画面大部分时间静止，用 timelapse 压缩后同样时长只需要 5% 的空间。</p><p>v0.6.0 就在这些讨论中起步。延时摄影管道从配置、帧抽取到滚动合并形成了完整闭环；转码系统支持 H.264/H.265/HEVC 互转和回填历史数据；为了同时兼顾新老硬件，转码引擎启动时自动探测 V4L2/VAAPI/NVENC 编码器——检测不到硬编码就关闭该功能，树莓派 3B 不受影响，性能更强的香蕉派 M5（RK3588）则能跑满 H.265 硬编码。</p><p>这个版本也在为下一个阶段铺路。<code>internal/ai/</code> 目录下搭好了 ONNX Runtime 推理引擎的基础框架——通过子进程解耦 CGO 依赖，YOLOv11n 模型就绪，只差一个 feature flag 就能启用实时目标检测。可观测性方面引入了 Prometheus 指标体系和 VictoriaLogs 远程日志，社区反馈的问题通过 metrics 和结构化日志排查，不再靠猜。播放端实现了冻帧检测，通过帧时间戳监控画面停滞，结合 H.265 SPS 补丁、LL-HLS 配置和 WebRTC 连接追踪，播放体验明显改善。</p><p>发布前在真实摄像头环境下充分验证了所有这些新功能——相关的摄像头测试项目做了适配改造，具体见 <a href=/posts/mibee-oss/camera-test-machines/>camera-test-machines</a>。完整变更列表见 <a href=https://github.com/Mi-Bee-Studio/MiBeeNvr/releases/tag/v0.6.0>GitHub Release Notes</a>。</p><h2 id=延时摄影录制管道>延时摄影录制管道</h2><p>从架构上看，timelapse 管道不是一个简单的定时截图，而是一个多阶段流程：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    RTSP[&#34;RTSP 源&lt;br/&gt;h264 / h265&#34;] --&gt; RC
+    MJPEG[&#34;MJPEG 源&lt;br/&gt;jpeg 帧&#34;] --&gt; RC[&#34;Timelapse&lt;br/&gt;Recorder&#34;]
+    RC --&gt; DD[&#34;帧检测&lt;br/&gt;跳过静止帧&#34;]
+    DD --&gt; SQ[&#34;JPEG 序列&lt;br/&gt;目录&#34;]
 
-    subgraph &#34;录制层&#34;
-        RC[&#34;Timelapse Recorder\n按间隔抽取 JPEG&#34;]
-        DD[&#34;Detect: 跳过静止帧&#34;]
-    end
-
-    subgraph &#34;存储层&#34;
-        SQ[&#34;JPEG 序列目录\nframe_0001.jpg\nframe_0002.jpg\n...&#34;]
-        PL[&#34;JPEG 播放列表&#34;]
-    end
-
-    subgraph &#34;合层&#34;
-        GM[&#34;Go Merge\n无 FFmpeg 依赖&#34;]
-        FM[&#34;FFmpeg Merge\n每日合成&#34;]
-    end
-
-    subgraph &#34;展示层&#34;
-        JP[&#34;JPEG 序列播放器\n懒加载 &#43; Blob URL&#34;]
-        MV[&#34;合成视频播放&#34;]
-    end
-
-    RTSP --&gt;|&#34;按间隔帧抽取&#34;| RC
-    MJPEG --&gt; RC
-    RC --&gt; DD
-    DD --&gt; SQ
-    SQ --&gt; PL
-    SQ --&gt; GM
-    SQ --&gt; FM
-    PL --&gt; JP
-    GM --&gt; MV
-    FM --&gt; MV
-
-    classDef source fill:#E3F2FD,stroke:#1565C0
-    classDef rec fill:#FFF3E0,stroke:#E65100
-    classDef store fill:#E8F5E9,stroke:#2E7D32
-    classDef merge fill:#F3E5F5,stroke:#9C27B0
-    classDef view fill:#FFEBEE,stroke:#C62828
-
+    classDef source fill:#E3F2FD,stroke:#1565C0,color:#1565C0
+    classDef rec fill:#FFF3E0,stroke:#E65100,color:#BF360C
+    classDef store fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
     class RTSP,MJPEG source
     class RC,DD rec
+    class SQ store</code></pre></div></div><p>JPEG 序列进入两条合并路径和一条直接播放路径：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    SQ[&#34;JPEG 序列&lt;br/&gt;目录&#34;] --&gt; PL[&#34;JPEG 播放列表&lt;br/&gt;懒加载&#34;] --&gt; JP[&#34;JPEG 播放器&#34;]
+    SQ --&gt; MF[&#34;Go / FFmpeg&lt;br/&gt;合并&#34;] --&gt; MV[&#34;合成视频&lt;br/&gt;播放&#34;]
+
+    classDef store fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    classDef merge fill:#F3E5F5,stroke:#9C27B0,color:#6A1B9A
+    classDef view fill:#FFEBEE,stroke:#C62828,color:#C62828
     class SQ,PL store
-    class GM,FM merge
+    class MF merge
     class JP,MV view</code></pre></div></div><h3 id=帧抽取策略>帧抽取策略</h3><p>Timelapse Recorder 从 RTSP 或 MJPEG 源中按时间间隔抽取 JPEG 帧。核心逻辑在 <code>internal/recorder/timelapse.go</code>：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
@@ -157,7 +130,7 @@
         CAM--&gt;&gt;NVR: Users 列表
     else Namespace 不匹配 / 解析错误
         NVR-&gt;&gt;CAM: Raw SOAP GetUsers (自定义 XML)
-        Note over NVR: WS-Security PasswordText\nDigest 手动计算
+        Note over NVR: WS-Security PasswordText&lt;br/&gt;Digest 手动计算
         CAM--&gt;&gt;NVR: Raw XML 响应
         NVR-&gt;&gt;NVR: XPath 直接解析
     end</code></pre></div></div><p>WS-Security 的 PasswordText Digest 计算方式：</p><div class=code-block-wrapper data-lang=xml><div class=code-block-header><div class=code-block-meta><span class=code-language>xml</span></div><button class=copy-button aria-label="Copy code">
