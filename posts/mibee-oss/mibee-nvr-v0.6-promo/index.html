@@ -1,0 +1,308 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - MiBeeNvr v0.6.0: 延时摄影 + 转码界面 + ONVIF 增强 + 文档重构</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/posts/mibee-oss/mibee-nvr-v0.6-promo/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - MiBeeNvr v0.6.0: 延时摄影 + 转码界面 + ONVIF 增强 + 文档重构"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/mibee-oss/mibee-nvr-v0.6-promo/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-06-05 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-06-05 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - MiBeeNvr v0.6.0: 延时摄影 + 转码界面 + ONVIF 增强 + 文档重构"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=stylesheet href=/css/main.ff23690d660c5cbc0c4efdfef2529a5783e0016551270c6bac983c12c0dc329e.css integrity="sha256-/yNpDWYMXLwMTv3+8lKaV4PgAWVRJwxrrJg8EsDcMp4=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#延时摄影录制管道>延时摄影录制管道</a><ul><li><a href=#帧抽取策略>帧抽取策略</a></li><li><a href=#滚动合并的竞态处理>滚动合并的竞态处理</a></li><li><a href=#go-原生合并-vs-ffmpeg-合并>Go 原生合并 vs FFmpeg 合并</a></li></ul></li><li><a href=#转码界面三阶段交付>转码界面：三阶段交付</a><ul><li><a href=#wave-1任务队列和自动入队>Wave 1：任务队列和自动入队</a></li><li><a href=#wave-2轮询和重试>Wave 2：轮询和重试</a></li><li><a href=#wave-3回填和历史管理>Wave 3：回填和历史管理</a></li></ul></li><li><a href=#onvif-增强>ONVIF 增强</a><ul><li><a href=#raw-soap-回退>Raw SOAP 回退</a></li><li><a href=#摄像头能力标志>摄像头能力标志</a></li></ul></li><li><a href=#h265-sps-补丁>H.265 SPS 补丁</a></li><li><a href=#安全加固>安全加固</a></li><li><a href=#零时长录制修复>零时长录制修复</a></li><li><a href=#文档重构>文档重构</a></li><li><a href=#bug-修复>Bug 修复</a></li><li><a href=#性能>性能</a></li><li><a href=#升级>升级</a></li><li><a href=#相关链接>相关链接</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-md"><span>开源</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-sm"><span>架构</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-sm"><span>摄像头</span>
+</a><a href=/tags/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/ class="tag-cloud__item tag-size-sm"><span>智能家居</span>
+</a><a href=/tags/%E7%9B%91%E6%8E%A7/ class="tag-cloud__item tag-size-xs"><span>监控</span>
+</a><a href=/tags/ai%E7%BC%96%E7%A8%8B/ class="tag-cloud__item tag-size-xs"><span>ai编程</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>MiBeeNvr v0.6.0: 延时摄影 + 转码界面 + ONVIF 增强 + 文档重构</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-06-05T00:00:00+00:00>June 5, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/mibeeoss/>MiBeeOSS</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/nvr/>NVR</a>, <a href=/tags/go/>Go</a>, <a href=/tags/%E5%BB%B6%E6%97%B6%E6%91%84%E5%BD%B1/>延时摄影</a>, <a href=/tags/%E8%BD%AC%E7%A0%81/>转码</a>, <a href=/tags/onvif/>ONVIF</a>, <a href=/tags/h.265/>H.265</a>, <a href=/tags/ll-hls/>LL-HLS</a>, <a href=/tags/%E5%BC%80%E6%BA%90/>开源</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>4090 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>9 分钟阅读</span></span></div></header><div class=Content><p>v0.5.0 之后又肝了 55 个提交。v0.6.0 的核心功能是<strong>延时摄影录制管道</strong>——从配置、录制、JPEG 帧服务到滚动合并，形成了一套完整的 timelapse 工作流。同时带来了三阶段 Web 转码界面、ONVIF 增强、H.265 SPS 补丁、文档全面重构等更新。完整列表见 <a href=https://github.com/Mi-Bee-Studio/MiBeeNvr/releases/tag/v0.6.0>GitHub Release Notes</a>。</p><p>没看过之前版本的可以先看 <a href=/posts/mibee-oss/mibee-nvr-v0.5/>v0.5.0 技术帖</a> 和 <a href=/posts/iot/mibee-nvr-v0.4-tech/>v0.4.0 技术帖</a>。</p><h2 id=延时摄影录制管道>延时摄影录制管道</h2><p>v0.6.0 新增了完整的 timelapse 功能。从架构上看，它不是一个简单的定时截图，而是一个多阶段管道：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph &#34;采集层&#34;
+        RTSP[&#34;RTSP 源\nh264/h265&#34;]
+        MJPEG[&#34;HTTP MJPEG 源\njpeg 帧&#34;]
+    end
+
+    subgraph &#34;录制层&#34;
+        RC[&#34;Timelapse Recorder\n按间隔抽取 JPEG&#34;]
+        DD[&#34;Detect: 跳过静止帧&#34;]
+    end
+
+    subgraph &#34;存储层&#34;
+        SQ[&#34;JPEG 序列目录\nframe_0001.jpg\nframe_0002.jpg\n...&#34;]
+        PL[&#34;JPEG 播放列表&#34;]
+    end
+
+    subgraph &#34;合层&#34;
+        GM[&#34;Go Merge\n无 FFmpeg 依赖&#34;]
+        FM[&#34;FFmpeg Merge\n每日合成&#34;]
+    end
+
+    subgraph &#34;展示层&#34;
+        JP[&#34;JPEG 序列播放器\n懒加载 &#43; Blob URL&#34;]
+        MV[&#34;合成视频播放&#34;]
+    end
+
+    RTSP --&gt;|&#34;按间隔帧抽取&#34;| RC
+    MJPEG --&gt; RC
+    RC --&gt; DD
+    DD --&gt; SQ
+    SQ --&gt; PL
+    SQ --&gt; GM
+    SQ --&gt; FM
+    PL --&gt; JP
+    GM --&gt; MV
+    FM --&gt; MV
+
+    classDef source fill:#E3F2FD,stroke:#1565C0
+    classDef rec fill:#FFF3E0,stroke:#E65100
+    classDef store fill:#E8F5E9,stroke:#2E7D32
+    classDef merge fill:#F3E5F5,stroke:#9C27B0
+    classDef view fill:#FFEBEE,stroke:#C62828
+
+    class RTSP,MJPEG source
+    class RC,DD rec
+    class SQ,PL store
+    class GM,FM merge
+    class JP,MV view</code></pre></div></div><h3 id=帧抽取策略>帧抽取策略</h3><p>Timelapse Recorder 从 RTSP 或 MJPEG 源中按时间间隔抽取 JPEG 帧。核心逻辑在 <code>internal/recorder/timelapse.go</code>：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>帧抽取间隔: config.timelapse.interval  (默认 30 秒)
+</span></span><span class=line><span class=cl>抽取窗口:   interval ± 5% 随机抖动    (避免多摄像头同时抽取)
+</span></span><span class=line><span class=cl>跳过策略:   连续 N 帧画面静止时跳过     (节省存储空间)</span></span></code></pre></td></tr></table></div></div></div></div><p>间隔加了 5% 的随机抖动是为了避免多个摄像头在同一时刻发起帧抽取请求——RTSP 源的 DESCRIBE/PLAY 会话建立有开销，集中请求会导致瞬时 CPU 尖峰。</p><p>跳过静止帧的检测复用了 health 模块的画面冻结检测（<code>internal/health/quality.go</code>），通过比较相邻帧的直方图差异判断画面是否变化。连续 3 个抽取周期都检测到静止时，跳过后续抽取直到画面恢复变化。</p><h3 id=滚动合并的竞态处理>滚动合并的竞态处理</h3><p>滚动合并（Rolling Merge）是延时摄影最复杂的一块。<code>internal/timelapse/rolling.go</code> 中的 <code>RollingMergeManager</code> 为每个摄像头维护一个活跃合并协程：</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>RollingMergeManager</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>mu</span><span class=w>      </span><span class=nx>sync</span><span class=p>.</span><span class=nx>Mutex</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>merger</span><span class=w>  </span><span class=nx>TimelapseMerger</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>active</span><span class=w>  </span><span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=o>*</span><span class=nx>activeEntry</span><span class=w>  </span><span class=c1>// cameraID → merge goroutine</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>activeEntry</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>cancel</span><span class=w> </span><span class=nx>context</span><span class=p>.</span><span class=nx>CancelFunc</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>id</span><span class=w>     </span><span class=kt>uint64</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>当新的 segment 完成时，<code>StartSegmentMerge()</code> 先 cancel 旧的合并协程（如果有），再启动新的。但这里有一个竞态：旧的协程可能正在执行 <code>Merge()</code>，cancel 后它退出并执行 <code>defer</code> 清理，而此时新的协程也尝试写入同一个输出文件。</p><p>修复是 <code>runMerge()</code> 的 cleanup 中检查 <code>entry.id == ownID</code>：</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>r</span><span class=w> </span><span class=o>*</span><span class=nx>RollingMergeManager</span><span class=p>)</span><span class=w> </span><span class=nf>runMerge</span><span class=p>(</span><span class=nx>ctx</span><span class=w> </span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span><span class=w> </span><span class=nx>ownID</span><span class=w> </span><span class=kt>uint64</span><span class=p>,</span><span class=w> </span><span class=nx>cameraID</span><span class=p>,</span><span class=w> </span><span class=o>...</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>defer</span><span class=w> </span><span class=kd>func</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>r</span><span class=p>.</span><span class=nx>mu</span><span class=p>.</span><span class=nf>Lock</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=nx>entry</span><span class=p>,</span><span class=w> </span><span class=nx>ok</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>r</span><span class=p>.</span><span class=nx>active</span><span class=p>[</span><span class=nx>cameraID</span><span class=p>];</span><span class=w> </span><span class=nx>ok</span><span class=w> </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=nx>entry</span><span class=p>.</span><span class=nx>id</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=nx>ownID</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nb>delete</span><span class=p>(</span><span class=nx>r</span><span class=p>.</span><span class=nx>active</span><span class=p>,</span><span class=w> </span><span class=nx>cameraID</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>r</span><span class=p>.</span><span class=nx>mu</span><span class=p>.</span><span class=nf>Unlock</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>每个 merge goroutine 持有创建时的 <code>ownID</code>，cleanup 时只有当前 goroutine 的 ID 仍然是该摄像头的 active entry 时，才执行删除。如果已经被替换，说明新协程已经接替工作，旧协程直接退出即可，不会误删新协程的 entry。</p><h3 id=go-原生合并-vs-ffmpeg-合并>Go 原生合并 vs FFmpeg 合并</h3><table><thead><tr><th>对比维度</th><th>Go Native Merge</th><th>FFmpeg Merge</th></tr></thead><tbody><tr><td>依赖</td><td>无</td><td>需要 FFmpeg</td></tr><tr><td>合并方式</td><td>JPEG 序列直接封装为 MP4</td><td>重新编码为 H.264</td></tr><tr><td>输出文件大小</td><td>较大（JPEG 原始大小）</td><td>较小（H.264 压缩）</td></tr><tr><td>CPU 开销</td><td>低（仅 mux）</td><td>高（编码）</td></tr><tr><td>使用场景</td><td>实时预览、临时合并</td><td>最终存档、长期保存</td></tr></tbody></table><p>Go 的合并实现（<code>internal/timelapse/go_merge.go</code>）直接将 JPEG 帧作为 H.264 的 IDR 帧封装进 MP4 容器。这种做法不需要编解码，CPU 开销极低（在树莓派 3B 上实测 ~5% CPU 就能实时合并 10 个 1080p JPEG），但文件体积大。</p><p>FFmpeg 合并（<code>internal/timelapse/ffmpeg_merge.go</code>）将 JPEG 序列重新编码为 H.264，体积可缩小 5-10 倍，适合长期存档。每日合并（<code>internal/timelapse/daily.go</code>）在每天的固定时间点触发，将过去 24 小时的所有 JPEG 序列合并为一个 MP4 文件。</p><h2 id=转码界面三阶段交付>转码界面：三阶段交付</h2><p>v0.6.0 的转码界面分三个 wave 交付，每个 wave 对应一个独立的前端页面和一组后端 API：</p><h3 id=wave-1任务队列和自动入队>Wave 1：任务队列和自动入队</h3><p>基础架构：DB-backed 任务队列（<code>internal/transcoding/queue.go</code>）。录制完成时通过事件总线自动创建转码任务，写入 SQLite 的 <code>transcoding_jobs</code> 表。</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>录制完成 → event.TranscodingRequired → transcoding.Manager.Enqueue()
+</span></span><span class=line><span class=cl>    → 写入 SQLite → goroutine 消费队列 → 执行 FFmpeg
+</span></span><span class=line><span class=cl>    → 更新状态（pending/running/done/failed）</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=wave-2轮询和重试>Wave 2：轮询和重试</h3><p>前端每 3 秒轮询 <code>/api/transcoding/jobs</code> 获取任务列表。失败的 job 显示"重试"按钮，点击后调用 <code>POST /api/transcoding/jobs/:id/retry</code>，将状态重置为 pending，消费者协程重新处理。</p><h3 id=wave-3回填和历史管理>Wave 3：回填和历史管理</h3><p>回填（Backfill）是最实用的功能——选中一段历史录像日期范围，批量创建转码任务。前端弹窗允许用户选择目标编码器：</p><div class=code-block-wrapper data-lang=json><div class=code-block-header><div class=code-block-meta><span class=code-language>json</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=err>POST</span> <span class=err>/api/transcoding/backfill</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;camera_id&#34;</span><span class=p>:</span> <span class=s2>&#34;front-door&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;date_from&#34;</span><span class=p>:</span> <span class=s2>&#34;2026-05-01&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;date_to&#34;</span><span class=p>:</span> <span class=s2>&#34;2026-06-01&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;target_codec&#34;</span><span class=p>:</span> <span class=s2>&#34;h264&#34;</span><span class=p>,</span>        <span class=c1>// h264 / hevc / mjpeg
+</span></span></span><span class=line><span class=cl>  <span class=nt>&#34;replace_original&#34;</span><span class=p>:</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>后端扫描指定日期范围内的录制文件，逐条创建转码任务。对于 ARM 平台（如树莓派），如果检测不到硬件编码器（<code>/dev/dri/renderD128</code> 或 Video4Linux 编码节点），自动降级为软件编码（<code>libx264</code>）。</p><p>历史管理支持页面化分页清理——<code>DELETE /api/transcoding/history?page_size=50&amp;page=1</code>，避免一次清理大量记录导致 SQLite WAL 文件膨胀。</p><h2 id=onvif-增强>ONVIF 增强</h2><h3 id=raw-soap-回退>Raw SOAP 回退</h3><p>部分 ONVIF 摄像头对 GetUsers 操作的响应不符合标准库的解析预期——返回的 XML 命名空间前缀不一致，或者安全头格式有差异。v0.6.0 增加了 raw SOAP fallback：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>sequenceDiagram
+    participant NVR as MiBeeNvr (Client)
+    participant CAM as ONVIF 摄像头
+
+    NVR-&gt;&gt;CAM: SOAP GetUsers (via onvif-go lib)
+    alt 标准响应
+        CAM--&gt;&gt;NVR: Users 列表
+    else Namespace 不匹配 / 解析错误
+        NVR-&gt;&gt;CAM: Raw SOAP GetUsers (自定义 XML)
+        Note over NVR: WS-Security PasswordText\nDigest 手动计算
+        CAM--&gt;&gt;NVR: Raw XML 响应
+        NVR-&gt;&gt;NVR: XPath 直接解析
+    end</code></pre></div></div><p>WS-Security 的 PasswordText Digest 计算方式：</p><div class=code-block-wrapper data-lang=xml><div class=code-block-header><div class=code-block-meta><span class=code-language>xml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-xml data-lang=xml><span class=line><span class=cl><span class=nt>&lt;wsse:Password</span> <span class=na>Type=</span><span class=s>&#34;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest&#34;</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl>    Base64(SHA1(Nonce + Created + Password))
+</span></span><span class=line><span class=cl><span class=nt>&lt;/wsse:Password&gt;</span></span></span></code></pre></td></tr></table></div></div></div></div><p>onvif-go 库的标准实现使用库内的 digest 函数，但某些旧摄像头要求特定的 Nonce 编码格式（hex vs base64），标准库不暴露这个参数。Raw SOAP 回退允许手动控制 XML 构造细节。</p><h3 id=摄像头能力标志>摄像头能力标志</h3><p>v0.6.0 通过 <code>/api/events</code> SSE 端点返回完整的摄像头能力标志：</p><div class=code-block-wrapper data-lang=json><div class=code-block-header><div class=code-block-meta><span class=code-language>json</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;camera_id&#34;</span><span class=p>:</span> <span class=s2>&#34;front-door&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;capabilities&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;ptz&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;absolute&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span> <span class=nt>&#34;relative&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span> <span class=nt>&#34;continuous&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span> <span class=nt>&#34;presets&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span> <span class=nt>&#34;home&#34;</span><span class=p>:</span> <span class=kc>true</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;imaging&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;brightness&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span> <span class=nt>&#34;contrast&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span> <span class=nt>&#34;saturation&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span> <span class=nt>&#34;sharpness&#34;</span><span class=p>:</span> <span class=kc>true</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;events&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;pullpoint&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span> <span class=nt>&#34;motion&#34;</span><span class=p>:</span> <span class=kc>false</span><span class=p>,</span> <span class=nt>&#34;tampering&#34;</span><span class=p>:</span> <span class=kc>false</span> <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;snapshot&#34;</span><span class=p>:</span> <span class=p>{</span> <span class=nt>&#34;uri&#34;</span><span class=p>:</span> <span class=s2>&#34;http://192.168.1.100:8080/onvif/snapshot&#34;</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>前端根据能力标志动态显示/隐藏控制面板——不支持 PTZ 的摄像头不会显示摇杆，不支持 Imaging 的摄像头不显示调节滑块。</p><h2 id=h265-sps-补丁>H.265 SPS 补丁</h2><p>部分廉价摄像头产生的 H.265 码流带有不标准的 SPS（Sequence Parameter Set）字段——比如 <code>profile_idc</code> 设为 0（标准不允许）或 <code>level_idc</code> 超出规范范围。某些播放器（特别是 hls.js）对此容忍度低，直接黑屏。</p><p><code>internal/hls/sps_patch.go</code> 实现在 HLS 片段写入前拦截并修复 SPS：</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// PatchSPS 修复 H.265 SPS NAL 单元中的非标准字段。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 返回修复后的 SPS 和是否需要替换。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>PatchSPS</span><span class=p>(</span><span class=nx>nalu</span><span class=w> </span><span class=p>[]</span><span class=kt>byte</span><span class=p>)</span><span class=w> </span><span class=p>(</span><span class=nx>patched</span><span class=w> </span><span class=p>[]</span><span class=kt>byte</span><span class=p>,</span><span class=w> </span><span class=nx>modified</span><span class=w> </span><span class=kt>bool</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nb>len</span><span class=p>(</span><span class=nx>nalu</span><span class=p>)</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=mi>7</span><span class=w> </span><span class=o>||</span><span class=w> </span><span class=p>(</span><span class=nx>nalu</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>&amp;</span><span class=mh>0x7E</span><span class=p>)</span><span class=o>&gt;&gt;</span><span class=mi>1</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=mi>39</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=c1>// HEVC VPS NUT check</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=nx>nalu</span><span class=p>,</span><span class=w> </span><span class=kc>false</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 跳过 VPS 和 PPS，定位到 SPS</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 修正 profile_tier_level 中的非标准值</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>profileIdx</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>21</span><span class=w> </span><span class=c1>// offset varies by resolution</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>nalu</span><span class=p>[</span><span class=nx>profileIdx</span><span class=p>]</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=mi>0</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>nalu</span><span class=p>[</span><span class=nx>profileIdx</span><span class=p>]</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=c1>// Main Profile</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>modified</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>这个补丁不是通用的——不同摄像头的 SPS 结构可能不同。目前针对的是实测中发现的两款特定摄像头，后续会根据反馈扩展。</p><h2 id=安全加固>安全加固</h2><p>v0.6.0 在安全方面做了几个改动：</p><p><strong>COOP/COEP 条件启用</strong>：Cross-Origin-Opener-Policy 和 Cross-Origin-Embedder-Policy 头部只在 TLS 启用时设置。原因是这些头部的 strict 模式在 HTTP（非 HTTPS）下会破坏 WebSocket 连接——浏览器强制隔离非安全上下文，导致 SSE/WebSocket 无法跨域通信。之前没有发现是因为开发环境通常用 localhost（被视为安全上下文），部署时如果没有配置 HTTPS 就会出问题。</p><p><strong>帧看门狗</strong>：录制器启动时，如果 RTSP DESCRIBE 响应中没有 SDP 的 SPS/PPS 信息，播放器无法初始化解码。之前的代码无限等待 SPS/PPS，导致协程泄漏。v0.6.0 增加了帧看门狗——从第一个 RTP 包到达开始计时，5 秒内没有收到 SPS/PPS 则主动断开重连。</p><h2 id=零时长录制修复>零时长录制修复</h2><p><code>internal/storage/db_recording.go</code> 中发现了一个边界情况：录制器在 segment 关闭时如果写入的帧数为 0，数据库中的 <code>duration</code> 字段为 0。后期在播放列表渲染时，0 时长的条目会导致前端计算 playlist 总时长时出现 <code>NaN</code>。</p><p>修复是 <code>internal/recorder/pts_check.go</code> 中的 PTS 时间戳有效性检查——录制开始时校验第一个 RTP 包的 PTS（Presentation Timestamp）是否有效。如果 PTS 为 0 或 NaN，跳过该帧等待下一个有效 PTS，避免将无效时间戳写入 MP4 的 mvhd/tkhd 盒。</p><h2 id=文档重构>文档重构</h2><p>v0.5.0 的文档还只有一份 <code>api-reference.md</code> 来涵盖所有 API 端点，一个文件超过 2000 行，翻都翻不动。v0.6.0 拆成了 19 个模块化文档文件：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>docs/en/api/
+</span></span><span class=line><span class=cl>├── README.md               # API 总览
+</span></span><span class=line><span class=cl>├── authentication.md        # 认证
+</span></span><span class=line><span class=cl>├── cameras.md               # 摄像头管理
+</span></span><span class=line><span class=cl>├── recordings.md            # 录制管理
+</span></span><span class=line><span class=cl>├── streaming.md             # 流媒体协议
+</span></span><span class=line><span class=cl>├── timelapse-protocols.md   # 延时摄影协议
+</span></span><span class=line><span class=cl>├── transcoding.md           # 转码
+</span></span><span class=line><span class=cl>├── onvif.md                 # ONVIF 接口
+</span></span><span class=line><span class=cl>├── health-monitoring.md     # 健康监控
+</span></span><span class=line><span class=cl>├── events.md                # 事件系统
+</span></span><span class=line><span class=cl>├── archives.md              # 归档
+</span></span><span class=line><span class=cl>├── merge.md                 # 合并
+</span></span><span class=line><span class=cl>├── ai-detection.md          # AI 检测
+</span></span><span class=line><span class=cl>├── settings.md              # 设置
+</span></span><span class=line><span class=cl>├── system.md                # 系统管理
+</span></span><span class=line><span class=cl>├── backup.md                # 备份
+</span></span><span class=line><span class=cl>├── camera-details.md        # 摄像头详情
+</span></span><span class=line><span class=cl>├── xiaomi.md                # 小米云集成
+</span></span><span class=line><span class=cl>├── errors.md                # 错误码
+</span></span><span class=line><span class=cl>└── ...                      # 中文镜像目录</span></span></code></pre></td></tr></table></div></div></div></div><p>中英文各一套，保持同步。每个文件聚焦一个 API 端点或功能模块，方便用户按需查阅，也方便 CI 检查文档覆盖率。</p><h2 id=bug-修复>Bug 修复</h2><ul><li><strong>转码队列竞态</strong>：多个录制任务同时完成时，事件总线并发触发转码入队，导致 SQLite UNIQUE 约束冲突。修复：转码入队操作加互斥锁，幂等检查前先 SELECT。</li><li><strong>ONVIF 预置位名称编码</strong>：部分摄像头返回的预置位名称不是 UTF-8（如 GBK 编码），前端渲染时出现乱码。修复：按 RFC 3629 检测非 UTF-8 序列，回退到 ISO-8859-1 解码。</li><li><strong>HLS segment 边界黑帧</strong>：LL-HLS 的局部刷新模式下，segment 边界处的 GOP 结构不完整导致短暂黑帧。修复：segment 切分时强制等待下一个 IDR 帧。</li><li><strong>ARM 平台转码崩溃</strong>：软件编码 <code>libx264</code> 在 ARMv7 上因 NEON 优化路径检查不通过导致 SIGILL。修复：FFmpeg 命令中增加 <code>-cpuflags none</code>。</li></ul><h2 id=性能>性能</h2><p>测试套件从 ~340s 优化到 ~88s（74% 更快）。主要优化：</p><ol><li><strong>并行测试</strong>：独立测试用例用 <code>t.Parallel()</code> 并发执行</li><li><strong>SQLite WAL 模式</strong>：测试 DB 使用 <code>PRAGMA journal_mode=WAL</code>，减少写锁竞争</li><li><strong>模拟时钟</strong>：时间相关测试（如健康评分的时间窗口）用 <code>clock.Mock</code> 替代 <code>time.Sleep</code></li></ol><h2 id=升级>升级</h2><p>配置向后兼容，直接替换二进制即可：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Docker</span>
+</span></span><span class=line><span class=cl>docker pull ghcr.io/mi-bee-studio/mibeenvr:latest
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 或下载二进制</span>
+</span></span><span class=line><span class=cl>wget https://github.com/Mi-Bee-Studio/MiBeeNvr/releases/latest/download/mibee-nvr-<span class=k>$(</span>uname -m <span class=p>|</span> sed <span class=s1>&#39;s/x86_64/amd64/;s/aarch64/arm64/&#39;</span><span class=k>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p>升级后建议检查 <code>config.example.yaml</code> 中的新配置项（timelapse、transcoding、streaming 等），按需补充到自己的配置文件中。</p><h2 id=相关链接>相关链接</h2><ul><li><a href=https://github.com/Mi-Bee-Studio/MiBeeNvr>MiBeeNvr GitHub</a></li><li><a href=https://github.com/Mi-Bee-Studio/MiBeeNvr/releases/tag/v0.6.0>MiBeeNvr v0.6.0 Release Notes</a></li><li><a href=/posts/mibee-oss/mibee-nvr-v0.5/>MiBeeNvr v0.5.0 技术帖</a></li><li><a href=/posts/mibee-oss/camera-test-machines/>camera-test-machines: 同期更新的三个摄像头项目</a></li></ul></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/nvr/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+NVR
+</a><a class=tag-chip href=/tags/go/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Go
+</a><a class=tag-chip href=/tags/%E5%BB%B6%E6%97%B6%E6%91%84%E5%BD%B1/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+延时摄影
+</a><a class=tag-chip href=/tags/%E8%BD%AC%E7%A0%81/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+转码
+</a><a class=tag-chip href=/tags/onvif/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+ONVIF
+</a><a class=tag-chip href=/tags/h.265/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+H.265
+</a><a class=tag-chip href=/tags/ll-hls/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+LL-HLS
+</a><a class=tag-chip href=/tags/%E5%BC%80%E6%BA%90/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+开源</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>
