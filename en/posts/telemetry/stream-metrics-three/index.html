@@ -1,0 +1,333 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - From Hashmod to Jump Consistent Hash — stream-metrics-route Hash Algorithm Upgrade</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/en/posts/telemetry/stream-metrics-three/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - From Hashmod to Jump Consistent Hash — stream-metrics-route Hash Algorithm Upgrade"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/posts/telemetry/stream-metrics-three/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-16 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-16 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - From Hashmod to Jump Consistent Hash — stream-metrics-route Hash Algorithm Upgrade"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/telemetry/stream-metrics-three/><link rel=alternate hreflang=en href=/en/posts/telemetry/stream-metrics-three/><link rel=stylesheet href=/css/main.46502ff928865f523dcb705fd840a629c956a3b94a9e8d4263f49a144b19a6f8.css integrity="sha256-RlAv+SiGX1I9y3Bf2ECmKclWo7lKno1CY/SaFEsZpvg=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/posts/telemetry/stream-metrics-three/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#introduction>Introduction</a></li><li><a href=#problem-hashmods-scaling-disaster>Problem: Hashmod&rsquo;s Scaling Disaster</a></li><li><a href=#candidate-algorithm-evaluation>Candidate Algorithm Evaluation</a><ul><li><a href=#ring-consistent-hash-ring-hash>Ring Consistent Hash (Ring Hash)</a></li><li><a href=#rendezvous-hash-hrw>Rendezvous Hash (HRW)</a></li><li><a href=#maglev-hash>Maglev Hash</a></li><li><a href=#jump-consistent-hash>Jump Consistent Hash</a></li></ul></li><li><a href=#algorithm-decision-flow>Algorithm Decision Flow</a></li><li><a href=#jump-consistent-hash-deep-dive>Jump Consistent Hash Deep Dive</a><ul><li><a href=#algorithm-intuition>Algorithm Intuition</a></li><li><a href=#scaling-impact-comparison>Scaling Impact Comparison</a></li></ul></li><li><a href=#migration-implementation>Migration Implementation</a><ul><li><a href=#code-changes>Code Changes</a></li><li><a href=#breaking-change-assessment>Breaking Change Assessment</a></li><li><a href=#behavior-after-migration>Behavior After Migration</a></li></ul></li><li><a href=#performance-analysis>Performance Analysis</a><ul><li><a href=#benchmark-characteristics>Benchmark Characteristics</a></li><li><a href=#production-benefits>Production Benefits</a></li></ul></li><li><a href=#theoretical-foundation>Theoretical Foundation</a></li><li><a href=#summary>Summary</a><ul><li><a href=#references>References</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-md"><span>architecture</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-sm"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-sm"><span>smart home</span>
+</a><a href=/en/tags/ai-programming/ class="tag-cloud__item tag-size-xs"><span>ai programming</span>
+</a><a href=/en/tags/architecture-evolution/ class="tag-cloud__item tag-size-xs"><span>architecture evolution</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>From Hashmod to Jump Consistent Hash — stream-metrics-route Hash Algorithm Upgrade</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-16T00:00:00+00:00>May 16, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/observability/>Observability</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/victoriametrics/>VictoriaMetrics</a>, <a href=/en/tags/prometheus/>Prometheus</a>, <a href=/en/tags/consistent-hashing/>Consistent Hashing</a>, <a href=/en/tags/stream-metrics-route/>Stream-Metrics-Route</a>, <a href=/en/tags/distributed-systems/>Distributed Systems</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2521 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>12 min read</span></span></div></header><div class=Content><h2 id=introduction>Introduction</h2><p>In <a href=/en/posts/telemetry/stream-metrics-two/>the previous article</a>, we reviewed the three-year evolution of stream-metrics-route and mentioned that the &ldquo;dual hashmod scheduling&rdquo; is the core scheduling mechanism of the entire gateway. However, during continuous production operation, one fatal flaw of hashmod became increasingly obvious—<strong>every scaling operation triggers full data redistribution</strong>.</p><p>This article documents the complete decision process of migrating from <code>hash % N</code> (hashmod) to <strong>Jump Consistent Hash</strong>: which candidate algorithms were evaluated, why Jump Hash was ultimately chosen, and the specific impact before and after migration.</p><blockquote><p>This article&rsquo;s technical details are based on <a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/docs/consistent-hash-evaluation_zh.md>stream-metrics-route&rsquo;s evaluation document</a>.</p></blockquote><hr><h2 id=problem-hashmods-scaling-disaster>Problem: Hashmod&rsquo;s Scaling Disaster</h2><p>stream-metrics-route&rsquo;s original implementation used the most basic <code>hash % N</code> for assigning metrics to backend nodes:</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>hashMod</span><span class=p>(</span><span class=nx>mode</span><span class=w> </span><span class=kt>int</span><span class=p>,</span><span class=w> </span><span class=nx>hash</span><span class=w> </span><span class=kt>uint32</span><span class=p>)</span><span class=w> </span><span class=kt>int</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>mode</span><span class=w> </span><span class=o>&lt;=</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nb>int</span><span class=p>(</span><span class=nx>hash</span><span class=w> </span><span class=o>%</span><span class=w> </span><span class=nb>uint32</span><span class=p>(</span><span class=nx>mode</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>This algorithm is so simple it barely needs explanation, but it has a fatal flaw: <strong>when the number of nodes N changes, almost all key assignments change</strong>.</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    subgraph Before[&#34;Before scaling: 3 nodes N=3&#34;]
+        direction LR
+        K1[&#34;key:A hash%3=0&#34;] --&gt; N1[&#34;Node 0&#34;]
+        K2[&#34;key:B hash%3=1&#34;] --&gt; N2[&#34;Node 1&#34;]
+        K3[&#34;key:C hash%3=2&#34;] --&gt; N3[&#34;Node 2&#34;]
+        K4[&#34;key:D hash%3=0&#34;] --&gt; N1
+        K5[&#34;key:E hash%3=1&#34;] --&gt; N2
+        K6[&#34;key:F hash%3=2&#34;] --&gt; N3
+    end
+
+    subgraph After[&#34;After scaling: 4 nodes N=4 — 100% redistribution!&#34;]
+        direction LR
+        K1b[&#34;key:A hash%4=0&#34;] --&gt; N1b[&#34;Node 0&#34;]
+        K2b[&#34;key:B hash%4=1&#34;] --&gt; N2b[&#34;Node 1&#34;]
+        K3b[&#34;key:C hash%4=2&#34;] --&gt; N3b[&#34;Node 2&#34;]
+        K4b[&#34;key:D hash%4=0&#34;] --&gt; N1b
+        K5b[&#34;key:E hash%4=1&#34;] --&gt; N2b
+        K6b[&#34;key:F hash%4=2&#34;] --&gt; N4b[&#34;Node 3 NEW&#34;]
+    end
+
+    Before ---|&#34;Add one node&#34;| After
+
+    style N4b fill:#ffcdd2,stroke:#f44336
+    style After fill:#fff8e1,stroke:#ff9800</code></pre></div></div><p>What does this mean in a metric routing scenario?</p><ul><li><strong>Complete reassignment of all time series</strong>: Every metric is sent to a different <code>stream_task_id</code></li><li><strong>Downstream vmagent aggregation state is destroyed</strong>: Stream aggregation&rsquo;s in-memory state depends on <code>stream_task_id</code> for deduplication; when the ID changes, aggregation counters reset to zero</li><li><strong>Load imbalance during migration</strong>: A large number of time series scatter simultaneously</li><li><strong>Unnecessary network storm</strong>: All backend nodes receive a completely new dataset simultaneously</li></ul><p>When your backend scales from 100 to 101 nodes, <strong>100% of metrics are rerouted</strong>—this isn&rsquo;t a &ldquo;move a bit more&rdquo; problem; it&rsquo;s &ldquo;scrap everything and start over.&rdquo;</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>sequenceDiagram
+    autonumber
+    participant GW as Gateway
+    participant V0 as vmagent-0
+    participant V1 as vmagent-1
+    participant V2 as vmagent-2
+    participant V3 as vmagent-3 (New)
+
+    Note over GW: N=3 to N=4 scaling triggered
+
+    rect rgba(244,67,54,0.1)
+        Note over GW,V3: 100% metric redistribution
+        GW-&gt;&gt;V0: key_A was on node 0
+        GW-&gt;&gt;V1: key_B was on node 1
+        GW-&gt;&gt;V2: key_C was on node 2
+        GW-&gt;&gt;V3: key_D might route to new node
+        GW-&gt;&gt;V0: key_E may have changed target
+        Note over V0,V3: Most keys&#39; target nodes changed
+    end
+
+    rect rgba(255,152,0,0.1)
+        Note over V0,V3: vmagent stream aggregation state all invalidated
+        V0--&gt;&gt;V0: Internal state cleared, re-accumulating
+        V1--&gt;&gt;V1: Internal state cleared, re-accumulating
+        V2--&gt;&gt;V2: Internal state cleared, re-accumulating
+        V3--&gt;&gt;V3: Starting from zero
+    end</code></pre></div></div><p>For production environments, this &ldquo;tear everything down for every scale-up&rdquo; behavior is unacceptable. We need a <strong>consistent hashing</strong> algorithm—where node changes cause minimal key remapping.</p><hr><h2 id=candidate-algorithm-evaluation>Candidate Algorithm Evaluation</h2><p>We evaluated five mainstream sharding algorithms, comparing across four dimensions:</p><table><thead><tr><th>Algorithm</th><th>Time Complexity</th><th>Memory Usage</th><th>Balance Quality</th><th>Migration Cost (N→N+1)</th></tr></thead><tbody><tr><td>hash % N (hashmod)</td><td>O(1)</td><td>O(1)</td><td>Good</td><td><strong>100%</strong> reshuffled</td></tr><tr><td>Ring Consistent Hash</td><td>O(log N)</td><td>O(N)</td><td>Medium (needs virtual nodes)</td><td>~K/N</td></tr><tr><td>Rendezvous (HRW) Hash</td><td>O(N)</td><td>O(1)</td><td>Good</td><td>~K/N</td></tr><tr><td>Jump Consistent Hash</td><td><strong>O(1)</strong></td><td><strong>O(1)</strong></td><td><strong>Excellent</strong></td><td><strong>~K/(N+1)</strong></td></tr><tr><td>Maglev Hash</td><td>O(1)</td><td>O(N*M)</td><td>Good</td><td>Depends on table</td></tr></tbody></table><p>Below we analyze each algorithm&rsquo;s suitability for the stream-metrics-route scenario.</p><h3 id=ring-consistent-hash-ring-hash>Ring Consistent Hash (Ring Hash)</h3><p>Ring consistent hash is the most classic consistent hashing implementation, widely used in Dynamo, Cassandra, and other systems.</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph Ring[&#34;Hash Ring 0 to 2^32-1&#34;]
+        direction TB
+        N1[&#34;Node0 at 30deg&#34;]
+        N2[&#34;Node1 at 150deg&#34;]
+        N3[&#34;Node2 at 270deg&#34;]
+    end
+
+    K1[&#34;key:A hash=20deg&#34;] --&gt;|&#34;Closest clockwise&#34;| N1
+    K2[&#34;key:B hash=100deg&#34;] --&gt;|&#34;Closest clockwise&#34;| N2
+    K3[&#34;key:C hash=200deg&#34;] --&gt;|&#34;Closest clockwise&#34;| N3
+
+    style N1 fill:#ffcdd2,stroke:#e53935
+    style N2 fill:#c8e6c9,stroke:#43a047
+    style N3 fill:#bbdefb,stroke:#1e88e5
+    style Ring fill:#fafafa,stroke:#999</code></pre></div></div><p><strong>Pros:</strong> Good scalability, new nodes only affect keys in the adjacent range.</p><p><strong>Cons:</strong> Bare rings have poor balance—with few nodes, some nodes may get far more than 1/N of the key space. The solution is <strong>Virtual Nodes</strong>, where each physical node has multiple virtual nodes on the ring. But this brings two problems:</p><ul><li><strong>Memory overhead</strong>: 100 backends × 150 virtual nodes = 15000 ring nodes to maintain</li><li><strong>Tuning complexity</strong>: Virtual node count needs tuning based on backend count and key distribution; there&rsquo;s no &ldquo;set it and forget it&rdquo; parameter</li></ul><p>For a lightweight gateway like stream-metrics-route, introducing a ring structure that needs tuning and maintenance is too heavy.</p><h3 id=rendezvous-hash-hrw>Rendezvous Hash (HRW)</h3><p>Rendezvous hash, also known as Highest Random Weight (HRW), has a very intuitive approach: <strong>calculate a weight for each (key, node) pair, select the node with the highest weight</strong>.</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Pseudocode: calculate weight for each node</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>for</span><span class=w> </span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>node</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=nx>nodes</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>weight</span><span class=p>[</span><span class=nf>hash</span><span class=p>(</span><span class=nx>key</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nx>node</span><span class=p>)</span><span class=w> </span><span class=o>%</span><span class=w> </span><span class=nx>MAX_INT</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// Select the node with the largest weight</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Pros:</strong> Excellent balance, simple implementation, no virtual nodes needed.</p><p><strong>Cons:</strong> Each lookup requires computing weights with <strong>all nodes</strong>—O(N) complexity. When the number of nodes N is large (e.g., hundreds of vmagent instances), each routing requires N hash calculations.</p><p>In our scenario, the gateway processes hundreds of thousands of metrics per second, each requiring two routing operations (task partition + node selection). O(N) complexity means <strong>performance is linearly inversely correlated with node count</strong>. This is far from ideal for a low-latency gateway.</p><h3 id=maglev-hash>Maglev Hash</h3><p>Maglev hash was designed by Google and used in the Maglev load balancer. It achieves O(1) routing lookup through a precomputed <strong>lookup table</strong>.</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    K[&#34;Input key&#34;] --&gt; H[&#34;hash key mod M&#34;]
+    H --&gt; L0[&#34;slot 0: Node2&#34;]
+    H --&gt; L1[&#34;slot 1: Node0&#34;]
+    H --&gt; L2[&#34;slot 2: Node1&#34;]
+    H --&gt; L3[&#34;slot 3: ...&#34;]
+    H --&gt; LM[&#34;slot M-1: Node0&#34;]
+
+    L0 --&gt; N[&#34;Target node&#34;]
+    L1 --&gt; N
+    L2 --&gt; N
+    L3 --&gt; N
+    LM --&gt; N
+
+    style H fill:#e3f2fd,stroke:#2196f3
+    style N fill:#e8f5e9,stroke:#4caf50</code></pre></div></div><p><strong>Pros:</strong> Lookup is indeed O(1), widely used internally at Google.</p><p><strong>Cons:</strong> The lookup table size M is typically much larger than N (usually M &#187; 100*N), meaning:</p><ul><li><strong>Memory overhead</strong>: O(N*M) space, very large with many nodes</li><li><strong>Table rebuild</strong>: Node changes require regenerating the entire lookup table</li><li><strong>Minimal failure domain</strong>: Table quality depends on node permutation generation; some node combinations may produce poor distribution</li></ul><p>For stream-metrics-route, we don&rsquo;t need Maglev&rsquo;s &ldquo;minimal failure domain&rdquo; feature (which matters for network load balancers), but we&rsquo;d have to bear its memory and complexity costs.</p><h3 id=jump-consistent-hash>Jump Consistent Hash</h3><p>Finally, let&rsquo;s look at the algorithm we ultimately chose. Jump Consistent Hash comes from a 2014 Google paper: <em>&ldquo;A Fast, Minimal Memory, Consistent Hash Algorithm&rdquo;</em>.</p><p>Its core idea can be described intuitively: <strong>Imagine you&rsquo;re rolling a special die to decide where each key &ldquo;jumps&rdquo; to which bucket. When the number of buckets increases, existing keys have only a small probability of being &ldquo;jumped&rdquo; to a new bucket.</strong></p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>JumpConsistentHash</span><span class=p>(</span><span class=nx>key</span><span class=w> </span><span class=kt>uint64</span><span class=p>,</span><span class=w> </span><span class=nx>numBuckets</span><span class=w> </span><span class=kt>int</span><span class=p>)</span><span class=w> </span><span class=kt>int</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>numBuckets</span><span class=w> </span><span class=o>&lt;=</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>var</span><span class=w> </span><span class=nx>b</span><span class=w> </span><span class=kt>int64</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=o>-</span><span class=mi>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>var</span><span class=w> </span><span class=nx>j</span><span class=w> </span><span class=kt>int64</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=nx>j</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nb>int64</span><span class=p>(</span><span class=nx>numBuckets</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>b</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>j</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>key</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>key</span><span class=o>*</span><span class=mi>2862933555777941757</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mi>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>j</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>int64</span><span class=p>(</span><span class=nb>float64</span><span class=p>(</span><span class=nx>b</span><span class=o>+</span><span class=mi>1</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=p>(</span><span class=nb>float64</span><span class=p>(</span><span class=nb>int64</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span><span class=o>&lt;&lt;</span><span class=mi>31</span><span class=p>)</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=nb>float64</span><span class=p>((</span><span class=nx>key</span><span class=o>&gt;&gt;</span><span class=mi>33</span><span class=p>)</span><span class=o>+</span><span class=mi>1</span><span class=p>)))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nb>int</span><span class=p>(</span><span class=nx>b</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>About 15 lines of code, <strong>zero memory allocation</strong>, <strong>no lookup table</strong>, <strong>no virtual nodes</strong>.</p><p><strong>Key features:</strong></p><ol><li><strong>Minimal migration</strong>: N → N+1, only about 1/(N+1) of keys need remapping</li><li><strong>O(1) time complexity</strong>: Same speed as hashmod</li><li><strong>Excellent distribution</strong>: Mathematically proven uniform distribution across buckets</li><li><strong>Zero configuration</strong>: No parameters to tune</li></ol><p>This is exactly what we need—<strong>hashmod&rsquo;s performance and simplicity, plus consistent hashing&rsquo;s minimal migration</strong>.</p><hr><h2 id=algorithm-decision-flow>Algorithm Decision Flow</h2><p>The following flowchart shows our decision logic for evaluating candidate algorithms:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    Start[&#34;Need consistent hashing&#34;] --&gt; Q1{&#34;Need O(1) lookup?&#34;}
+    Q1 --&gt;|&#34;No&#34;| Ring[&#34;Ring Consistent Hash&lt;br/&gt;O(log N), needs virtual nodes&#34;]
+    Q1 --&gt;|&#34;Yes&#34;| Q2{&#34;Can accept O(N) memory?&#34;}
+    Q2 --&gt;|&#34;Yes&#34;| Q3{&#34;Need minimal failure domain?&#34;}
+    Q3 --&gt;|&#34;Yes&#34;| Maglev[&#34;Maglev Hash&lt;br/&gt;O(N*M) memory&#34;]
+    Q3 --&gt;|&#34;No&#34;| Q4{&#34;Can accept O(N) time?&#34;}
+    Q4 --&gt;|&#34;Yes&#34;| HRW[&#34;Rendezvous (HRW)&lt;br/&gt;O(N) time, O(1) memory&#34;]
+    Q4 --&gt;|&#34;No&#34;| Jump[&#34;✅ Jump Consistent Hash&lt;br/&gt;O(1) time, O(1) memory&#34;]
+    Q2 --&gt;|&#34;No&#34;| Jump
+
+    style Jump fill:#c8e6c9,stroke:#4caf50,stroke-width:3px
+    style Ring fill:#fff3e0,stroke:#ff9800
+    style HRW fill:#fff3e0,stroke:#ff9800
+    style Maglev fill:#fff3e0,stroke:#ff9800</code></pre></div></div><p>For stream-metrics-route&rsquo;s scenario—a high-performance gateway processing hundreds of thousands of metrics per second, requiring minimal migration and zero configuration—Jump Consistent Hash is the only choice that satisfies all constraints simultaneously.</p><hr><h2 id=jump-consistent-hash-deep-dive>Jump Consistent Hash Deep Dive</h2><h3 id=algorithm-intuition>Algorithm Intuition</h3><p>Jump Consistent Hash&rsquo;s core idea can be understood through the following process:</p><ol><li>Start from bucket 0</li><li>Continuously &ldquo;jump&rdquo; to higher bucket numbers</li><li>The probability of each jump decreases as the bucket count increases</li><li>The bucket you land on is the result</li></ol><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>sequenceDiagram
+    autonumber
+    participant Key as Key hash value
+    participant B0 as Bucket 0
+    participant B1 as Bucket 1
+    participant B2 as Bucket 2
+    participant B3 as Bucket 3
+
+    Note over Key: numBuckets = 4
+    Key-&gt;&gt;B0: b=-1 j=0 initialization
+    Key-&gt;&gt;Key: key = key * constant &#43; 1
+    Key-&gt;&gt;B1: j = 1*(2^31/high_key) = 2
+    Note over B0,B1: Skipped bucket 0 b=0
+    Key-&gt;&gt;Key: key = key * constant &#43; 1
+    Key-&gt;&gt;B2: j = 3*(2^31/high_key) = 3
+    Note over B1,B2: Skipped bucket 1 b=2
+    Key-&gt;&gt;Key: key = key * constant &#43; 1
+    Key-&gt;&gt;B3: j = 4*(2^31/high_key) = 7
+    Note over B2,B3: Skipped bucket 2 b=3
+    Note over Key,B3: j=7 &gt; numBuckets=4 stop
+    Note over B3: Result: Bucket 3</code></pre></div></div><p>The key point: <strong>when the number of buckets increases from N to N+1, only that one &ldquo;jump&rdquo; landing at j=N changes the existing allocation result</strong>. This mathematically guarantees approximately 1/(N+1) migration rate.</p><h3 id=scaling-impact-comparison>Scaling Impact Comparison</h3><p>The diagram below intuitively shows the behavior difference between hashmod and Jump Hash during scaling:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph Hashmod[&#34;Hashmod: 100 to 101 nodes&#34;]
+        direction TB
+        HM_Before[&#34;100 keys each assigned to nodes 0-99&#34;]
+        HM_After[&#34;Scaling to 101 nodes&lt;br/&gt;hash_101 ≠ hash_100&lt;br/&gt;100% of keys reassigned&#34;]
+        HM_Before --&gt; HM_After
+    end
+
+    subgraph Jump[&#34;Jump Hash: 100 to 101 nodes&#34;]
+        direction TB
+        JH_Stay[&#34;~99 keys maintain assignment&lt;br/&gt;99.01% unchanged&#34;]
+        JH_Move[&#34;~1 key moves to new node&lt;br/&gt;~0.99% migration&#34;]
+        JH_Stay
+        JH_Move
+    end
+
+    Hashmod ---|&#34;Same scenario&#34;| Jump
+
+    style HM_After fill:#ffcdd2,stroke:#f44336
+    style JH_Stay fill:#c8e6c9,stroke:#4caf50
+    style JH_Move fill:#fff9c4,stroke:#fdd835</code></pre></div></div><p>In concrete numbers:</p><ul><li><strong>Hashmod</strong>: 100 → 101 nodes, 100% of <code>stream_task_id</code> values change</li><li><strong>Jump Hash</strong>: 100 → 101 nodes, only ~0.99% of <code>stream_task_id</code> values change</li></ul><p>This means during scaling operations, vmagent&rsquo;s stream aggregation state under Jump Hash is almost unaffected—99% of aggregation windows continue normal accumulation, with only about 1% needing reinitialization.</p><hr><h2 id=migration-implementation>Migration Implementation</h2><h3 id=code-changes>Code Changes</h3><p>The change was very focused—replacing only the hash function, with the routing architecture and dual-hash logic entirely unchanged.</p><p><strong>Old version (hashmod):</strong></p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>hash</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>SortLabelsHashKey</span><span class=p>(</span><span class=nx>ts</span><span class=p>.</span><span class=nx>Labels</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>dime</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>hashMod</span><span class=p>(</span><span class=nx>r</span><span class=p>.</span><span class=nx>dimension</span><span class=p>,</span><span class=w> </span><span class=nx>hash</span><span class=p>)</span><span class=w>     </span><span class=c1>// hash % N → task partition ID</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// ...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>hashnode</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>SortLabelsHashKey</span><span class=p>(</span><span class=nx>tmpLabels</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>tmpch</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>hashMod</span><span class=p>(</span><span class=nx>r</span><span class=p>.</span><span class=nx>uplen</span><span class=p>,</span><span class=w> </span><span class=nx>hashnode</span><span class=p>)</span><span class=w>     </span><span class=c1>// hash % N → node selection</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>New version (Jump Consistent Hash):</strong></p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>hash</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>SortLabelsHashKey</span><span class=p>(</span><span class=nx>ts</span><span class=p>.</span><span class=nx>Labels</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>dime</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>JumpConsistentHash</span><span class=p>(</span><span class=nb>uint64</span><span class=p>(</span><span class=nx>hash</span><span class=p>),</span><span class=w> </span><span class=nx>r</span><span class=p>.</span><span class=nx>dimension</span><span class=p>)</span><span class=w>  </span><span class=c1>// stream_task_id</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// ...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>hashnode</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>SortLabelsHashKey</span><span class=p>(</span><span class=nx>tmpLabels</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>tmpch</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nf>JumpConsistentHash</span><span class=p>(</span><span class=nb>uint64</span><span class=p>(</span><span class=nx>hashnode</span><span class=p>),</span><span class=w> </span><span class=nx>r</span><span class=p>.</span><span class=nx>uplen</span><span class=p>)</span><span class=w> </span><span class=c1>// node selection</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Note that the FNV-32a hash calculation in <code>SortLabelsHashKey</code>, the <code>filterLabels</code> function, circuit breaker, and retry logic—<strong>all remain unchanged</strong>. The change is limited to the final routing function call.</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph Pipeline[&#34;Metric Processing Pipeline&#34;]
+        A[&#34;Receive metrics&#34;] --&gt; B[&#34;relabel rules&#34;]
+        B --&gt; C[&#34;filterLabels&#34;]
+        C --&gt; D[&#34;FNV-32a hash&#34;]
+        D --&gt; E[&#34;Routing function&#34;]
+        E --&gt; F[&#34;Async dispatch&#34;]
+    end
+
+    Note1[&#34;Only this step changed&lt;br/&gt;hashmod to Jump Hash&#34;] -.-&gt; E
+
+    style E fill:#fff9c4,stroke:#fdd835,stroke-width:3px
+    style A fill:#e8f5e9,stroke:#4caf50
+    style B fill:#e8f5e9,stroke:#4caf50
+    style C fill:#e8f5e9,stroke:#4caf50
+    style D fill:#e8f5e9,stroke:#4caf50
+    style F fill:#e8f5e9,stroke:#4caf50</code></pre></div></div><h3 id=breaking-change-assessment>Breaking Change Assessment</h3><p>The migration has one <strong>minor breaking change</strong>: the <code>stream_task_id</code> value for all metrics will change.</p><p>But the impact of this change is limited:</p><ol><li><code>stream_task_id</code> is a <strong>transparent label</strong> used by vmagent for aggregation deduplication—its specific value doesn&rsquo;t matter as long as it&rsquo;s consistent within the same dimension</li><li>Static YAML configuration means node changes already require a restart</li><li>A one-time switch can be done during a maintenance window, no need for gradual migration</li></ol><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TB
+    subgraph Migration[&#34;Migration Process&#34;]
+        direction TB
+        M1[&#34;1. Confirm maintenance window&#34;]
+        M2[&#34;2. Stop stream-metrics-route&#34;]
+        M3[&#34;3. Update binary with Jump Hash&#34;]
+        M4[&#34;4. Start service&#34;]
+        M5[&#34;5. Verify metric routing distribution&#34;]
+        M1 --&gt; M2 --&gt; M3 --&gt; M4 --&gt; M5
+    end
+
+    subgraph Impact[&#34;Impact Scope&#34;]
+        I1[&#34;stream_task_id values all change&#34;]
+        I2[&#34;vmagent aggregation state reinitialized&#34;]
+        I3[&#34;relabel/filterLabels logic unchanged&#34;]
+        I4[&#34;Circuit breaker/retry logic unchanged&#34;]
+    end
+
+    Migration -.-&gt;|&#34;One-time impact&#34;| Impact
+
+    style I1 fill:#fff9c4,stroke:#fdd835
+    style I2 fill:#fff9c4,stroke:#fdd835
+    style I3 fill:#e8f5e9,stroke:#4caf50
+    style I4 fill:#e8f5e9,stroke:#4caf50</code></pre></div></div><h3 id=behavior-after-migration>Behavior After Migration</h3><p>After migration, daily scaling operations become very elegant:</p><table><thead><tr><th>Operation</th><th>Hashmod Behavior</th><th>Jump Hash Behavior</th></tr></thead><tbody><tr><td>3 → 4 nodes</td><td>100% redistribution</td><td>~25% migration</td></tr><tr><td>10 → 11 nodes</td><td>100% redistribution</td><td>~9.1% migration</td></tr><tr><td>100 → 101 nodes</td><td>100% redistribution</td><td><strong>~0.99% migration</strong></td></tr><tr><td>100 → 100 nodes (no change)</td><td>No impact</td><td>No impact</td></tr></tbody></table><p>As cluster size grows, Jump Hash&rsquo;s advantage becomes more pronounced—which is exactly where our production environment sits (hundreds of vmagent instances).</p><hr><h2 id=performance-analysis>Performance Analysis</h2><h3 id=benchmark-characteristics>Benchmark Characteristics</h3><table><thead><tr><th>Metric</th><th>Hashmod</th><th>Jump Hash</th></tr></thead><tbody><tr><td>Time complexity</td><td>O(1)</td><td>O(1)</td></tr><tr><td>Memory allocation</td><td>None</td><td>None</td></tr><tr><td>Lines of code</td><td>~5 lines</td><td>~15 lines</td></tr><tr><td>Lookup table</td><td>Not needed</td><td>Not needed</td></tr><tr><td>Deterministic</td><td>✅ Same input → Same output</td><td>✅ Same input → Same output</td></tr></tbody></table><p>Although Jump Hash has an internal <code>for</code> loop, due to the jump property, the expected number of loop iterations is O(ln N). For our node scale (usually &lt; 200), the actual execution count is minimal. Compared to hashmod, <strong>there is no observable additional CPU overhead</strong>.</p><h3 id=production-benefits>Production Benefits</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph Before[&#34;Before migration: Hashmod&#34;]
+        direction TB
+        B1[&#34;Scaling triggered&#34;]
+        B2[&#34;100% redistribution&#34;]
+        B3[&#34;Aggregation state all invalidated&#34;]
+        B4[&#34;Data accuracy drops&#34;]
+        B5[&#34;Monitoring alert false positives&#34;]
+        B1 --&gt; B2 --&gt; B3 --&gt; B4 --&gt; B5
+    end
+
+    subgraph After[&#34;After migration: Jump Hash&#34;]
+        direction TB
+        A1[&#34;Scaling triggered&#34;]
+        A2[&#34;~1% redistribution&#34;]
+        A3[&#34;99% aggregation state unaffected&#34;]
+        A4[&#34;Data accuracy maintained&#34;]
+        A5[&#34;Frictionless scaling&#34;]
+        A1 --&gt; A2 --&gt; A3 --&gt; A4 --&gt; A5
+    end
+
+    Before ---|&#34;Same operation&#34;| After
+
+    style B5 fill:#ffcdd2,stroke:#f44336
+    style A5 fill:#c8e6c9,stroke:#4caf50</code></pre></div></div><p>Summary of production advantages from Jump Hash:</p><ol><li><strong>Graceful scaling</strong>: Adding backends incrementally doesn&rsquo;t cause full rebalancing</li><li><strong>Stable aggregation</strong>: Maintains vmagent aggregation state continuity during scaling operations</li><li><strong>Reduced load</strong>: Minimizes network traffic and processing overhead during migration</li><li><strong>Predictable behavior</strong>: Distribution quality is mathematically guaranteed, no &ldquo;unlucky distribution imbalance&rdquo; situations</li></ol><hr><h2 id=theoretical-foundation>Theoretical Foundation</h2><p>Jump Consistent Hash isn&rsquo;t invented out of thin air; it has rigorous mathematical proof:</p><blockquote><p><em>&ldquo;A Fast, Minimal Memory, Consistent Hash Algorithm&rdquo;</em> by John Lamping and Eric Veach, Google, 2014
+<a href=http://arxiv.org/abs/1406.2294>http://arxiv.org/abs/1406.2294</a></p></blockquote><p>The paper proves two key properties:</p><ol><li><strong>Uniform distribution</strong>: Each bucket gets approximately 1/N of keys, distribution quality no worse than hashmod</li><li><strong>Minimal migration</strong>: When N → N+1, exactly K/(N+1) keys need remapping, which is the theoretical optimum</li></ol><p>This algorithm has been used internally at Google across multiple systems (including Spanner&rsquo;s tablet routing), with large-scale production verification.</p><hr><h2 id=summary>Summary</h2><p>This migration from hashmod to Jump Consistent Hash can be summarized in one sentence:</p><blockquote><p><strong>Same O(1) performance, migration cost reduced from 100% to 1%.</strong></p></blockquote><table><thead><tr><th>Dimension</th><th>Conclusion</th></tr></thead><tbody><tr><td>Performance impact</td><td>No additional overhead, O(1) unchanged</td></tr><tr><td>Code change scope</td><td>Minimal, only replaced hash function calls</td></tr><tr><td>Migration breaking change</td><td>One-time stream_task_id remapping, done within maintenance window</td></tr><tr><td>Long-term benefit</td><td>Scaling operations nearly frictionless for production</td></tr></tbody></table><p>For any metric routing system using <code>hash % N</code> for sharding that faces dynamic node scaling requirements, Jump Consistent Hash is a worthwhile upgrade path—zero-cost performance with huge operational benefits.</p><h3 id=references>References</h3><ul><li><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/docs/consistent-hash-evaluation_zh.md>stream-metrics-route Consistent Hash Evaluation Document</a></li><li><a href=http://arxiv.org/abs/1406.2294>Jump Consistent Hash Paper</a></li><li><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/v0.1.2/pkg/common/relabel.go#L83>Original hashmod implementation</a></li><li><a href=https://github.com/mickeyzzc/stream-metrics-route/blob/main/pkg/common/relabel.go#L83>Jump Consistent Hash implementation</a></li><li><a href=/en/posts/telemetry/stream-metrics-two/>Previous: VictoriaMetrics Stream Aggregation Three-Year Review</a></li></ul></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/victoriametrics/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+VictoriaMetrics
+</a><a class=tag-chip href=/en/tags/prometheus/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Prometheus
+</a><a class=tag-chip href=/en/tags/consistent-hashing/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Consistent Hashing
+</a><a class=tag-chip href=/en/tags/stream-metrics-route/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Stream-Metrics-Route
+</a><a class=tag-chip href=/en/tags/distributed-systems/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Distributed Systems</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>

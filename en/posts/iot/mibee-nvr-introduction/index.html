@@ -1,0 +1,352 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - MiBeeNvr: A Lightweight Home NVR System I Built</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/en/posts/iot/mibee-nvr-introduction/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - MiBeeNvr: A Lightweight Home NVR System I Built"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/posts/iot/mibee-nvr-introduction/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-06 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-06 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - MiBeeNvr: A Lightweight Home NVR System I Built"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/iot/mibee-nvr-introduction/><link rel=alternate hreflang=en href=/en/posts/iot/mibee-nvr-introduction/><link rel=stylesheet href=/css/main.46502ff928865f523dcb705fd840a629c956a3b94a9e8d4263f49a144b19a6f8.css integrity="sha256-RlAv+SiGX1I9y3Bf2ECmKclWo7lKno1CY/SaFEsZpvg=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/posts/iot/mibee-nvr-introduction/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#why-build-mibeenvr>Why Build MiBeeNvr</a></li><li><a href=#what-is-mibeenvr>What is MiBeeNvr</a><ul><li><a href=#overall-architecture>Overall Architecture</a></li><li><a href=#recording-pipeline>Recording Pipeline</a></li><li><a href=#design-philosophy>Design Philosophy</a></li><li><a href=#key-features>Key Features</a></li></ul></li><li><a href=#my-actual-deployment>My Actual Deployment</a><ul><li><a href=#configuration-file>Configuration File</a></li></ul></li><li><a href=#xiaomi-camera-integration>Xiaomi Camera Integration</a><ul><li><a href=#go2rtc-deployment>go2rtc Deployment</a></li><li><a href=#pitfalls-encountered>Pitfalls Encountered</a></li></ul></li><li><a href=#esp32-camera-projects>ESP32 Camera Projects</a><ul><li><a href=#mibeecam--esp32-s3-a10-solution>MiBeeCam — ESP32-S3-A10 Solution</a></li><li><a href=#ai-thinker-esp32-cam--classic-solution>AI Thinker ESP32-CAM — Classic Solution</a></li><li><a href=#mibeehomecam--xiao-esp32-s3-sense>MiBeeHomeCam — XIAO ESP32-S3 Sense</a></li><li><a href=#selection-guide>Selection Guide</a></li></ul></li><li><a href=#system-service-configuration>System Service Configuration</a></li><li><a href=#open-source>Open Source</a><ul><li><a href=#closing-thoughts>Closing Thoughts</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-md"><span>architecture</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-sm"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-sm"><span>smart home</span>
+</a><a href=/en/tags/ai-programming/ class="tag-cloud__item tag-size-xs"><span>ai programming</span>
+</a><a href=/en/tags/architecture-evolution/ class="tag-cloud__item tag-size-xs"><span>architecture evolution</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>MiBeeNvr: A Lightweight Home NVR System I Built</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-06T00:00:00+00:00>May 6, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/iot/>IOT</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/nvr/>NVR</a>, <a href=/en/tags/go/>Go</a>, <a href=/en/tags/rtsp/>RTSP</a>, <a href=/en/tags/esp32/>ESP32</a>, <a href=/en/tags/camera/>Camera</a>, <a href=/en/tags/smart-home/>Smart Home</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>1969 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>10 min read</span></span></div></header><div class=Content><p>I have several cameras at home — a few Xiaomi cameras, some DIY ESP32 cameras, and multiple Raspberry Pi CSI cameras. I&rsquo;d been using cloud storage solutions, but I was never comfortable with them: vendor lock-in, network dependency, and the costs add up. So I decided to build my own NVR system, called MiBeeNvr.</p><h2 id=why-build-mibeenvr>Why Build MiBeeNvr</h2><p>To be honest, I was never satisfied with existing cloud storage solutions. Take Xiaomi cameras, for example. By default, you can only view them through the Mi Home app. Recordings are either stored on an SD card (limited capacity, frequent plugging/unplugging) or in the cloud. Cloud storage costs tens of dollars per month, and there&rsquo;s the privacy concern — you never know when the manufacturer might use your video data for AI training or sell it to third parties. Not to mention vendor lock-in — switching platforms is nearly impossible.</p><p>ESP32 cameras have a similar problem. I built several ESP32 cameras, storing recordings on SD cards, but viewing and playback were inconvenient. I needed a unified management platform.</p><p>I also tried other open-source solutions: ZoneMinder requires a LAMP stack — installing and deploying it is more complex than my entire project; Shinobi&rsquo;s configuration is a nightmare; and some smaller projects are basically unmaintained. Frigate is nice but primarily focused on AI detection and depends on Docker — too heavy.</p><p>In short, I wanted something that is:</p><ul><li>A single binary file — download and run</li><li>Lightweight enough to run on a Raspberry Pi</li><li>Supports multiple camera types, especially Xiaomi&rsquo;s proprietary protocol</li><li>Clean Web interface without frontend complexity</li><li>Auto-cleanup of old recordings, won&rsquo;t fill up the disk</li></ul><p>After searching around, none of the existing solutions fit. So I wrote my own.</p><h2 id=what-is-mibeenvr>What is MiBeeNvr</h2><p>MiBeeNvr is a lightweight NVR system written in Go, designed to solve local storage for home cameras.</p><h3 id=overall-architecture>Overall Architecture</h3><p>Here&rsquo;s a global architecture diagram showing the whole system:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TB
+    subgraph Camera End
+        CAM1@{shape: hex, label: &#34;📷 Xiaomi Camera&lt;br/&gt;miss protocol&#34;}
+        CAM2@{shape: hex, label: &#34;📷 ESP32 Camera&lt;br/&gt;HTTP JPEG&#34;}
+        CAM3@{shape: hex, label: &#34;📷 Raspberry Pi CSI&lt;br/&gt;RTSP H.264&#34;}
+    end
+    
+    subgraph Protocol Bridge
+        G2RTC[&#34;go2rtc&lt;br/&gt;miss → RTSP&#34;]
+        MTX[&#34;MediaMTX&lt;br/&gt;CSI → RTSP&#34;]
+    end
+    
+    subgraph MiBeeNvr
+        direction TB
+        API[&#34;REST API&#34;] --&gt; REC[&#34;Recording Engine&#34;]
+        REC --&gt; STORE@{shape: cyl, label: &#34;SQLite Storage&#34;}
+        STORE --&gt; CLEAN[&#34;Auto Cleanup&#34;]
+        API --&gt; HLS[&#34;HLS Live&#34;]
+    end
+    
+    subgraph Access Methods
+        direction TB
+        WEB[&#34;Web UI&#34;]
+        WEBDAV[&#34;WebDAV / FTP&#34;]
+        PROM[&#34;Prometheus&#34;]
+    end
+    
+    CAM1 --&gt;|&#34;miss&#34;| G2RTC --&gt;|&#34;RTSP&#34;| API
+    CAM2 --&gt;|&#34;HTTP&#34;| API
+    CAM3 --&gt;|&#34;RTSP&#34;| MTX --&gt;|&#34;RTSP&#34;| API
+    API --&gt; WEB
+    API --&gt; WEBDAV
+    API --&gt; PROM
+
+    classDef hardware fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef process fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef core fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef network fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    class CAM1,CAM2,CAM3 hardware
+    class G2RTC,MTX process
+    class API,REC,STORE,CLEAN,HLS core
+    class WEB,WEBDAV,PROM network</code></pre></div></div><p>Three layers: the camera end handles capture, a protocol bridge layer handles proprietary protocols, MiBeeNvr core handles recording and storage, and various access methods sit on top.</p><h3 id=recording-pipeline>Recording Pipeline</h3><p>The processing flow after video streams enter MiBeeNvr:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph Input
+        RTSP[&#34;RTSP Connection&lt;br/&gt;gortsplib&#34;]
+        HTTP[&#34;HTTP JPEG&lt;br/&gt;Periodic frame grab&#34;]
+    end
+    
+    subgraph Decode_Mux
+        RTP[&#34;RTP Depacket&lt;br/&gt;pion/rtp&#34;]
+        MP4[&#34;MP4 Mux&lt;br/&gt;go-mp4&#34;]
+    end
+    
+    subgraph Storage
+        SEG[&#34;Segment Files&lt;br/&gt;30s / 10m&#34;]
+        DB@{shape: cyl, label: &#34;SQLite Metadata&#34;}
+        DISK@{shape: hex, label: &#34;Disk&#34;}
+    end
+    
+    RTSP --&gt; RTP --&gt; MP4
+    HTTP --&gt; MP4
+    MP4 --&gt; SEG --&gt; DISK
+    MP4 --&gt; DB
+
+    classDef input fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef process fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef storage fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    class RTSP,HTTP input
+    class RTP,MP4 process
+    class SEG,DB,DISK storage</code></pre></div></div><p>In short: RTSP → RTP depacket → MP4 mux → segmented storage. The frontend uses Svelte 5 — the entire SPA is compiled to static assets and embedded into the Go binary, so deployment only needs a single file, no need for a separate Web server.</p><p>Backend tech stack:</p><ul><li>Go 1.26 + modernc.org/sqlite (pure Go, no CGO dependency)</li><li>chi routing library, clean and efficient</li><li>gortsplib for RTSP/RTP protocol</li><li>pion/rtp for real-time streaming</li></ul><p>SQLite was chosen because it&rsquo;s single-file, pure Go, performs well enough for home use, supports concurrent access, and most importantly, doesn&rsquo;t require a separate database installation.</p><h3 id=design-philosophy>Design Philosophy</h3><p>The entire project&rsquo;s design philosophy is &ldquo;simple and straightforward&rdquo;:</p><ul><li>Single binary file, no external dependencies</li><li>Supports cross-compilation, runs on AMD64/ARM64</li><li>YAML configuration, intuitive</li><li>Built-in Web interface, open browser to use</li><li>Minimal resource usage, runs smoothly on Raspberry Pi 4</li></ul><h3 id=key-features>Key Features</h3><ul><li>Supports multiple camera protocols: RTSP (H.264/H.265), HTTP JPEG</li><li>Built-in Web interface with dark/light theme switching</li><li>Chinese/English bilingual support</li><li>WebDAV (read-write), FTP, REST API</li><li>MQTT-triggered recording, ideal for smart home integration</li><li>Prometheus monitoring metrics</li><li>Per-camera independent retention policies</li><li>MP4 segmented recording, auto-cleanup of old files</li><li>Supports HLS live streaming (up to 4 concurrent)</li></ul><h2 id=my-actual-deployment>My Actual Deployment</h2><p>I run it on an ARM64 mini host with 512MB RAM and 2GB storage. The system runs very stably — basically set it and forget it.</p><p>Connected 4 cameras, each with its own characteristics:</p><ol><li><strong>Raspberry Pi CSI Camera</strong> — RTSP bridge via MediaMTX, converting CSI interface video to standard RTSP. Configured as <code>rtsp_h264</code>.</li><li><strong>ESP32-S3 Camera</strong> — DIY, running MJPEG stream via HTTP protocol. Configured as <code>http_jpeg</code>.</li><li><strong>Xiaomi Camera (Balcony)</strong> — Protocol conversion via go2rtc (Xiaomi proprietary → RTSP), 2K resolution, configured as <code>rtsp_h265</code>.</li><li><strong>Xiaomi Camera (Living Room)</strong> — Same as above, 1080P.</li></ol><p>Configuration is 30-second segment recording with 1-day retention. This interval is a trade-off: too short creates too many files, too long makes it inconvenient to look up incidents. WebDAV (read-write) and FTP are enabled for convenient phone viewing and backup.</p><figure><img src=/posts/iot/images/camera-light.png alt="Camera management page" width=100%></figure><p>The Web interface is clean — camera management and recording lists are straightforward.</p><figure><img src=/posts/iot/images/stats-light.png alt="Recording list (dark)" width=100%></figure><p>Settings page:</p><figure><img src=/posts/iot/images/settings-dark.png alt="Settings page" width=100%></figure><h3 id=configuration-file>Configuration File</h3><p>The complete configuration file looks like this — YAML format, clear at a glance:</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>server</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>listen</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;:9090&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>storage</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>root_dir</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/mnt/data/nvr&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>segment_duration</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;30s&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>cameras</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>id</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;rpi-csi-cam&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;RPi CSI Camera&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;rtsp_h264&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>url</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;rtsp://10.0.1.100:8554/stream&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>id</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;esp32-cam&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;ESP32-S3 Camera&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;http_jpeg&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>url</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;http://10.0.1.101/capture&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>id</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;xiaomi-balcony&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;Xiaomi Camera&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;rtsp_h265&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>url</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;rtsp://10.0.1.102:8554/xiaomi_stream&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>cleanup</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>retention_days</span><span class=p>:</span><span class=w> </span><span class=m>30</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>disk_threshold_percent</span><span class=p>:</span><span class=w> </span><span class=m>95</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>auth</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>username</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;admin&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>password_hash</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;Use mibee-nvr hash-password command to generate&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>webdav</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>path_prefix</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/dav&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>read_write</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>ftp</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=m>2121</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=xiaomi-camera-integration>Xiaomi Camera Integration</h2><p>Xiaomi camera protocol is a major headache. It uses its proprietary &ldquo;miss&rdquo; (Mi Secure Streaming) protocol with multi-layer encryption, without a standard RTSP interface. Even if you know the camera&rsquo;s IP, you can&rsquo;t pull a stream with VLC.</p><p>Fortunately, there&rsquo;s go2rtc, a lifesaver. The integration chain looks like this:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>sequenceDiagram
+    participant APP as Mi Home App
+    participant CLOUD as Xiaomi Cloud
+    participant CAM as Xiaomi Camera
+    participant G2 as go2rtc
+    participant NVR as MiBeeNvr
+    
+    Note over G2,CLOUD: 1. Account auth &amp; key exchange
+    G2-&gt;&gt;CLOUD: Login with Xiaomi account
+    CLOUD--&gt;&gt;G2: Return device list &amp; encryption keys
+    
+    Note over G2,CAM: 2. Establish P2P connection
+    G2-&gt;&gt;CAM: Initiate miss protocol handshake
+    CAM--&gt;&gt;G2: P2P connection established
+    
+    Note over G2,NVR: 3. Video stream relay
+    loop Continuous recording
+        CAM-&gt;&gt;G2: miss encrypted video stream
+        G2-&gt;&gt;G2: Decrypt &amp; transcode
+        G2-&gt;&gt;NVR: Standard RTSP stream (H.265)
+        NVR-&gt;&gt;NVR: MP4 segmented recording
+    end
+    
+    Note over APP,NVR: 4. No longer dependent on Mi Home App
+    NVR-&gt;&gt;NVR: Web UI / WebDAV / FTP view recordings</code></pre></div></div><p>The entire process requires no firmware flashing, no camera disassembly, and no Xiaomi cloud storage subscription. go2rtc handles all the protocol conversion.</p><h3 id=go2rtc-deployment>go2rtc Deployment</h3><p>The easiest way to deploy go2rtc is with Docker:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Create configuration file</span>
+</span></span><span class=line><span class=cl>cat &gt; go2rtc.yaml <span class=s>&lt;&lt; EOF
+</span></span></span><span class=line><span class=cl><span class=s>streams:
+</span></span></span><span class=line><span class=cl><span class=s>  xiaomi_balcony:
+</span></span></span><span class=line><span class=cl><span class=s>    - xiaomi://your_account:cn@10.0.1.100?did=your_camera_did&amp;model=isa.camera.hlc7
+</span></span></span><span class=line><span class=cl><span class=s>  xiaomi_living_room:
+</span></span></span><span class=line><span class=cl><span class=s>    - xiaomi://your_account:cn@10.0.1.101?did=your_camera_did&amp;model=isa.camera.mj200
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>rtsp:
+</span></span></span><span class=line><span class=cl><span class=s>  listen: &#34;:8554&#34;
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Run container</span>
+</span></span><span class=line><span class=cl>docker run -d --name go2rtc <span class=se>\
+</span></span></span><span class=line><span class=cl>  -p 8554:8554 <span class=se>\
+</span></span></span><span class=line><span class=cl>  -p 1984:1984 <span class=se>\
+</span></span></span><span class=line><span class=cl>  -v <span class=k>$(</span><span class=nb>pwd</span><span class=k>)</span>/go2rtc.yaml:/config.yaml <span class=se>\
+</span></span></span><span class=line><span class=cl>  alexxit/go2rtc</span></span></code></pre></td></tr></table></div></div></div></div><p>Key points:</p><ul><li>The <code>xiaomi://</code> protocol requires Xiaomi account and password authentication</li><li><code>did</code> is the device&rsquo;s unique identifier, <code>model</code> is the device model (can be found in the Mi Home app)</li><li>go2rtc automatically handles P2P connection and miss protocol decryption</li><li>The final standard RTSP stream is exposed on port 8554, and MiBeeNvr connects to it like any normal camera</li></ul><p>Then point to go2rtc in MiBeeNvr&rsquo;s config:</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>cameras</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>id</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;xiaomi-balcony&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;Xiaomi Camera&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;rtsp_h265&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>url</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;rtsp://localhost:8554/xiaomi_balcony&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>true</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=pitfalls-encountered>Pitfalls Encountered</h3><p>Xiaomi camera integration has several pitfalls:</p><ol><li><strong>First-time network connection</strong>: Xiaomi cameras must be able to reach the internet for key exchange with Xiaomi servers. After connection is established, subsequent transmission is over LAN.</li><li><strong>Device ID acquisition</strong>: Each camera&rsquo;s <code>did</code> is unique. Use go2rtc&rsquo;s WebUI (port 1984) for auto-discovery, or dig through the Mi Home app.</li><li><strong>Not all models are supported</strong>: go2rtc maintains a compatibility list — check before buying a camera.</li><li><strong>H.265 vs H.264</strong>: Newer Xiaomi cameras mostly use H.265. MiBeeNvr supports both codecs, but H.265 saves storage space.</li></ol><h2 id=esp32-camera-projects>ESP32 Camera Projects</h2><p>While working on MiBeeNvr, I also built several ESP32 camera firmware projects. ESP32 cameras had their share of pitfalls, but were also quite interesting.</p><p>Three firmware projects with different positioning:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph LR
+    subgraph ESP32 Camera Firmware
+        A@{shape: doc, label: &#34;MiBeeCam&lt;br/&gt;ESP32-S3-A10&lt;br/&gt;Best for beginners&#34;}
+        B@{shape: doc, label: &#34;AI Thinker CAM&lt;br/&gt;ESP32-CAM&lt;br/&gt;Best value&#34;}
+        C@{shape: doc, label: &#34;MiBeeHomeCam&lt;br/&gt;XIAO ESP32-S3&lt;br/&gt;Most features&#34;}
+    end
+    
+    subgraph NVR Unified Management
+        NVR@{shape: cyl, label: &#34;MiBeeNvr&#34;}
+    end
+    
+    A --&gt;|&#34;HTTP JPEG&#34;| NVR
+    B --&gt;|&#34;HTTP JPEG / WebDAV&#34;| NVR
+    C --&gt;|&#34;HTTP JPEG / FTP&#34;| NVR
+
+    classDef firmware fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef system fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    class A,B,C firmware
+    class NVR system</code></pre></div></div><p>All firmware is designed as upstream capture endpoints for MiBeeNvr: cameras handle video capture, MiBeeNvr handles unified storage and management.</p><h3 id=mibeecam--esp32-s3-a10-solution>MiBeeCam — ESP32-S3-A10 Solution</h3><p><a href=https://github.com/Mi-Bee-Studio/luatos-esp32s3-a10-camera>GitHub</a> · MIT License</p><p>This is the most successful solution. ESP32-S3-A10 dev board + OV2640 camera (8225N module), 16MB Flash, ESP-IDF v5.4.3 development. Features include MJPEG stream, frame-differencing motion detection, Web config interface, Prometheus metrics. Having an LCD screen makes debugging much easier.</p><h3 id=ai-thinker-esp32-cam--classic-solution>AI Thinker ESP32-CAM — Classic Solution</h3><p><a href=https://github.com/Mi-Bee-Studio/ai-thinker-esp32-cam>GitHub</a> · MIT License</p><p>Entry-level choice, AI Thinker ESP32-CAM dev boards are widely available for around $10-15. 4MB Flash + 4MB PSRAM, runs MJPEG stream without issues. Highlights include SD card storage and NAS upload (WebDAV/HTTP), plus adaptive dark scene detection — automatically switches to infrared mode at night. Downside: no screen, 4MB Flash is limited.</p><h3 id=mibeehomecam--xiao-esp32-s3-sense>MiBeeHomeCam — XIAO ESP32-S3 Sense</h3><p><a href=https://github.com/Mi-Bee-Studio/seeed-esp32s3-cam>GitHub</a> · GPL v3.0</p><p>The most advanced solution. XIAO ESP32-S3 Sense board is compact and refined, with dual camera support (OV2640/OV3660), 8MB Octal PSRAM. Highlights include AVI segmented recording (real video recording, not just snapshots), FTP/WebDAV dual-protocol upload, watchdog anti-freeze, chip temperature monitoring, batch file management. Suitable for long-term stable operation.</p><h3 id=selection-guide>Selection Guide</h3><ul><li><strong>Beginners</strong>: Choose AI Thinker ESP32-CAM — cheap with plenty of resources</li><li><strong>Daily use</strong>: Choose MiBeeCam — LCD screen makes debugging convenient</li><li><strong>Maximum features</strong>: Choose XIAO ESP32-S3 Sense — most powerful</li></ul><h2 id=system-service-configuration>System Service Configuration</h2><p>For stable operation, I use systemd to manage MiBeeNvr:</p><div class=code-block-wrapper data-lang=ini><div class=code-block-header><div class=code-block-meta><span class=code-language>ini</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=k>[Unit]</span>
+</span></span><span class=line><span class=cl><span class=na>Description</span><span class=o>=</span><span class=s>MiBee NVR</span>
+</span></span><span class=line><span class=cl><span class=na>After</span><span class=o>=</span><span class=s>network-online.target</span>
+</span></span><span class=line><span class=cl><span class=na>Wants</span><span class=o>=</span><span class=s>network-online.target</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>[Service]</span>
+</span></span><span class=line><span class=cl><span class=na>Type</span><span class=o>=</span><span class=s>simple</span>
+</span></span><span class=line><span class=cl><span class=na>User</span><span class=o>=</span><span class=s>nvr</span>
+</span></span><span class=line><span class=cl><span class=na>ExecStart</span><span class=o>=</span><span class=s>/mnt/data/nvr/bin/mibee-nvr -config /mnt/data/nvr/mibee-nvr.yaml</span>
+</span></span><span class=line><span class=cl><span class=na>WorkingDirectory</span><span class=o>=</span><span class=s>/mnt/data/nvr</span>
+</span></span><span class=line><span class=cl><span class=na>Restart</span><span class=o>=</span><span class=s>on-failure</span>
+</span></span><span class=line><span class=cl><span class=na>RestartSec</span><span class=o>=</span><span class=s>5</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Security hardening</span>
+</span></span><span class=line><span class=cl><span class=na>NoNewPrivileges</span><span class=o>=</span><span class=s>true</span>
+</span></span><span class=line><span class=cl><span class=na>ProtectSystem</span><span class=o>=</span><span class=s>strict</span>
+</span></span><span class=line><span class=cl><span class=na>ReadWritePaths</span><span class=o>=</span><span class=s>/mnt/data/nvr</span>
+</span></span><span class=line><span class=cl><span class=na>PrivateTmp</span><span class=o>=</span><span class=s>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>[Install]</span>
+</span></span><span class=line><span class=cl><span class=na>WantedBy</span><span class=o>=</span><span class=s>multi-user.target</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Save to <code>/etc/systemd/system/mibee-nvr.service</code>, then <code>systemctl enable --now mibee-nvr</code>. Auto-start on boot, auto-restart on failure.</p><h2 id=open-source>Open Source</h2><p>MiBeeNvr is open source, stars and contributions welcome:</p><ul><li><strong>MiBeeNvr</strong>: <a href=https://github.com/Mi-Bee-Studio/MiBeeNvr>https://github.com/Mi-Bee-Studio/MiBeeNvr</a> (MIT License)</li><li><strong>MiBeeCam</strong>: <a href=https://github.com/Mi-Bee-Studio/luatos-esp32s3-a10-camera>https://github.com/Mi-Bee-Studio/luatos-esp32s3-a10-camera</a> (MIT)</li><li><strong>AI Thinker ESP32-CAM</strong>: <a href=https://github.com/Mi-Bee-Studio/ai-thinker-esp32-cam>https://github.com/Mi-Bee-Studio/ai-thinker-esp32-cam</a> (MIT)</li><li><strong>MiBeeHomeCam</strong>: <a href=https://github.com/Mi-Bee-Studio/seeed-esp32s3-cam>https://github.com/Mi-Bee-Studio/seeed-esp32s3-cam</a> (GPL v3.0)</li></ul><p>Documentation is comprehensive, with detailed deployment and configuration instructions.</p><h3 id=closing-thoughts>Closing Thoughts</h3><p>To be honest, I built this project mainly because I was dissatisfied with all the existing solutions. Cloud storage is too expensive, open-source solutions are too heavy, and commercial products are too closed. Building my own was just right: lightweight, free, and fully under my control.</p><p>Oh, about the name MiBeeNvr — &ldquo;Mi&rdquo; stands for me (Mickey), &ldquo;Bee&rdquo; stands for&mldr; classified, and &ldquo;Nvr&rdquo; is naturally Network Video Recorder. Simple, memorable, and a bit meaningful.</p><p>If you also have home camera needs or ideas about NVR systems, feel free to reach out. Issues are welcome on GitHub.</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/nvr/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+NVR
+</a><a class=tag-chip href=/en/tags/go/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Go
+</a><a class=tag-chip href=/en/tags/rtsp/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+RTSP
+</a><a class=tag-chip href=/en/tags/esp32/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+ESP32
+</a><a class=tag-chip href=/en/tags/camera/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Camera
+</a><a class=tag-chip href=/en/tags/smart-home/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Smart Home</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>

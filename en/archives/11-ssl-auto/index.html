@@ -1,0 +1,1570 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - SSL Certificate Automation Management — Ansible Batch Deployment and Update Practices</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/en/archives/11-ssl-auto/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - SSL Certificate Automation Management — Ansible Batch Deployment and Update Practices"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/archives/11-ssl-auto/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2017-02-13 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2017-02-13 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - SSL Certificate Automation Management — Ansible Batch Deployment and Update Practices"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/archives/11-ssl-auto/><link rel=alternate hreflang=en href=/en/archives/11-ssl-auto/><link rel=stylesheet href=/css/main.46502ff928865f523dcb705fd840a629c956a3b94a9e8d4263f49a144b19a6f8.css integrity="sha256-RlAv+SiGX1I9y3Bf2ECmKclWo7lKno1CY/SaFEsZpvg=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a aria-current=true class=ancestor href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/archives/11-ssl-auto/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#the-importance-of-ssl-certificate-management>The Importance of SSL Certificate Management</a></li><li><a href=#ansible-automation-management-architecture>Ansible Automation Management Architecture</a><ul><li><a href=#basic-architecture-design>Basic Architecture Design</a></li></ul></li><li><a href=#complete-implementation-solution>Complete Implementation Solution</a><ul><li><a href=#1-directory-structure-creation>1. Directory Structure Creation</a></li><li><a href=#2-variable-configuration-file>2. Variable Configuration File</a></li><li><a href=#3-task-definition-file>3. Task Definition File</a></li><li><a href=#4-nginx-configuration-template>4. Nginx Configuration Template</a></li><li><a href=#5-site-configuration-template>5. Site Configuration Template</a></li><li><a href=#6-handler-configuration>6. Handler Configuration</a></li><li><a href=#7-ssl-report-template>7. SSL Report Template</a></li></ul></li><li><a href=#certificate-verification-and-checking>Certificate Verification and Checking</a><ul><li><a href=#local-certificate-content-verification>Local Certificate Content Verification</a></li><li><a href=#server-connection-certificate-verification>Server Connection Certificate Verification</a></li></ul></li><li><a href=#ansible-playbook-usage-examples>Ansible Playbook Usage Examples</a><ul><li><a href=#basic-deployment-playbook>Basic Deployment Playbook</a></li><li><a href=#certificate-check-playbook>Certificate Check Playbook</a></li></ul></li><li><a href=#automated-deployment-workflow>Automated Deployment Workflow</a><ul><li><a href=#1-certificate-preparation-phase>1. Certificate Preparation Phase</a></li><li><a href=#2-ansible-inventory-configuration>2. Ansible Inventory Configuration</a></li><li><a href=#3-execute-deployment>3. Execute Deployment</a></li></ul></li><li><a href=#monitoring-and-alerting>Monitoring and Alerting</a><ul><li><a href=#certificate-expiration-monitoring>Certificate Expiration Monitoring</a></li><li><a href=#auto-renewal-script>Auto-Renewal Script</a></li></ul></li><li><a href=#security-best-practices>Security Best Practices</a><ul><li><a href=#1-certificate-security-management>1. Certificate Security Management</a></li><li><a href=#2-configuration-security>2. Configuration Security</a></li><li><a href=#3-monitoring-and-alerting>3. Monitoring and Alerting</a></li></ul></li><li><a href=#troubleshooting>Troubleshooting</a><ul><li><a href=#common-issues-and-solutions>Common Issues and Solutions</a><ul><li><a href=#1-website-inaccessible-after-certificate-installation>1. Website Inaccessible After Certificate Installation</a></li><li><a href=#2-incomplete-certificate-chain>2. Incomplete Certificate Chain</a></li><li><a href=#3-ssltls-handshake-failure>3. SSL/TLS Handshake Failure</a></li><li><a href=#4-incorrect-certificate-expiration-calculation>4. Incorrect Certificate Expiration Calculation</a></li></ul></li><li><a href=#log-analysis>Log Analysis</a></li></ul></li><li><a href=#summary>Summary</a><ul><li><a href=#key-benefits>Key Benefits:</a></li><li><a href=#implementation-recommendations>Implementation Recommendations:</a></li><li><a href=#future-directions>Future Directions:</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-md"><span>architecture</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-sm"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-sm"><span>smart home</span>
+</a><a href=/en/tags/ai-programming/ class="tag-cloud__item tag-size-xs"><span>ai programming</span>
+</a><a href=/en/tags/architecture-evolution/ class="tag-cloud__item tag-size-xs"><span>architecture evolution</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>SSL Certificate Automation Management — Ansible Batch Deployment and Update Practices</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2017-02-13T00:00:00+00:00>February 13, 2017</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/devops/>Devops</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/ssl/>Ssl</a>, <a href=/en/tags/ansible/>Ansible</a>, <a href=/en/tags/nginx/>Nginx</a>, <a href=/en/tags/automation/>Automation</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>3658 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>18 min read</span></span></div></header><div class=Content><p>In modern IT infrastructure management, secure management of SSL certificates has become increasingly important. As the number of services grows and certificate renewal cycles shorten, manual certificate management becomes inefficient and error-prone. This article details how to use Ansible for automated batch deployment and renewal of certificates, improving management efficiency and reducing security risks.</p><h2 id=the-importance-of-ssl-certificate-management>The Importance of SSL Certificate Management</h2><p>SSL certificates are the foundation of network communication security. They ensure:</p><ol><li><strong>Data Encryption</strong>: Prevents sensitive data from being intercepted during transmission</li><li><strong>Identity Verification</strong>: Ensures users connect to the genuine server, not a man-in-the-middle attack</li><li><strong>Trust Establishment</strong>: Builds user trust through trusted Certificate Authorities (CAs)</li><li><strong>Compliance Requirements</strong>: Meets various regulations and standards for data protection</li></ol><p>Common challenges with manual certificate management:</p><ul><li><strong>Delayed expiration alerts</strong>: Easy to miss certificate renewal dates, leading to service outages</li><li><strong>Low batch deployment efficiency</strong>: Manually configuring certificates on each server is time-consuming</li><li><strong>Configuration inconsistency</strong>: Certificate configurations may differ across servers</li><li><strong>High error risk</strong>: Manual operations are error-prone and may cause service unavailability</li></ul><h2 id=ansible-automation-management-architecture>Ansible Automation Management Architecture</h2><p>As a powerful automation operations tool, Ansible&rsquo;s advantages include:</p><ul><li><strong>Agentless architecture</strong>: No client installation required on target nodes</li><li><strong>Simple and easy to use</strong>: Uses YAML for configuration files, easy to understand and maintain</li><li><strong>Modular design</strong>: Rich module library supporting various operations tasks</li><li><strong>Idempotency</strong>: Safe to execute repeatedly, ensuring consistent system state</li></ul><h3 id=basic-architecture-design>Basic Architecture Design</h3><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=l>.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>├── files/                   </span><span class=w> </span><span class=c># Certificate file storage directory</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>│   ├── domain1.com.crt     </span><span class=w> </span><span class=c># Certificate file</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>│   ├── domain1.com.key     </span><span class=w> </span><span class=c># Private key file</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>│   └── ...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>├── handlers/                </span><span class=w> </span><span class=c># Handler files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>│   └── main.yaml            </span><span class=w> </span><span class=c># Service restart handler</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>├── tasks/                   </span><span class=w> </span><span class=c># Task files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>│   └── main.yml             </span><span class=w> </span><span class=c># Main task definitions</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>├── templates/               </span><span class=w> </span><span class=c># Template files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>│   ├── nginx.conf.j2        </span><span class=w> </span><span class=c># Nginx configuration template</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>│   └── ...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>├── vars/                    </span><span class=w> </span><span class=c># Variable files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>│   └── main.yml             </span><span class=w> </span><span class=c># Configuration variables</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=l>└── README.md                </span><span class=w> </span><span class=c># Project documentation</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=complete-implementation-solution>Complete Implementation Solution</h2><h3 id=1-directory-structure-creation>1. Directory Structure Creation</h3><p>First, create the basic directory structure:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mkdir -p ssl-certs/ansible/<span class=o>{</span>files,handlers,tasks,templates,vars<span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> ssl-certs/ansible</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=2-variable-configuration-file>2. Variable Configuration File</h3><p>Create the <code>vars/main.yml</code> file to define the basic certificate management configuration:</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># coding: utf-8</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># SSL certificate management configuration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Client certificate configuration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>ssl_certificates</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=s2>&#34;example-client&#34;</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>server_ip</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;203.0.113.10&#34;</span><span class=p>,</span><span class=w> </span><span class=s2>&#34;203.0.113.11&#34;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>ssl_cer_name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;mail.example.com&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>domain_name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;example.com&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>server_name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;mail.example.com&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>ssl_force</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>ssl_redirect</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=s2>&#34;another-client&#34;</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>server_ip</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;198.51.100.20&#34;</span><span class=p>,</span><span class=w> </span><span class=s2>&#34;198.51.100.21&#34;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>ssl_cer_name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;secure.example.org&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>domain_name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;example.org&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>server_name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;mail.example.org&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>ssl_force</span><span class=p>:</span><span class=w> </span><span class=kc>false</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>ssl_redirect</span><span class=p>:</span><span class=w> </span><span class=kc>false</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Multi-domain certificate configuration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>multi_domain_ssl</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># Domains requiring forced HTTPS</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>force_ssl_domain</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s2>&#34;secure.example.com&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s2>&#34;api.example.com&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s2>&#34;admin.example.com&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># Standard HTTPS domains</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>standard_ssl_domain</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s2>&#34;shop.example.com&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s2>&#34;blog.example.com&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># SSL certificate configuration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>ssl_config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ssl_certificate_path</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/etc/ssl/certs&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ssl_private_key_path</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/etc/ssl/private&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ssl_dhparam_path</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/etc/ssl/certs/dhparam.pem&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ssl_session_timeout</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;5m&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ssl_protocols</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;TLSv1.2 TLSv1.3&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ssl_ciphers</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Nginx configuration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>nginx_config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>server_port</span><span class=p>:</span><span class=w> </span><span class=m>80</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ssl_server_port</span><span class=p>:</span><span class=w> </span><span class=m>443</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>worker_processes</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;auto&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>worker_connections</span><span class=p>:</span><span class=w> </span><span class=m>1024</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>keepalive_timeout</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;65&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>gzip</span><span class=p>:</span><span class=w> </span><span class=kc>true</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=3-task-definition-file>3. Task Definition File</h3><p>Create the <code>tasks/main.yml</code> file to define the main certificate management tasks:</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>SSL certificate management tasks</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>hosts</span><span class=p>:</span><span class=w> </span><span class=l>ssl_servers</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>become</span><span class=p>:</span><span class=w> </span><span class=kc>yes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>vars_files</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>vars/main.yml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>tasks</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 1. Ensure certificate directories exist</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Create certificate directories</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>file</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ item }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>state</span><span class=p>:</span><span class=w> </span><span class=l>directory</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>mode</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;0755&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=s2>&#34;{{ ssl_config.ssl_certificate_path }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=s2>&#34;{{ ssl_config.ssl_private_key_path }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=s2>&#34;{{ ssl_config.ssl_dhparam_path | dirname }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 2. Copy certificate files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Copy SSL certificate files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>copy</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>src</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;files/{{ item.ssl_cer_name }}.crt&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dest</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_config.ssl_certificate_path }}/{{ item.ssl_cer_name }}.crt&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>mode</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;0644&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>owner</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>group</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>notify</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 3. Copy private key files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Copy SSL private key files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>copy</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>src</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;files/{{ item.ssl_cer_name }}.key&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dest</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_config.ssl_private_key_path }}/{{ item.ssl_cer_name }}.key&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>mode</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;0600&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>owner</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>group</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>notify</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 4. Generate DH parameters</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Generate DH parameters</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>command</span><span class=p>:</span><span class=w> </span><span class=l>openssl dhparam -out {{ ssl_config.ssl_dhparam_path }} 2048</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>args</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>creates</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_config.ssl_dhparam_path }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>notify</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 5. Generate Nginx configuration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Generate Nginx configuration file</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>src</span><span class=p>:</span><span class=w> </span><span class=l>nginx.conf.j2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dest</span><span class=p>:</span><span class=w> </span><span class=l>/etc/nginx/nginx.conf</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>mode</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;0644&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>owner</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>group</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>notify</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 6. Generate site configuration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Generate site configuration files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>src</span><span class=p>:</span><span class=w> </span><span class=l>site_config.j2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dest</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/etc/nginx/conf.d/{{ item.domain_name }}.conf&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>mode</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;0644&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>owner</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>group</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>notify</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 7. Set SELinux (if enabled)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Set SELinux context</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>sefcontext</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>target</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_config.ssl_certificate_path }}/{{ item.ssl_cer_name }}.*&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>setype</span><span class=p>:</span><span class=w> </span><span class=l>httpd_sys_content_t</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>recurse</span><span class=p>:</span><span class=w> </span><span class=kc>yes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>when</span><span class=p>:</span><span class=w> </span><span class=l>ansible_selinux.status == &#39;enabled&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 8. Verify SSL certificates</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Verify SSL certificates</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>command</span><span class=p>:</span><span class=w> </span><span class=l>openssl x509 -noout -text -in &#34;{{ ssl_config.ssl_certificate_path }}/{{ item.ssl_cer_name }}.crt&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>register</span><span class=p>:</span><span class=w> </span><span class=l>cert_check</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 9. Check certificate expiration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Check certificate expiration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>command</span><span class=p>:</span><span class=w> </span><span class=l>openssl x509 -enddate -noout -in &#34;{{ ssl_config.ssl_certificate_path }}/{{ item.ssl_cer_name }}.crt&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>register</span><span class=p>:</span><span class=w> </span><span class=l>cert_expiry</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># 10. Output certificate information</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Output certificate information</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>debug</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>msg</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;Certificate {{ item.ssl_cer_name }} expires: {{ item.stdout }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ cert_expiry.results }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop_control</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>label</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ item.item.ssl_cer_name }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>handlers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>state</span><span class=p>:</span><span class=w> </span><span class=l>restarted</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>listen</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>SSL certificate report generation</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>hosts</span><span class=p>:</span><span class=w> </span><span class=l>localhost</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>gather_facts</span><span class=p>:</span><span class=w> </span><span class=kc>no</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>tasks</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Generate SSL certificate report</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>src</span><span class=p>:</span><span class=w> </span><span class=l>ssl_report.j2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dest</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/tmp/ssl_certificate_report.html&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>delegate_to</span><span class=p>:</span><span class=w> </span><span class=l>localhost</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=4-nginx-configuration-template>4. Nginx Configuration Template</h3><p>Create the <code>templates/nginx.conf.j2</code> file:</p><div class=code-block-wrapper data-lang=jinja2><div class=code-block-header><div class=code-block-meta><span class=code-language>jinja2</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=n>user</span> <span class=n>nginx</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>worker_processes</span> <span class=p>{{</span> <span class=n>nginx_config</span><span class=o>.</span><span class=n>worker_processes</span> <span class=p>}};</span>
+</span></span><span class=line><span class=cl><span class=n>worker_rlimit_nofile</span> <span class=mi>100000</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>events</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>worker_connections</span> <span class=p>{{</span> <span class=n>nginx_config</span><span class=o>.</span><span class=n>worker_connections</span> <span class=p>}};</span>
+</span></span><span class=line><span class=cl>    <span class=n>multi_accept</span> <span class=n>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>use</span> <span class=n>epoll</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>http</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>include</span> <span class=o>/</span><span class=n>etc</span><span class=o>/</span><span class=n>nginx</span><span class=o>/</span><span class=n>mime</span><span class=o>.</span><span class=n>types</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>default_type</span> <span class=n>application</span><span class=o>/</span><span class=n>octet</span><span class=o>-</span><span class=n>stream</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Log format</span>
+</span></span><span class=line><span class=cl>    <span class=n>log_format</span> <span class=n>main</span> <span class=s1>&#39;$remote_addr - $remote_user [$time_local] &#34;$request&#34; &#39;</span>
+</span></span><span class=line><span class=cl>                    <span class=s1>&#39;$status $body_bytes_sent &#34;$http_referer&#34; &#39;</span>
+</span></span><span class=line><span class=cl>                    <span class=s1>&#39;&#34;$http_user_agent&#34; &#34;$http_x_forwarded_for&#34;&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>access_log</span> <span class=o>/</span><span class=k>var</span><span class=o>/</span><span class=nb>log</span><span class=o>/</span><span class=n>nginx</span><span class=o>/</span><span class=n>access</span><span class=o>.</span><span class=n>log</span> <span class=n>main</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>error_log</span> <span class=o>/</span><span class=k>var</span><span class=o>/</span><span class=nb>log</span><span class=o>/</span><span class=n>nginx</span><span class=o>/</span><span class=n>error</span><span class=o>.</span><span class=n>log</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Basic settings</span>
+</span></span><span class=line><span class=cl>    <span class=n>sendfile</span> <span class=n>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>tcp_nopush</span> <span class=n>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>tcp_nodelay</span> <span class=n>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>keepalive_timeout</span> <span class=p>{{</span> <span class=n>nginx_config</span><span class=o>.</span><span class=n>keepalive_timeout</span> <span class=p>}};</span>
+</span></span><span class=line><span class=cl>    <span class=n>types_hash_max_size</span> <span class=mi>2048</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>server_tokens</span> <span class=n>off</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># SSL settings</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssl_session_cache</span> <span class=n>shared</span><span class=p>:</span><span class=n>SSL</span><span class=p>:</span><span class=mi>10</span><span class=n>m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssl_session_timeout</span> <span class=p>{{</span> <span class=n>ssl_config</span><span class=o>.</span><span class=n>ssl_session_timeout</span> <span class=p>}};</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssl_protocols</span> <span class=p>{{</span> <span class=n>ssl_config</span><span class=o>.</span><span class=n>ssl_protocols</span> <span class=p>}};</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssl_ciphers</span> <span class=s1>&#39;{{ ssl_config.ssl_ciphers }}&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssl_prefer_server_ciphers</span> <span class=n>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssl_dhparam</span> <span class=p>{{</span> <span class=n>ssl_config</span><span class=o>.</span><span class=n>ssl_dhparam_path</span> <span class=p>}};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Security headers</span>
+</span></span><span class=line><span class=cl>    <span class=n>add_header</span> <span class=n>X</span><span class=o>-</span><span class=n>Frame</span><span class=o>-</span><span class=n>Options</span> <span class=n>DENY</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>add_header</span> <span class=n>X</span><span class=o>-</span><span class=n>Content</span><span class=o>-</span><span class=n>Type</span><span class=o>-</span><span class=n>Options</span> <span class=n>nosniff</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>add_header</span> <span class=n>X</span><span class=o>-</span><span class=n>XSS</span><span class=o>-</span><span class=n>Protection</span> <span class=s2>&#34;1; mode=block&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>add_header</span> <span class=n>Strict</span><span class=o>-</span><span class=n>Transport</span><span class=o>-</span><span class=n>Security</span> <span class=s2>&#34;max-age=31536000; includeSubDomains&#34;</span> <span class=n>always</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Gzip compression settings</span>
+</span></span><span class=line><span class=cl>    <span class=p>{{</span><span class=o>-</span> <span class=k>if</span> <span class=n>nginx_config</span><span class=o>.</span><span class=n>gzip</span> <span class=p>}}</span>
+</span></span><span class=line><span class=cl>    <span class=n>gzip</span> <span class=n>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>gzip_vary</span> <span class=n>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>gzip_min_length</span> <span class=mi>1024</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>gzip_proxied</span> <span class=n>expired</span> <span class=n>no</span><span class=o>-</span><span class=n>cache</span> <span class=n>no</span><span class=o>-</span><span class=n>store</span> <span class=n>private</span> <span class=n>must</span><span class=o>-</span><span class=n>revalidate</span> <span class=nb>max</span><span class=o>-</span><span class=n>age</span><span class=o>-</span><span class=mi>0</span> <span class=n>auth</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>gzip_types</span> <span class=n>text</span><span class=o>/</span><span class=n>plain</span> <span class=n>text</span><span class=o>/</span><span class=n>css</span> <span class=n>text</span><span class=o>/</span><span class=n>xml</span> <span class=n>text</span><span class=o>/</span><span class=n>javascript</span> <span class=n>application</span><span class=o>/</span><span class=n>javascript</span> <span class=n>application</span><span class=o>/</span><span class=n>xml</span><span class=o>+</span><span class=n>rss</span> <span class=n>application</span><span class=o>/</span><span class=n>json</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>{{</span><span class=o>-</span> <span class=n>endif</span> <span class=p>}}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Include site configurations</span>
+</span></span><span class=line><span class=cl>    <span class=n>include</span> <span class=o>/</span><span class=n>etc</span><span class=o>/</span><span class=n>nginx</span><span class=o>/</span><span class=n>conf</span><span class=o>.</span><span class=n>d</span><span class=o>/*.</span><span class=n>conf</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=5-site-configuration-template>5. Site Configuration Template</h3><p>Create the <code>templates/site_config.j2</code> file:</p><div class=code-block-wrapper data-lang=jinja2><div class=code-block-header><div class=code-block-meta><span class=code-language>jinja2</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=n>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>listen</span> <span class=p>{{</span> <span class=n>nginx_config</span><span class=o>.</span><span class=n>server_port</span> <span class=p>}};</span>
+</span></span><span class=line><span class=cl>    <span class=n>listen</span> <span class=p>{{</span> <span class=n>nginx_config</span><span class=o>.</span><span class=n>ssl_server_port</span> <span class=p>}}</span> <span class=n>ssl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Basic settings</span>
+</span></span><span class=line><span class=cl>    <span class=n>server_name</span> <span class=p>{{</span> <span class=n>item</span><span class=o>.</span><span class=n>domain_name</span> <span class=p>}};</span>
+</span></span><span class=line><span class=cl>    <span class=n>root</span> <span class=o>/</span><span class=k>var</span><span class=o>/</span><span class=n>www</span><span class=o>/</span><span class=p>{{</span> <span class=n>item</span><span class=o>.</span><span class=n>domain_name</span> <span class=p>}};</span>
+</span></span><span class=line><span class=cl>    <span class=n>index</span> <span class=n>index</span><span class=o>.</span><span class=n>html</span> <span class=n>index</span><span class=o>.</span><span class=n>htm</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># SSL configuration</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssl_certificate</span> <span class=p>{{</span> <span class=n>ssl_config</span><span class=o>.</span><span class=n>ssl_certificate_path</span> <span class=p>}}</span><span class=o>/</span><span class=p>{{</span> <span class=n>item</span><span class=o>.</span><span class=n>ssl_cer_name</span> <span class=p>}}</span><span class=o>.</span><span class=n>crt</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssl_certificate_key</span> <span class=p>{{</span> <span class=n>ssl_config</span><span class=o>.</span><span class=n>ssl_private_key_path</span> <span class=p>}}</span><span class=o>/</span><span class=p>{{</span> <span class=n>item</span><span class=o>.</span><span class=n>ssl_cer_name</span> <span class=p>}}</span><span class=o>.</span><span class=n>key</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssl_session_cache</span> <span class=n>shared</span><span class=p>:</span><span class=n>SSL</span><span class=p>:</span><span class=mi>1</span><span class=n>m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssl_session_timeout</span> <span class=mi>5</span><span class=n>m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Redirect configuration</span>
+</span></span><span class=line><span class=cl>    <span class=p>{{</span><span class=o>-</span> <span class=k>if</span> <span class=n>item</span><span class=o>.</span><span class=n>ssl_redirect</span> <span class=ow>and</span> <span class=n>item</span><span class=o>.</span><span class=n>ssl_force</span> <span class=p>}}</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=o>$</span><span class=n>scheme</span> <span class=o>!=</span> <span class=s2>&#34;https&#34;</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=mi>301</span> <span class=n>https</span><span class=p>:</span><span class=o>//$</span><span class=n>host</span><span class=o>$</span><span class=n>request_uri</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>{{</span><span class=o>-</span> <span class=n>endif</span> <span class=p>}}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Log configuration</span>
+</span></span><span class=line><span class=cl>    <span class=n>access_log</span> <span class=o>/</span><span class=k>var</span><span class=o>/</span><span class=nb>log</span><span class=o>/</span><span class=n>nginx</span><span class=o>/</span><span class=p>{{</span> <span class=n>item</span><span class=o>.</span><span class=n>domain_name</span> <span class=p>}}</span><span class=n>_access</span><span class=o>.</span><span class=n>log</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>error_log</span> <span class=o>/</span><span class=k>var</span><span class=o>/</span><span class=nb>log</span><span class=o>/</span><span class=n>nginx</span><span class=o>/</span><span class=p>{{</span> <span class=n>item</span><span class=o>.</span><span class=n>domain_name</span> <span class=p>}}</span><span class=n>_error</span><span class=o>.</span><span class=n>log</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Web root directory permissions</span>
+</span></span><span class=line><span class=cl>    <span class=n>location</span> <span class=o>/</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>try_files</span> <span class=o>$</span><span class=n>uri</span> <span class=o>$</span><span class=n>uri</span><span class=o>/</span> <span class=o>=</span><span class=mi>404</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Static file caching</span>
+</span></span><span class=line><span class=cl>    <span class=n>location</span> <span class=o>~*</span> \<span class=o>.</span><span class=p>(</span><span class=n>css</span><span class=o>|</span><span class=n>js</span><span class=o>|</span><span class=n>jpg</span><span class=o>|</span><span class=n>jpeg</span><span class=o>|</span><span class=n>png</span><span class=o>|</span><span class=n>gif</span><span class=o>|</span><span class=n>ico</span><span class=o>|</span><span class=n>svg</span><span class=o>|</span><span class=n>woff</span><span class=o>|</span><span class=n>woff2</span><span class=o>|</span><span class=n>ttf</span><span class=o>|</span><span class=n>eot</span><span class=p>)</span><span class=o>$</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>expires</span> <span class=mi>1</span><span class=n>y</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>add_header</span> <span class=n>Cache</span><span class=o>-</span><span class=ne>Control</span> <span class=s2>&#34;public, immutable&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Security settings</span>
+</span></span><span class=line><span class=cl>    <span class=n>location</span> <span class=o>~</span> <span class=o>/</span>\<span class=o>.</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>deny</span> <span class=n>all</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>access_log</span> <span class=n>off</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>log_not_found</span> <span class=n>off</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Error pages</span>
+</span></span><span class=line><span class=cl>    <span class=n>error_page</span> <span class=mi>404</span> <span class=o>/</span><span class=mf>404.</span><span class=n>html</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>error_page</span> <span class=mi>500</span> <span class=mi>502</span> <span class=mi>503</span> <span class=mi>504</span> <span class=o>/</span><span class=mi>50</span><span class=n>x</span><span class=o>.</span><span class=n>html</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>location</span> <span class=o>=</span> <span class=o>/</span><span class=mi>50</span><span class=n>x</span><span class=o>.</span><span class=n>html</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>root</span> <span class=o>/</span><span class=n>usr</span><span class=o>/</span><span class=n>share</span><span class=o>/</span><span class=n>nginx</span><span class=o>/</span><span class=n>html</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># PHP support (if needed)</span>
+</span></span><span class=line><span class=cl>    <span class=n>location</span> <span class=o>~</span> \<span class=o>.</span><span class=n>php</span><span class=o>$</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>fastcgi_pass</span> <span class=n>unix</span><span class=p>:</span><span class=o>/</span><span class=k>var</span><span class=o>/</span><span class=n>run</span><span class=o>/</span><span class=n>php</span><span class=o>/</span><span class=n>php8</span><span class=o>.</span><span class=mi>1</span><span class=o>-</span><span class=n>fpm</span><span class=o>.</span><span class=n>sock</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>fastcgi_index</span> <span class=n>index</span><span class=o>.</span><span class=n>php</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>fastcgi_param</span> <span class=n>SCRIPT_FILENAME</span> <span class=o>$</span><span class=n>document_root</span><span class=o>$</span><span class=n>fastcgi_script_name</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>include</span> <span class=n>fastcgi_params</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=6-handler-configuration>6. Handler Configuration</h3><p>Create the <code>handlers/main.yaml</code> file:</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>state</span><span class=p>:</span><span class=w> </span><span class=l>restarted</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>yes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>reload nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>state</span><span class=p>:</span><span class=w> </span><span class=l>reloaded</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>yes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>start nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>state</span><span class=p>:</span><span class=w> </span><span class=l>started</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>yes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>stop nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>state</span><span class=p>:</span><span class=w> </span><span class=l>stopped</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=7-ssl-report-template>7. SSL Report Template</h3><p>Create the <code>templates/ssl_report.j2</code> file:</p><div class=code-block-wrapper data-lang=jinja2><div class=code-block-header><div class=code-block-meta><span class=code-language>jinja2</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span><span class=lnt>159
+</span><span class=lnt>160
+</span><span class=lnt>161
+</span><span class=lnt>162
+</span><span class=lnt>163
+</span><span class=lnt>164
+</span><span class=lnt>165
+</span><span class=lnt>166
+</span><span class=lnt>167
+</span><span class=lnt>168
+</span><span class=lnt>169
+</span><span class=lnt>170
+</span><span class=lnt>171
+</span><span class=lnt>172
+</span><span class=lnt>173
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;!DOCTYPE html&gt;
+</span></span><span class=line><span class=cl>&lt;html lang=&#34;en&#34;&gt;
+</span></span><span class=line><span class=cl>&lt;head&gt;
+</span></span><span class=line><span class=cl>    &lt;meta charset=&#34;UTF-8&#34;&gt;
+</span></span><span class=line><span class=cl>    &lt;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1.0&#34;&gt;
+</span></span><span class=line><span class=cl>    &lt;title&gt;SSL Certificate Management Report&lt;/title&gt;
+</span></span><span class=line><span class=cl>    &lt;style&gt;
+</span></span><span class=line><span class=cl>        body {
+</span></span><span class=line><span class=cl>            font-family: Arial, sans-serif;
+</span></span><span class=line><span class=cl>            margin: 20px;
+</span></span><span class=line><span class=cl>            background-color: #f5f5f5;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .container {
+</span></span><span class=line><span class=cl>            max-width: 1200px;
+</span></span><span class=line><span class=cl>            margin: 0 auto;
+</span></span><span class=line><span class=cl>            background-color: white;
+</span></span><span class=line><span class=cl>            padding: 20px;
+</span></span><span class=line><span class=cl>            border-radius: 8px;
+</span></span><span class=line><span class=cl>            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        h1 {
+</span></span><span class=line><span class=cl>            color: #333;
+</span></span><span class=line><span class=cl>            text-align: center;
+</span></span><span class=line><span class=cl>            margin-bottom: 30px;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .cert-card {
+</span></span><span class=line><span class=cl>            border: 1px solid #ddd;
+</span></span><span class=line><span class=cl>            border-radius: 8px;
+</span></span><span class=line><span class=cl>            margin-bottom: 20px;
+</span></span><span class=line><span class=cl>            overflow: hidden;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .cert-header {
+</span></span><span class=line><span class=cl>            background-color: #007bff;
+</span></span><span class=line><span class=cl>            color: white;
+</span></span><span class=line><span class=cl>            padding: 15px;
+</span></span><span class=line><span class=cl>            font-weight: bold;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .cert-body {
+</span></span><span class=line><span class=cl>            padding: 15px;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .cert-info {
+</span></span><span class=line><span class=cl>            margin-bottom: 10px;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .cert-info label {
+</span></span><span class=line><span class=cl>            font-weight: bold;
+</span></span><span class=line><span class=cl>            color: #555;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .status {
+</span></span><span class=line><span class=cl>            padding: 5px 10px;
+</span></span><span class=line><span class=cl>            border-radius: 4px;
+</span></span><span class=line><span class=cl>            font-size: 12px;
+</span></span><span class=line><span class=cl>            font-weight: bold;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .status.valid {
+</span></span><span class=line><span class=cl>            background-color: #d4edda;
+</span></span><span class=line><span class=cl>            color: #155724;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .status.expired {
+</span></span><span class=line><span class=cl>            background-color: #f8d7da;
+</span></span><span class=line><span class=cl>            color: #721c24;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .status.expiring {
+</span></span><span class=line><span class=cl>            background-color: #fff3cd;
+</span></span><span class=line><span class=cl>            color: #856404;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        table {
+</span></span><span class=line><span class=cl>            width: 100%;
+</span></span><span class=line><span class=cl>            border-collapse: collapse;
+</span></span><span class=line><span class=cl>            margin-top: 20px;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        th, td {
+</span></span><span class=line><span class=cl>            border: 1px solid #ddd;
+</span></span><span class=line><span class=cl>            padding: 12px;
+</span></span><span class=line><span class=cl>            text-align: left;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        th {
+</span></span><span class=line><span class=cl>            background-color: #f2f2f2;
+</span></span><span class=line><span class=cl>            font-weight: bold;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        .summary {
+</span></span><span class=line><span class=cl>            background-color: #e9ecef;
+</span></span><span class=line><span class=cl>            padding: 15px;
+</span></span><span class=line><span class=cl>            border-radius: 8px;
+</span></span><span class=line><span class=cl>            margin-bottom: 20px;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>    &lt;/style&gt;
+</span></span><span class=line><span class=cl>&lt;/head&gt;
+</span></span><span class=line><span class=cl>&lt;body&gt;
+</span></span><span class=line><span class=cl>    &lt;div class=&#34;container&#34;&gt;
+</span></span><span class=line><span class=cl>        &lt;h1&gt;SSL Certificate Management Report&lt;/h1&gt;
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        &lt;div class=&#34;summary&#34;&gt;
+</span></span><span class=line><span class=cl>            &lt;h2&gt;Report Summary&lt;/h2&gt;
+</span></span><span class=line><span class=cl>            &lt;p&gt;Generated: {{ ansible_date_time.date }} {{ ansible_date_time.time }}&lt;/p&gt;
+</span></span><span class=line><span class=cl>            &lt;p&gt;Total Certificates: {{ ssl_certificates | length }}&lt;/p&gt;
+</span></span><span class=line><span class=cl>            &lt;p&gt;Valid Certificates: {{ valid_certs }}&lt;/p&gt;
+</span></span><span class=line><span class=cl>            &lt;p&gt;Expired Certificates: {{ expired_certs }}&lt;/p&gt;
+</span></span><span class=line><span class=cl>            &lt;p&gt;Expiring Soon: {{ expiring_certs }}&lt;/p&gt;
+</span></span><span class=line><span class=cl>        &lt;/div&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        &lt;h2&gt;Certificate Details&lt;/h2&gt;
+</span></span><span class=line><span class=cl>        {% for cert_name, cert_info in ssl_certificates.items() %}
+</span></span><span class=line><span class=cl>        &lt;div class=&#34;cert-card&#34;&gt;
+</span></span><span class=line><span class=cl>            &lt;div class=&#34;cert-header&#34;&gt;
+</span></span><span class=line><span class=cl>                {{ cert_info.domain_name }} - {{ cert_info.ssl_cer_name }}
+</span></span><span class=line><span class=cl>            &lt;/div&gt;
+</span></span><span class=line><span class=cl>            &lt;div class=&#34;cert-body&#34;&gt;
+</span></span><span class=line><span class=cl>                &lt;div class=&#34;cert-info&#34;&gt;
+</span></span><span class=line><span class=cl>                    &lt;label&gt;Status:&lt;/label&gt;
+</span></span><span class=line><span class=cl>                    &lt;span class=&#34;status {{ cert_info.status }}&#34;&gt;{{ cert_info.status_text }}&lt;/span&gt;
+</span></span><span class=line><span class=cl>                &lt;/div&gt;
+</span></span><span class=line><span class=cl>                &lt;div class=&#34;cert-info&#34;&gt;
+</span></span><span class=line><span class=cl>                    &lt;label&gt;IP Address:&lt;/label&gt;
+</span></span><span class=line><span class=cl>                    {{ cert_info.server_ip | join(&#39;, &#39;) }}
+</span></span><span class=line><span class=cl>                &lt;/div&gt;
+</span></span><span class=line><span class=cl>                &lt;div class=&#34;cert-info&#34;&gt;
+</span></span><span class=line><span class=cl>                    &lt;label&gt;Domain:&lt;/label&gt;
+</span></span><span class=line><span class=cl>                    {{ cert_info.domain_name }}
+</span></span><span class=line><span class=cl>                &lt;/div&gt;
+</span></span><span class=line><span class=cl>                &lt;div class=&#34;cert-info&#34;&gt;
+</span></span><span class=line><span class=cl>                    &lt;label&gt;Server Name:&lt;/label&gt;
+</span></span><span class=line><span class=cl>                    {{ cert_info.server_name }}
+</span></span><span class=line><span class=cl>                &lt;/div&gt;
+</span></span><span class=line><span class=cl>                &lt;div class=&#34;cert-info&#34;&gt;
+</span></span><span class=line><span class=cl>                    &lt;label&gt;Force HTTPS:&lt;/label&gt;
+</span></span><span class=line><span class=cl>                    {{ cert_info.ssl_force | string | lower }}
+</span></span><span class=line><span class=cl>                &lt;/div&gt;
+</span></span><span class=line><span class=cl>                &lt;div class=&#34;cert-info&#34;&gt;
+</span></span><span class=line><span class=cl>                    &lt;label&gt;Expiration Date:&lt;/label&gt;
+</span></span><span class=line><span class=cl>                    {{ cert_info.expiry_date }}
+</span></span><span class=line><span class=cl>                &lt;/div&gt;
+</span></span><span class=line><span class=cl>                &lt;div class=&#34;cert-info&#34;&gt;
+</span></span><span class=line><span class=cl>                    &lt;label&gt;Days Remaining:&lt;/label&gt;
+</span></span><span class=line><span class=cl>                    {{ cert_info.days_remaining }}
+</span></span><span class=line><span class=cl>                &lt;/div&gt;
+</span></span><span class=line><span class=cl>            &lt;/div&gt;
+</span></span><span class=line><span class=cl>        &lt;/div&gt;
+</span></span><span class=line><span class=cl>        {% endfor %}
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        &lt;h2&gt;Configuration Details&lt;/h2&gt;
+</span></span><span class=line><span class=cl>        &lt;table&gt;
+</span></span><span class=line><span class=cl>            &lt;thead&gt;
+</span></span><span class=line><span class=cl>                &lt;tr&gt;
+</span></span><span class=line><span class=cl>                    &lt;th&gt;Setting&lt;/th&gt;
+</span></span><span class=line><span class=cl>                    &lt;th&gt;Value&lt;/th&gt;
+</span></span><span class=line><span class=cl>                &lt;/tr&gt;
+</span></span><span class=line><span class=cl>            &lt;/thead&gt;
+</span></span><span class=line><span class=cl>            &lt;tbody&gt;
+</span></span><span class=line><span class=cl>                &lt;tr&gt;
+</span></span><span class=line><span class=cl>                    &lt;td&gt;Certificate Path&lt;/td&gt;
+</span></span><span class=line><span class=cl>                    &lt;td&gt;{{ ssl_config.ssl_certificate_path }}&lt;/td&gt;
+</span></span><span class=line><span class=cl>                &lt;/tr&gt;
+</span></span><span class=line><span class=cl>                &lt;tr&gt;
+</span></span><span class=line><span class=cl>                    &lt;td&gt;Private Key Path&lt;/td&gt;
+</span></span><span class=line><span class=cl>                    &lt;td&gt;{{ ssl_config.ssl_private_key_path }}&lt;/td&gt;
+</span></span><span class=line><span class=cl>                &lt;/tr&gt;
+</span></span><span class=line><span class=cl>                &lt;tr&gt;
+</span></span><span class=line><span class=cl>                    &lt;td&gt;DH Parameters Path&lt;/td&gt;
+</span></span><span class=line><span class=cl>                    &lt;td&gt;{{ ssl_config.ssl_dhparam_path }}&lt;/td&gt;
+</span></span><span class=line><span class=cl>                &lt;/tr&gt;
+</span></span><span class=line><span class=cl>                &lt;tr&gt;
+</span></span><span class=line><span class=cl>                    &lt;td&gt;SSL Protocols&lt;/td&gt;
+</span></span><span class=line><span class=cl>                    &lt;td&gt;{{ ssl_config.ssl_protocols }}&lt;/td&gt;
+</span></span><span class=line><span class=cl>                &lt;/tr&gt;
+</span></span><span class=line><span class=cl>                &lt;tr&gt;
+</span></span><span class=line><span class=cl>                    &lt;td&gt;Cipher Suites&lt;/td&gt;
+</span></span><span class=line><span class=cl>                    &lt;td&gt;{{ ssl_config.ssl_ciphers }}&lt;/td&gt;
+</span></span><span class=line><span class=cl>                &lt;/tr&gt;
+</span></span><span class=line><span class=cl>            &lt;/tbody&gt;
+</span></span><span class=line><span class=cl>        &lt;/table&gt;
+</span></span><span class=line><span class=cl>    &lt;/div&gt;
+</span></span><span class=line><span class=cl>&lt;/body&gt;
+</span></span><span class=line><span class=cl>&lt;/html&gt;</span></span></code></pre></td></tr></table></div></div></div></div><h2 id=certificate-verification-and-checking>Certificate Verification and Checking</h2><h3 id=local-certificate-content-verification>Local Certificate Content Verification</h3><p>Before deploying certificates, it&rsquo;s recommended to verify their content locally:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># View certificate details</span>
+</span></span><span class=line><span class=cl>openssl x509 -noout -text -in mail.example.com.crt
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Verify certificate format</span>
+</span></span><span class=line><span class=cl>openssl x509 -in mail.example.com.crt -text -noout <span class=p>|</span> grep <span class=s2>&#34;Subject:&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Verify certificate validity period</span>
+</span></span><span class=line><span class=cl>openssl x509 -in mail.example.com.crt -noout -dates
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Verify certificate chain integrity</span>
+</span></span><span class=line><span class=cl>openssl verify -CAfile ca-bundle.crt mail.example.com.crt
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Check certificate private key match</span>
+</span></span><span class=line><span class=cl>openssl pkey -in mail.example.com.key -pubout <span class=p>|</span> openssl dgst -sha256 -verify &lt;<span class=o>(</span>openssl x509 -in mail.example.com.crt -pubkey -noout<span class=o>)</span> -signature &lt;<span class=o>(</span>openssl x509 -in mail.example.com.crt -noout -signer mail.example.com.crt<span class=o>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=server-connection-certificate-verification>Server Connection Certificate Verification</h3><p>After deployment, verify certificates are working properly:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Connect directly to SSL port for verification</span>
+</span></span><span class=line><span class=cl>openssl s_client -connect mail.example.com:443
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Verify certificate chain</span>
+</span></span><span class=line><span class=cl>openssl s_client -connect mail.example.com:443 -showcerts
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Check SSL/TLS protocol support</span>
+</span></span><span class=line><span class=cl>openssl s_client -connect mail.example.com:443 -tls1_2
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Test SSL handshake performance</span>
+</span></span><span class=line><span class=cl>openssl s_client -connect mail.example.com:443 -msg</span></span></code></pre></td></tr></table></div></div></div></div><h2 id=ansible-playbook-usage-examples>Ansible Playbook Usage Examples</h2><h3 id=basic-deployment-playbook>Basic Deployment Playbook</h3><p>Create the <code>deploy_ssl.yml</code> file:</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>SSL certificate batch deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>hosts</span><span class=p>:</span><span class=w> </span><span class=l>ssl_servers</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>become</span><span class=p>:</span><span class=w> </span><span class=kc>yes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>vars_files</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>vars/main.yml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>tasks</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Create certificate directories</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>file</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ item }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>state</span><span class=p>:</span><span class=w> </span><span class=l>directory</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>mode</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;0755&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=s2>&#34;{{ ssl_config.ssl_certificate_path }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=s2>&#34;{{ ssl_config.ssl_private_key_path }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Copy certificate files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>copy</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>src</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;files/{{ item.ssl_cer_name }}.crt&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dest</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_config.ssl_certificate_path }}/{{ item.ssl_cer_name }}.crt&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>mode</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;0644&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>owner</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>group</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>notify</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Copy private key files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>copy</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>src</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;files/{{ item.ssl_cer_name }}.key&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dest</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_config.ssl_private_key_path }}/{{ item.ssl_cer_name }}.key&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>mode</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;0600&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>owner</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>group</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>notify</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Generate site configuration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>src</span><span class=p>:</span><span class=w> </span><span class=l>site_config.j2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dest</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/etc/nginx/conf.d/{{ item.domain_name }}.conf&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>mode</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;0644&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>owner</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>group</span><span class=p>:</span><span class=w> </span><span class=l>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>notify</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Verify SSL configuration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>command</span><span class=p>:</span><span class=w> </span><span class=l>nginx -t</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>notify</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>handlers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>restart nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>state</span><span class=p>:</span><span class=w> </span><span class=l>restarted</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=certificate-check-playbook>Certificate Check Playbook</h3><p>Create the <code>check_ssl.yml</code> file:</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>SSL certificate check</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>hosts</span><span class=p>:</span><span class=w> </span><span class=l>ssl_servers</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>become</span><span class=p>:</span><span class=w> </span><span class=kc>yes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>vars_files</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>vars/main.yml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>tasks</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Check certificate file existence</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>stat</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_config.ssl_certificate_path }}/{{ item.ssl_cer_name }}.crt&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>register</span><span class=p>:</span><span class=w> </span><span class=l>cert_stat</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Check certificate validity period</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>command</span><span class=p>:</span><span class=w> </span><span class=l>openssl x509 -enddate -noout -in &#34;{{ ssl_config.ssl_certificate_path }}/{{ item.ssl_cer_name }}.crt&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>register</span><span class=p>:</span><span class=w> </span><span class=l>cert_expiry</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>when</span><span class=p>:</span><span class=w> </span><span class=l>item.stat.exists is defined and item.stat.exists</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Calculate remaining days</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>command</span><span class=p>:</span><span class=w> </span><span class=p>&gt;</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>        openssl x509 -enddate -noout -in &#34;{{ ssl_config.ssl_certificate_path }}/{{ item.ssl_cer_name }}.crt&#34; 
+</span></span></span><span class=line><span class=cl><span class=sd>        | awk -F= &#39;/notAfter/ {print $2; system(&#34;date -d \&#34;&#34;$2\&#34; +%s&#34;)}&#39; 
+</span></span></span><span class=line><span class=cl><span class=sd>        | tail -1 | xargs -I {} expr $(( ({} - $(date +%s)) / 86400 ))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>register</span><span class=p>:</span><span class=w> </span><span class=l>days_remaining</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>when</span><span class=p>:</span><span class=w> </span><span class=l>item.stat.exists is defined and item.stat.exists</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Generate certificate report</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>src</span><span class=p>:</span><span class=w> </span><span class=l>ssl_report.j2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>dest</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/tmp/ssl_certificate_report_{{ item.domain_name }}.html&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>when</span><span class=p>:</span><span class=w> </span><span class=l>item.stat.exists is defined and item.stat.exists</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=automated-deployment-workflow>Automated Deployment Workflow</h2><h3 id=1-certificate-preparation-phase>1. Certificate Preparation Phase</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Generate private key</span>
+</span></span><span class=line><span class=cl>openssl genrsa -out mail.example.com.key <span class=m>2048</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Generate Certificate Signing Request (CSR)</span>
+</span></span><span class=line><span class=cl>openssl req -new -key mail.example.com.key -out mail.example.com.csr -subj <span class=s2>&#34;/C=CN/ST=Beijing/L=Beijing/O=Example Company/CN=mail.example.com&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Sign certificate with CA</span>
+</span></span><span class=line><span class=cl>openssl x509 -req -in mail.example.com.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out mail.example.com.crt -days <span class=m>365</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Or use Let&#39;s Encrypt to obtain a certificate</span>
+</span></span><span class=line><span class=cl>certbot certonly --standalone -d mail.example.com --email admin@example.com --agree-tos</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=2-ansible-inventory-configuration>2. Ansible Inventory Configuration</h3><p>Create the <code>inventory</code> file:</p><div class=code-block-wrapper data-lang=ini><div class=code-block-header><div class=code-block-meta><span class=code-language>ini</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=k>[ssl_servers]</span>
+</span></span><span class=line><span class=cl><span class=na>web-server-1 ansible_host</span><span class=o>=</span><span class=s>203.0.113.10</span>
+</span></span><span class=line><span class=cl><span class=na>web-server-2 ansible_host</span><span class=o>=</span><span class=s>203.0.113.11</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>[ssl_servers:vars]</span>
+</span></span><span class=line><span class=cl><span class=na>ansible_ssh_user</span><span class=o>=</span><span class=s>admin</span>
+</span></span><span class=line><span class=cl><span class=na>ansible_ssh_private_key_file</span><span class=o>=</span><span class=s>~/.ssh/id_rsa</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=3-execute-deployment>3. Execute Deployment</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Execute SSL certificate deployment</span>
+</span></span><span class=line><span class=cl>ansible-playbook -i inventory deploy_ssl.yml
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Execute certificate check</span>
+</span></span><span class=line><span class=cl>ansible-playbook -i inventory check_ssl.yml
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Check certificates on specific servers only</span>
+</span></span><span class=line><span class=cl>ansible-playbook -i inventory --limit web-server-1 check_ssl.yml</span></span></code></pre></td></tr></table></div></div></div></div><h2 id=monitoring-and-alerting>Monitoring and Alerting</h2><h3 id=certificate-expiration-monitoring>Certificate Expiration Monitoring</h3><p>Create the <code>monitor_ssl_expiry.yml</code> file:</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Monitor SSL certificate expiration</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>hosts</span><span class=p>:</span><span class=w> </span><span class=l>ssl_servers</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>become</span><span class=p>:</span><span class=w> </span><span class=kc>yes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>vars_files</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>vars/main.yml</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>tasks</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Get certificate expiration dates</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>command</span><span class=p>:</span><span class=w> </span><span class=l>openssl x509 -enddate -noout -in &#34;{{ ssl_config.ssl_certificate_path }}/{{ item.ssl_cer_name }}.crt&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ ssl_certificates.values() }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>register</span><span class=p>:</span><span class=w> </span><span class=l>cert_expiry</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Check if certificates are expiring soon</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>debug</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>msg</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;Certificate {{ item.item.ssl_cer_name }} is expiring on {{ item.stdout }}, please renew promptly!&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ cert_expiry.results }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>loop_control</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>label</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;{{ item.item.ssl_cer_name }}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>when</span><span class=p>:</span><span class=w> </span><span class=p>&gt;</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>        (ansible_date_time.epoch | int + 2592000) &gt; (item.stdout | regex_findall(&#39;notAfter=(.+)&#39;) | first | string | to_datetime(&#39;%b %d %H:%M:%S %Y %Z&#39;) | timestamp)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=auto-renewal-script>Auto-Renewal Script</h3><p>Create the <code>auto_renew_ssl.sh</code> script:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># SSL certificate auto-renewal script</span>
+</span></span><span class=line><span class=cl><span class=nv>LOG_FILE</span><span class=o>=</span><span class=s2>&#34;/var/log/ssl_renewal.log&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>NOTIFICATION_EMAIL</span><span class=o>=</span><span class=s2>&#34;admin@example.com&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>log_message<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;</span><span class=k>$(</span>date <span class=s1>&#39;+%Y-%m-%d %H:%M:%S&#39;</span><span class=k>)</span><span class=s2> - </span><span class=nv>$1</span><span class=s2>&#34;</span> <span class=p>|</span> tee -a <span class=s2>&#34;</span><span class=nv>$LOG_FILE</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>check_certificate_expiry<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>cert_file</span><span class=o>=</span><span class=nv>$1</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>domain_name</span><span class=o>=</span><span class=nv>$2</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>expiry_days</span><span class=o>=</span><span class=k>$(</span>openssl x509 -enddate -noout -in <span class=s2>&#34;</span><span class=nv>$cert_file</span><span class=s2>&#34;</span> <span class=p>|</span> awk -F<span class=o>=</span> <span class=s1>&#39;/notAfter/ {print $2; system(&#34;date -d \&#34;&#34;$2\&#34; +%s&#34;)}&#39;</span> <span class=p>|</span> tail -1 <span class=p>|</span> xargs -I <span class=o>{}</span> expr <span class=k>$((</span> <span class=o>({}</span> <span class=o>-</span> <span class=k>$(</span>date +%s<span class=k>)</span><span class=o>)</span> <span class=o>/</span> <span class=m>86400</span> <span class=k>))</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$expiry_days</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>renew_certificate<span class=o>(</span><span class=k>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>domain_name</span><span class=o>=</span><span class=nv>$1</span>
+</span></span><span class=line><span class=cl>    log_message <span class=s2>&#34;Starting certificate renewal: </span><span class=nv>$domain_name</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Renew using Let&#39;s Encrypt</span>
+</span></span><span class=line><span class=cl>    certbot renew --cert-name <span class=s2>&#34;</span><span class=nv>$domain_name</span><span class=s2>&#34;</span> --quiet
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>[</span> <span class=nv>$?</span> -eq <span class=m>0</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>        log_message <span class=s2>&#34;Certificate </span><span class=nv>$domain_name</span><span class=s2> renewed successfully&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Restart nginx to load new certificate</span>
+</span></span><span class=line><span class=cl>        systemctl restart nginx
+</span></span><span class=line><span class=cl>        log_message <span class=s2>&#34;Nginx service restarted&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>        log_message <span class=s2>&#34;Certificate </span><span class=nv>$domain_name</span><span class=s2> renewal failed&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Send alert email</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Certificate </span><span class=nv>$domain_name</span><span class=s2> renewal failed, please check immediately&#34;</span> <span class=p>|</span> mail -s <span class=s2>&#34;SSL Certificate Renewal Failure Alert&#34;</span> <span class=s2>&#34;</span><span class=nv>$NOTIFICATION_EMAIL</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Check all certificates</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> cert in /etc/letsencrypt/live/*/cert.pem<span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>[</span> -f <span class=s2>&#34;</span><span class=nv>$cert</span><span class=s2>&#34;</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>        <span class=nv>domain_name</span><span class=o>=</span><span class=k>$(</span>basename <span class=k>$(</span>dirname <span class=s2>&#34;</span><span class=nv>$cert</span><span class=s2>&#34;</span><span class=k>))</span>
+</span></span><span class=line><span class=cl>        <span class=nv>expiry_days</span><span class=o>=</span><span class=k>$(</span>check_certificate_expiry <span class=s2>&#34;</span><span class=nv>$cert</span><span class=s2>&#34;</span> <span class=s2>&#34;</span><span class=nv>$domain_name</span><span class=s2>&#34;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        log_message <span class=s2>&#34;Domain: </span><span class=nv>$domain_name</span><span class=s2>, Days remaining: </span><span class=nv>$expiry_days</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># Renew if less than 30 days remaining</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$expiry_days</span><span class=s2>&#34;</span> -lt <span class=m>30</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>            renew_certificate <span class=s2>&#34;</span><span class=nv>$domain_name</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl><span class=k>done</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>log_message <span class=s2>&#34;SSL certificate renewal check completed&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=security-best-practices>Security Best Practices</h2><h3 id=1-certificate-security-management>1. Certificate Security Management</h3><ul><li><strong>Private key protection</strong>: Ensure private key file permissions are 600, accessible only by root</li><li><strong>Regular rotation</strong>: Renew certificates every 90-180 days</li><li><strong>Backup strategy</strong>: Regularly back up certificate and private key files</li><li><strong>Access control</strong>: Restrict access to certificate files</li></ul><h3 id=2-configuration-security>2. Configuration Security</h3><ul><li><strong>Secure protocols</strong>: Enable only TLS 1.2 and TLS 1.3</li><li><strong>Strong cipher suites</strong>: Use strong encryption suites</li><li><strong>HTTP Strict Transport Security</strong>: Enable HSTS headers</li><li><strong>Security headers</strong>: Add appropriate security HTTP headers</li></ul><h3 id=3-monitoring-and-alerting>3. Monitoring and Alerting</h3><ul><li><strong>Expiration monitoring</strong>: Monitor remaining certificate validity period</li><li><strong>Vulnerability scanning</strong>: Regularly scan SSL/TLS configuration vulnerabilities</li><li><strong>Performance monitoring</strong>: Monitor SSL/TLS handshake performance</li><li><strong>Access logging</strong>: Monitor abnormal access patterns</li></ul><h2 id=troubleshooting>Troubleshooting</h2><h3 id=common-issues-and-solutions>Common Issues and Solutions</h3><h4 id=1-website-inaccessible-after-certificate-installation>1. Website Inaccessible After Certificate Installation</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Check nginx configuration syntax</span>
+</span></span><span class=line><span class=cl>nginx -t
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Check certificate file permissions</span>
+</span></span><span class=line><span class=cl>ls -la /etc/ssl/certs/
+</span></span><span class=line><span class=cl>ls -la /etc/ssl/private/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Check if certificate is loaded correctly</span>
+</span></span><span class=line><span class=cl>openssl s_client -connect mail.example.com:443</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=2-incomplete-certificate-chain>2. Incomplete Certificate Chain</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Check certificate chain</span>
+</span></span><span class=line><span class=cl>openssl s_client -connect mail.example.com:443 -showcerts
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Manually build certificate chain</span>
+</span></span><span class=line><span class=cl>cat intermediate.crt &gt; fullchain.crt
+</span></span><span class=line><span class=cl>cat your_domain.crt &gt;&gt; fullchain.crt</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=3-ssltls-handshake-failure>3. SSL/TLS Handshake Failure</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Check protocol support</span>
+</span></span><span class=line><span class=cl>openssl s_client -connect mail.example.com:443 -tls1_2
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Check cipher suite support</span>
+</span></span><span class=line><span class=cl>openssl s_client -connect mail.example.com:443 -cipher ECDHE-RSA-AES128-GCM-SHA256</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=4-incorrect-certificate-expiration-calculation>4. Incorrect Certificate Expiration Calculation</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Calculate expiration precisely</span>
+</span></span><span class=line><span class=cl>openssl x509 -enddate -noout -in mail.example.com.crt <span class=p>|</span> awk -F<span class=o>=</span> <span class=s1>&#39;/notAfter/ {print &#34;Expiration:&#34;, $2; print &#34;Days remaining:&#34;, int((mktime(gensub(/(.+) (.+) (.+) (.+) (.+) (.+)/,&#34;\\1 \\2 \\3 \\4 \\5 \\6&#34;,&#34;g&#34;, $2))-mktime(gensub(/(.+) (.+) (.+) (.+) (.+) (.+)/,&#34;\\1 \\2 \\3 \\4 \\5 \\6&#34;,&#34;g&#34;,&#34;now&#34;)))/86400)}&#39;</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=log-analysis>Log Analysis</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># View nginx error logs</span>
+</span></span><span class=line><span class=cl>tail -f /var/log/nginx/error.log
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># View SSL errors</span>
+</span></span><span class=line><span class=cl>grep <span class=s2>&#34;SSL&#34;</span> /var/log/nginx/error.log
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Analyze SSL-related errors in access logs</span>
+</span></span><span class=line><span class=cl>grep <span class=s2>&#34;443&#34;</span> /var/log/nginx/access.log <span class=p>|</span> grep -E <span class=s2>&#34;400|403|502&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=summary>Summary</h2><p>Through this detailed guide, we&rsquo;ve learned how to use Ansible for automated batch deployment and renewal management of SSL certificates. This solution offers the following advantages:</p><h3 id=key-benefits>Key Benefits:</h3><ol><li><strong>High automation</strong>: Reduces manual operations and minimizes human error</li><li><strong>Consistency</strong>: Ensures uniform configuration across all servers</li><li><strong>Scalability</strong>: Easy to add new certificates and servers</li><li><strong>Comprehensive monitoring</strong>: Provides full certificate status monitoring</li><li><strong>Rapid response</strong>: Automated renewal and alerting mechanisms</li></ol><h3 id=implementation-recommendations>Implementation Recommendations:</h3><ol><li><strong>Phased rollout</strong>: Verify in test environments first, then gradually promote to production</li><li><strong>Regular maintenance</strong>: Periodically review configurations and update best practices</li><li><strong>Documentation</strong>: Keep related documentation and operation manuals up to date</li><li><strong>Team training</strong>: Train relevant personnel to ensure correct usage</li><li><strong>Backup strategy</strong>: Establish comprehensive backup and recovery mechanisms</li></ol><h3 id=future-directions>Future Directions:</h3><ol><li><strong>CI/CD integration</strong>: Integrate SSL certificate management into automated deployment workflows</li><li><strong>Cloud platform integration</strong>: Support cloud platform certificate management services</li><li><strong>Intelligent monitoring</strong>: Use AI technology for smarter monitoring and prediction</li><li><strong>Multi-platform support</strong>: Extend support to other web servers and application servers</li><li><strong>Toolchain integration</strong>: Integrate with other operations tools for more comprehensive management</li></ol><p>SSL certificate automation management is an important part of modern operations. By properly using automation tools like Ansible, you can significantly improve operations efficiency, reduce security risks, and ensure stable operation of enterprise services. We hope the solution provided in this article offers valuable reference for your practical work.</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/ssl/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Ssl
+</a><a class=tag-chip href=/en/tags/ansible/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Ansible
+</a><a class=tag-chip href=/en/tags/nginx/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Nginx
+</a><a class=tag-chip href=/en/tags/automation/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Automation</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>

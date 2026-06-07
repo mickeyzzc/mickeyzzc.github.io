@@ -1,0 +1,1016 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - Practices and Pitfalls of Dockerizing Enterprise Applications — From Traditional Virtualization to Containerization</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/en/archives/05-docker-enterprise-application/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - Practices and Pitfalls of Dockerizing Enterprise Applications — From Traditional Virtualization to Containerization"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/archives/05-docker-enterprise-application/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2017-04-17 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2017-04-17 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - Practices and Pitfalls of Dockerizing Enterprise Applications — From Traditional Virtualization to Containerization"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/archives/05-docker-enterprise-application/><link rel=alternate hreflang=en href=/en/archives/05-docker-enterprise-application/><link rel=stylesheet href=/css/main.46502ff928865f523dcb705fd840a629c956a3b94a9e8d4263f49a144b19a6f8.css integrity="sha256-RlAv+SiGX1I9y3Bf2ECmKclWo7lKno1CY/SaFEsZpvg=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a aria-current=true class=ancestor href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/archives/05-docker-enterprise-application/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#introduction-why-containerize-enterprise-applications>Introduction (Why Containerize Enterprise Applications)</a></li><li><a href=#docker-storage-driver-selection-overlay-vs-overlay2>Docker Storage Driver Selection: overlay vs overlay2</a><ul><li><a href=#storage-driver-comparison>Storage Driver Comparison</a><ul><li><a href=#overlayfs-overlay>OverlayFS (Overlay)</a></li><li><a href=#overlayfs-overlay2>OverlayFS (Overlay2)</a></li></ul></li><li><a href=#practical-selection>Practical Selection</a></li></ul></li><li><a href=#building-the-base-docker-image>Building the Base Docker Image</a><ul><li><a href=#centos-base-environment>CentOS Base Environment</a><ul><li><a href=#dockerfile-base-structure>Dockerfile Base Structure</a></li></ul></li><li><a href=#timezone-and-character-set-configuration>Timezone and Character Set Configuration</a><ul><li><a href=#timezone-configuration>Timezone Configuration</a></li><li><a href=#character-set-configuration>Character Set Configuration</a></li><li><a href=#complete-environment-configuration>Complete Environment Configuration</a></li></ul></li><li><a href=#security-hardening>Security Hardening</a></li></ul></li><li><a href=#migrating-from-openvz-virtualization-to-docker>Migrating from OpenVZ Virtualization to Docker</a><ul><li><a href=#migration-flowchart>Migration Flowchart</a></li><li><a href=#database-export-and-import>Database Export and Import</a><ul><li><a href=#database-backup-script>Database Backup Script</a></li><li><a href=#database-restore-script>Database Restore Script</a></li></ul></li><li><a href=#writing-the-dockerfile>Writing the Dockerfile</a><ul><li><a href=#complete-dockerfile-example>Complete Dockerfile Example</a></li><li><a href=#optimized-dockerfile-single-layer-build>Optimized Dockerfile (Single-layer Build)</a></li></ul></li><li><a href=#port-mapping-and-networking>Port Mapping and Networking</a><ul><li><a href=#port-mapping-plan>Port Mapping Plan</a></li><li><a href=#docker-network-configuration>Docker Network Configuration</a></li><li><a href=#advanced-network-configuration>Advanced Network Configuration</a></li></ul></li></ul></li><li><a href=#production-environment-dockerization-pitfall-record>Production Environment Dockerization Pitfall Record</a><ul><li><a href=#issue-1-data-persistence-and-data-loss>Issue 1: Data Persistence and Data Loss</a><ul><li><a href=#symptoms>Symptoms</a></li><li><a href=#analysis>Analysis</a></li><li><a href=#solution>Solution</a></li><li><a href=#best-practices>Best Practices</a></li></ul></li><li><a href=#issue-2-network-connection-problems>Issue 2: Network Connection Problems</a><ul><li><a href=#symptoms-1>Symptoms</a></li><li><a href=#analysis-1>Analysis</a></li><li><a href=#solution-1>Solution</a></li><li><a href=#network-connectivity-testing>Network Connectivity Testing</a></li></ul></li><li><a href=#issue-3-improper-resource-management>Issue 3: Improper Resource Management</a><ul><li><a href=#symptoms-2>Symptoms</a></li><li><a href=#analysis-2>Analysis</a></li><li><a href=#solution-2>Solution</a></li><li><a href=#resource-monitoring-script>Resource Monitoring Script</a></li></ul></li><li><a href=#issue-4-complex-configuration-management>Issue 4: Complex Configuration Management</a><ul><li><a href=#symptoms-3>Symptoms</a></li><li><a href=#analysis-3>Analysis</a></li><li><a href=#solution-3>Solution</a></li></ul></li><li><a href=#issue-5-backup-and-recovery-strategy>Issue 5: Backup and Recovery Strategy</a><ul><li><a href=#symptoms-4>Symptoms</a></li><li><a href=#analysis-4>Analysis</a></li><li><a href=#solution-4>Solution</a></li><li><a href=#backup-verification-script>Backup Verification Script</a></li></ul></li></ul></li><li><a href=#summary>Summary</a><ul><li><a href=#key-takeaways>Key Takeaways</a></li><li><a href=#technology-evolution-direction>Technology Evolution Direction</a></li><li><a href=#lessons-learned>Lessons Learned</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-md"><span>architecture</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-sm"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-sm"><span>smart home</span>
+</a><a href=/en/tags/ai-programming/ class="tag-cloud__item tag-size-xs"><span>ai programming</span>
+</a><a href=/en/tags/architecture-evolution/ class="tag-cloud__item tag-size-xs"><span>architecture evolution</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Practices and Pitfalls of Dockerizing Enterprise Applications — From Traditional Virtualization to Containerization</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2017-04-17T00:00:00+00:00>April 17, 2017</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/docker/>Docker</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/docker/>Docker</a>, <a href=/en/tags/container/>Container</a>, <a href=/en/tags/devops/>Devops</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>3620 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>17 min read</span></span></div></header><div class=Content><h2 id=introduction-why-containerize-enterprise-applications>Introduction (Why Containerize Enterprise Applications)</h2><p>In the era of cloud computing, the way enterprise applications are deployed and managed is undergoing a profound transformation. While traditional virtualization technology solved the resource isolation problem, it still has many pain points in terms of operational efficiency, resource utilization, and deployment speed. The rise of Docker container technology has provided a brand-new solution for the modernization of enterprise applications.</p><p>This article shares our practical experience in the containerization migration of an enterprise email system, including technology selection, infrastructure construction, the full process of migrating from OpenVZ virtualization to Docker, and various issues encountered in production along with their solutions. Through these practical cases, we hope to provide valuable reference for teams that are currently or planning to undertake containerization migration.</p><p>Core value brought by containerization:</p><ul><li><strong>Improved resource utilization</strong>: Compared to traditional VMs, containers share the kernel, significantly improving resource utilization</li><li><strong>Faster deployment</strong>: Image standardization enables rapid application replication and deployment</li><li><strong>Environmental consistency</strong>: Development, testing, and production environments are highly consistent, eliminating the &ldquo;works on my machine&rdquo; problem</li><li><strong>Simplified operations</strong>: Standardized operational procedures reduce operational complexity</li><li><strong>Elastic scaling</strong>: Rapid response to business changes, enabling elastic scaling</li></ul><h2 id=docker-storage-driver-selection-overlay-vs-overlay2>Docker Storage Driver Selection: overlay vs overlay2</h2><p>Before containerized deployment, the choice of storage driver is a critical decision. Docker supports multiple storage drivers, among which overlay and overlay2 are the two most commonly used options.</p><h3 id=storage-driver-comparison>Storage Driver Comparison</h3><p><strong>OverlayFS</strong> is a union file system that allows multiple file systems to be layered together, forming a unified view. In the Docker environment:</p><h4 id=overlayfs-overlay>OverlayFS (Overlay)</h4><ul><li><strong>Advantages</strong>: Earlier version support, better compatibility</li><li><strong>Disadvantages</strong>: Poor performance when handling a large number of small files, does not support certain advanced features</li><li><strong>Use cases</strong>: Earlier versions of Docker, scenarios with low performance requirements</li></ul><h4 id=overlayfs-overlay2>OverlayFS (Overlay2)</h4><ul><li><strong>Advantages</strong>: Better performance, support for more advanced features such as metadata copying</li><li><strong>Disadvantages</strong>: Requires newer kernel version support</li><li><strong>Use cases</strong>: Production environments, scenarios with high performance requirements</li></ul><h3 id=practical-selection>Practical Selection</h3><p>In our practice, after performance testing and evaluation, we ultimately chose overlay2 as the primary storage driver:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Check current storage driver</span>
+</span></span><span class=line><span class=cl>docker info <span class=p>|</span> grep <span class=s2>&#34;Storage Driver&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Modify Docker configuration to use overlay2</span>
+</span></span><span class=line><span class=cl><span class=c1># Edit /etc/docker/daemon.json</span>
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;storage-driver&#34;</span>: <span class=s2>&#34;overlay2&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Restart Docker service</span>
+</span></span><span class=line><span class=cl>systemctl restart docker</span></span></code></pre></td></tr></table></div></div></div></div><p>Main reasons for choosing overlay2:</p><ol><li><strong>Performance advantage</strong>: Especially when handling a large number of small files in the enterprise email system, overlay2 performs significantly better than overlay</li><li><strong>Feature completeness</strong>: Supports more advanced features, providing a foundation for future feature expansion</li><li><strong>Community support</strong>: overlay2 is the mainstream choice recommended by the community, with rich documentation and case studies</li><li><strong>Future compatibility</strong>: Aligns with Docker&rsquo;s technology development trends</li></ol><h2 id=building-the-base-docker-image>Building the Base Docker Image</h2><p>Containerized deployment of the enterprise email system first requires building a stable, secure base Docker image. This process involves base environment selection, system configuration optimization, security hardening, and more.</p><h3 id=centos-base-environment>CentOS Base Environment</h3><p>We chose CentOS 6 as the base image, primarily considering the following factors:</p><ul><li><strong>Compatibility</strong>: Core components of the enterprise email system have good compatibility with CentOS 6</li><li><strong>Stability</strong>: CentOS 6 has undergone long-term production environment validation, ensuring stability</li><li><strong>Community support</strong>: Rich documentation and community support</li></ul><h4 id=dockerfile-base-structure>Dockerfile Base Structure</h4><div class=code-block-wrapper data-lang=dockerfile><div class=code-block-header><div class=code-block-meta><span class=code-language>dockerfile</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl><span class=c># Base image selection</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>FROM</span><span class=w> </span><span class=s>centos:6</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Maintainer information (redacted)</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>MAINTAINER</span><span class=w> </span><span class=s>Technical</span> Team &lt;tech@example.com&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Working directory setup</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>WORKDIR</span><span class=w> </span><span class=s>/opt/app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># System environment configuration</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> yum update -y <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    yum install -y <span class=se>\
+</span></span></span><span class=line><span class=cl>    wget <span class=se>\
+</span></span></span><span class=line><span class=cl>    curl <span class=se>\
+</span></span></span><span class=line><span class=cl>    tar <span class=se>\
+</span></span></span><span class=line><span class=cl>    gzip <span class=se>\
+</span></span></span><span class=line><span class=cl>    unzip <span class=se>\
+</span></span></span><span class=line><span class=cl>    which <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    yum clean all<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Create necessary users and directories</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> groupadd -r app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    useradd -r -g app -d /opt/app app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    mkdir -p /opt/app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chown -R app:app /opt/app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chmod <span class=m>755</span> /opt/app</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=timezone-and-character-set-configuration>Timezone and Character Set Configuration</h3><p>Enterprise email systems handle global user data, making correct timezone and character set configuration critical.</p><h4 id=timezone-configuration>Timezone Configuration</h4><div class=code-block-wrapper data-lang=dockerfile><div class=code-block-header><div class=code-block-meta><span class=code-language>dockerfile</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl><span class=c># Set system timezone to Asia/Shanghai</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s1>&#39;Asia/Shanghai&#39;</span> &gt; /etc/timezone</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=character-set-configuration>Character Set Configuration</h4><div class=code-block-wrapper data-lang=dockerfile><div class=code-block-header><div class=code-block-meta><span class=code-language>dockerfile</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl><span class=c># Set Chinese character set support</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> localedef -i zh_CN -f UTF-8 zh_CN.UTF-8<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Set environment variables</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>LC_ALL</span><span class=o>=</span>zh_CN.UTF-8<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>LANG</span><span class=o>=</span>zh_CN.UTF-8<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>LANGUAGE</span><span class=o>=</span>zh_CN.UTF-8</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=complete-environment-configuration>Complete Environment Configuration</h4><div class=code-block-wrapper data-lang=dockerfile><div class=code-block-header><div class=code-block-meta><span class=code-language>dockerfile</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl><span class=c># Set key environment variables</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>APP_HOME</span><span class=o>=</span>/opt/app/<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>JAVA_HOME</span><span class=o>=</span>/opt/app/java/jre<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>TOMCAT_HOME</span><span class=o>=</span>/opt/app/java/tomcat<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>PATH</span><span class=o>=</span><span class=nv>$PATH</span>:/opt/app/bin:/opt/app/sbin</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=security-hardening>Security Hardening</h3><p>The security of the base image directly affects the security of the entire containerization solution. We performed security hardening in the following areas:</p><div class=code-block-wrapper data-lang=dockerfile><div class=code-block-header><div class=code-block-meta><span class=code-language>dockerfile</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl><span class=c># Remove unnecessary users and groups</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> <span class=k>for</span> user in <span class=k>$(</span>cat /etc/passwd <span class=p>|</span> cut -d: -f1 <span class=p>|</span> grep -v root <span class=p>|</span> grep -v app<span class=k>)</span><span class=p>;</span> <span class=k>do</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>        userdel <span class=nv>$user</span><span class=p>;</span> <span class=err>
+</span></span></span><span class=line><span class=cl>    <span class=k>done</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    <span class=k>for</span> group in <span class=k>$(</span>cat /etc/group <span class=p>|</span> cut -d: -f1 <span class=p>|</span> grep -v root <span class=p>|</span> grep -v app<span class=k>)</span><span class=p>;</span> <span class=k>do</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>        groupdel <span class=nv>$group</span><span class=p>;</span> <span class=err>
+</span></span></span><span class=line><span class=cl>    <span class=k>done</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Disable unnecessary services</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> chkconfig --level <span class=m>12345</span> telnet off <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chkconfig --level <span class=m>12345</span> rsh off <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chkconfig --level <span class=m>12345</span> rlogin off<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Set file permissions</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> chmod <span class=m>644</span> /etc/passwd /etc/group /etc/shadow /etc/gshadow <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chmod <span class=m>600</span> /etc/shadow <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chmod <span class=m>600</span> /etc/gshadow</span></span></code></pre></td></tr></table></div></div></div></div><h2 id=migrating-from-openvz-virtualization-to-docker>Migrating from OpenVZ Virtualization to Docker</h2><p>Migrating the enterprise email system from OpenVZ virtualization to Docker containers is a complex process involving data migration, environment adaptation, configuration conversion, and more. The following details the entire migration process.</p><h3 id=migration-flowchart>Migration Flowchart</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A@{ shape: rounded, label: &#34;Pre-migration Preparation&#34; } --&gt; B@{ shape: rounded, label: &#34;Data Backup&#34; }
+    B --&gt; C@{ shape: rounded, label: &#34;Environment Analysis&#34; }
+    C --&gt; D@{ shape: rounded, label: &#34;Docker Image Build&#34; }
+    D --&gt; E@{ shape: rounded, label: &#34;Application Deployment Testing&#34; }
+    E --&gt; F@{ shape: rounded, label: &#34;Production Migration&#34; }
+    F --&gt; G@{ shape: rounded, label: &#34;Validation &amp; Optimization&#34; }
+    
+    A --&gt; A1@{ shape: rounded, label: &#34;Hardware Resource Assessment&#34; }
+    A --&gt; A2@{ shape: rounded, label: &#34;Network Planning&#34; }
+    A --&gt; A3@{ shape: rounded, label: &#34;Storage Planning&#34; }
+    
+    B --&gt; B1@{ shape: cyl, label: &#34;Database Backup&#34; }
+    B --&gt; B2@{ shape: doc, label: &#34;Config File Backup&#34; }
+    B --&gt; B3@{ shape: doc, label: &#34;Data File Backup&#34; }
+    
+    C --&gt; C1@{ shape: rounded, label: &#34;Dependency Analysis&#34; }
+    C --&gt; C2@{ shape: rounded, label: &#34;Port Mapping Planning&#34; }
+    C --&gt; C3@{ shape: rounded, label: &#34;Storage Requirements Assessment&#34; }
+    
+    D --&gt; D1@{ shape: rounded, label: &#34;Base Image Selection&#34; }
+    D --&gt; D2@{ shape: doc, label: &#34;Dockerfile Authoring&#34; }
+    D --&gt; D3@{ shape: rounded, label: &#34;Image Build Testing&#34; }
+    
+    E --&gt; E1@{ shape: rounded, label: &#34;Functional Testing&#34; }
+    E --&gt; E2@{ shape: rounded, label: &#34;Performance Testing&#34; }
+    E --&gt; E3@{ shape: rounded, label: &#34;Security Testing&#34; }
+    
+    F --&gt; F1@{ shape: rounded, label: &#34;Canary Release&#34; }
+    F --&gt; F2@{ shape: rounded, label: &#34;Full Migration&#34; }
+    
+    G --&gt; G1@{ shape: rounded, label: &#34;Performance Monitoring&#34; }
+    G --&gt; G2@{ shape: rounded, label: &#34;Issue Investigation&#34; }
+    G --&gt; G3@{ shape: rounded, label: &#34;Continuous Optimization&#34; }
+    
+    classDef primary fill:#e3f2fd,stroke:#1976d2
+    classDef storage fill:#e8f5e9,stroke:#4caf50
+    classDef doc fill:#fff8e1,stroke:#ffa000
+    classDef process fill:#f3e5f5,stroke:#9c27b0
+    class A,B,C,D,E,F,G,A1,A2,A3,C1,C2,C3,D1,D3,E1,E2,E3,F1,F2,G1,G2,G3 primary
+    class B1 storage
+    class B2,B3,D2 doc</code></pre></div></div><h3 id=database-export-and-import>Database Export and Import</h3><p>The database is the core of the enterprise email system, and the integrity and security of data migration are paramount.</p><h4 id=database-backup-script>Database Backup Script</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=c1># Database backup function</span>
+</span></span><span class=line><span class=cl>BACKUP_MYSQL_DATA<span class=o>(){</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Find MySQL configuration file</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>[[</span> -f /opt/app/bin/mysql_cm <span class=o>]]</span><span class=p>;</span><span class=k>then</span>
+</span></span><span class=line><span class=cl>        <span class=nv>mysqlpwd</span><span class=o>=</span><span class=k>$(</span>awk <span class=s1>&#39;/mysql/ {print $3}&#39;</span> /opt/app/bin/mysql_cm<span class=k>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=o>[[</span> -f /opt/app/conf/datasources.cf <span class=o>]]</span><span class=p>;</span><span class=k>then</span>
+</span></span><span class=line><span class=cl>        <span class=nv>mysqlpwd</span><span class=o>=</span><span class=s2>&#34;-p</span><span class=k>$(</span>cat /opt/app/conf/datasources.cf <span class=p>|</span>awk -F<span class=s1>&#39;&#34;&#39;</span> <span class=s1>&#39;/Password/ {print $2}&#39;</span><span class=p>|</span>head -n1<span class=k>)</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Error: MySQL configuration file not found&#34;</span> &gt;<span class=p>&amp;</span><span class=m>2</span>
+</span></span><span class=line><span class=cl>        <span class=nb>exit</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Backup main database</span>
+</span></span><span class=line><span class=cl>    /opt/app/mysql/bin/mysqldump -uapp <span class=si>${</span><span class=nv>mysqlpwd</span><span class=si>}</span> -h127.0.0.1 -P3308 <span class=se>\
+</span></span></span><span class=line><span class=cl>        --opt --hex-blob cmxt &gt; <span class=si>${</span><span class=nv>MyBackup</span><span class=si>}</span>/cmxt_<span class=k>$(</span>date +%Y%m%d<span class=k>)</span>.sql
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Backup log database (schema only)</span>
+</span></span><span class=line><span class=cl>    /opt/app/mysql/bin/mysqldump -uapp <span class=si>${</span><span class=nv>mysqlpwd</span><span class=si>}</span> -h127.0.0.1 -P3308 <span class=se>\
+</span></span></span><span class=line><span class=cl>        --opt -d cmxt_log &gt; <span class=si>${</span><span class=nv>MyBackup</span><span class=si>}</span>/cmxt_log_<span class=k>$(</span>date +%Y%m%d<span class=k>)</span>.sql
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Configuration file backup</span>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> /home/ <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    sudo tar zcvf <span class=si>${</span><span class=nv>MyBackup</span><span class=si>}</span>/app_conf_<span class=k>$(</span>date +%Y%m%d<span class=k>)</span>.tar.gz <span class=se>\
+</span></span></span><span class=line><span class=cl>        app/conf app/var/mainconfig</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=database-restore-script>Database Restore Script</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=c1># Database restore function</span>
+</span></span><span class=line><span class=cl>RESTORE_MYSQL_DATA<span class=o>(){</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Stop related services</span>
+</span></span><span class=line><span class=cl>    /opt/app/bin/appctl stop all
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Restore main database</span>
+</span></span><span class=line><span class=cl>    /opt/app/mysql/bin/mysql -uapp -p<span class=si>${</span><span class=nv>mysqlpwd</span><span class=si>}</span> -h127.0.0.1 -P3308 cmxt &lt; <span class=si>${</span><span class=nv>MyBackup</span><span class=si>}</span>/cmxt_<span class=k>$(</span>date +%Y%m%d<span class=k>)</span>.sql
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Restore log database schema</span>
+</span></span><span class=line><span class=cl>    /opt/app/mysql/bin/mysql -uapp -p<span class=si>${</span><span class=nv>mysqlpwd</span><span class=si>}</span> -h127.0.0.1 -P3308 cmxt_log &lt; <span class=si>${</span><span class=nv>MyBackup</span><span class=si>}</span>/cmxt_log_<span class=k>$(</span>date +%Y%m%d<span class=k>)</span>.sql
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Start services</span>
+</span></span><span class=line><span class=cl>    /opt/app/bin/appctl start all
+</span></span><span class=line><span class=cl><span class=o>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=writing-the-dockerfile>Writing the Dockerfile</h3><p>The Dockerfile is the core of containerized builds, requiring comprehensive consideration of the base environment, dependency installation, configuration optimization, and more.</p><h4 id=complete-dockerfile-example>Complete Dockerfile Example</h4><div class=code-block-wrapper data-lang=dockerfile><div class=code-block-header><div class=code-block-meta><span class=code-language>dockerfile</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>FROM</span><span class=w> </span><span class=s>centos:6</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Maintainer information</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>MAINTAINER</span><span class=w> </span><span class=s>Technical</span> Team &lt;tech@example.com&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Set timezone and character set</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    localedef -i zh_CN -f UTF-8 zh_CN.UTF-8<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Install base dependencies</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> yum update -y <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    yum reinstall glibc-common -y <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    yum install -y <span class=se>\
+</span></span></span><span class=line><span class=cl>    wget <span class=se>\
+</span></span></span><span class=line><span class=cl>    curl <span class=se>\
+</span></span></span><span class=line><span class=cl>    tar <span class=se>\
+</span></span></span><span class=line><span class=cl>    gzip <span class=se>\
+</span></span></span><span class=line><span class=cl>    unzip <span class=se>\
+</span></span></span><span class=line><span class=cl>    which <span class=se>\
+</span></span></span><span class=line><span class=cl>    <span class=o>&amp;&amp;</span> yum clean all<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Create user and working directory</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> useradd -r -g app -d /opt/app app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    mkdir -p /opt/app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chown -R app:app /opt/app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chmod <span class=m>755</span> /opt/app<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Set working directory</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>WORKDIR</span><span class=w> </span><span class=s>/opt/app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Environment variables</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>LC_ALL</span><span class=o>=</span>zh_CN.UTF-8<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>APP_HOME</span><span class=o>=</span>/opt/app/<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>JAVA_HOME</span><span class=o>=</span>/opt/app/java/jre<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>TOMCAT_HOME</span><span class=o>=</span>/opt/app/java/tomcat<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Copy enterprise email system program (assumed to be already processed)</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>COPY</span> app /opt/app/<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Set file permissions</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> chown -R app.app /opt/app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chmod <span class=m>755</span> /opt/app<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Expose ports</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>EXPOSE</span><span class=w> </span><span class=s>80</span> <span class=m>443</span> <span class=m>9900</span> <span class=m>25</span> <span class=m>465</span> <span class=m>8025</span> <span class=m>994</span> <span class=m>110</span> <span class=m>993</span> <span class=m>995</span> <span class=m>143</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Startup command</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/opt/app/bin/appctl&#34;</span><span class=p>,</span> <span class=s2>&#34;start&#34;</span><span class=p>,</span> <span class=s2>&#34;all&#34;</span><span class=p>]</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=optimized-dockerfile-single-layer-build>Optimized Dockerfile (Single-layer Build)</h4><p>To control image size, we adopted a single-layer build approach:</p><div class=code-block-wrapper data-lang=dockerfile><div class=code-block-header><div class=code-block-meta><span class=code-language>dockerfile</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>FROM</span><span class=w> </span><span class=s>centos:6</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Maintainer information</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>MAINTAINER</span><span class=w> </span><span class=s>Technical</span> Team &lt;tech@example.com&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Complete all system configuration in one step</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    yum update -y <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    yum reinstall glibc-common -y <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    yum install -y <span class=se>\
+</span></span></span><span class=line><span class=cl>    wget <span class=se>\
+</span></span></span><span class=line><span class=cl>    curl <span class=se>\
+</span></span></span><span class=line><span class=cl>    tar <span class=se>\
+</span></span></span><span class=line><span class=cl>    gzip <span class=se>\
+</span></span></span><span class=line><span class=cl>    unzip <span class=se>\
+</span></span></span><span class=line><span class=cl>    which <span class=se>\
+</span></span></span><span class=line><span class=cl>    <span class=o>&amp;&amp;</span> yum clean all <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    useradd -r -g app -d /opt/app app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    mkdir -p /opt/app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chown -R app:app /opt/app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chmod <span class=m>755</span> /opt/app<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Set working directory and environment variables</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>WORKDIR</span><span class=w> </span><span class=s>/opt/app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>LC_ALL</span><span class=o>=</span>zh_CN.UTF-8<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>APP_HOME</span><span class=o>=</span>/opt/app/<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>JAVA_HOME</span><span class=o>=</span>/opt/app/java/jre<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>TOMCAT_HOME</span><span class=o>=</span>/opt/app/java/tomcat<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Copy enterprise email system program</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>COPY</span> app /opt/app/<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Set file permissions</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> chown -R app.app /opt/app <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    chmod <span class=m>755</span> /opt/app<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Expose ports</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>EXPOSE</span><span class=w> </span><span class=s>80</span> <span class=m>443</span> <span class=m>9900</span> <span class=m>25</span> <span class=m>465</span> <span class=m>8025</span> <span class=m>994</span> <span class=m>110</span> <span class=m>993</span> <span class=m>995</span> <span class=m>143</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Startup command</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/opt/app/bin/appctl&#34;</span><span class=p>,</span> <span class=s2>&#34;start&#34;</span><span class=p>,</span> <span class=s2>&#34;all&#34;</span><span class=p>]</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=port-mapping-and-networking>Port Mapping and Networking</h3><p>The enterprise email system involves multiple service ports. Proper planning of port mapping and network configuration is key to successful containerization.</p><h4 id=port-mapping-plan>Port Mapping Plan</h4><table><thead><tr><th>Service Type</th><th>Port</th><th>Protocol</th><th>Description</th></tr></thead><tbody><tr><td>HTTP</td><td>80</td><td>TCP</td><td>Web service</td></tr><tr><td>HTTPS</td><td>443</td><td>TCP</td><td>Web service</td></tr><tr><td>SMTP</td><td>25</td><td>TCP</td><td>Email sending</td></tr><tr><td>SMTPS</td><td>465</td><td>TCP</td><td>Email sending (SSL)</td></tr><tr><td>Submissions</td><td>587</td><td>TCP</td><td>Email sending (STARTTLS)</td></tr><tr><td>POP3</td><td>110</td><td>TCP</td><td>Email receiving</td></tr><tr><td>POP3S</td><td>995</td><td>TCP</td><td>Email receiving (SSL)</td></tr><tr><td>IMAP</td><td>143</td><td>TCP</td><td>Email receiving</td></tr><tr><td>IMAPS</td><td>993</td><td>TCP</td><td>Email receiving (SSL)</td></tr><tr><td>HTTP Proxy</td><td>8025</td><td>TCP</td><td>HTTP proxy service</td></tr><tr><td>Admin Interface</td><td>9900</td><td>TCP</td><td>Web admin interface</td></tr></tbody></table><h4 id=docker-network-configuration>Docker Network Configuration</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Create custom network</span>
+</span></span><span class=line><span class=cl>docker network create --driver bridge app-network
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Start container with specified network</span>
+</span></span><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>    --name app-server <span class=se>\
+</span></span></span><span class=line><span class=cl>    --network app-network <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 80:80 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 443:443 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 25:25 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 465:465 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 587:587 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 110:110 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 995:995 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 143:143 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 993:993 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 8025:8025 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -p 9900:9900 <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/conf:/opt/app/conf <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/logs:/opt/app/logs <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/data:/opt/app/data <span class=se>\
+</span></span></span><span class=line><span class=cl>    app/as6-64bit-app</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=advanced-network-configuration>Advanced Network Configuration</h4><p>For complex deployment environments, we can use Docker Compose to manage multi-container applications:</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>version</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;3.8&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>services</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>app-server</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>app/as6-64bit-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>container_name</span><span class=p>:</span><span class=w> </span><span class=l>app-server</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>networks</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>app-network</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;80:80&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;443:443&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;25:25&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;465:465&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;587:587&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;110:110&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;995:995&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;143:143&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;993:993&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;8025:8025&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;9900:9900&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>volumes</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>/opt/app/conf:/opt/app/conf</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>/opt/app/logs:/opt/app/logs</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>/opt/app/data:/opt/app/data</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>restart</span><span class=p>:</span><span class=w> </span><span class=l>unless-stopped</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>environment</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>TZ=Asia/Shanghai</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>nginx-proxy</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>nginx:alpine</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>container_name</span><span class=p>:</span><span class=w> </span><span class=l>nginx-proxy</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>networks</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>app-network</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;80:80&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;443:443&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>volumes</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>/opt/app/conf/nginx.conf:/etc/nginx/nginx.conf</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>/opt/app/conf/ssl:/etc/nginx/ssl</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>restart</span><span class=p>:</span><span class=w> </span><span class=l>unless-stopped</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>networks</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>app-network</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>driver</span><span class=p>:</span><span class=w> </span><span class=l>bridge</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=production-environment-dockerization-pitfall-record>Production Environment Dockerization Pitfall Record</h2><p>During the migration from the test environment to production, we encountered various unexpected issues. Here we share some key pitfalls and their solutions.</p><h3 id=issue-1-data-persistence-and-data-loss>Issue 1: Data Persistence and Data Loss</h3><h4 id=symptoms>Symptoms</h4><p>After container restart, the enterprise email system&rsquo;s data was lost, and users could not use the email service normally.</p><h4 id=analysis>Analysis</h4><ul><li>Data files are stored inside the container by default, and data is lost when the container is deleted</li><li>No volume or bind mount was used for persistence</li><li>Docker containers are stateless by default</li></ul><h4 id=solution>Solution</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Use volumes for persistence</span>
+</span></span><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>    --name app-prod <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/data:/opt/app/data <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/conf:/opt/app/conf <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/logs:/opt/app/logs <span class=se>\
+</span></span></span><span class=line><span class=cl>    app/as6-64bit-app
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Or use Docker managed volumes</span>
+</span></span><span class=line><span class=cl>docker volume create app-data
+</span></span><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>    --name app-prod <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v app-data:/opt/app/data <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v app-conf:/opt/app/conf <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v app-logs:/opt/app/logs <span class=se>\
+</span></span></span><span class=line><span class=cl>    app/as6-64bit-app</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=best-practices>Best Practices</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Recommended production configuration</span>
+</span></span><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>    --name app-prod <span class=se>\
+</span></span></span><span class=line><span class=cl>    --restart<span class=o>=</span>unless-stopped <span class=se>\
+</span></span></span><span class=line><span class=cl>    --memory<span class=o>=</span>8g <span class=se>\
+</span></span></span><span class=line><span class=cl>    --cpus<span class=o>=</span><span class=m>4</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/data:/opt/app/data <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/conf:/opt/app/conf <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/logs:/opt/app/logs <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/ssl:/opt/app/ssl <span class=se>\
+</span></span></span><span class=line><span class=cl>    --log-opt max-size<span class=o>=</span>100m <span class=se>\
+</span></span></span><span class=line><span class=cl>    --log-opt max-file<span class=o>=</span><span class=m>3</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    app/as6-64bit-app</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=issue-2-network-connection-problems>Issue 2: Network Connection Problems</h3><h4 id=symptoms-1>Symptoms</h4><p>After container startup, external access to the enterprise email system&rsquo;s various ports was not possible, and inter-service communication within the container also failed.</p><h4 id=analysis-1>Analysis</h4><ul><li>Port mapping configuration errors</li><li>Firewall rules blocking</li><li>Docker network configuration issues</li><li>SELinux policy restrictions</li></ul><h4 id=solution-1>Solution</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 1. Check port mapping</span>
+</span></span><span class=line><span class=cl>docker port app-prod
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 2. Check firewall</span>
+</span></span><span class=line><span class=cl>firewall-cmd --list-ports
+</span></span><span class=line><span class=cl>firewall-cmd --add-port<span class=o>=</span>80/tcp --permanent
+</span></span><span class=line><span class=cl>firewall-cmd --add-port<span class=o>=</span>443/tcp --permanent
+</span></span><span class=line><span class=cl>firewall-cmd --add-port<span class=o>=</span>25/tcp --permanent
+</span></span><span class=line><span class=cl>firewall-cmd --add-port<span class=o>=</span>465/tcp --permanent
+</span></span><span class=line><span class=cl>firewall-cmd --reload
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 3. Check SELinux</span>
+</span></span><span class=line><span class=cl>getenforce
+</span></span><span class=line><span class=cl>setenforce <span class=m>0</span>  <span class=c1># Temporarily disable</span>
+</span></span><span class=line><span class=cl><span class=c1># Or configure SELinux policy</span>
+</span></span><span class=line><span class=cl>semanage port -a -t http_port_t -p tcp <span class=m>80</span>
+</span></span><span class=line><span class=cl>semanage port -a -t https_port_t -p tcp <span class=m>443</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 4. Check Docker network</span>
+</span></span><span class=line><span class=cl>docker network ls
+</span></span><span class=line><span class=cl>docker network inspect app-network</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=network-connectivity-testing>Network Connectivity Testing</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Test in-container network</span>
+</span></span><span class=line><span class=cl>docker <span class=nb>exec</span> app-prod ping 127.0.0.1
+</span></span><span class=line><span class=cl>docker <span class=nb>exec</span> app-prod telnet localhost <span class=m>80</span>
+</span></span><span class=line><span class=cl>docker <span class=nb>exec</span> app-prod telnet localhost <span class=m>443</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Test inter-container communication</span>
+</span></span><span class=line><span class=cl>docker <span class=nb>exec</span> nginx-proxy ping app-prod
+</span></span><span class=line><span class=cl>docker <span class=nb>exec</span> nginx-proxy telnet app-prod <span class=m>25</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=issue-3-improper-resource-management>Issue 3: Improper Resource Management</h3><h4 id=symptoms-2>Symptoms</h4><p>After the system ran for a while, container resource usage became too high, leading to degraded system performance and slow email service response.</p><h4 id=analysis-2>Analysis</h4><ul><li>No memory limits set</li><li>CPU usage too high</li><li>Disk I/O bottleneck</li><li>Log files growing indefinitely</li></ul><h4 id=solution-2>Solution</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 1. Limit container resources</span>
+</span></span><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>    --name app-prod <span class=se>\
+</span></span></span><span class=line><span class=cl>    --memory<span class=o>=</span>8g <span class=se>\
+</span></span></span><span class=line><span class=cl>    --memory-swap<span class=o>=</span>10g <span class=se>\
+</span></span></span><span class=line><span class=cl>    --cpus<span class=o>=</span><span class=m>4</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    --cpuset-cpus<span class=o>=</span>0-3 <span class=se>\
+</span></span></span><span class=line><span class=cl>    app/as6-64bit-app
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 2. Set log rotation</span>
+</span></span><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>    --name app-prod <span class=se>\
+</span></span></span><span class=line><span class=cl>    --log-opt max-size<span class=o>=</span>100m <span class=se>\
+</span></span></span><span class=line><span class=cl>    --log-opt max-file<span class=o>=</span><span class=m>3</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    app/as6-64bit-app
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 3. Monitor resource usage</span>
+</span></span><span class=line><span class=cl>docker stats
+</span></span><span class=line><span class=cl>docker top app-prod</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=resource-monitoring-script>Resource Monitoring Script</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=c1># Monitor container resource usage</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;Container resource usage:&#34;</span>
+</span></span><span class=line><span class=cl>docker stats --no-stream --format <span class=s2>&#34;table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;Container disk usage:&#34;</span>
+</span></span><span class=line><span class=cl>docker system df
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;Container log size:&#34;</span>
+</span></span><span class=line><span class=cl>docker logs app-prod --tail <span class=m>1000</span> <span class=p>|</span> wc -l</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=issue-4-complex-configuration-management>Issue 4: Complex Configuration Management</h3><h4 id=symptoms-3>Symptoms</h4><p>Configuration management across multiple environments (development, testing, production) was chaotic, configuration changes were difficult and error-prone.</p><h4 id=analysis-3>Analysis</h4><ul><li>Configuration files placed directly inside containers</li><li>Different environment configurations mixed together</li><li>Configuration changes required rebuilding images</li><li>Lack of configuration version management</li></ul><h4 id=solution-3>Solution</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 1. Use configuration file mapping</span>
+</span></span><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>    --name app-prod <span class=se>\
+</span></span></span><span class=line><span class=cl>    -v /opt/app/config/prod.conf:/opt/app/conf/config.cf <span class=se>\
+</span></span></span><span class=line><span class=cl>    app/as6-64bit-app
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 2. Use environment variables</span>
+</span></span><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>    --name app-prod <span class=se>\
+</span></span></span><span class=line><span class=cl>    -e <span class=nv>APP_DOMAIN</span><span class=o>=</span>example.com <span class=se>\
+</span></span></span><span class=line><span class=cl>    -e <span class=nv>APP_ADMIN</span><span class=o>=</span>admin@example.com <span class=se>\
+</span></span></span><span class=line><span class=cl>    -e <span class=nv>APP_PASSWORD</span><span class=o>=</span>secure_password <span class=se>\
+</span></span></span><span class=line><span class=cl>    app/as6-64bit-app
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 3. Use configuration management tools</span>
+</span></span><span class=line><span class=cl><span class=c1># Using Ansible to manage Docker configuration</span>
+</span></span><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>- name: Configure App
+</span></span><span class=line><span class=cl>  hosts: app_servers
+</span></span><span class=line><span class=cl>  become: yes
+</span></span><span class=line><span class=cl>  vars:
+</span></span><span class=line><span class=cl>    app_config:
+</span></span><span class=line><span class=cl>      domain: <span class=s2>&#34;example.com&#34;</span>
+</span></span><span class=line><span class=cl>      admin_email: <span class=s2>&#34;admin@example.com&#34;</span>
+</span></span><span class=line><span class=cl>      max_users: <span class=m>1000</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  tasks:
+</span></span><span class=line><span class=cl>    - name: Create config directory
+</span></span><span class=line><span class=cl>      file:
+</span></span><span class=line><span class=cl>        path: /opt/app/config
+</span></span><span class=line><span class=cl>        state: directory
+</span></span><span class=line><span class=cl>        mode: <span class=s1>&#39;0755&#39;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    - name: Generate config file
+</span></span><span class=line><span class=cl>      template:
+</span></span><span class=line><span class=cl>        src: app_config.j2
+</span></span><span class=line><span class=cl>        dest: /opt/app/config/prod.conf
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    - name: Restart App container
+</span></span><span class=line><span class=cl>      docker:
+</span></span><span class=line><span class=cl>        name: app-prod
+</span></span><span class=line><span class=cl>        state: restarted</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=issue-5-backup-and-recovery-strategy>Issue 5: Backup and Recovery Strategy</h3><h4 id=symptoms-4>Symptoms</h4><p>When system failures occurred, services could not be quickly restored, severely impacting business continuity.</p><h4 id=analysis-4>Analysis</h4><ul><li>Lack of a complete backup strategy</li><li>Chaotic backup data management</li><li>Unclear recovery procedures</li><li>Lack of regular drills</li></ul><h4 id=solution-4>Solution</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 1. Automated backup script</span>
+</span></span><span class=line><span class=cl><span class=c1>#!/bin/bash</span>
+</span></span><span class=line><span class=cl><span class=c1># Automated backup of enterprise email system</span>
+</span></span><span class=line><span class=cl><span class=nv>BACKUP_DIR</span><span class=o>=</span><span class=s2>&#34;/backup/app&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>DATE</span><span class=o>=</span><span class=k>$(</span>date +%Y%m%d_%H%M%S<span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Create backup directory</span>
+</span></span><span class=line><span class=cl>mkdir -p <span class=nv>$BACKUP_DIR</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Backup database</span>
+</span></span><span class=line><span class=cl>/opt/app/bin/appctl stop all
+</span></span><span class=line><span class=cl>/opt/app/mysql/bin/mysqldump -uapp -p<span class=s1>&#39;password&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    --opt --hex-blob cmxt &gt; <span class=nv>$BACKUP_DIR</span>/cmxt_<span class=nv>$DATE</span>.sql
+</span></span><span class=line><span class=cl>/opt/app/mysql/bin/mysqldump -uapp -p<span class=s1>&#39;password&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    --opt -d cmxt_log &gt; <span class=nv>$BACKUP_DIR</span>/cmxt_log_<span class=nv>$DATE</span>.sql
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Backup configuration files</span>
+</span></span><span class=line><span class=cl>tar zcvf <span class=nv>$BACKUP_DIR</span>/conf_<span class=nv>$DATE</span>.tar.gz <span class=se>\
+</span></span></span><span class=line><span class=cl>    /opt/app/conf /opt/app/var/mainconfig
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Backup data files</span>
+</span></span><span class=line><span class=cl>tar zcvf <span class=nv>$BACKUP_DIR</span>/data_<span class=nv>$DATE</span>.tar.gz <span class=se>\
+</span></span></span><span class=line><span class=cl>    /opt/app/data /opt/app/logs
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Start services</span>
+</span></span><span class=line><span class=cl>/opt/app/bin/appctl start all
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Clean up old backups (retain 30 days)</span>
+</span></span><span class=line><span class=cl>find <span class=nv>$BACKUP_DIR</span> -name <span class=s2>&#34;*.tar.gz&#34;</span> -mtime +30 -delete
+</span></span><span class=line><span class=cl>find <span class=nv>$BACKUP_DIR</span> -name <span class=s2>&#34;*.sql&#34;</span> -mtime +30 -delete</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=backup-verification-script>Backup Verification Script</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=c1># Verify backup integrity</span>
+</span></span><span class=line><span class=cl><span class=nv>BACKUP_DIR</span><span class=o>=</span><span class=s2>&#34;/backup/app&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>DATE</span><span class=o>=</span><span class=k>$(</span>date +%Y%m%d_%H%M%S<span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Check database backup</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> -f <span class=s2>&#34;</span><span class=nv>$BACKUP_DIR</span><span class=s2>/cmxt_</span><span class=nv>$DATE</span><span class=s2>.sql&#34;</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    mysql -uapp -p<span class=s1>&#39;password&#39;</span> cmxt &lt; <span class=nv>$BACKUP_DIR</span>/cmxt_<span class=nv>$DATE</span>.sql
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;Database backup verification successful&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>else</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;Database backup file does not exist&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Check configuration file backup</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> -f <span class=s2>&#34;</span><span class=nv>$BACKUP_DIR</span><span class=s2>/conf_</span><span class=nv>$DATE</span><span class=s2>.tar.gz&#34;</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    tar -tzf <span class=nv>$BACKUP_DIR</span>/conf_<span class=nv>$DATE</span>.tar.gz &gt; /dev/null
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;Configuration file backup verification successful&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>else</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;Configuration file backup does not exist&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=summary>Summary</h2><p>Through this practice of migrating the enterprise email system from OpenVZ virtualization to Docker containers, we gained many valuable experiences and lessons. Containerization technology provides strong technical support for the modernization of enterprise applications, but it also brings new challenges.</p><h3 id=key-takeaways>Key Takeaways</h3><ol><li><p><strong>Importance of Technology Selection</strong></p><ul><li>Choosing overlay2 over overlay for storage driver significantly improved performance</li><li>Choosing CentOS 6 as the base image ensured compatibility</li><li>Network architecture design considered scalability and security</li></ul></li><li><p><strong>Standardized Data Management</strong></p><ul><li>Established a complete backup and recovery strategy</li><li>Achieved persistent data storage</li><li>Configuration management achieved version control and environment isolation</li></ul></li><li><p><strong>Optimized Operations Processes</strong></p><ul><li>Containerized deployment achieved rapid delivery</li><li>Monitoring and alerting systems were improved</li><li>Failure recovery time was significantly reduced</li></ul></li><li><p><strong>Team Capability Enhancement</strong></p><ul><li>Mastered the containerization technology stack</li><li>Established standardized operations procedures</li><li>Improved troubleshooting and resolution capabilities</li></ul></li></ol><h3 id=technology-evolution-direction>Technology Evolution Direction</h3><ol><li><p><strong>Container Orchestration</strong></p><ul><li>Current single-container deployment model will evolve toward Kubernetes orchestration</li><li>Achieve automated scaling and self-healing capabilities</li><li>Support microservices architecture transformation</li></ul></li><li><p><strong>Monitoring System</strong></p><ul><li>Establish Prometheus + Grafana monitoring system</li><li>Achieve multi-dimensional performance monitoring and alerting</li><li>Support distributed tracing and link analysis</li></ul></li><li><p><strong>Security Hardening</strong></p><ul><li>Implement container security scanning and baseline checks</li><li>Establish a complete audit logging system</li><li>Support zero-trust architecture security policies</li></ul></li></ol><h3 id=lessons-learned>Lessons Learned</h3><ol><li><p><strong>Take It Step by Step</strong></p><ul><li>Start with non-core services as pilots</li><li>Validate thoroughly before rolling out to core services</li><li>Maintain rollback mechanisms to ensure business safety</li></ul></li><li><p><strong>Documentation First</strong></p><ul><li>Detailed operation manuals and contingency plans</li><li>Continuous maintenance and updates of technical documentation</li><li>Building and improving the team knowledge base</li></ul></li><li><p><strong>Thorough Testing</strong></p><ul><li>Functional testing, performance testing, and security testing are all indispensable</li><li>Stress testing should cover extreme scenarios</li><li>Regression testing ensures quality stability</li></ul></li><li><p><strong>Team Collaboration</strong></p><ul><li>Close collaboration among development, operations, and testing teams</li><li>Establish effective communication mechanisms</li><li>Knowledge sharing and skill training</li></ul></li></ol><p>Through this containerization migration practice, we not only successfully migrated the enterprise email system to the Docker platform, but more importantly, established a complete containerization operations system. This system is not only applicable to the email system but can also be extended to the containerization transformation of other enterprise applications.</p><p>Containerization technology is an important tool for enterprise digital transformation, but it is not a silver bullet. Only by combining business needs, choosing the right technical solutions, and establishing sound operations systems can we truly leverage the advantages of containerization technology to create greater value for the enterprise.</p><hr><p><strong>Author Profile</strong>: The technical team focuses on enterprise application containerization transformation, with rich practical experience in virtualization and cloud-native technologies, dedicated to improving the stability and maintainability of enterprise applications through technical means.</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/docker/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Docker
+</a><a class=tag-chip href=/en/tags/container/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Container
+</a><a class=tag-chip href=/en/tags/devops/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Devops</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>

@@ -1,0 +1,713 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - Advanced Bash Programming Techniques — Handling Message Queue Backlog with the Producer-Consumer Pattern</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/en/archives/08-bash-dev-query/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - Advanced Bash Programming Techniques — Handling Message Queue Backlog with the Producer-Consumer Pattern"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/archives/08-bash-dev-query/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2017-07-05 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2017-07-05 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - Advanced Bash Programming Techniques — Handling Message Queue Backlog with the Producer-Consumer Pattern"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/archives/08-bash-dev-query/><link rel=alternate hreflang=en href=/en/archives/08-bash-dev-query/><link rel=stylesheet href=/css/main.46502ff928865f523dcb705fd840a629c956a3b94a9e8d4263f49a144b19a6f8.css integrity="sha256-RlAv+SiGX1I9y3Bf2ECmKclWo7lKno1CY/SaFEsZpvg=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a aria-current=true class=ancestor href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/archives/08-bash-dev-query/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#introduction>Introduction</a></li><li><a href=#problem-scenario>Problem Scenario</a><ul><li><a href=#generalized-problem-description>Generalized Problem Description</a></li><li><a href=#typical-symptoms>Typical Symptoms</a></li></ul></li><li><a href=#design-approach>Design Approach</a><ul><li><a href=#multi-process-pipe-architecture>Multi-Process Pipe Architecture</a></li><li><a href=#key-design-points>Key Design Points</a></li><li><a href=#performance-advantage-analysis>Performance Advantage Analysis</a></li></ul></li><li><a href=#core-implementation>Core Implementation</a><ul><li><a href=#1-queue-scanning-module>1. Queue Scanning Module</a><ul><li><a href=#context-file-based-scanning>Context File-Based Scanning</a></li><li><a href=#log-file-based-scanning>Log File-Based Scanning</a></li></ul></li><li><a href=#2-multi-process-concurrency-architecture>2. Multi-Process Concurrency Architecture</a></li><li><a href=#3-producer-process-implementation>3. Producer Process Implementation</a></li><li><a href=#4-consumer-process-implementation>4. Consumer Process Implementation</a></li><li><a href=#5-result-summary-module>5. Result Summary Module</a></li></ul></li><li><a href=#key-bash-techniques>Key Bash Techniques</a><ul><li><a href=#1-clever-use-of-pipes-and-fifos>1. Clever Use of Pipes and FIFOs</a></li><li><a href=#2-efficient-text-processing-with-awk>2. Efficient Text Processing with awk</a></li><li><a href=#3-process-control-and-semaphores>3. Process Control and Semaphores</a></li><li><a href=#4-conditional-logic-and-error-handling>4. Conditional Logic and Error Handling</a></li><li><a href=#5-path-handling-and-variable-safety>5. Path Handling and Variable Safety</a></li></ul></li><li><a href=#complete-integration-example>Complete Integration Example</a><ul><li><a href=#main-control-script>Main Control Script</a></li></ul></li><li><a href=#summary>Summary</a><ul><li><a href=#core-advantages>Core Advantages</a></li><li><a href=#applicable-scenarios>Applicable Scenarios</a></li><li><a href=#extension-suggestions>Extension Suggestions</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-md"><span>architecture</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-sm"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-sm"><span>smart home</span>
+</a><a href=/en/tags/ai-programming/ class="tag-cloud__item tag-size-xs"><span>ai programming</span>
+</a><a href=/en/tags/architecture-evolution/ class="tag-cloud__item tag-size-xs"><span>architecture evolution</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Advanced Bash Programming Techniques — Handling Message Queue Backlog with the Producer-Consumer Pattern</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2017-07-05T00:00:00+00:00>July 5, 2017</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/linux/>Linux</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/bash/>Bash</a>, <a href=/en/tags/shell/>Shell</a>, <a href=/en/tags/linux/>Linux</a>, <a href=/en/tags/scripting/>Scripting</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2122 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>10 min read</span></span></div></header><div class=Content><h2 id=introduction>Introduction</h2><p>In message system operations, queue backlog is a common and tricky problem. Especially during malicious attacks or system anomalies, the delivery queue may accumulate a large number of messages, severely impacting normal system operation. Traditional single-process processing is not only inefficient but may also cause problems to worsen due to delayed handling.</p><p>This article shares a set of advanced Bash programming techniques based on the producer-consumer pattern. Through core technologies including multi-process concurrency, pipe communication, and efficient awk parsing, we achieve fast and effective handling of message queue backlog issues. This solution has been validated in multiple production environments, capable of improving processing efficiency several times over while ensuring system stability.</p><h2 id=problem-scenario>Problem Scenario</h2><h3 id=generalized-problem-description>Generalized Problem Description</h3><p>The main challenges faced by message delivery systems include:</p><ol><li><strong>Queue backlog caused by malicious attacks</strong>: Attackers send large volumes of spam in a short time, causing delivery queue files to surge</li><li><strong>Resource contention caused by system failures</strong>: Anti-spam engines or other services malfunction, consuming significant CPU and IO resources</li><li><strong>Sudden business peaks</strong>: Scenarios such as marketing campaigns or holiday greetings cause a sharp increase in normal email delivery volume</li><li><strong>Long-term accumulated performance bottlenecks</strong>: Over time, temporary files increase and system performance gradually degrades</li></ol><h3 id=typical-symptoms>Typical Symptoms</h3><p>When message queue problems occur, the following symptoms typically appear:</p><ul><li>Queue file count exceeds normal thresholds (e.g., thousands or even tens of thousands)</li><li>Delivery latency increases significantly, greatly extending user email receipt times</li><li>System load remains persistently high, affecting normal business processing</li><li>Disk space is consumed rapidly, posing a risk of system crash</li></ul><h2 id=design-approach>Design Approach</h2><h3 id=multi-process-pipe-architecture>Multi-Process Pipe Architecture</h3><p>This solution adopts the producer-consumer pattern, improving efficiency through multi-process concurrent processing. The core design approach is as follows:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    
+    A@{ shape: process, label: &#34;Log Scan/File Scan&#34; } --&gt; B@{ shape: cyl, label: &#34;Message Queue&#34; }
+    B --&gt; C@{ shape: process, label: &#34;Producer Process&#34; }
+    C --&gt; D@{ shape: hex, label: &#34;Pipe Communication&#34; }
+    D --&gt; E@{ shape: process, label: &#34;Consumer Process&#34; }
+    E --&gt; F@{ shape: process, label: &#34;Message Move Processing&#34; }
+    F --&gt; G@{ shape: rounded, label: &#34;Result Summary&#34; }
+    
+    class A C E F process
+    class B storage
+    class D network
+    class G primary
+    
+    subgraph &#34;Producer Side&#34;
+        A
+        B
+        C
+    end
+    
+    subgraph &#34;Consumer Side&#34;
+        D
+        E
+        F
+        G
+    end</code></pre></div></div><h3 id=key-design-points>Key Design Points</h3><ol><li><strong>Separate production from consumption</strong>: Decouple scanning tasks from move tasks to avoid mutual blocking</li><li><strong>Pipe communication</strong>: Use FIFO pipes for efficient inter-process communication</li><li><strong>Concurrency control</strong>: Control the number of concurrent processes through a semaphore mechanism</li><li><strong>Error handling</strong>: Comprehensive logging and exception handling mechanisms</li><li><strong>Resource management</strong>: Automatic cleanup of temporary files to prevent resource leaks</li></ol><h3 id=performance-advantage-analysis>Performance Advantage Analysis</h3><p>Compared to traditional single-process processing, this solution has the following advantages:</p><ol><li><strong>Parallel processing</strong>: Multiple consumer processes work simultaneously, linearly improving processing speed</li><li><strong>Load balancing</strong>: Automatically distributes tasks across different processes, avoiding single-point bottlenecks</li><li><strong>IO optimization</strong>: Batch processing of file system operations, reducing IO overhead</li><li><strong>Memory-friendly</strong>: Pipe-based stream processing avoids large amounts of data resident in memory</li></ol><h2 id=core-implementation>Core Implementation</h2><h3 id=1-queue-scanning-module>1. Queue Scanning Module</h3><p>Queue scanning is the first step in the entire processing flow, responsible for identifying target files that need processing. Here we provide two scanning methods:</p><h4 id=context-file-based-scanning>Context File-Based Scanning</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/env bash
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Scan message context files, match target emails</span>
+</span></span><span class=line><span class=cl>scan_context_files<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>pattern</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>context_dir</span><span class=o>=</span><span class=s2>&#34;/opt/app/var/mda/dacontext/&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>backup_dir</span><span class=o>=</span><span class=s2>&#34;/opt/app/backup/</span><span class=k>$(</span>date +%F<span class=k>)</span><span class=s2>/&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Create backup directory</span>
+</span></span><span class=line><span class=cl>    mkdir -p <span class=s2>&#34;</span><span class=si>${</span><span class=nv>backup_dir</span><span class=si>}</span><span class=s2>&#34;</span><span class=o>{</span>msg,dacontext<span class=o>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Find and scan context files</span>
+</span></span><span class=line><span class=cl>    find <span class=s2>&#34;</span><span class=si>${</span><span class=nv>context_dir</span><span class=si>}</span><span class=s2>&#34;</span> -type f <span class=p>|</span> <span class=k>while</span> <span class=nb>read</span> line<span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=o>[[</span> -n <span class=k>$(</span>grep -a <span class=s2>&#34;</span><span class=si>${</span><span class=nv>pattern</span><span class=si>}</span><span class=s2>&#34;</span> <span class=s2>&#34;</span><span class=nv>$line</span><span class=s2>&#34;</span><span class=k>)</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>            <span class=nb>echo</span> <span class=s2>&#34;</span><span class=k>$(</span>basename <span class=s2>&#34;</span><span class=nv>$line</span><span class=s2>&#34;</span><span class=k>)</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    <span class=k>done</span>
+</span></span><span class=line><span class=cl><span class=o>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=log-file-based-scanning>Log File-Based Scanning</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/env bash
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Scan delivery logs, extract target message IDs</span>
+</span></span><span class=line><span class=cl>scan_log_files<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>log_dir</span><span class=o>=</span><span class=s2>&#34;/opt/app/logs/rcptstat/&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>pattern</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>today</span><span class=o>=</span><span class=k>$(</span>date +%F<span class=k>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>yesterday</span><span class=o>=</span><span class=k>$(</span>date +%F -d <span class=s2>&#34;yesterday&#34;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Process today and yesterday log files</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> day in <span class=s2>&#34;</span><span class=si>${</span><span class=nv>today</span><span class=si>}</span><span class=s2>&#34;</span> <span class=s2>&#34;</span><span class=si>${</span><span class=nv>yesterday</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>        <span class=nb>local</span> <span class=nv>day_log</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>log_dir</span><span class=si>}</span><span class=s2>/da</span><span class=si>${</span><span class=nv>day</span><span class=p>//-/_</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=o>((</span><span class=nv>i</span><span class=o>=</span>0<span class=p>;</span> i&lt;24<span class=p>;</span> i++<span class=o>))</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>            <span class=nb>local</span> <span class=nv>log_file</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>day_log</span><span class=si>}</span><span class=s2>/da.127.0.0.1.</span><span class=k>$(</span>date +%H -d <span class=s2>&#34;-</span><span class=nv>$i</span><span class=s2> hour&#34;</span><span class=k>)</span><span class=s2>_00_00.log&#34;</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=o>[[</span> -f <span class=s2>&#34;</span><span class=si>${</span><span class=nv>log_file</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>                process_log_file <span class=s2>&#34;</span><span class=si>${</span><span class=nv>log_file</span><span class=si>}</span><span class=s2>&#34;</span> <span class=s2>&#34;</span><span class=si>${</span><span class=nv>pattern</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=k>fi</span>
+</span></span><span class=line><span class=cl>        <span class=k>done</span>
+</span></span><span class=line><span class=cl>    <span class=k>done</span>
+</span></span><span class=line><span class=cl><span class=o>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=2-multi-process-concurrency-architecture>2. Multi-Process Concurrency Architecture</h3><p>The core of multi-process concurrency is the pipe and semaphore mechanism:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/env bash
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Set concurrent process count</span>
+</span></span><span class=line><span class=cl><span class=nv>PROCESS_NUMS</span><span class=o>=</span><span class=m>10</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Create pipe for process control</span>
+</span></span><span class=line><span class=cl><span class=nv>TMP_FIFO_FOR_PROCESS</span><span class=o>=</span><span class=s2>&#34;/tmp/</span><span class=nv>$$</span><span class=s2>_06.fifo&#34;</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    mkfifo <span class=s2>&#34;</span><span class=si>${</span><span class=nv>TMP_FIFO_FOR_PROCESS</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    <span class=nb>exec</span> 6&lt;&gt;<span class=s2>&#34;</span><span class=si>${</span><span class=nv>TMP_FIFO_FOR_PROCESS</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    rm <span class=s2>&#34;</span><span class=si>${</span><span class=nv>TMP_FIFO_FOR_PROCESS</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Initialize semaphore</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=o>((</span><span class=nv>i</span><span class=o>=</span>0<span class=p>;</span> i&lt;<span class=si>${</span><span class=nv>PROCESS_NUMS</span><span class=si>}</span><span class=p>;</span> i++<span class=o>))</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span>
+</span></span><span class=line><span class=cl><span class=k>done</span> &gt;<span class=p>&amp;</span><span class=m>6</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Create pipe for task delivery</span>
+</span></span><span class=line><span class=cl><span class=nv>TMP_FIFO_FOR_TID</span><span class=o>=</span><span class=s2>&#34;/tmp/</span><span class=nv>$$</span><span class=s2>_07.fifo&#34;</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    mkfifo <span class=s2>&#34;</span><span class=si>${</span><span class=nv>TMP_FIFO_FOR_TID</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    <span class=nb>exec</span> 7&lt;&gt;<span class=s2>&#34;</span><span class=si>${</span><span class=nv>TMP_FIFO_FOR_TID</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    rm <span class=s2>&#34;</span><span class=si>${</span><span class=nv>TMP_FIFO_FOR_TID</span><span class=si>}</span><span class=s2>&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=3-producer-process-implementation>3. Producer Process Implementation</h3><p>The producer process is responsible for scanning files and sending tasks to the pipe:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/env bash
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Producer: scan context files and dispatch tasks</span>
+</span></span><span class=line><span class=cl>producer_context_scan<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>pattern</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>context_dir</span><span class=o>=</span><span class=s2>&#34;/opt/app/var/mda/dacontext/&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Start scan process</span>
+</span></span><span class=line><span class=cl>    find <span class=s2>&#34;</span><span class=si>${</span><span class=nv>context_dir</span><span class=si>}</span><span class=s2>&#34;</span> -type f <span class=p>|</span> <span class=k>while</span> <span class=nb>read</span> line<span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=o>[[</span> -n <span class=k>$(</span>grep -a <span class=s2>&#34;</span><span class=si>${</span><span class=nv>pattern</span><span class=si>}</span><span class=s2>&#34;</span> <span class=s2>&#34;</span><span class=nv>$line</span><span class=s2>&#34;</span><span class=k>)</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>            <span class=nb>echo</span> <span class=s2>&#34;</span><span class=k>$(</span>basename <span class=s2>&#34;</span><span class=nv>$line</span><span class=s2>&#34;</span><span class=k>)</span><span class=s2>&#34;</span> &gt;<span class=p>&amp;</span><span class=m>7</span> 2&gt;/dev/null
+</span></span><span class=line><span class=cl>        <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    <span class=k>done</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Send completion marker</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;done&#34;</span> &gt;<span class=p>&amp;</span><span class=m>7</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Producer: scan log files and dispatch tasks</span>
+</span></span><span class=line><span class=cl>producer_log_scan<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> file in <span class=s2>&#34;</span><span class=nv>$@</span><span class=s2>&#34;</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=o>[[</span> ! -f <span class=s2>&#34;</span><span class=nv>$file</span><span class=s2>&#34;</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>        <span class=k>fi</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=o>{</span>
+</span></span><span class=line><span class=cl>            <span class=c1># Process log file, extract message IDs</span>
+</span></span><span class=line><span class=cl>            awk -F<span class=s2>&#34;[][]&#34;</span> <span class=s1>&#39;
+</span></span></span><span class=line><span class=cl><span class=s1>            $0 ~ /\[cmd:remote,tid/ {
+</span></span></span><span class=line><span class=cl><span class=s1>                tid=gettid($2)
+</span></span></span><span class=line><span class=cl><span class=s1>                result=getresult($2)
+</span></span></span><span class=line><span class=cl><span class=s1>                if(result==&#34;Normal-Spam&#34;){
+</span></span></span><span class=line><span class=cl><span class=s1>                    print tid
+</span></span></span><span class=line><span class=cl><span class=s1>                }
+</span></span></span><span class=line><span class=cl><span class=s1>            }
+</span></span></span><span class=line><span class=cl><span class=s1>            
+</span></span></span><span class=line><span class=cl><span class=s1>            function gettid(s){
+</span></span></span><span class=line><span class=cl><span class=s1>                match(s,/,tid:.*[0-9],from:/)
+</span></span></span><span class=line><span class=cl><span class=s1>                start=RSTART + 5
+</span></span></span><span class=line><span class=cl><span class=s1>                end=RLENGTH - 11
+</span></span></span><span class=line><span class=cl><span class=s1>                return substr(s,start,end)
+</span></span></span><span class=line><span class=cl><span class=s1>            }
+</span></span></span><span class=line><span class=cl><span class=s1>            
+</span></span></span><span class=line><span class=cl><span class=s1>            function getresult(s){
+</span></span></span><span class=line><span class=cl><span class=s1>                match(s,/,commresult:.*,commrefid:/)
+</span></span></span><span class=line><span class=cl><span class=s1>                start=RSTART + 12
+</span></span></span><span class=line><span class=cl><span class=s1>                end=RLENGTH - 23
+</span></span></span><span class=line><span class=cl><span class=s1>                return substr(s,start,end)
+</span></span></span><span class=line><span class=cl><span class=s1>            }&#39;</span> <span class=s2>&#34;</span><span class=nv>$file</span><span class=s2>&#34;</span> <span class=p>|</span> <span class=k>while</span> <span class=nb>read</span> line<span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>                <span class=nb>echo</span> <span class=s2>&#34;</span><span class=si>${</span><span class=nv>line</span><span class=si>}</span><span class=s2>&#34;</span> &gt;<span class=p>&amp;</span><span class=m>7</span> 2&gt;/dev/null
+</span></span><span class=line><span class=cl>            <span class=k>done</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span> <span class=p>&amp;</span>
+</span></span><span class=line><span class=cl>    <span class=k>done</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Send completion marker</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;done&#34;</span> &gt;<span class=p>&amp;</span><span class=m>7</span>
+</span></span><span class=line><span class=cl><span class=o>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=4-consumer-process-implementation>4. Consumer Process Implementation</h3><p>The consumer process retrieves tasks from the pipe and executes specific move operations:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/env bash
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Consumer: process message move tasks</span>
+</span></span><span class=line><span class=cl>consumer_move_messages<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>backup_dir</span><span class=o>=</span><span class=s2>&#34;/opt/app/backup/</span><span class=k>$(</span>date +%F<span class=k>)</span><span class=s2>/&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>msg_dir</span><span class=o>=</span><span class=s2>&#34;/opt/app/var/mda/msg/&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>context_dir</span><span class=o>=</span><span class=s2>&#34;/opt/app/var/mda/dacontext/&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Create backup directory</span>
+</span></span><span class=line><span class=cl>    mkdir -p <span class=s2>&#34;</span><span class=si>${</span><span class=nv>backup_dir</span><span class=si>}</span><span class=s2>&#34;</span><span class=o>{</span>msg,dacontext<span class=o>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>while</span> true<span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>read</span> tid &lt;<span class=p>&amp;</span>7<span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>            <span class=o>[[</span> <span class=s2>&#34;</span><span class=si>${</span><span class=nv>tid</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>==</span> <span class=s1>&#39;done&#39;</span> <span class=o>]]</span> <span class=o>&amp;&amp;</span> <span class=nb>wait</span> <span class=o>&amp;&amp;</span> <span class=nb>break</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># Acquire semaphore</span>
+</span></span><span class=line><span class=cl>            <span class=nb>read</span> -u6
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># Execute move operation</span>
+</span></span><span class=line><span class=cl>            <span class=o>{</span>
+</span></span><span class=line><span class=cl>                <span class=c1># Move message file</span>
+</span></span><span class=line><span class=cl>                find <span class=s2>&#34;</span><span class=si>${</span><span class=nv>msg_dir</span><span class=si>}</span><span class=s2>&#34;</span> -name <span class=s2>&#34;</span><span class=si>${</span><span class=nv>tid</span><span class=si>}</span><span class=s2>&#34;</span> -exec mv <span class=o>{}</span> <span class=s2>&#34;</span><span class=si>${</span><span class=nv>backup_dir</span><span class=si>}</span><span class=s2>/&#34;</span> <span class=se>\;</span>
+</span></span><span class=line><span class=cl>                
+</span></span><span class=line><span class=cl>                <span class=c1># Move context file</span>
+</span></span><span class=line><span class=cl>                find <span class=s2>&#34;</span><span class=si>${</span><span class=nv>context_dir</span><span class=si>}</span><span class=s2>&#34;</span> -name <span class=s2>&#34;</span><span class=si>${</span><span class=nv>tid</span><span class=si>}</span><span class=s2>&#34;</span> -exec mv <span class=o>{}</span> <span class=s2>&#34;</span><span class=si>${</span><span class=nv>backup_dir</span><span class=si>}</span><span class=s2>/dacontext/&#34;</span> <span class=se>\;</span>
+</span></span><span class=line><span class=cl>                
+</span></span><span class=line><span class=cl>                <span class=c1># Log operation</span>
+</span></span><span class=line><span class=cl>                <span class=nb>echo</span> <span class=s2>&#34;</span><span class=k>$(</span>date <span class=s1>&#39;+%F %H:%M&#39;</span><span class=k>)</span><span class=s2> - Moved message </span><span class=si>${</span><span class=nv>tid</span><span class=si>}</span><span class=s2> to backup directory&#34;</span>
+</span></span><span class=line><span class=cl>                
+</span></span><span class=line><span class=cl>                <span class=c1># Release semaphore</span>
+</span></span><span class=line><span class=cl>                <span class=nb>echo</span> &gt;<span class=p>&amp;</span><span class=m>6</span>
+</span></span><span class=line><span class=cl>            <span class=o>}</span> <span class=p>&amp;</span>
+</span></span><span class=line><span class=cl>        <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    <span class=k>done</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>wait</span>
+</span></span><span class=line><span class=cl><span class=o>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=5-result-summary-module>5. Result Summary Module</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/env bash
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Result summary and statistics</span>
+</span></span><span class=line><span class=cl>result_summary<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>backup_dir</span><span class=o>=</span><span class=s2>&#34;/opt/app/backup/</span><span class=k>$(</span>date +%F<span class=k>)</span><span class=s2>/&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>log_file</span><span class=o>=</span><span class=s2>&#34;/opt/app/logs/cleanup_</span><span class=k>$(</span>date +%F<span class=k>)</span><span class=s2>.log&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Count processing results</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>msg_count</span><span class=o>=</span><span class=k>$(</span>find <span class=s2>&#34;</span><span class=si>${</span><span class=nv>backup_dir</span><span class=si>}</span><span class=s2>/msg/&#34;</span> -type f <span class=p>|</span> wc -l<span class=k>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>context_count</span><span class=o>=</span><span class=k>$(</span>find <span class=s2>&#34;</span><span class=si>${</span><span class=nv>backup_dir</span><span class=si>}</span><span class=s2>/dacontext/&#34;</span> -type f <span class=p>|</span> wc -l<span class=k>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Record summary information</span>
+</span></span><span class=line><span class=cl>    <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;==========================================&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Cleanup operation completed at: </span><span class=k>$(</span>date <span class=s1>&#39;+%F %H:%M:%S&#39;</span><span class=k>)</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Messages processed: </span><span class=si>${</span><span class=nv>msg_count</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Contexts processed: </span><span class=si>${</span><span class=nv>context_count</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Backup directory: </span><span class=si>${</span><span class=nv>backup_dir</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;==========================================&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span> <span class=p>|</span> tee -a <span class=s2>&#34;</span><span class=si>${</span><span class=nv>log_file</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=key-bash-techniques>Key Bash Techniques</h2><h3 id=1-clever-use-of-pipes-and-fifos>1. Clever Use of Pipes and FIFOs</h3><p><strong>Key technique</strong>: Use named pipes for inter-process communication to avoid disk IO bottlenecks</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Create bidirectional communication pipe</span>
+</span></span><span class=line><span class=cl>mkfifo /tmp/process_fifo <span class=o>&amp;&amp;</span> <span class=nb>exec</span> 3&lt;&gt; /tmp/process_fifo
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Use pipe for asynchronous communication</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;task_data&#34;</span> &gt;<span class=p>&amp;</span><span class=m>3</span>
+</span></span><span class=line><span class=cl><span class=nb>read</span> response &lt;<span class=p>&amp;</span><span class=m>3</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Practical application</strong>:</p><ul><li>Producer writes tasks to the pipe</li><li>Consumer reads tasks from the pipe</li><li>Controls concurrency through semaphores</li></ul><h3 id=2-efficient-text-processing-with-awk>2. Efficient Text Processing with awk</h3><p><strong>Key technique</strong>: Use awk for complex text parsing and filtering</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Efficient log parsing</span>
+</span></span><span class=line><span class=cl>awk -F<span class=s2>&#34;[][]&#34;</span> <span class=s1>&#39;
+</span></span></span><span class=line><span class=cl><span class=s1>$0 ~ /\[cmd:remote,tid/ {
+</span></span></span><span class=line><span class=cl><span class=s1>    tid=gettid($2)
+</span></span></span><span class=line><span class=cl><span class=s1>    result=getresult($2)
+</span></span></span><span class=line><span class=cl><span class=s1>    if(result==&#34;Normal-Spam&#34;){
+</span></span></span><span class=line><span class=cl><span class=s1>        print tid
+</span></span></span><span class=line><span class=cl><span class=s1>    }
+</span></span></span><span class=line><span class=cl><span class=s1>}
+</span></span></span><span class=line><span class=cl><span class=s1>&#39;</span> /var/log/rcptstat.log</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Performance advantages</strong>:</p><ul><li>Single-pass multi-level parsing</li><li>Built-in regular expression engine</li><li>Memory-efficient processing</li></ul><h3 id=3-process-control-and-semaphores>3. Process Control and Semaphores</h3><p><strong>Key technique</strong>: Use file descriptors to implement semaphore mechanisms</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Create semaphore control</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> i in <span class=o>{</span>1..10<span class=o>}</span><span class=p>;</span> <span class=k>do</span> echo<span class=p>;</span> <span class=k>done</span> &gt;<span class=p>&amp;</span><span class=m>6</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Acquire semaphore</span>
+</span></span><span class=line><span class=cl><span class=nb>read</span> -u6
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Release semaphore</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> &gt;<span class=p>&amp;</span><span class=m>6</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=4-conditional-logic-and-error-handling>4. Conditional Logic and Error Handling</h3><p><strong>Key technique</strong>: Comprehensive error checking and handling mechanisms</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Safe file operations</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> -f <span class=s2>&#34;</span><span class=si>${</span><span class=nv>file</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    process_file <span class=s2>&#34;</span><span class=si>${</span><span class=nv>file</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>else</span>
+</span></span><span class=line><span class=cl>    log_error <span class=s2>&#34;File does not exist: </span><span class=si>${</span><span class=nv>file</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Log function</span>
+</span></span><span class=line><span class=cl>log_error<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;[</span><span class=k>$(</span>date <span class=s1>&#39;+%F %H:%M&#39;</span><span class=k>)</span><span class=s2>] ERROR: </span><span class=nv>$1</span><span class=s2>&#34;</span> <span class=p>|</span> tee -a <span class=s2>&#34;</span><span class=si>${</span><span class=nv>LOG_FILE</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=5-path-handling-and-variable-safety>5. Path Handling and Variable Safety</h3><p><strong>Key technique</strong>: Safe path construction and variable handling</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Safe path construction</span>
+</span></span><span class=line><span class=cl><span class=nv>BASE_DIR</span><span class=o>=</span><span class=s2>&#34;/opt/app&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>TARGET_DIR</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>BASE_DIR</span><span class=si>}</span><span class=s2>/backup/</span><span class=k>$(</span>date +%F<span class=k>)</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>mkdir -p <span class=s2>&#34;</span><span class=si>${</span><span class=nv>TARGET_DIR</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Safe variable reference</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;Processing file: </span><span class=si>${</span><span class=nv>file</span><span class=k>:-</span><span class=nv>unspecified</span><span class=si>}</span><span class=s2>&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=complete-integration-example>Complete Integration Example</h2><h3 id=main-control-script>Main Control Script</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/env bash
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#!/usr/bin/env bash</span>
+</span></span><span class=line><span class=cl><span class=c1># Message queue cleanup tool - producer-consumer pattern</span>
+</span></span><span class=line><span class=cl><span class=c1># Batch cleanup of messages flagged by anti-spam engine</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Configuration parameters</span>
+</span></span><span class=line><span class=cl><span class=nv>PROCESS_NUMS</span><span class=o>=</span><span class=m>10</span>
+</span></span><span class=line><span class=cl><span class=nv>WARNING_THRESHOLD</span><span class=o>=</span><span class=m>4000</span>
+</span></span><span class=line><span class=cl><span class=nv>CRITICAL_THRESHOLD</span><span class=o>=</span><span class=m>10000</span>
+</span></span><span class=line><span class=cl><span class=nv>HELL_THRESHOLD</span><span class=o>=</span><span class=m>16000</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Base path configuration</span>
+</span></span><span class=line><span class=cl><span class=nv>BASE_DIR</span><span class=o>=</span><span class=s2>&#34;/opt/app&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>LOG_DIR</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>BASE_DIR</span><span class=si>}</span><span class=s2>/logs&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>BACKUP_DIR</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>BASE_DIR</span><span class=si>}</span><span class=s2>/backup/</span><span class=k>$(</span>date +%F<span class=k>)</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>MSG_DIR</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>BASE_DIR</span><span class=si>}</span><span class=s2>/var/mda/msg&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>CONTEXT_DIR</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>BASE_DIR</span><span class=si>}</span><span class=s2>/var/mda/dacontext&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>RCPT_LOG_DIR</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>BASE_DIR</span><span class=si>}</span><span class=s2>/logs/rcptstat&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Log files</span>
+</span></span><span class=line><span class=cl><span class=nv>CLEANUP_LOG</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>LOG_DIR</span><span class=si>}</span><span class=s2>/cleanup_</span><span class=k>$(</span>date +%F<span class=k>)</span><span class=s2>.log&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>MOVE_LOG</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>LOG_DIR</span><span class=si>}</span><span class=s2>/move_</span><span class=k>$(</span>date +%F<span class=k>)</span><span class=s2>.log&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Create required directories</span>
+</span></span><span class=line><span class=cl>mkdir -p <span class=s2>&#34;</span><span class=si>${</span><span class=nv>LOG_DIR</span><span class=si>}</span><span class=s2>&#34;</span> <span class=s2>&#34;</span><span class=si>${</span><span class=nv>BACKUP_DIR</span><span class=si>}</span><span class=s2>&#34;</span><span class=o>{</span>msg,dacontext<span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Log functions</span>
+</span></span><span class=line><span class=cl>log_error<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;[</span><span class=k>$(</span>date <span class=s1>&#39;+%F %H:%M:%S&#39;</span><span class=k>)</span><span class=s2>] ERROR: </span><span class=nv>$1</span><span class=s2>&#34;</span> <span class=p>|</span> tee -a <span class=s2>&#34;</span><span class=si>${</span><span class=nv>CLEANUP_LOG</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>log_info<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;[</span><span class=k>$(</span>date <span class=s1>&#39;+%F %H:%M:%S&#39;</span><span class=k>)</span><span class=s2>] INFO: </span><span class=nv>$1</span><span class=s2>&#34;</span> <span class=p>|</span> tee -a <span class=s2>&#34;</span><span class=si>${</span><span class=nv>CLEANUP_LOG</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Initialize pipes and semaphores</span>
+</span></span><span class=line><span class=cl>init_pipes<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Process control pipe</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>process_fifo</span><span class=o>=</span><span class=s2>&#34;/tmp/</span><span class=nv>$$</span><span class=s2>process.fifo&#34;</span>
+</span></span><span class=line><span class=cl>    mkfifo <span class=s2>&#34;</span><span class=si>${</span><span class=nv>process_fifo</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> <span class=nb>exec</span> 6&lt;&gt;<span class=s2>&#34;</span><span class=si>${</span><span class=nv>process_fifo</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> rm <span class=s2>&#34;</span><span class=si>${</span><span class=nv>process_fifo</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=o>((</span><span class=nv>i</span><span class=o>=</span>0<span class=p>;</span> i&lt;<span class=si>${</span><span class=nv>PROCESS_NUMS</span><span class=si>}</span><span class=p>;</span> i++<span class=o>))</span><span class=p>;</span> <span class=k>do</span> echo<span class=p>;</span> <span class=k>done</span> &gt;<span class=p>&amp;</span><span class=m>6</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Task delivery pipe</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>task_fifo</span><span class=o>=</span><span class=s2>&#34;/tmp/</span><span class=nv>$$</span><span class=s2>task.fifo&#34;</span>
+</span></span><span class=line><span class=cl>    mkfifo <span class=s2>&#34;</span><span class=si>${</span><span class=nv>task_fifo</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> <span class=nb>exec</span> 7&lt;&gt;<span class=s2>&#34;</span><span class=si>${</span><span class=nv>task_fifo</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> rm <span class=s2>&#34;</span><span class=si>${</span><span class=nv>task_fifo</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Cleanup functions</span>
+</span></span><span class=line><span class=cl>cleanup_functions<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Cleanup pipe file descriptors</span>
+</span></span><span class=line><span class=cl>    <span class=nb>exec</span> 6&gt;<span class=p>&amp;</span>-
+</span></span><span class=line><span class=cl>    <span class=nb>exec</span> 7&gt;<span class=p>&amp;</span>-
+</span></span><span class=line><span class=cl>    log_info <span class=s2>&#34;Cleanup complete&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Main function</span>
+</span></span><span class=line><span class=cl>main<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    log_info <span class=s2>&#34;Starting message queue cleanup check&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Initialize pipes</span>
+</span></span><span class=line><span class=cl>    init_pipes
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Check queue status</span>
+</span></span><span class=line><span class=cl>    <span class=nb>local</span> <span class=nv>queue_count</span><span class=o>=</span><span class=k>$(</span>find <span class=s2>&#34;</span><span class=si>${</span><span class=nv>MSG_DIR</span><span class=si>}</span><span class=s2>&#34;</span> -type f <span class=p>|</span> wc -l<span class=k>)</span>
+</span></span><span class=line><span class=cl>    log_info <span class=s2>&#34;Current queue file count: </span><span class=si>${</span><span class=nv>queue_count</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Select processing strategy based on queue status</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>[[</span> <span class=si>${</span><span class=nv>queue_count</span><span class=si>}</span> -gt <span class=si>${</span><span class=nv>HELL_THRESHOLD</span><span class=si>}</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>        log_error <span class=s2>&#34;Queue count </span><span class=si>${</span><span class=nv>queue_count</span><span class=si>}</span><span class=s2> has exceeded threshold </span><span class=si>${</span><span class=nv>HELL_THRESHOLD</span><span class=si>}</span><span class=s2>, starting hell mode&#34;</span>
+</span></span><span class=line><span class=cl>        emergency_cleanup
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=o>[[</span> <span class=si>${</span><span class=nv>queue_count</span><span class=si>}</span> -gt <span class=si>${</span><span class=nv>CRITICAL_THRESHOLD</span><span class=si>}</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>        log_error <span class=s2>&#34;Queue count </span><span class=si>${</span><span class=nv>queue_count</span><span class=si>}</span><span class=s2> has exceeded threshold </span><span class=si>${</span><span class=nv>CRITICAL_THRESHOLD</span><span class=si>}</span><span class=s2>, starting critical mode&#34;</span>
+</span></span><span class=line><span class=cl>        critical_cleanup
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=o>[[</span> <span class=si>${</span><span class=nv>queue_count</span><span class=si>}</span> -gt <span class=si>${</span><span class=nv>WARNING_THRESHOLD</span><span class=si>}</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>        log_error <span class=s2>&#34;Queue count </span><span class=si>${</span><span class=nv>queue_count</span><span class=si>}</span><span class=s2> has exceeded threshold </span><span class=si>${</span><span class=nv>WARNING_THRESHOLD</span><span class=si>}</span><span class=s2>, starting quick mode&#34;</span>
+</span></span><span class=line><span class=cl>        quick_cleanup
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>        log_info <span class=s2>&#34;Queue count is normal, no action needed&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Cleanup resources</span>
+</span></span><span class=line><span class=cl>    cleanup_functions
+</span></span><span class=line><span class=cl>    result_summary
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Execute main function</span>
+</span></span><span class=line><span class=cl>main <span class=s2>&#34;</span><span class=nv>$@</span><span class=s2>&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=summary>Summary</h2><p>This article detailed a set of advanced Bash programming solutions based on the producer-consumer pattern for solving message queue backlog issues. Through the combined use of multi-process concurrency, pipe communication, and efficient awk parsing, efficient queue cleanup is achieved.</p><h3 id=core-advantages>Core Advantages</h3><ol><li><strong>Excellent performance</strong>: Multi-process concurrent processing improves efficiency several times over</li><li><strong>Clear architecture</strong>: Producer-consumer separation, easy to maintain and extend</li><li><strong>Stable and reliable</strong>: Comprehensive error handling and resource management mechanisms</li><li><strong>Flexible configuration</strong>: Supports different thresholds and concurrency strategies</li></ol><h3 id=applicable-scenarios>Applicable Scenarios</h3><ul><li>Batch cleanup of messages flagged by anti-spam engines</li><li>Queue backlog handling caused by malicious attacks</li><li>Queue recovery after system failures</li><li>Regular queue maintenance and optimization</li></ul><h3 id=extension-suggestions>Extension Suggestions</h3><ol><li><strong>Monitoring integration</strong>: Integrate with monitoring systems for automated alerting and handling</li><li><strong>Strategy optimization</strong>: Adjust concurrency numbers and thresholds based on actual business needs</li><li><strong>Documentation improvement</strong>: Establish detailed operation manuals and emergency plans</li><li><strong>Testing and verification</strong>: Conduct regular stress tests to ensure solution effectiveness</li></ol><p>This solution not only solves the current problem but also provides a reusable architectural pattern that can be applied in various message processing scenarios. Through proper configuration and continuous optimization, it effectively ensures the stable operation of messaging systems.</p><hr><p><em>This document is based on actual production environment experience and aims to share practical technical solutions. In actual applications, please adjust and test according to your specific environment.</em></p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/bash/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Bash
+</a><a class=tag-chip href=/en/tags/shell/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Shell
+</a><a class=tag-chip href=/en/tags/linux/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Linux
+</a><a class=tag-chip href=/en/tags/scripting/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Scripting</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>

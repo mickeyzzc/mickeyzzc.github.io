@@ -1,0 +1,298 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - Building a Cross-City LAN with Docker</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/en/archives/mi-docker-net/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - Building a Cross-City LAN with Docker"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/archives/mi-docker-net/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2017-01-20 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2017-01-20 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - Building a Cross-City LAN with Docker"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/archives/mi-docker-net/><link rel=alternate hreflang=en href=/en/archives/mi-docker-net/><link rel=stylesheet href=/css/main.46502ff928865f523dcb705fd840a629c956a3b94a9e8d4263f49a144b19a6f8.css integrity="sha256-RlAv+SiGX1I9y3Bf2ECmKclWo7lKno1CY/SaFEsZpvg=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a aria-current=true class=ancestor href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/archives/mi-docker-net/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#overview>Overview</a></li><li><a href=#network-topology>Network Topology</a></li><li><a href=#proxy-flow>Proxy Flow</a></li><li><a href=#step-by-step-guide>Step-by-Step Guide</a><ul><li><a href=#purchase-a-cloud-server-and-deploy-docker>Purchase a Cloud Server and Deploy Docker</a></li><li><a href=#install-the-docker-openvpn-service>Install the docker-openvpn Service</a></li><li><a href=#deploy-frontend-proxy>Deploy Frontend Proxy</a></li><li><a href=#deploy-tcp-proxy>Deploy TCP Proxy</a></li><li><a href=#map-backend-ports>Map Backend Ports</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-md"><span>architecture</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-sm"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-sm"><span>smart home</span>
+</a><a href=/en/tags/ai-programming/ class="tag-cloud__item tag-size-xs"><span>ai programming</span>
+</a><a href=/en/tags/architecture-evolution/ class="tag-cloud__item tag-size-xs"><span>architecture evolution</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Building a Cross-City LAN with Docker</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2017-01-20T00:00:00+00:00>January 20, 2017</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/docker/>Docker</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/docker/>Docker</a>, <a href=/en/tags/vpn/>VPN</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>1165 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>6 min read</span></span></div></header><div class=Content><h2 id=overview>Overview</h2><p>At the time, I had servers both at home and at the office and wanted unified management, but the two internal networks were isolated. Traditional port forwarding was too cumbersome, and some services I didn&rsquo;t want exposed to the public internet. After trying several approaches, I found Docker OpenVPN to be the most hassle-free solution.</p><p>I chose Docker OpenVPN over traditional VPN mainly because containerized deployment is extremely convenient, and certificate management is much simpler. The end result was great — I could access various services on the remote internal network via domain names, saving a lot of configuration hassle.</p><h2 id=network-topology>Network Topology</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TD
+    classDef gateway fill:#e67e22,stroke:#d35400,color:#fff,stroke-width:2px
+    classDef lb fill:#2980b9,stroke:#2471a3,color:#fff,stroke-width:2px
+    classDef proxy fill:#5dade2,stroke:#2e86c1,color:#fff,stroke-width:1px
+    classDef vpn fill:#5dade2,stroke:#2e86c1,color:#fff,stroke-width:1px
+    classDef arm fill:#85c1e9,stroke:#2e86c1,color:#333,stroke-width:1px
+    classDef isp fill:#76d7c4,stroke:#1abc9c,color:#333,stroke-width:1px
+    classDef user fill:#bdc3c7,stroke:#7f8c8d,color:#333,stroke-width:1px
+    
+    subgraph overseas[&#34;Overseas Service Zone&#34;]
+        UserOut@{ shape: rounded, label: &#34;External User&#34; }:::user
+        OS@{ shape: rounded, label: &#34;Overseas Service&#34; }:::user
+        CDN@{ shape: rounded, label: &#34;CDN&#34; }:::user
+        SS1@{ shape: hex, label: &#34;SS Server 1&#34; }:::proxy
+        SS2@{ shape: hex, label: &#34;SS Server 2&#34; }:::proxy
+        UserOut --&gt;|User Access| OS
+        OS --&gt;|User Access| CDN
+        CDN --&gt;|User Access| SS2
+        OS --&gt;|Shadowsocks| SS1
+        OS --&gt;|Shadowsocks| SS2
+    end
+    
+    GFW@{ shape: hex, label: &#34;GFW Firewall&#34; }:::gateway
+    LB@{ shape: hex, label: &#34;Load Balancer&#34; }:::lb
+    
+    subgraph internal[&#34;Internal Core Zone&#34;]
+        subgraph proxyVpn[&#34;Access Proxy &amp; VPN&#34;]
+            UserIn@{ shape: rounded, label: &#34;Internal User&#34; }:::user
+            Nginx@{ shape: hex, label: &#34;Nginx&#34; }:::proxy
+            Haproxy@{ shape: hex, label: &#34;Haproxy&#34; }:::proxy
+            OpenVPN@{ shape: hex, label: &#34;OpenVPN&#34; }:::vpn
+            UserIn --&gt;|User Access| Nginx
+            UserIn --&gt;|User Access| Haproxy
+            Nginx &lt;--&gt;|DockerNet| Haproxy
+            Haproxy --&gt;|DockerNet| OpenVPN
+        end
+        subgraph armCluster[&#34;Multi-ISP ARM Cluster&#34;]
+            ARM1@{ shape: rounded, label: &#34;ARM1&#34; }:::arm --&gt; Telecom@{ shape: hex, label: &#34;Telecom AD&#34; }:::isp
+            ARM2@{ shape: rounded, label: &#34;ARM2&#34; }:::arm --&gt; Mobile@{ shape: hex, label: &#34;Mobile AD&#34; }:::isp
+            ARM3@{ shape: rounded, label: &#34;ARM3&#34; }:::arm --&gt; Unicom@{ shape: hex, label: &#34;Unicom AD&#34; }:::isp
+        end
+        Mickey@{ shape: rounded, label: &#34;Mickey&#34; }:::user
+    end
+    
+    SS1 --&gt;|Shadowsocks| GFW
+    SS2 --&gt;|Shadowsocks| GFW
+    GFW --&gt;|Shadowsocks| LB
+    LB --&gt;|SS| ARM1
+    LB --&gt;|SS| ARM2
+    LB --&gt;|SS| ARM3
+    
+    SS1 -.-&gt;|TCP BBR| GFW
+    GFW -.-&gt;|BBR| ARM1
+    GFW -.-&gt;|BBR| ARM2
+    GFW -.-&gt;|BBR| ARM3
+    
+    OpenVPN --&gt;|VPN Tunnel| Mickey
+    Telecom --&gt;|VPN| Mickey
+    Mobile --&gt;|VPN| Mickey
+    Unicom --&gt;|VPN| Mickey</code></pre></div></div><p>The overall architecture is divided into three zones: the overseas service zone traverses the firewall via Shadowsocks, passes through GFW and load balancing before being distributed to the internal ARM server cluster. The ARM boards are connected to three ISP lines — Telecom, Mobile, and Unicom — as egress points. The internal network uses Nginx/Haproxy as proxy access points, and OpenVPN provides VPN tunnels for personal users to access remotely.</p><h2 id=proxy-flow>Proxy Flow</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>graph TD
+    classDef client fill:#27ae60,stroke:#1e8449,color:#fff,stroke-width:2px
+    classDef proxy7 fill:#5dade2,stroke:#2471a3,color:#fff,stroke-width:1px
+    classDef streamSelect fill:#e67e22,stroke:#d35400,color:#fff,stroke-width:1px
+    classDef stream fill:#76d7c4,stroke:#1abc9c,color:#333,stroke-width:1px
+    classDef cache fill:#27ae60,stroke:#1e8449,color:#fff,stroke-width:2px
+    classDef lb7 fill:#e67e22,stroke:#d35400,color:#fff,stroke-width:1px
+    classDef backend fill:#27ae60,stroke:#1e8449,color:#fff,stroke-width:2px
+    classDef moduleBox fill:#ecf0f1,stroke:#7f8c8d,stroke-width:1px
+    
+    subgraph L1_7[&#34;Layer 1 Proxy · Layer 7&#34;]
+        direction TB
+        C@{ shape: rounded, label: &#34;Client&#34; }:::client
+        A1@{ shape: hex, label: &#34;Layer 1 Proxy&#34; }:::proxy7
+        S1@{ shape: hex, label: &#34;Stream to Layer 1&#34; }:::streamSelect
+        Cache@{ shape: cyl, label: &#34;Cache&#34; }:::cache
+        C --&gt; A1
+        A1 --&gt; S1
+        S1 --&gt; Cache
+    end
+    
+    subgraph L1_4[&#34;Layer 1 Proxy · Layer 4&#34;]
+        direction TB
+        ST1@{ shape: hex, label: &#34;Layer 1 Stream&#34; }:::stream
+        SE1@{ shape: hex, label: &#34;Select Next Layer Stream&#34; }:::streamSelect
+        S1 --&gt; ST1
+        ST1 --&gt; SE1
+    end
+    
+    subgraph L2_4[&#34;Layer 2 Proxy · Layer 4&#34;]
+        direction TB
+        ST2@{ shape: hex, label: &#34;Layer 2 Stream&#34; }:::stream
+        SE2@{ shape: hex, label: &#34;Select Next Layer Stream&#34; }:::streamSelect
+        SE1 --&gt; ST2
+        ST2 --&gt; SE2
+    end
+    
+    subgraph L3_7[&#34;Layer 3 Proxy · Layer 7&#34;]
+        direction TB
+        A3@{ shape: hex, label: &#34;Layer 3 Proxy&#34; }:::proxy7
+        LB7@{ shape: hex, label: &#34;Layer 7 Load Balancer&#34; }:::lb7
+        Backend@{ shape: rounded, label: &#34;Backend System&#34; }:::backend
+        SE2 --&gt; A3
+        A3 --&gt; LB7
+        LB7 --&gt; Backend
+    end</code></pre></div></div><h2 id=step-by-step-guide>Step-by-Step Guide</h2><ul><li><h3 id=purchase-a-cloud-server-and-deploy-docker>Purchase a Cloud Server and Deploy Docker</h3><p>You need a public VPS as a relay, because OpenVPN requires a public entry point for clients to connect to. It&rsquo;s recommended to purchase a Linux system that supports systemctl for easier management, and deploy Docker:</p><ol><li>Format external storage as an XFS partition:</li></ol><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=c1># mkfs.xfs /dev/vdb5</span>
+</span></span><span class=line><span class=cl>  <span class=c1># echo &#34;/dev/vdb5 /mnt/data xfs defaults 1 1&#34; |tee -a /etc/fstab</span></span></span></code></pre></td></tr></table></div></div></div></div><ol start=2><li>Adjust the Docker directory using one of two methods:</li></ol><ul><li>Mount the /var/lib/docker directory:</li></ul><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=c1># systemctl stop docker</span>
+</span></span><span class=line><span class=cl>  <span class=c1># mkdir -p /mnt/data/docker</span>
+</span></span><span class=line><span class=cl>  <span class=c1># rsync -aXS /var/lib/docker/.  /mnt/data/docker/</span>
+</span></span><span class=line><span class=cl>  <span class=c1># echo &#34;/mnt/data/docker /var/lib/docker none bind 0 0&#34;|tee -a /etc/fstab</span>
+</span></span><span class=line><span class=cl>  <span class=c1># mount -a</span>
+</span></span><span class=line><span class=cl>  <span class=c1># systemctl start docker</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>Specify a custom directory:
+Modify /etc/systemd/system/multi-user.target.wants/docker.service as follows:</li></ul><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=nv>ExecStart</span><span class=o>=</span>/usr/bin/dockerd --storage-driver<span class=o>=</span>overlay2 -g /mnt/hhd/docker</span></span></code></pre></td></tr></table></div></div></div></div></li><li><h3 id=install-the-docker-openvpn-service>Install the docker-openvpn Service</h3><p><a href=https://hub.docker.com/r/kylemanna/openvpn/>docker-openvpn</a></p><ul><li>Pick a name for the $OVPN_DATA data volume container, it will be created automatically.</li></ul><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=c1># OVPN_DATA=&#34;ovpn-data&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>Initialize the $OVPN_DATA container that will hold the configuration files and certificates</li></ul><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=c1># docker volume create --name $OVPN_DATA</span>
+</span></span><span class=line><span class=cl>  <span class=c1># docker run -v $OVPN_DATA:/etc/openvpn \</span>
+</span></span><span class=line><span class=cl>    --rm kylemanna/openvpn ovpn_genconfig <span class=se>\
+</span></span></span><span class=line><span class=cl>    -u udp://VPN.SERVERNAME.COM
+</span></span><span class=line><span class=cl>  <span class=c1># docker run -v $OVPN_DATA:/etc/openvpn \</span>
+</span></span><span class=line><span class=cl>    --rm -it kylemanna/openvpn ovpn_initpki</span></span></code></pre></td></tr></table></div></div></div></div><p>If using TCP</p><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=c1># docker run -v $OVPN_DATA:/etc/openvpn \</span>
+</span></span><span class=line><span class=cl>    --rm kylemanna/openvpn ovpn_genconfig <span class=se>\
+</span></span></span><span class=line><span class=cl>    -u tcp://VPN.SERVERNAME.COM:1443</span></span></code></pre></td></tr></table></div></div></div></div><ul><li>Start OpenVPN server process</li></ul><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=c1># docker run -v $OVPN_DATA:/etc/openvpn -d \</span>
+</span></span><span class=line><span class=cl>    -p 1194:1194/udp <span class=se>\
+</span></span></span><span class=line><span class=cl>    --cap-add<span class=o>=</span>NET_ADMIN kylemanna/openvpn</span></span></code></pre></td></tr></table></div></div></div></div><p>OR</p><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=c1># docker run -v $OVPN_DATA:/etc/openvpn -d \</span>
+</span></span><span class=line><span class=cl>    -p 1443:1194/tcp <span class=se>\
+</span></span></span><span class=line><span class=cl>    --cap-add<span class=o>=</span>NET_ADMIN kylemanna/openvpn</span></span></code></pre></td></tr></table></div></div></div></div><p>Running a Second Fallback TCP Container</p><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=c1># docker run -v $OVPN_DATA:/etc/openvpn \</span>
+</span></span><span class=line><span class=cl>    --rm -p 1443:1194/tcp <span class=se>\
+</span></span></span><span class=line><span class=cl>    --privileged kylemanna/openvpn ovpn_run <span class=se>\
+</span></span></span><span class=line><span class=cl>    --proto tcp</span></span></code></pre></td></tr></table></div></div></div></div><ul><li>Generate a client certificate without a passphrase.
+Retrieve the client configuration with embedded certificates. &ldquo;CLIENTNAME&rdquo; can be customized:</li></ul><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=c1># docker run -v $OVPN_DATA:/etc/openvpn \</span>
+</span></span><span class=line><span class=cl>    --rm -it kylemanna/openvpn easyrsa build-client-full CLIENTNAME nopass
+</span></span><span class=line><span class=cl>  <span class=c1># docker run -v $OVPN_DATA:/etc/openvpn \</span>
+</span></span><span class=line><span class=cl>    --rm kylemanna/openvpn ovpn_getclient CLIENTNAME &gt; CLIENTNAME.ovpn</span></span></code></pre></td></tr></table></div></div></div></div><ul><li>Add routing rules so that the Docker internal network can access VPN client nodes
+Add a routing rule on the Docker host so that other containers can access OpenVPN client nodes through the default network:</li></ul><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>  <span class=c1># ip route add 192.168.255.0/24 via $DOCKER_OPENVPN_IP</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li>Configure static internal/external IPs for clients to ensure consistent IPs across connections, simplifying proxy configuration</li></ul><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># cat ccd/CLIENTNAME</span>
+</span></span><span class=line><span class=cl>ifconfig-push 192.168.255.10 192.168.255.9</span></span></code></pre></td></tr></table></div></div></div></div></li><li><h3 id=deploy-frontend-proxy>Deploy Frontend Proxy</h3><ul><li>Use <a href=https://hub.docker.com/r/abiosoft/caddy/>DOCKER-CADDY</a> as the reverse proxy, mainly for automatic HTTPS and simple configuration</li></ul></li></ul><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>  -v <span class=k>$(</span><span class=nb>pwd</span><span class=k>)</span>/Caddyfile:/etc/Caddyfile <span class=se>\
+</span></span></span><span class=line><span class=cl>  -v <span class=nv>$HOME</span>/.caddy:/root/.caddy <span class=se>\
+</span></span></span><span class=line><span class=cl>  -p 80:80 -p 443:443 <span class=se>\
+</span></span></span><span class=line><span class=cl>  --name caddy <span class=se>\
+</span></span></span><span class=line><span class=cl>  --link openvpn:openvpn <span class=se>\
+</span></span></span><span class=line><span class=cl>  abiosoft/caddy</span></span></code></pre></td></tr></table></div></div></div></div><ul><li>Caddy configuration reference:</li></ul><div class=code-block-wrapper data-lang=ini><div class=code-block-header><div class=code-block-meta><span class=code-language>ini</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl>  <span class=na>http://git.mickeybee.cn {</span>
+</span></span><span class=line><span class=cl>    <span class=na>redir https://git.mickeybee.cn{url}</span>
+</span></span><span class=line><span class=cl>  <span class=na>}</span>
+</span></span><span class=line><span class=cl>  <span class=na>https://git.mickeybee.cn {</span>
+</span></span><span class=line><span class=cl>    <span class=na>gzip</span>
+</span></span><span class=line><span class=cl>    <span class=na>proxy / 192.168.xxx.xx:3000</span>
+</span></span><span class=line><span class=cl>    <span class=na>tls xxx@xxx.com {</span>
+</span></span><span class=line><span class=cl>      <span class=na>max_certs 10</span>
+</span></span><span class=line><span class=cl>      <span class=na>key_type  p256</span>
+</span></span><span class=line><span class=cl>    <span class=na>}</span>
+</span></span><span class=line><span class=cl>  <span class=na>}</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li><h3 id=deploy-tcp-proxy>Deploy TCP Proxy</h3><ul><li>Use <a href=https://hub.docker.com/_/haproxy/>DOCKER-HAPROXY</a> for deployment, suitable for handling database connections, SSH, and other long-lived connections</li></ul></li></ul><div class=code-block-wrapper data-lang=shell><div class=code-block-header><div class=code-block-meta><span class=code-language>shell</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>  -v <span class=k>$(</span><span class=nb>pwd</span><span class=k>)</span>/haproxy:/usr/local/etc/haproxy:ro <span class=se>\
+</span></span></span><span class=line><span class=cl>  -p xxx:xxx -p yyy:yyy <span class=se>\
+</span></span></span><span class=line><span class=cl>  --name haproxy <span class=se>\
+</span></span></span><span class=line><span class=cl>  --link openvpn:openvpn <span class=se>\
+</span></span></span><span class=line><span class=cl>  haproxy</span></span></code></pre></td></tr></table></div></div></div></div><ul><li><h3 id=map-backend-ports>Map Backend Ports</h3>Add backend service mappings in the HAProxy configuration file, specifying the IP addresses and port numbers, supporting both TCP and HTTP proxy modes. Restart the HAProxy service after configuration changes to apply them.</li></ul></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/docker/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Docker
+</a><a class=tag-chip href=/en/tags/vpn/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+VPN</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>

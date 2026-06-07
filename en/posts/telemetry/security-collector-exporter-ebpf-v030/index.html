@@ -1,0 +1,317 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - security-collector-exporter v0.3.0: Real-Time Security Monitoring with eBPF</title><meta name=description content="From v0.1.0's static security configuration collection to v0.3.0's eBPF real-time kernel-level security event monitoring, chronicling the pitfalls encountered and the final stable solution. Five types of BPF programs covering processes, network, files, privilege escalation, and kernel modules, with adaptive sampling and lock-free pre-aggregation."><meta name=keywords content="eBPF,,Prometheus,exporter,,Linux,security,monitoring,,kernel,monitoring,,cilium/ebpf"><link rel=canonical href=/en/posts/telemetry/security-collector-exporter-ebpf-v030/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - security-collector-exporter v0.3.0: Real-Time Security Monitoring with eBPF"><meta property="og:description" content="From v0.1.0's static security configuration collection to v0.3.0's eBPF real-time kernel-level security event monitoring, chronicling the pitfalls encountered and the final stable solution. Five types of BPF programs covering processes, network, files, privilege escalation, and kernel modules, with adaptive sampling and lock-free pre-aggregation."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/posts/telemetry/security-collector-exporter-ebpf-v030/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-19 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-19 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - security-collector-exporter v0.3.0: Real-Time Security Monitoring with eBPF"><meta name=twitter:description content="From v0.1.0's static security configuration collection to v0.3.0's eBPF real-time kernel-level security event monitoring, chronicling the pitfalls encountered and the final stable solution. Five types of BPF programs covering processes, network, files, privilege escalation, and kernel modules, with adaptive sampling and lock-free pre-aggregation."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/telemetry/security-collector-exporter-ebpf-v030/><link rel=alternate hreflang=en href=/en/posts/telemetry/security-collector-exporter-ebpf-v030/><link rel=stylesheet href=/css/main.46502ff928865f523dcb705fd840a629c956a3b94a9e8d4263f49a144b19a6f8.css integrity="sha256-RlAv+SiGX1I9y3Bf2ECmKclWo7lKno1CY/SaFEsZpvg=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/posts/telemetry/security-collector-exporter-ebpf-v030/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#from-static-to-real-time>From Static to Real-Time</a></li><li><a href=#what-ebpf-collects>What eBPF Collects</a></li><li><a href=#overall-architecture>Overall Architecture</a></li><li><a href=#pitfalls-in-v020>Pitfalls in v0.2.0</a><ul><li><a href=#bpf-program-bugs>BPF Program Bugs</a></li><li><a href=#arm-device-blocking>ARM Device Blocking</a></li><li><a href=#ci-build-issues>CI Build Issues</a></li></ul></li><li><a href=#how-v030-fixed-them>How v0.3.0 Fixed Them</a><ul><li><a href=#bpf-program-fixes>BPF Program Fixes</a></li><li><a href=#aggregator-rewrite>Aggregator Rewrite</a></li><li><a href=#arm-blocking-fix>ARM Blocking Fix</a></li><li><a href=#ci-fix>CI Fix</a></li></ul></li><li><a href=#two-interesting-design-decisions>Two Interesting Design Decisions</a><ul><li><a href=#adaptive-sampling>Adaptive Sampling</a></li><li><a href=#space-saving-top-n>Space-Saving Top-N</a></li></ul></li><li><a href=#deployment>Deployment</a></li><li><a href=#version-history>Version History</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-md"><span>architecture</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-sm"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-sm"><span>smart home</span>
+</a><a href=/en/tags/ai-programming/ class="tag-cloud__item tag-size-xs"><span>ai programming</span>
+</a><a href=/en/tags/architecture-evolution/ class="tag-cloud__item tag-size-xs"><span>architecture evolution</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>security-collector-exporter v0.3.0: Real-Time Security Monitoring with eBPF</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-19T00:00:00+00:00>May 19, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/observability/>Observability</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/prometheus/>Prometheus</a>, <a href=/en/tags/ebpf/>EBPF</a>, <a href=/en/tags/linux/>Linux</a>, <a href=/en/tags/security-monitoring/>Security Monitoring</a>, <a href=/en/tags/go/>Go</a>, <a href=/en/tags/exporter/>Exporter</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>1632 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>8 min read</span></span></div></header><div class=Content><h2 id=from-static-to-real-time>From Static to Real-Time</h2><p>The previous article introduced <a href=../security-collector-exporter-v010/>security-collector-exporter v0.1.0</a> — turning Linux security configuration states into Prometheus metrics. But v0.1.0 is essentially &ldquo;snapshot-based&rdquo;: periodically reading <code>/etc</code>, <code>/proc</code>, capturing the static configuration at a single point in time.</p><p>There&rsquo;s an area of security operations that snapshots can&rsquo;t cover: <strong>real-time security events</strong>. Someone running a reverse shell, a process escalating privileges, an abnormal network connection, someone loading a kernel module — these events happen and pass; you&rsquo;d never see them at your next scrape.</p><p>eBPF is the natural tool for this problem. It can attach to various kernel hook points (tracepoints, kprobes), aggregate data in kernel space, with zero copy and low overhead. Starting from v0.2.0, security-collector-exporter added full eBPF support. After v0.3.0&rsquo;s bug fixes and stability improvements, it&rsquo;s finally production-ready.</p><h2 id=what-ebpf-collects>What eBPF Collects</h2><p>Five independent BPF programs, each attached to different kernel hook points, covering five categories of security events:</p><table><thead><tr><th>BPF Program</th><th>Attachment Point</th><th>Monitoring Content</th></tr></thead><tbody><tr><td>process.c</td><td><code>sys_enter_execve</code>, <code>sched_process_exit</code></td><td>Process execution, exit, active process count</td></tr><tr><td>network.c</td><td><code>inet_sock_set_state</code></td><td>TCP/UDP connection establishment, active connections, connection errors</td></tr><tr><td>file.c</td><td><code>sys_enter_openat</code></td><td>Sensitive file access operations (classified by severity)</td></tr><tr><td>privilege.c</td><td><code>sys_enter_setuid/setgid/capset</code></td><td>Privilege escalation (setuid/setgid/capset)</td></tr><tr><td>kernel.c</td><td><code>sys_enter_init_module/finit_module</code></td><td>Kernel module load/unload</td></tr></tbody></table><p>Exposed Prometheus metrics:</p><div class=code-block-wrapper data-lang=text><div class=code-block-header><div class=code-block-meta><span class=code-language>text</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl># Process metrics (labels: type=system/user/container/suspicious)
+</span></span><span class=line><span class=cl>security_ebpf_process_exec_total
+</span></span><span class=line><span class=cl>security_ebpf_process_exit_total
+</span></span><span class=line><span class=cl>security_ebpf_process_active_count
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># Network metrics (labels: direction=in/out, protocol=tcp/udp)
+</span></span><span class=line><span class=cl>security_ebpf_connect_total
+</span></span><span class=line><span class=cl>security_ebpf_connect_active
+</span></span><span class=line><span class=cl>security_ebpf_connect_error_total{type=&#34;timeout|refused|reset&#34;}
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># File access metrics (labels: severity=critical/warning/info, operation=read/write)
+</span></span><span class=line><span class=cl>security_ebpf_file_access_total
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># Privilege escalation metrics (labels: type=setuid/setgid/capset, result=success/failure)
+</span></span><span class=line><span class=cl>security_ebpf_privilege_escalation_total
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># Kernel module metrics (labels: action=load/load_file)
+</span></span><span class=line><span class=cl>security_ebpf_kernel_module_total
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># Meta information
+</span></span><span class=line><span class=cl>security_ebpf_up{status=&#34;active|degraded|disabled&#34;}
+</span></span><span class=line><span class=cl>security_ebpf_sample_rate</span></span></code></pre></td></tr></table></div></div></div></div><p>The process classification is particularly interesting — not simply system/user, but four categories: <code>system</code> (processes under system paths), <code>user</code> (user processes), <code>container</code> (container processes detected via cgroup ID), <code>suspicious</code> (suspicious interpreter calls). This enables precise filtering in PromQL:</p><div class=code-block-wrapper data-lang=promql><div class=code-block-header><div class=code-block-meta><span class=code-language>promql</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-promql data-lang=promql><span class=line><span class=cl><span class=c1># Check processes executed in containers</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nv>security_ebpf_process_exec_total</span><span class=p>{</span><span class=nl>type</span><span class=o>=</span><span class=p>&#34;</span><span class=s>container</span><span class=p>&#34;}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1># Check suspicious process execution</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nv>security_ebpf_process_exec_total</span><span class=p>{</span><span class=nl>type</span><span class=o>=</span><span class=p>&#34;</span><span class=s>suspicious</span><span class=p>&#34;}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=overall-architecture>Overall Architecture</h2><p>The architecture is divided into two layers: kernel space for collection and pre-aggregation, user space for reading and exposing metrics.</p><p>The 5 BPF programs in kernel space attach to 14 tracepoints. When events occur, they increment counters directly in percpu_array maps, with zero lock contention:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+
+    classDef tp fill:#E3F2FD,stroke:#1565C0,color:#1565C0
+    classDef bpf fill:#FFF3E0,stroke:#E65100,color:#BF360C
+    classDef map fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+
+    subgraph tp[&#34;Tracepoints&#34;]
+        t1@{ shape: rounded, label: &#34;execve / exit&#34; }
+        t2@{ shape: rounded, label: &#34;tcp state change&#34; }
+        t3@{ shape: rounded, label: &#34;openat&#34; }
+        t4@{ shape: rounded, label: &#34;setuid / setgid / capset&#34; }
+        t5@{ shape: rounded, label: &#34;init_module&#34; }
+    end
+
+    subgraph bpf[&#34;BPF Programs&#34;]
+        p@{ shape: proc, label: &#34;process.c\nProcess Tracing&#34; }
+        n@{ shape: proc, label: &#34;network.c\nNetwork Connections&#34; }
+        f@{ shape: proc, label: &#34;file.c\nFile Access&#34; }
+        v@{ shape: proc, label: &#34;privilege.c\nPrivilege Detection&#34; }
+        k@{ shape: proc, label: &#34;kernel.c\nKernel Modules&#34; }
+    end
+
+    subgraph maps[&#34;percpu_array Maps&#34;]
+        m1@{ shape: cyl, label: &#34;exec / exit / active&#34; }
+        m2@{ shape: cyl, label: &#34;connect / error&#34; }
+        m3@{ shape: cyl, label: &#34;access by severity&#34; }
+        m4@{ shape: cyl, label: &#34;escalation by type&#34; }
+        m5@{ shape: cyl, label: &#34;module by action&#34; }
+    end
+
+    t1 --&gt; p --&gt; m1
+    t2 --&gt; n --&gt; m2
+    t3 --&gt; f --&gt; m3
+    t4 --&gt; v --&gt; m4
+    t5 --&gt; k --&gt; m5
+
+    class t1,t2,t3,t4,t5 tp
+    class p,n,f,v,k bpf
+    class m1,m2,m3,m4,m5 map</code></pre></div></div><p>The user-space Manager loads BPF programs and attaches tracepoints. The Aggregator reads aggregated data from percpu_array every 5 seconds (with delta tracking for RPS calculation), ultimately exposed as Prometheus metrics by EbpfCollector:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+
+    classDef datasource fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    classDef component fill:#EDE7F6,stroke:#4527A0,color:#311B92
+    classDef endpoint fill:#FCE4EC,stroke:#C62828,color:#B71C1C
+
+    maps@{ shape: cyl, label: &#34;BPF percpu_array Maps&#34; }
+
+    subgraph go[&#34;Go User Space&#34;]
+        mgr@{ shape: notch-rect, label: &#34;Manager\nLoad &amp; Attach&#34; }
+        agg@{ shape: proc, label: &#34;Aggregator\nRead &#43; Delta Tracking&#34; }
+        smp@{ shape: notch-rect, label: &#34;AdaptiveSampler\nAdaptive Sampling Rate&#34; }
+        col@{ shape: proc, label: &#34;EbpfCollector&#34; }
+    end
+
+    prom@{ shape: stadium, label: &#34;Prometheus :9102/metrics&#34; }
+
+    maps --&gt;|&#34;Read every 5s&#34;| agg
+    mgr -.-&gt;|&#34;Lifecycle&#34;| maps
+    agg --&gt; col
+    smp -.-&gt;|&#34;Sampling rate&#34;| col
+    col --&gt;|&#34;/metrics&#34;| prom
+
+    class maps datasource
+    class mgr,agg,smp,col component
+    class prom endpoint</code></pre></div></div><p>The AdaptiveSampler evaluates the actual event volume every 10 seconds. If it exceeds 2x the target RPS, it doubles the sampling rate (samples more sparsely); if below half, it restores (samples more densely), preventing eBPF event volume from overwhelming user space under high load.</p><h2 id=pitfalls-in-v020>Pitfalls in v0.2.0</h2><p>v0.2.0 was the first eBPF-enabled version, with significant new code (~4000 lines), but running it after release revealed many issues.</p><h3 id=bpf-program-bugs>BPF Program Bugs</h3><p><strong>Incorrect struct field in network BPF</strong>. The <code>inet_sock_set_state</code> tracepoint&rsquo;s kernel struct doesn&rsquo;t have a <code>skbaddr</code> field, but v0.2.0&rsquo;s <code>network.c</code> referenced it. The BPF verifier refused to load it, completely breaking network monitoring.</p><p><strong>UDP kprobe doesn&rsquo;t exist</strong>. v0.2.0 attempted to use kprobe for UDP connection tracing, but the target kernel didn&rsquo;t have the corresponding kprobe tracer. Load failed without graceful handling.</p><p><strong>Inaccurate process exit classification</strong>. When <code>sched_process_exit</code> triggers, you can&rsquo;t retrieve the category assigned during the original execve. v0.2.0 didn&rsquo;t implement PID-to-category mapping, causing exit event classification to differ from exec.</p><p><strong>Wrong map type for privilege detection</strong>. <code>privilege.c</code> used <code>PERCPU_ARRAY</code>, which has race conditions when multiple CPUs concurrently write to the same key. Switching to <code>PERCPU_HASH</code> fixed the issue.</p><h3 id=arm-device-blocking>ARM Device Blocking</h3><p>This was a subtle bug. On ARM devices (Raspberry Pi, etc.), port version detection (the Java version detection logic in <code>process_info.go</code>) could stall the <code>Collect()</code> cycle. Certain processes (like <code>mediamtx</code>) would hang during version command execution with no timeout mechanism, causing the entire Prometheus scrape to time out.</p><h3 id=ci-build-issues>CI Build Issues</h3><p>BPF programs need <code>clang</code> to compile C code into bytecode (<code>*_bpf.o</code>), then embedded into the Go binary via <code>go:embed</code>. v0.2.0 had <code>.o</code> files in <code>.gitignore</code>, and the CI environment (<code>ubuntu-latest</code>) didn&rsquo;t have clang, causing the build to fail immediately.</p><h2 id=how-v030-fixed-them>How v0.3.0 Fixed Them</h2><h3 id=bpf-program-fixes>BPF Program Fixes</h3><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>// process.c: Added PID hash map, store category on execve, retrieve on exit
+</span></span></span><span class=line><span class=cl><span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__uint</span><span class=p>(</span><span class=n>type</span><span class=p>,</span> <span class=n>BPF_MAP_TYPE_HASH</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__uint</span><span class=p>(</span><span class=n>max_entries</span><span class=p>,</span> <span class=mi>65536</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__type</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>__u64</span><span class=p>);</span>    <span class=cm>/* pid_tgid */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__type</span><span class=p>(</span><span class=n>value</span><span class=p>,</span> <span class=n>__u32</span><span class=p>);</span>  <span class=cm>/* category */</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=n>pid_category</span> <span class=nf>SEC</span><span class=p>(</span><span class=s>&#34;.maps&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Store on execve
+</span></span></span><span class=line><span class=cl><span class=n>__u64</span> <span class=n>pid_tgid</span> <span class=o>=</span> <span class=nf>bpf_get_current_pid_tgid</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=nf>bpf_map_update_elem</span><span class=p>(</span><span class=o>&amp;</span><span class=n>pid_category</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>pid_tgid</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>category</span><span class=p>,</span> <span class=n>BPF_ANY</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Retrieve on exit
+</span></span></span><span class=line><span class=cl><span class=n>__u32</span> <span class=o>*</span><span class=n>cat_ptr</span> <span class=o>=</span> <span class=nf>bpf_map_lookup_elem</span><span class=p>(</span><span class=o>&amp;</span><span class=n>pid_category</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>pid_tgid</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=n>cat_ptr</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>category</span> <span class=o>=</span> <span class=o>*</span><span class=n>cat_ptr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nf>bpf_map_delete_elem</span><span class=p>(</span><span class=o>&amp;</span><span class=n>pid_category</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>pid_tgid</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// Process existed before BPF loaded, guess category by comm name
+</span></span></span><span class=line><span class=cl>    <span class=n>category</span> <span class=o>=</span> <span class=nf>classify_by_comm</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><code>classify_by_comm()</code> is a fallback — for processes running before eBPF was loaded, we can&rsquo;t get the execve event, so it uses coarse-grained matching on the first four bytes of the process name (<code>syst</code> → systemd, <code>sshd</code> → sshd, etc.). The BPF verifier doesn&rsquo;t allow loops, so byte-by-byte comparison is hardcoded.</p><h3 id=aggregator-rewrite>Aggregator Rewrite</h3><p>v0.2.0&rsquo;s Aggregator used in-memory arrays simulating percpu data (simulation mode). v0.3.0 completely rewrote it to directly read real BPF percpu_array maps, with delta tracking:</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// ReadAndUpdateFromMaps reads all COUNTER-type BPF maps and calculates deltas</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>a</span><span class=w> </span><span class=o>*</span><span class=nx>Aggregator</span><span class=p>)</span><span class=w> </span><span class=nf>ReadAndUpdateFromMaps</span><span class=p>()</span><span class=w> </span><span class=kt>uint64</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// For each counter map, for each key:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//   current_value - previous_value = delta</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//   Accumulate delta for total event count, feed to AdaptiveSampler</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// processActive and connectActive are GAUGE, not involved in delta</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=arm-blocking-fix>ARM Blocking Fix</h3><p>Three changes together solved this:</p><ul><li><code>executeVersionCommand</code> added a 3-second timeout (<code>context.WithTimeout</code>)</li><li>Cached empty version detection results for 5 minutes (avoid re-probing known non-responsive processes)</li><li><code>getVersionFromBinary</code> uses <code>io.LimitReader</code> to read only the first 1MB (previously read the entire binary, slow for large files)</li></ul><h3 id=ci-fix>CI Fix</h3><p>Committed the compiled <code>*_bpf.o</code> files to git. These are architecture-independent BPF ELF bytecode (not x86 or ARM machine code), so there&rsquo;s no cross-platform issue. CI no longer needs a clang toolchain.</p><h2 id=two-interesting-design-decisions>Two Interesting Design Decisions</h2><h3 id=adaptive-sampling>Adaptive Sampling</h3><p>Under high load, eBPF event volume can be very large (tens to hundreds of thousands of events/sec). The AdaptiveSampler&rsquo;s approach: set a target RPS (default 5000), evaluate actual RPS every 10 seconds — if it exceeds 2x the target, double the sampling rate; if below half, halve the sampling rate. The sampling rate range is limited to 1 ~ 10000.</p><p>This sampling rate is exposed as the <code>security_ebpf_sample_rate</code> metric, enabling restoration of true values during queries:</p><div class=code-block-wrapper data-lang=promql><div class=code-block-header><div class=code-block-meta><span class=code-language>promql</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-promql data-lang=promql><span class=line><span class=cl><span class=c1># Approximate restoration of real process execution rate</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nv>security_ebpf_process_exec_total</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nv>security_ebpf_sample_rate</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=space-saving-top-n>Space-Saving Top-N</h3><p>The code also implements the <a href=https://www.cs.ucsb.edu/research/tech-reports/2005-23>Space-Saving algorithm</a> for maintaining Top-K frequent items in high-cardinality data streams. Fixed number of counters (default 100), new keys take a slot if available, otherwise replace the one with the smallest count and inherit its count. O(1) update, O(K log K) Top-N query. This component lays groundwork for future queries like &ldquo;who&rsquo;s executing frequently / who&rsquo;s connecting to the network frequently.&rdquo;</p><h2 id=deployment>Deployment</h2><p>Enabling eBPF requires additional parameters:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker run -d <span class=se>\
+</span></span></span><span class=line><span class=cl>  --name security-exporter <span class=se>\
+</span></span></span><span class=line><span class=cl>  --privileged <span class=se>\
+</span></span></span><span class=line><span class=cl>  -p 9102:9102 <span class=se>\
+</span></span></span><span class=line><span class=cl>  ghcr.io/mickeyzzc/security-collector-exporter:0.3.0 <span class=se>\
+</span></span></span><span class=line><span class=cl>  --ebpf.enabled <span class=se>\
+</span></span></span><span class=line><span class=cl>  --ebpf.sample-rate<span class=o>=</span><span class=m>1</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>  --ebpf.max-events-per-second<span class=o>=</span><span class=m>5000</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Without <code>--ebpf.enabled</code>, it runs only the v0.1.0 static collector, with no impact.</p><p>Kernel requirement: Linux 5.4+ (needs BTF support). Environments that can&rsquo;t run eBPF automatically degrade to <code>degraded</code> status, with <code>security_ebpf_up{status="degraded"}</code> set to 0, running only the traditional collector.</p><p>Some useful eBPF alert rules:</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># eBPF monitoring degraded</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>alert</span><span class=p>:</span><span class=w> </span><span class=l>EbpfMonitoringDegraded</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>expr</span><span class=p>:</span><span class=w> </span><span class=l>security_ebpf_up{status=&#34;degraded&#34;} == 1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>severity</span><span class=p>:</span><span class=w> </span><span class=l>warning</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Suspicious process execution</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>alert</span><span class=p>:</span><span class=w> </span><span class=l>SuspiciousProcessExecuted</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>expr</span><span class=p>:</span><span class=w> </span><span class=l>increase(security_ebpf_process_exec_total{type=&#34;suspicious&#34;}[5m]) &gt; 0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>severity</span><span class=p>:</span><span class=w> </span><span class=l>critical</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Privilege escalation failures spike (possible brute force)</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>alert</span><span class=p>:</span><span class=w> </span><span class=l>PrivilegeEscalationAttempts</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>expr</span><span class=p>:</span><span class=w> </span><span class=l>increase(security_ebpf_privilege_escalation_total{result=&#34;failure&#34;}[10m]) &gt; 5</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>severity</span><span class=p>:</span><span class=w> </span><span class=l>critical</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Kernel module loaded</span><span class=w>
+</span></span></span><span class=line><span class=cl>- <span class=nt>alert</span><span class=p>:</span><span class=w> </span><span class=l>KernelModuleLoaded</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>expr</span><span class=p>:</span><span class=w> </span><span class=l>increase(security_ebpf_kernel_module_total{action=&#34;load&#34;}[5m]) &gt; 0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>severity</span><span class=p>:</span><span class=w> </span><span class=l>warning</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=version-history>Version History</h2><div class=code-block-wrapper data-lang=text><div class=code-block-header><div class=code-block-meta><span class=code-language>text</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl>v0.1.0 (2026-05-14)  Static security configuration collection, 15 metric categories
+</span></span><span class=line><span class=cl>v0.2.0 (2026-05-18)  eBPF real-time monitoring, 5 BPF programs, ~4000 new lines of code
+</span></span><span class=line><span class=cl>v0.3.0 (2026-05-19)  BPF bug fixes, ARM compatibility, CI fixes, documentation cleanup</span></span></code></pre></td></tr></table></div></div></div></div><p>Project repository: <a href=https://github.com/mickeyzzc/security-collector-exporter>github.com/mickeyzzc/security-collector-exporter</a></p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/prometheus/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Prometheus
+</a><a class=tag-chip href=/en/tags/ebpf/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+EBPF
+</a><a class=tag-chip href=/en/tags/linux/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Linux
+</a><a class=tag-chip href=/en/tags/security-monitoring/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Security Monitoring
+</a><a class=tag-chip href=/en/tags/go/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Go
+</a><a class=tag-chip href=/en/tags/exporter/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Exporter</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>

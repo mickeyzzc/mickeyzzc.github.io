@@ -1,0 +1,375 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - Overseas Email Delivery Acceleration Architecture — Smart Delivery Network in Practice</title><meta name=description content="What is rational is real; and what is real is rational."><meta name=keywords content><link rel=canonical href=/en/archives/07-sdn-oversea/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - Overseas Email Delivery Acceleration Architecture — Smart Delivery Network in Practice"><meta property="og:description" content="What is rational is real; and what is real is rational."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/archives/07-sdn-oversea/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2018-01-16 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2018-01-16 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - Overseas Email Delivery Acceleration Architecture — Smart Delivery Network in Practice"><meta name=twitter:description content="What is rational is real; and what is real is rational."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/archives/07-sdn-oversea/><link rel=alternate hreflang=en href=/en/archives/07-sdn-oversea/><link rel=stylesheet href=/css/main.46502ff928865f523dcb705fd840a629c956a3b94a9e8d4263f49a144b19a6f8.css integrity="sha256-RlAv+SiGX1I9y3Bf2ECmKclWo7lKno1CY/SaFEsZpvg=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a aria-current=true class=ancestor href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/archives/07-sdn-oversea/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#introduction-challenges-of-overseas-email-delivery>Introduction: Challenges of Overseas Email Delivery</a></li><li><a href=#problem-analysis-pain-points-of-direct-overseas-delivery>Problem Analysis: Pain Points of Direct Overseas Delivery</a><ul><li><a href=#1-network-connectivity-issues>1. Network Connectivity Issues</a></li><li><a href=#2-performance-bottlenecks>2. Performance Bottlenecks</a></li><li><a href=#3-high-management-complexity>3. High Management Complexity</a></li></ul></li><li><a href=#overall-architecture-design>Overall Architecture Design</a><ul><li><a href=#overseas-mx-node-distribution>Overseas MX Node Distribution</a></li><li><a href=#acceleration-channel-design>Acceleration Channel Design</a></li></ul></li><li><a href=#sdn-smart-delivery-network>SDN Smart Delivery Network</a><ul><li><a href=#rule-management-sdnsvr>Rule Management (SDNSVR)</a></li><li><a href=#channel-selection-strategy>Channel Selection Strategy</a></li><li><a href=#load-balancing-mechanism>Load Balancing Mechanism</a></li></ul></li><li><a href=#mx-proxy-layer-design-and-implementation>MX Proxy Layer Design and Implementation</a><ul><li><a href=#mxproxy-architecture>MXPROXY Architecture</a></li><li><a href=#configuration-management>Configuration Management</a></li></ul></li><li><a href=#transport-route-update-mechanism>Transport Route Update Mechanism</a><ul><li><a href=#pull-configuration-mechanism>PULL Configuration Mechanism</a><ul><li><a href=#auto-update-script-features>Auto-Update Script Features:</a></li></ul></li><li><a href=#push-configuration-mechanism>PUSH Configuration Mechanism</a><ul><li><a href=#core-configuration-file-example>Core Configuration File Example:</a></li></ul></li><li><a href=#email-delivery-flow>Email Delivery Flow</a></li></ul></li><li><a href=#summary-and-experience>Summary and Experience</a><ul><li><a href=#technical-achievements>Technical Achievements</a></li><li><a href=#key-technical-points>Key Technical Points</a></li><li><a href=#practical-application-results>Practical Application Results</a></li><li><a href=#future-optimization-directions>Future Optimization Directions</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-md"><span>architecture</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-sm"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-sm"><span>smart home</span>
+</a><a href=/en/tags/ai-programming/ class="tag-cloud__item tag-size-xs"><span>ai programming</span>
+</a><a href=/en/tags/architecture-evolution/ class="tag-cloud__item tag-size-xs"><span>architecture evolution</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Overseas Email Delivery Acceleration Architecture — Smart Delivery Network in Practice</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2018-01-16T00:00:00+00:00>January 16, 2018</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/architecture/>Architecture</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/email/>Email</a>, <a href=/en/tags/networking/>Networking</a>, <a href=/en/tags/architecture/>Architecture</a>, <a href=/en/tags/mail-delivery/>Mail-Delivery</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2102 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>10 min read</span></span></div></header><div class=Content><h2 id=introduction-challenges-of-overseas-email-delivery>Introduction: Challenges of Overseas Email Delivery</h2><p>In globalized business scenarios, email delivery faces numerous challenges. Overseas email delivery must not only overcome network latency issues but also navigate complex geopolitical network environments. Traditional direct overseas delivery methods often encounter connection timeouts, firewall blocking, and high delivery latency. At the same time, interoperability between domestic email systems and overseas networks also presents technical challenges.</p><p>To address these issues, we designed and implemented a Smart Delivery Network (SDN) architecture that effectively improves the efficiency and reliability of overseas email delivery through multi-level proxying, intelligent routing, and load balancing mechanisms.</p><h2 id=problem-analysis-pain-points-of-direct-overseas-delivery>Problem Analysis: Pain Points of Direct Overseas Delivery</h2><h3 id=1-network-connectivity-issues>1. Network Connectivity Issues</h3><ul><li><strong>GFW interception mechanisms</strong>: Overseas email servers are frequently subject to network restrictions, causing unstable connections</li><li><strong>Poor link quality</strong>: Direct overseas network paths are long, with high latency and high packet loss rates</li><li><strong>Single point of failure risk</strong>: Dependency on a single overseas exit means any issue affects all deliveries</li></ul><h3 id=2-performance-bottlenecks>2. Performance Bottlenecks</h3><ul><li><strong>Concurrent connection limits</strong>: A single overseas email server has limited concurrent connections</li><li><strong>Unstable delivery latency</strong>: Spam processing affects the delivery efficiency of normal emails</li><li><strong>Resource contention</strong>: Normal emails and spam share delivery resources</li></ul><h3 id=3-high-management-complexity>3. High Management Complexity</h3><ul><li><strong>Difficult multi-domain management</strong>: Each domain requires independent delivery configuration maintenance</li><li><strong>Tedious configuration updates</strong>: Manual configuration is error-prone and costly to maintain</li><li><strong>Difficult monitoring and troubleshooting</strong>: Lack of a unified monitoring and management platform</li></ul><h2 id=overall-architecture-design>Overall Architecture Design</h2><h3 id=overseas-mx-node-distribution>Overseas MX Node Distribution</h3><p>We built a global MX node distribution system covering major overseas regions:</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>North America Nodes:
+</span></span><span class=line><span class=cl>- Vancouver, Canada: 43.230.90.100
+</span></span><span class=line><span class=cl>- US West Coast: 192.168.1.100 (example IP)
+</span></span><span class=line><span class=cl>- US East Coast: 192.168.1.101 (example IP)
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Europe Nodes:
+</span></span><span class=line><span class=cl>- London, UK: 192.168.1.102 (example IP)
+</span></span><span class=line><span class=cl>- Frankfurt, Germany: 192.168.1.103 (example IP)
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Asia-Pacific Nodes:
+</span></span><span class=line><span class=cl>- Tokyo, Japan: 192.168.1.104 (example IP)
+</span></span><span class=line><span class=cl>- Seoul, South Korea: 192.168.1.105 (example IP)</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=acceleration-channel-design>Acceleration Channel Design</h3><p>The architecture includes multi-layer acceleration channels to ensure efficient and reliable email delivery:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    
+    A@{ shape: rounded, label: &#34;Domestic Email Server&#34; } --&gt; B@{ shape: hex, label: &#34;Domestic North Node&#34; }
+    A --&gt; C@{ shape: hex, label: &#34;Domestic South Node&#34; }
+    A --&gt; D@{ shape: hex, label: &#34;Third-party VPS Node&#34; }
+    B --&gt; E@{ shape: hex, label: &#34;Core Switching Layer&#34; }
+    C --&gt; E
+    D --&gt; E
+    E --&gt; F@{ shape: hex, label: &#34;North America MX Proxy&#34; }
+    E --&gt; G@{ shape: hex, label: &#34;Europe MX Proxy&#34; }
+    E --&gt; H@{ shape: hex, label: &#34;Asia-Pacific MX Proxy&#34; }
+    F --&gt; I@{ shape: rounded, label: &#34;Overseas Email Server&#34; }
+    G --&gt; I
+    H --&gt; I
+    class A,I primary
+    class B,C,D,E,F,G,H network</code></pre></div></div><p>RSDN proxy clusters are deployed in major domestic data centers to enable intelligent traffic distribution and load balancing:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    
+    subgraph &#34;Domestic RSDN Proxy Cluster&#34;
+        A@{ shape: hex, label: &#34;Hangzhou Xiaoshan Node&#34; } --&gt; B@{ shape: hex, label: &#34;Smart Delivery Network (SDN)&#34; }
+        B --&gt; C@{ shape: hex, label: &#34;Guangzhou Info Port Node&#34; }
+        C --&gt; B
+        B --&gt; D@{ shape: hex, label: &#34;Alibaba Cloud Node&#34; }
+        D --&gt; B
+    end
+    
+    subgraph &#34;Overseas MX Cluster&#34;
+        B --&gt; E@{ shape: hex, label: &#34;North America MX Node&#34; }
+        B --&gt; F@{ shape: hex, label: &#34;Europe MX Node&#34; }
+        B --&gt; G@{ shape: hex, label: &#34;Asia-Pacific MX Node&#34; }
+    end
+    
+    subgraph &#34;Email Delivery Targets&#34;
+        E --&gt; H@{ shape: rounded, label: &#34;Enterprise Email System A&#34; }
+        F --&gt; H
+        G --&gt; H
+        B --&gt; I@{ shape: rounded, label: &#34;Enterprise Email System B&#34; }
+    end
+    class H,I primary
+    class A,B,C,D,E,F,G network</code></pre></div></div><h2 id=sdn-smart-delivery-network>SDN Smart Delivery Network</h2><h3 id=rule-management-sdnsvr>Rule Management (SDNSVR)</h3><p>SDNSVR is the core rule management system of the smart delivery network, responsible for managing and distributing delivery rules:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    
+    subgraph &#34;SDN Rule Management&#34;
+        A@{ shape: doc, label: &#34;SDN Rule Configuration&#34; } --&gt; B@{ shape: rounded, label: &#34;SDNRule Server&#34; }
+        B --&gt; C@{ shape: diam, label: &#34;Rule Matching&#34; }
+        C --&gt;|SDNLocation| D@{ shape: rounded, label: &#34;Region Matching&#34; }
+        C --&gt;|SDNNodeName| E@{ shape: rounded, label: &#34;Node Name Matching&#34; }
+        C --&gt;|Domain| F@{ shape: rounded, label: &#34;Domain Wildcard Matching&#34; }
+    end
+    
+    subgraph &#34;Rule Distribution&#34;
+        D --&gt; G@{ shape: doc, label: &#34;Generate Policy File tsdndispatch.so&#34; }
+        E --&gt; G
+        F --&gt; G
+        G --&gt; H@{ shape: rounded, label: &#34;Delivery Agent Fetch Rules&#34; }
+    end
+    
+    subgraph &#34;Delivery Execution&#34;
+        H --&gt; I@{ shape: diam, label: &#34;Match Delivery Policy&#34; }
+        I --&gt;|Overseas Channel| J@{ shape: rounded, label: &#34;SDN Proxy Overseas Delivery&#34; }
+        I --&gt;|Domestic Channel| K@{ shape: rounded, label: &#34;Local Delivery&#34; }
+        I --&gt;|Spam Channel| L@{ shape: rounded, label: &#34;Spam Channel&#34; }
+    end
+    class B,H,K primary
+    class J network
+    class A,C,D,E,F,G,I,L process</code></pre></div></div><h3 id=channel-selection-strategy>Channel Selection Strategy</h3><p>The smart delivery network employs a four-tier channel mechanism, classifying deliveries based on anti-spam engine results:</p><ol><li><strong>Normal email channel</strong>: Emails marked as normal by the anti-spam engine are delivered quickly through a dedicated channel with low latency</li><li><strong>Spam channel</strong>: Emails marked as spam by the anti-spam engine are queued for delivery through the spam channel with unstable latency</li><li><strong>Bounce channel</strong>: Non-bounce emails marked as spam by the anti-spam engine are automatically bounced after a 300-second timeout</li><li><strong>Discard channel</strong>: Bounce emails marked as spam by the anti-spam engine are automatically discarded after a 300-second timeout and 2 retries</li></ol><h3 id=load-balancing-mechanism>Load Balancing Mechanism</h3><p>Multiple levels of load balancing are implemented to ensure system stability:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    
+    subgraph &#34;Business Layer&#34;
+        A@{ shape: rounded, label: &#34;Ops Management Platform&#34; } --&gt; B@{ shape: process, label: &#34;Fetch Domain List&#34; }
+        C@{ shape: rounded, label: &#34;SDNSVR Rule Server&#34; } --&gt; D@{ shape: process, label: &#34;Intelligent Scheduling&#34; }
+        E@{ shape: rounded, label: &#34;SaaS Platform MTA&#34; } --&gt; F@{ shape: process, label: &#34;Anti-spam Engine&#34; }
+        G@{ shape: rounded, label: &#34;On-premise MTA&#34; } --&gt; F
+    end
+    
+    subgraph &#34;Acceleration Layer&#34;
+        H@{ shape: hex, label: &#34;Proxy Load Balancing&#34; } --&gt; I@{ shape: hex, label: &#34;SDN Channel 01&#34; }
+        H --&gt; J@{ shape: hex, label: &#34;SDN Channel 02&#34; }
+        K@{ shape: hex, label: &#34;TCP Load Balancing&#34; } --&gt; I
+        K --&gt; J
+    end
+    
+    subgraph &#34;Service Layer&#34;
+        L@{ shape: rounded, label: &#34;MX Proxy&#34; } --&gt; M@{ shape: process, label: &#34;MTA Delivery&#34; }
+        M --&gt; F
+        F --&gt;|Result Feedback| M
+        F --&gt;|Channel Selection| I
+        F --&gt;|Channel Selection| J
+    end
+    
+    B --&gt; H
+    D --&gt; K
+    I --&gt; E
+    J --&gt; G
+    class A,C,E,G,L primary
+    class H,I,J,K network
+    class B,D,F,M process</code></pre></div></div><h2 id=mx-proxy-layer-design-and-implementation>MX Proxy Layer Design and Implementation</h2><h3 id=mxproxy-architecture>MXPROXY Architecture</h3><p>MXPROXY is the core component of overseas email delivery, responsible for coordinating the operation of each subsystem:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    
+    subgraph &#34;Service Layer&#34;
+        MXProxy@{ shape: rounded, label: &#34;MX Proxy&#34; } --&gt; MTA@{ shape: process, label: &#34;MTA Delivery Service&#34; }
+        MTA --&gt;|Transmit Anti-spam Info| DA@{ shape: process, label: &#34;Anti-spam Engine&#34; }
+    end
+    
+    subgraph &#34;Acceleration Layer&#34;
+        ProxyLB@{ shape: hex, label: &#34;Proxy Load Balancing&#34; } --&gt; RSDN01@{ shape: hex, label: &#34;Smart Delivery Network Channel 01&#34; }
+        ProxyLB --&gt; RSDN02@{ shape: hex, label: &#34;Smart Delivery Network Channel 02&#34; }
+        TCPLB@{ shape: hex, label: &#34;TCP Load Balancing&#34; } --&gt; RSDN01
+        TCPLB --&gt; RSDN02
+    end
+    
+    subgraph &#34;Business Layer&#34;
+        CmOps@{ shape: rounded, label: &#34;Ops Management Platform&#34; } --&gt; getDomain@{ shape: process, label: &#34;Fetch Domain List&#34; }
+        SDNSVR@{ shape: rounded, label: &#34;Rule Server&#34; } --&gt;|Get SDN Info| TCPLB
+        OperatingMTA@{ shape: rounded, label: &#34;SaaS Platform MTA&#34; }
+        NonOperatingMTA@{ shape: rounded, label: &#34;On-premise MTA&#34; }
+    end
+    
+    MXProxy --&gt;|Pull Domain List| ProxyLB
+    ProxyLB --&gt;|Pull Domain List| getDomain
+    RSDN01 --&gt;|Select MTA by Anti-spam Tag| OperatingMTA
+    RSDN02 --&gt;|Select MTA by Anti-spam Tag| NonOperatingMTA
+    MTA --&gt;|Send Email Info| DA
+    DA --&gt;|Get Anti-spam Tag| MTA
+    DA --&gt;|Select SDN Channel| RSDN01
+    DA --&gt;|Select SDN Channel| RSDN02
+    class MXProxy,CmOps,SDNSVR,OperatingMTA,NonOperatingMTA primary
+    class ProxyLB,RSDN01,RSDN02,TCPLB network
+    class MTA,DA,getDomain process</code></pre></div></div><h3 id=configuration-management>Configuration Management</h3><p>MXPROXY configuration uses a modular design that supports multiple configuration methods:</p><div class=code-block-wrapper data-lang=nginx><div class=code-block-header><div class=code-block-meta><span class=code-language>nginx</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=k>user</span>  <span class=s>app</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>worker_processes</span>  <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>worker_rlimit_nofile</span> <span class=mi>1024</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>events</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>use</span> <span class=s>epoll</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kn>worker_connections</span>  <span class=mi>1024</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>stream</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>upstream</span> <span class=s>rsdnproxy_9900</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>server</span> <span class=n>43.230.90.100</span><span class=p>:</span><span class=mi>9900</span> <span class=s>max_fails=1</span> <span class=s>fail_timeout=300s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>server</span> <span class=n>192.168.1.106</span><span class=p>:</span><span class=mi>9900</span> <span class=s>max_fails=1</span> <span class=s>fail_timeout=300s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>server</span> <span class=n>192.168.1.107</span><span class=p>:</span><span class=mi>9900</span> <span class=s>max_fails=1</span> <span class=s>fail_timeout=300s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kn>upstream</span> <span class=s>rsdnproxy_6677</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>server</span> <span class=n>43.230.90.100</span><span class=p>:</span><span class=mi>6677</span> <span class=s>max_fails=1</span> <span class=s>fail_timeout=300s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>server</span> <span class=n>192.168.1.106</span><span class=p>:</span><span class=mi>6677</span> <span class=s>max_fails=1</span> <span class=s>fail_timeout=300s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>server</span> <span class=n>192.168.1.107</span><span class=p>:</span><span class=mi>6677</span> <span class=s>max_fails=1</span> <span class=s>fail_timeout=300s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kn>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>listen</span> <span class=n>127.0.0.1</span><span class=p>:</span><span class=mi>9900</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>proxy_pass</span> <span class=s>rsdnproxy_9900</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kn>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kn>listen</span> <span class=n>127.0.0.1</span><span class=p>:</span><span class=mi>6677</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>proxy_pass</span> <span class=s>rsdnproxy_6677</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=transport-route-update-mechanism>Transport Route Update Mechanism</h2><h3 id=pull-configuration-mechanism>PULL Configuration Mechanism</h3><p>For email systems with multiple domains and high update frequency, a PULL configuration mechanism is used:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef alert fill:#ffcdd2,stroke:#c62828,stroke-width:2px
+    
+    A@{ shape: process, label: &#34;Scan Domain Config&#34; } --&gt; B@{ shape: process, label: &#34;Fetch Remote Domain List&#34; }
+    B --&gt; C@{ shape: process, label: &#34;MD5 Checksum&#34; }
+    C --&gt; D@{ shape: diam, label: &#34;Content Changed?&#34; }
+    D --&gt;|Yes| E@{ shape: process, label: &#34;Generate LUA Parse Script&#34; }
+    E --&gt; F@{ shape: process, label: &#34;Parse Domain Config&#34; }
+    F --&gt; G@{ shape: doc, label: &#34;Generate transport File&#34; }
+    G --&gt; H@{ shape: process, label: &#34;Reload Configuration&#34; }
+    D --&gt;|No| I@{ shape: rounded, label: &#34;Keep Current Config&#34; }
+    H --&gt; J@{ shape: process, label: &#34;Delivery Service Update&#34; }
+    class I primary
+    class A,B,C,E,F,G,H,J process
+    class D alert</code></pre></div></div><h4 id=auto-update-script-features>Auto-Update Script Features:</h4><ol><li><strong>Intelligent MD5 verification</strong>: Determines whether configuration has changed via MD5 values</li><li><strong>LUA-accelerated parsing</strong>: Uses LUA scripts to accelerate configuration file parsing</li><li><strong>Auto-reload mechanism</strong>: Automatically reloads services after configuration changes</li><li><strong>Error recovery mechanism</strong>: Supports configuration rollback and error recovery</li></ol><h3 id=push-configuration-mechanism>PUSH Configuration Mechanism</h3><p>For email systems with a single domain and low update frequency, a PUSH configuration mechanism is used.</p><h4 id=core-configuration-file-example>Core Configuration File Example:</h4><div class=code-block-wrapper data-lang=ini><div class=code-block-header><div class=code-block-meta><span class=code-language>ini</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=k>[mtasvr]</span>
+</span></span><span class=line><span class=cl><span class=na>LocalTransportDir</span><span class=o>=</span><span class=s>&#34;/opt/app/var/transport/&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>[scanDomains]</span>
+</span></span><span class=line><span class=cl><span class=na>TransportFilePath</span><span class=o>=</span><span class=s>&#34;/opt/app/var/transport&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>[scanDomains/c1]</span>
+</span></span><span class=line><span class=cl><span class=na>MinDomainCount</span><span class=o>=</span><span class=s>&#34;28000&#34;</span>
+</span></span><span class=line><span class=cl><span class=na>RemoteTransSet</span><span class=o>=</span><span class=s>&#34;remote:[192.168.1.100]:8025&#34;</span>
+</span></span><span class=line><span class=cl><span class=na>RemoteDomainUrl</span><span class=o>=</span><span class=s>&#34;http://192.168.1.200:9900/app/getDomainListWithMD5.jsp&#34;</span>
+</span></span><span class=line><span class=cl><span class=na>ConfigFileName</span><span class=o>=</span><span class=s>&#34;0004_c2.cf&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>[scanDomains/c2]</span>
+</span></span><span class=line><span class=cl><span class=na>MinDomainCount</span><span class=o>=</span><span class=s>&#34;7000&#34;</span>
+</span></span><span class=line><span class=cl><span class=na>RemoteTransSet</span><span class=o>=</span><span class=s>&#34;remote:[192.168.1.101]:8025&#34;</span>
+</span></span><span class=line><span class=cl><span class=na>RemoteDomainUrl</span><span class=o>=</span><span class=s>&#34;http://192.168.1.201/app/getDomainListWithMD5.jsp&#34;</span>
+</span></span><span class=line><span class=cl><span class=na>ConfigFileName</span><span class=o>=</span><span class=s>&#34;0005_c2.cf&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=email-delivery-flow>Email Delivery Flow</h3><p>The entire email delivery process uses an intelligent routing strategy:</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef network fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef alert fill:#ffcdd2,stroke:#c62828,stroke-width:2px
+    
+    A@{ shape: rounded, label: &#34;Business System Sends Email&#34; } --&gt; B@{ shape: process, label: &#34;Delivery Agent Delivers&#34; }
+    B --&gt; C@{ shape: diam, label: &#34;Anti-spam Check&#34; }
+    C --&gt;|Normal Email| D@{ shape: diam, label: &#34;SDN Rule Matching&#34; }
+    C --&gt;|Spam| E@{ shape: process, label: &#34;Spam Processing&#34; }
+    
+    D --&gt;|Overseas Email| F@{ shape: diam, label: &#34;Target IP Region Check&#34; }
+    D --&gt;|Domestic Email| G@{ shape: rounded, label: &#34;Local Delivery&#34; }
+    
+    F --&gt;|Target IP != China| H@{ shape: hex, label: &#34;SDN Overseas Channel Round-robin Delivery&#34; }
+    F --&gt;|Target IP = China| G
+    
+    H --&gt; I@{ shape: hex, label: &#34;SDN Proxy 1&#34; }
+    H --&gt; J@{ shape: hex, label: &#34;SDN Proxy 2&#34; }
+    H --&gt; K@{ shape: hex, label: &#34;SDN Proxy N&#34; }
+    
+    I --&gt; L@{ shape: rounded, label: &#34;Delivery Complete&#34; }
+    J --&gt; L
+    K --&gt; L
+    G --&gt; L
+    class A,G,L primary
+    class H,I,J,K network
+    class B,E process
+    class C,F alert</code></pre></div></div><h2 id=summary-and-experience>Summary and Experience</h2><h3 id=technical-achievements>Technical Achievements</h3><ol><li><strong>Breaking through GFW interception</strong>: Effectively bypassed network restrictions through the smart delivery network&rsquo;s multi-channel round-robin mechanism</li><li><strong>Improved delivery efficiency</strong>: Significantly increased email delivery speed through load balancing and intelligent routing</li><li><strong>Ensured email quality</strong>: Ensured normal emails are not affected by spam through the four-tier channel mechanism</li><li><strong>Reduced ops costs</strong>: Lowered operational complexity through automated configuration management and a unified monitoring platform</li></ol><h3 id=key-technical-points>Key Technical Points</h3><ol><li><strong>Intelligent DNS resolution</strong>: Intelligently selects the optimal delivery path based on recipient domain</li><li><strong>Multi-level load balancing</strong>: Implements dual load balancing at both TCP and application layers</li><li><strong>Rule engine</strong>: Flexible SDN rule management supporting region, node, domain, and other matching conditions</li><li><strong>Automated operations</strong>: Automatic update and reload mechanisms for configuration files</li></ol><h3 id=practical-application-results>Practical Application Results</h3><p>Through this smart delivery network architecture, we achieved:</p><ul><li><strong>Reduced delivery latency</strong>: Overseas email delivery latency reduced from an average of 30 seconds to under 5 seconds</li><li><strong>Improved delivery success rate</strong>: Increased from 85% to over 98%</li><li><strong>Enhanced system stability</strong>: MTBF (Mean Time Between Failures) increased from 72 hours to 720 hours</li><li><strong>Improved ops efficiency</strong>: Configuration update time reduced from hours to minutes</li></ul><h3 id=future-optimization-directions>Future Optimization Directions</h3><ol><li><strong>Machine learning optimization</strong>: Introduce ML algorithms to predict optimal delivery paths based on historical data</li><li><strong>Intelligent fault diagnosis</strong>: AI-based fault prediction and automatic repair mechanisms</li><li><strong>Edge computing</strong>: Deploy more intelligent processing capabilities at edge nodes to reduce central node pressure</li><li><strong>Security hardening</strong>: Enhance anti-spam engine capabilities to improve email security</li></ol><p>This smart delivery network architecture provides a complete solution for globalized email delivery, solving many pain points of traditional email delivery through technological innovation and providing reliable technical support for enterprise globalization.</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/email/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Email
+</a><a class=tag-chip href=/en/tags/networking/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Networking
+</a><a class=tag-chip href=/en/tags/architecture/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Architecture
+</a><a class=tag-chip href=/en/tags/mail-delivery/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Mail-Delivery</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script></body></html>
