@@ -1,4 +1,45 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>EBPF on Mi&amp;Bee Blog</title><link>/en/tags/ebpf/</link><description>Recent content in EBPF on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Thu, 21 May 2026 00:00:00 +0000</lastBuildDate><atom:link href="/en/tags/ebpf/rss.xml" rel="self" type="application/rss+xml"/><item><title>From Compliance to Real-Time Defense: The Evolution of security-collector-exporter</title><link>/en/posts/telemetry/security-collector-exporter-from-compliance-to-runtime/</link><pubDate>Thu, 21 May 2026 00:00:00 +0000</pubDate><guid>/en/posts/telemetry/security-collector-exporter-from-compliance-to-runtime/</guid><description>&lt;h2 id="the-origin-compliance-check-hassles"&gt;The Origin: Compliance Check Hassles&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>EBPF on Mi&amp;Bee Blog</title><link>/en/tags/ebpf/</link><description>Recent content in EBPF on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Sat, 13 Jun 2026 00:00:00 +0000</lastBuildDate><atom:link href="/en/tags/ebpf/rss.xml" rel="self" type="application/rss+xml"/><item><title>eBPF Observability: Getting Started with OOM Killer Monitoring</title><link>/en/posts/telemetry/ebpf-oom-intro/</link><pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate><guid>/en/posts/telemetry/ebpf-oom-intro/</guid><description>&lt;p&gt;eBPF (Extended Berkeley Packet Filter) started as a network packet filtering tool, but over nearly a decade it has evolved into the most powerful observability framework in the Linux kernel. It allows you to safely inject and execute custom programs without modifying kernel source code or loading kernel modules.&lt;/p&gt;
+&lt;p&gt;This article kicks off the series, using OOM (Out-of-Memory) monitoring as a concrete entry point to learn the core eBPF concepts and toolchain.&lt;/p&gt;</description></item><item><title>Building an OOM Killer Event Tracer with eBPF + Go</title><link>/en/posts/telemetry/ebpf-oom-tracer-cgo/</link><pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate><guid>/en/posts/telemetry/ebpf-oom-tracer-cgo/</guid><description>&lt;p&gt;bpftrace is great for quick probing and ad-hoc debugging. For production-grade monitoring tools, you need full eBPF programs. The architecture splits into two layers:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Kernel side&lt;/strong&gt;: eBPF program written in C, attached to hook points, collecting event data&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;User side&lt;/strong&gt;: loader written in Go (or Rust / libbpf C), loading the eBPF program and reading events&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="architecture"&gt;Architecture&lt;/h2&gt;
+&lt;div class="code-block-wrapper" data-lang="mermaid"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;
+ &lt;span class="code-language"&gt;mermaid&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;
+ &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart LR
+ classDef kern fill:#E3F2FD,stroke:#1565C0,color:#1565C0
+ classDef user fill:#FFF3E0,stroke:#E65100,color:#BF360C
+ classDef data fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+
+ subgraph kernel[&amp;#34;Kernel Space&amp;#34;]
+ hook@{ shape: rounded, label: &amp;#34;oom_kill_process (kprobe)&amp;#34; }
+ ebpf@{ shape: proc, label: &amp;#34;eBPF Program\nEvent Collection&amp;#34; }
+ ring@{ shape: cyl, label: &amp;#34;Ring Buffer&amp;#34; }
+ end
+
+ subgraph userspace[&amp;#34;User Space (Go)&amp;#34;]
+ loader@{ shape: notch-rect, label: &amp;#34;bpf2go Loader&amp;#34; }
+ reader@{ shape: proc, label: &amp;#34;RingBuf Reader\nEvent Parsing&amp;#34; }
+ end
+
+ hook --&amp;gt; ebpf --&amp;gt; ring
+ ring --&amp;gt; reader
+ loader -.-&amp;gt; ebpf
+
+ class hook,ebpf,ring kern
+ class loader,reader user&lt;/code&gt;&lt;/pre&gt;
+ &lt;/div&gt;
+&lt;/div&gt;&lt;h2 id="ebpf-kernel-program-c"&gt;eBPF Kernel Program (C)&lt;/h2&gt;
+&lt;p&gt;Name the C file &lt;code&gt;oom_kprobe.bpf.c&lt;/code&gt; — the &lt;code&gt;bpf&lt;/code&gt; suffix is a cilium/ebpf convention for &lt;code&gt;bpf2go&lt;/code&gt; code generation:&lt;/p&gt;</description></item><item><title>Advanced eBPF Memory Observability: Container Tracing and Rust Aya</title><link>/en/posts/telemetry/ebpf-oom-advance/</link><pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate><guid>/en/posts/telemetry/ebpf-oom-advance/</guid><description>&lt;p&gt;The first two articles covered eBPF fundamentals and OOM Killer event tracing. This article goes deeper: container-level OOM pinpointing, real-time memory allocation rate tracking, and implementing the same functionality with the Rust Aya framework.&lt;/p&gt;
+&lt;h2 id="container-level-oom-pinpointing"&gt;Container-Level OOM Pinpointing&lt;/h2&gt;
+&lt;p&gt;In Kubernetes, &amp;ldquo;a Pod OOM&amp;rsquo;d&amp;rdquo; is actually a vague statement. A Pod consists of multiple containers, each belonging to different cgroups. eBPF can drill through this layer and precisely identify which container and which process caused the OOM.&lt;/p&gt;</description></item><item><title>BPF OOM Kernel Patches Deep Dive: Custom OOM Policies with eBPF</title><link>/en/posts/telemetry/ebpf-oom-bpf-patches/</link><pubDate>Sat, 13 Jun 2026 00:00:00 +0000</pubDate><guid>/en/posts/telemetry/ebpf-oom-bpf-patches/</guid><description>&lt;p&gt;The previous articles showed how to use eBPF to observe OOM events. But we could only watch, not intervene. The kernel&amp;rsquo;s OOM Killer decides who lives and dies based on the &lt;code&gt;oom_badness()&lt;/code&gt; algorithm, with no user control.&lt;/p&gt;
+&lt;p&gt;In 2025, Google engineer Roman Gushchin proposed the BPF OOM kernel patch series, aiming to let eBPF programs fully take over OOM handling policy. This is the biggest change to Linux memory management&amp;rsquo;s OOM subsystem in nearly two decades.&lt;/p&gt;</description></item><item><title>From Compliance to Real-Time Defense: The Evolution of security-collector-exporter</title><link>/en/posts/telemetry/security-collector-exporter-from-compliance-to-runtime/</link><pubDate>Thu, 21 May 2026 00:00:00 +0000</pubDate><guid>/en/posts/telemetry/security-collector-exporter-from-compliance-to-runtime/</guid><description>&lt;h2 id="the-origin-compliance-check-hassles"&gt;The Origin: Compliance Check Hassles&lt;/h2&gt;
 &lt;p&gt;Anyone in operations knows there&amp;rsquo;s no escaping one hurdle for domestic servers: &lt;strong&gt;Cybersecurity Level Protection&lt;/strong&gt; (GB/T 22239-2019, commonly known as &amp;ldquo;Level Protection 2.0&amp;rdquo;). Whether you&amp;rsquo;re Level 3 or Level 2, auditors come asking about these things:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Is SSH root login disabled? Are password policies compliant?&lt;/li&gt;
