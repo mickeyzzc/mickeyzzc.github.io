@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Troubleshooting on Mi&amp;Bee Blog</title><link>/en/tags/troubleshooting/</link><description>Recent content in Troubleshooting on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Sat, 23 May 2026 00:00:00 +0000</lastBuildDate><atom:link href="/en/tags/troubleshooting/rss.xml" rel="self" type="application/rss+xml"/><item><title>YOLO FAQ: Common Problems and Solutions</title><link>/en/posts/aihelper/yolo-faq/</link><pubDate>Sat, 23 May 2026 00:00:00 +0000</pubDate><guid>/en/posts/aihelper/yolo-faq/</guid><description>&lt;h2 id="environment-installation-issues"&gt;Environment Installation Issues&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Q1: CUDA not available, only using CPU?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;First confirm your NVIDIA driver version supports the required CUDA version. A driver that is too old will make CUDA unavailable:&lt;/p&gt;
+&lt;div class="code-block-wrapper" data-lang="bash"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;&lt;span class="code-language"&gt;bash&lt;/span&gt;&lt;/div&gt;
+ 
+ &lt;button class="copy-button" aria-label="Copy code"&gt;
+ &lt;svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;rect x="9" y="9" width="13" height="13" rx="2" ry="2"/&gt;&lt;path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/&gt;&lt;/svg&gt;
+ &lt;svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt;
+ &lt;/button&gt;
+ 
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# Check driver version (Driver Version must be &amp;gt;= minimum for target CUDA)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;nvidia-smi
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# Check CUDA toolkit version&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;nvcc --version
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# Reinstall PyTorch with matching CUDA version&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu121&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;If &lt;code&gt;nvidia-smi&lt;/code&gt; shows a CUDA version but PyTorch still uses CPU, you have installed the CPU-only PyTorch build. Uninstall and reinstall with the &lt;code&gt;--index-url&lt;/code&gt; flag for the correct CUDA version. For CUDA 11.8, replace &lt;code&gt;cu121&lt;/code&gt; with &lt;code&gt;cu118&lt;/code&gt; in the URL. Always use a conda or venv virtual environment to isolate PyTorch versions and avoid system-level conflicts.&lt;/p&gt;</description></item></channel></rss>

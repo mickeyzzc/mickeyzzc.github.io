@@ -1,0 +1,1117 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - YOLO Deployment: Model Export and Multi-Platform Deployment</title><meta name=description content="Complete YOLO deployment guide: 17 export formats, ONNX Runtime/TensorRT Python deployment, C++ OpenCV DNN deployment, Android TFLite deployment, Web ONNX Runtime deployment, and version-specific deployment comparison."><meta name=keywords content="YOLO,,deployment,,ONNX,,TensorRT,,OpenVINO,,CoreML,,TFLite,,NCNN"><link rel=canonical href=/en/posts/aihelper/yolo-deployment/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - YOLO Deployment: Model Export and Multi-Platform Deployment"><meta property="og:description" content="Complete YOLO deployment guide: 17 export formats, ONNX Runtime/TensorRT Python deployment, C++ OpenCV DNN deployment, Android TFLite deployment, Web ONNX Runtime deployment, and version-specific deployment comparison."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/posts/aihelper/yolo-deployment/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-20 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-20 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - YOLO Deployment: Model Export and Multi-Platform Deployment"><meta name=twitter:description content="Complete YOLO deployment guide: 17 export formats, ONNX Runtime/TensorRT Python deployment, C++ OpenCV DNN deployment, Android TFLite deployment, Web ONNX Runtime deployment, and version-specific deployment comparison."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/aihelper/yolo-deployment/><link rel=alternate hreflang=en href=/en/posts/aihelper/yolo-deployment/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/series/>Series</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/posts/aihelper/yolo-deployment/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#model-export-17-format-support>Model Export (17 Format Support)</a><ul><li><a href=#ultralytics-unified-export-api>Ultralytics Unified Export API</a></li><li><a href=#version-export-compatibility>Version Export Compatibility</a></li></ul></li><li><a href=#python-deployment-practice>Python Deployment Practice</a><ul><li><a href=#onnx-runtime-deployment>ONNX Runtime Deployment</a></li><li><a href=#tensorrt-python-deployment>TensorRT Python Deployment</a></li><li><a href=#openvino-deployment-with-benchmarking>OpenVINO Deployment with Benchmarking</a></li><li><a href=#ncnn-mobile-deployment>NCNN Mobile Deployment</a></li></ul></li><li><a href=#c-deployment-practice>C++ Deployment Practice</a><ul><li><a href=#opencv-dnn-deployment-simplest>OpenCV DNN Deployment (Simplest)</a></li></ul></li><li><a href=#docker-multi-stage-deployment>Docker Multi-Stage Deployment</a><ul><li><a href=#dockerfile-build>Dockerfile Build</a></li><li><a href=#docker-compose-orchestration>docker-compose Orchestration</a></li><li><a href=#health-check--inference-service>Health Check & Inference Service</a></li><li><a href=#resource-limit-reference>Resource Limit Reference</a></li></ul></li><li><a href=#edge-device-deployment>Edge Device Deployment</a><ul><li><a href=#rockchip-rknn-rk3588--rk3566>Rockchip RKNN (RK3588 / RK3566)</a></li><li><a href=#nvidia-jetson-jetpack--tensorrt>NVIDIA Jetson (JetPack + TensorRT)</a></li><li><a href=#google-coral-edge-tpu-tflite>Google Coral Edge TPU (TFLite)</a></li></ul></li><li><a href=#mobile-deployment>Mobile Deployment</a><ul><li><a href=#android-deployment-tflite>Android Deployment (TFLite)</a></li></ul></li><li><a href=#web-deployment>Web Deployment</a><ul><li><a href=#onnx-runtime-web>ONNX Runtime Web</a></li></ul></li><li><a href=#benchmark-methodology>Benchmark Methodology</a><ul><li><a href=#standardized-benchmark-script>Standardized Benchmark Script</a></li><li><a href=#report-format>Report Format</a></li><li><a href=#testing-considerations>Testing Considerations</a></li></ul></li><li><a href=#export-troubleshooting>Export Troubleshooting</a><ul><li><a href=#common-errors--fixes>Common Errors & Fixes</a></li><li><a href=#debug-tips>Debug Tips</a></li></ul></li><li><a href=#version-deployment-differences-summary>Version Deployment Differences Summary</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-md"><span>yolo</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-sm"><span>architecture</span>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-xs"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-xs"><span>smart home</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>YOLO Deployment: Model Export and Multi-Platform Deployment</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-20T00:00:00+00:00>May 20, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/ai-tools/>AI Tools</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/yolo/>YOLO</a>, <a href=/en/tags/model-deployment/>Model Deployment</a>, <a href=/en/tags/onnx/>ONNX</a>, <a href=/en/tags/tensorrt/>TensorRT</a>, <a href=/en/tags/edge-computing/>Edge Computing</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/en/series/yolo-from-zero-to-mastery/>YOLO From Zero to Mastery</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2441 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>12 min read</span></span></div></header><div class=Content><h2 id=model-export-17-format-support>Model Export (17 Format Support)</h2><h3 id=ultralytics-unified-export-api>Ultralytics Unified Export API</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== Export Various Formats ==========</span>
+</span></span><span class=line><span class=cl><span class=c1># 1. ONNX (Cross-platform Universal)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s2>&#34;onnx&#34;</span><span class=p>,</span> <span class=n>simplify</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span> <span class=n>dynamic</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 2. TensorRT (Best for NVIDIA GPU)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s2>&#34;engine&#34;</span><span class=p>,</span> <span class=n>half</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span> <span class=n>workspace</span><span class=o>=</span><span class=mi>4</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 3. OpenVINO (Best for Intel CPU)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s2>&#34;openvino&#34;</span><span class=p>,</span> <span class=n>half</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 4. CoreML (Apple Devices)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s2>&#34;coreml&#34;</span><span class=p>,</span> <span class=n>int8</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 5. TFLite (Android/iOS Mobile)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s2>&#34;tflite&#34;</span><span class=p>,</span> <span class=n>int8</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 6. NCNN (Mobile)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s2>&#34;ncnn&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 7. PaddlePaddle</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s2>&#34;paddle&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=version-export-compatibility>Version Export Compatibility</h3><table><thead><tr><th>Format</th><th>YOLOv8</th><th>YOLO11</th><th>YOLO26</th></tr></thead><tbody><tr><td>ONNX</td><td>✅</td><td>✅</td><td>✅ <strong>Best</strong></td></tr><tr><td>TensorRT</td><td>✅</td><td>✅</td><td>✅ <strong>No NMS, Simpler</strong></td></tr><tr><td>OpenVINO</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>TFLite</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>NCNN</td><td>✅</td><td>✅</td><td>✅</td></tr></tbody></table><h2 id=python-deployment-practice>Python Deployment Practice</h2><h3 id=onnx-runtime-deployment>ONNX Runtime Deployment</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>onnxruntime</span> <span class=k>as</span> <span class=nn>ort</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Load ONNX model</span>
+</span></span><span class=line><span class=cl><span class=n>session</span> <span class=o>=</span> <span class=n>ort</span><span class=o>.</span><span class=n>InferenceSession</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;yolo26n.onnx&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>providers</span><span class=o>=</span><span class=p>[</span><span class=s2>&#34;CUDAExecutionProvider&#34;</span><span class=p>,</span> <span class=s2>&#34;CPUExecutionProvider&#34;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>preprocess</span><span class=p>(</span><span class=n>image</span><span class=p>,</span> <span class=n>imgsz</span><span class=o>=</span><span class=mi>640</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Image preprocessing&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>img</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>image</span><span class=p>,</span> <span class=p>(</span><span class=n>imgsz</span><span class=p>,</span> <span class=n>imgsz</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>img</span> <span class=o>=</span> <span class=n>img</span><span class=o>.</span><span class=n>transpose</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span> <span class=o>/</span> <span class=mf>255.0</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>img</span><span class=p>[</span><span class=n>np</span><span class=o>.</span><span class=n>newaxis</span><span class=p>]</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>float32</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Inference</span>
+</span></span><span class=line><span class=cl><span class=n>image</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>imread</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>input_data</span> <span class=o>=</span> <span class=n>preprocess</span><span class=p>(</span><span class=n>image</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>outputs</span> <span class=o>=</span> <span class=n>session</span><span class=o>.</span><span class=n>run</span><span class=p>(</span><span class=kc>None</span><span class=p>,</span> <span class=p>{</span><span class=s2>&#34;images&#34;</span><span class=p>:</span> <span class=n>input_data</span><span class=p>})</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># YOLO26 Special Note: No NMS post-processing needed!</span>
+</span></span><span class=line><span class=cl><span class=c1># Output is already the final detection results</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=tensorrt-python-deployment>TensorRT Python Deployment</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>tensorrt</span> <span class=k>as</span> <span class=nn>trt</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>pycuda.driver</span> <span class=k>as</span> <span class=nn>cuda</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>pycuda.autoinit</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== 1. Engine Loading &amp; Context Creation ==========</span>
+</span></span><span class=line><span class=cl><span class=n>TRT_LOGGER</span> <span class=o>=</span> <span class=n>trt</span><span class=o>.</span><span class=n>Logger</span><span class=p>(</span><span class=n>trt</span><span class=o>.</span><span class=n>Logger</span><span class=o>.</span><span class=n>WARNING</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>runtime</span> <span class=o>=</span> <span class=n>trt</span><span class=o>.</span><span class=n>Runtime</span><span class=p>(</span><span class=n>TRT_LOGGER</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=s2>&#34;yolo26n.engine&#34;</span><span class=p>,</span> <span class=s2>&#34;rb&#34;</span><span class=p>)</span> <span class=k>as</span> <span class=n>f</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>engine</span> <span class=o>=</span> <span class=n>runtime</span><span class=o>.</span><span class=n>deserialize_cuda_engine</span><span class=p>(</span><span class=n>f</span><span class=o>.</span><span class=n>read</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>context</span> <span class=o>=</span> <span class=n>engine</span><span class=o>.</span><span class=n>create_execution_context</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== 2. CUDA Memory Allocation ==========</span>
+</span></span><span class=line><span class=cl><span class=n>stream</span> <span class=o>=</span> <span class=n>cuda</span><span class=o>.</span><span class=n>Stream</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>bindings</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>engine</span><span class=o>.</span><span class=n>num_io_tensors</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>name</span> <span class=o>=</span> <span class=n>engine</span><span class=o>.</span><span class=n>get_tensor_name</span><span class=p>(</span><span class=n>i</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>shape</span> <span class=o>=</span> <span class=n>engine</span><span class=o>.</span><span class=n>get_tensor_shape</span><span class=p>(</span><span class=n>name</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>dtype</span> <span class=o>=</span> <span class=n>trt</span><span class=o>.</span><span class=n>nptype</span><span class=p>(</span><span class=n>engine</span><span class=o>.</span><span class=n>get_tensor_dtype</span><span class=p>(</span><span class=n>name</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>size</span> <span class=o>=</span> <span class=n>trt</span><span class=o>.</span><span class=n>volume</span><span class=p>(</span><span class=n>shape</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>host_mem</span> <span class=o>=</span> <span class=n>cuda</span><span class=o>.</span><span class=n>pagelocked_empty</span><span class=p>(</span><span class=n>size</span><span class=p>,</span> <span class=n>dtype</span><span class=p>)</span>   <span class=c1># Host pinned memory</span>
+</span></span><span class=line><span class=cl>    <span class=n>device_mem</span> <span class=o>=</span> <span class=n>cuda</span><span class=o>.</span><span class=n>mem_alloc</span><span class=p>(</span><span class=n>host_mem</span><span class=o>.</span><span class=n>nbytes</span><span class=p>)</span>    <span class=c1># Device VRAM</span>
+</span></span><span class=line><span class=cl>    <span class=n>bindings</span><span class=o>.</span><span class=n>append</span><span class=p>({</span><span class=s2>&#34;name&#34;</span><span class=p>:</span> <span class=n>name</span><span class=p>,</span> <span class=s2>&#34;host&#34;</span><span class=p>:</span> <span class=n>host_mem</span><span class=p>,</span> <span class=s2>&#34;device&#34;</span><span class=p>:</span> <span class=n>device_mem</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                     <span class=s2>&#34;shape&#34;</span><span class=p>:</span> <span class=n>shape</span><span class=p>,</span> <span class=s2>&#34;size&#34;</span><span class=p>:</span> <span class=n>size</span><span class=p>,</span> <span class=s2>&#34;dtype&#34;</span><span class=p>:</span> <span class=n>dtype</span><span class=p>})</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== 3. Async Inference Loop ==========</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>async_infer</span><span class=p>(</span><span class=n>input_blob</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># H2D copy</span>
+</span></span><span class=line><span class=cl>    <span class=n>np</span><span class=o>.</span><span class=n>copyto</span><span class=p>(</span><span class=n>bindings</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=s2>&#34;host&#34;</span><span class=p>],</span> <span class=n>input_blob</span><span class=o>.</span><span class=n>ravel</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    <span class=n>cuda</span><span class=o>.</span><span class=n>memcpy_htod_async</span><span class=p>(</span><span class=n>bindings</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=s2>&#34;device&#34;</span><span class=p>],</span> <span class=n>bindings</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=s2>&#34;host&#34;</span><span class=p>],</span> <span class=n>stream</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># Set tensor addresses and execute</span>
+</span></span><span class=line><span class=cl>    <span class=n>context</span><span class=o>.</span><span class=n>set_tensor_address</span><span class=p>(</span><span class=n>bindings</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=s2>&#34;name&#34;</span><span class=p>],</span> <span class=nb>int</span><span class=p>(</span><span class=n>bindings</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=s2>&#34;device&#34;</span><span class=p>]))</span>
+</span></span><span class=line><span class=cl>    <span class=n>context</span><span class=o>.</span><span class=n>set_tensor_address</span><span class=p>(</span><span class=n>bindings</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=s2>&#34;name&#34;</span><span class=p>],</span> <span class=nb>int</span><span class=p>(</span><span class=n>bindings</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=s2>&#34;device&#34;</span><span class=p>]))</span>
+</span></span><span class=line><span class=cl>    <span class=n>context</span><span class=o>.</span><span class=n>execute_async_v3</span><span class=p>(</span><span class=n>stream</span><span class=o>.</span><span class=n>handle</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># D2H copy</span>
+</span></span><span class=line><span class=cl>    <span class=n>cuda</span><span class=o>.</span><span class=n>memcpy_dtoh_async</span><span class=p>(</span><span class=n>bindings</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=s2>&#34;host&#34;</span><span class=p>],</span> <span class=n>bindings</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=s2>&#34;device&#34;</span><span class=p>],</span> <span class=n>stream</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>stream</span><span class=o>.</span><span class=n>synchronize</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>bindings</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=s2>&#34;host&#34;</span><span class=p>]</span><span class=o>.</span><span class=n>copy</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== 4. Performance Benchmark ==========</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>benchmark</span><span class=p>(</span><span class=n>warmup</span><span class=o>=</span><span class=mi>10</span><span class=p>,</span> <span class=n>runs</span><span class=o>=</span><span class=mi>100</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>dummy</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>randn</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>3</span><span class=p>,</span> <span class=mi>640</span><span class=p>,</span> <span class=mi>640</span><span class=p>)</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>float32</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>warmup</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>async_infer</span><span class=p>(</span><span class=n>dummy</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>latencies</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>runs</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>t0</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>async_infer</span><span class=p>(</span><span class=n>dummy</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>latencies</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span> <span class=o>-</span> <span class=n>t0</span><span class=p>)</span> <span class=o>*</span> <span class=mi>1000</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>latencies</span><span class=o>.</span><span class=n>sort</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;TensorRT FP16 | Mean: </span><span class=si>{</span><span class=n>np</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=n>latencies</span><span class=p>)</span><span class=si>:</span><span class=s2>.1f</span><span class=si>}</span><span class=s2>ms | &#34;</span>
+</span></span><span class=line><span class=cl>          <span class=sa>f</span><span class=s2>&#34;P50: </span><span class=si>{</span><span class=n>latencies</span><span class=p>[</span><span class=n>runs</span><span class=o>//</span><span class=mi>2</span><span class=p>]</span><span class=si>:</span><span class=s2>.1f</span><span class=si>}</span><span class=s2>ms | &#34;</span>
+</span></span><span class=line><span class=cl>          <span class=sa>f</span><span class=s2>&#34;P99: </span><span class=si>{</span><span class=n>latencies</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>runs</span><span class=o>*</span><span class=mf>0.99</span><span class=p>)]</span><span class=si>:</span><span class=s2>.1f</span><span class=si>}</span><span class=s2>ms | &#34;</span>
+</span></span><span class=line><span class=cl>          <span class=sa>f</span><span class=s2>&#34;Throughput: </span><span class=si>{</span><span class=mi>1000</span><span class=o>/</span><span class=n>np</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=n>latencies</span><span class=p>)</span><span class=si>:</span><span class=s2>.0f</span><span class=si>}</span><span class=s2> FPS&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>benchmark</span><span class=p>()</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=openvino-deployment-with-benchmarking>OpenVINO Deployment with Benchmarking</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>openvino</span> <span class=k>as</span> <span class=nn>ov</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== 1. ONNX → OpenVINO Conversion ==========</span>
+</span></span><span class=line><span class=cl><span class=c1># Ultralytics unified export:</span>
+</span></span><span class=line><span class=cl><span class=c1>#   model.export(format=&#34;openvino&#34;, half=True)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>core</span> <span class=o>=</span> <span class=n>ov</span><span class=o>.</span><span class=n>Core</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>core</span><span class=o>.</span><span class=n>read_model</span><span class=p>(</span><span class=s2>&#34;yolo26n_openvino/yolo26n.xml&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== 2. CPU Inference ==========</span>
+</span></span><span class=line><span class=cl><span class=n>compiled_cpu</span> <span class=o>=</span> <span class=n>core</span><span class=o>.</span><span class=n>compile_model</span><span class=p>(</span><span class=n>model</span><span class=p>,</span> <span class=n>device_name</span><span class=o>=</span><span class=s2>&#34;CPU&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>infer_request</span> <span class=o>=</span> <span class=n>compiled_cpu</span><span class=o>.</span><span class=n>create_infer_request</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>openvino_infer</span><span class=p>(</span><span class=n>image</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>img</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>image</span><span class=p>,</span> <span class=p>(</span><span class=mi>640</span><span class=p>,</span> <span class=mi>640</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>blob</span> <span class=o>=</span> <span class=n>img</span><span class=o>.</span><span class=n>transpose</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>1</span><span class=p>)[</span><span class=n>np</span><span class=o>.</span><span class=n>newaxis</span><span class=p>]</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>float32</span><span class=p>)</span> <span class=o>/</span> <span class=mf>255.0</span>
+</span></span><span class=line><span class=cl>    <span class=n>outputs</span> <span class=o>=</span> <span class=n>infer_request</span><span class=o>.</span><span class=n>infer</span><span class=p>({</span><span class=s2>&#34;images&#34;</span><span class=p>:</span> <span class=n>blob</span><span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>outputs</span><span class=p>[</span><span class=nb>next</span><span class=p>(</span><span class=nb>iter</span><span class=p>(</span><span class=n>outputs</span><span class=p>))]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== 3. Async Pipeline (Throughput Optimized) ==========</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>async_pipeline</span><span class=p>(</span><span class=n>images</span><span class=p>,</span> <span class=n>num_requests</span><span class=o>=</span><span class=mi>4</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Multi-request async inference pipeline&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>requests</span> <span class=o>=</span> <span class=p>[</span><span class=n>core</span><span class=o>.</span><span class=n>compile_model</span><span class=p>(</span><span class=n>model</span><span class=p>,</span> <span class=s2>&#34;CPU&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>create_infer_request</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>                <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>num_requests</span><span class=p>)]</span>
+</span></span><span class=line><span class=cl>    <span class=n>results</span> <span class=o>=</span> <span class=p>[</span><span class=kc>None</span><span class=p>]</span> <span class=o>*</span> <span class=nb>len</span><span class=p>(</span><span class=n>images</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>completion_callback</span><span class=p>(</span><span class=n>request</span><span class=p>,</span> <span class=n>userdata</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>idx</span> <span class=o>=</span> <span class=n>userdata</span>
+</span></span><span class=line><span class=cl>        <span class=n>results</span><span class=p>[</span><span class=n>idx</span><span class=p>]</span> <span class=o>=</span> <span class=n>request</span><span class=o>.</span><span class=n>get_output_tensor</span><span class=p>()</span><span class=o>.</span><span class=n>data</span><span class=o>.</span><span class=n>copy</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>req</span> <span class=ow>in</span> <span class=n>requests</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>req</span><span class=o>.</span><span class=n>set_callback</span><span class=p>(</span><span class=n>completion_callback</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=n>img</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>images</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>req</span> <span class=o>=</span> <span class=n>requests</span><span class=p>[</span><span class=n>i</span> <span class=o>%</span> <span class=n>num_requests</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>req</span><span class=o>.</span><span class=n>start_async</span><span class=p>({</span><span class=s2>&#34;images&#34;</span><span class=p>:</span> <span class=n>preprocess</span><span class=p>(</span><span class=n>img</span><span class=p>)},</span> <span class=n>userdata</span><span class=o>=</span><span class=n>i</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>req</span> <span class=ow>in</span> <span class=n>requests</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>req</span><span class=o>.</span><span class=n>wait</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>results</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== 4. CPU vs NPU Benchmark Comparison ==========</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>benchmark_openvino</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>dummy</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>randn</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>3</span><span class=p>,</span> <span class=mi>640</span><span class=p>,</span> <span class=mi>640</span><span class=p>)</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>float32</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>device</span> <span class=ow>in</span> <span class=p>[</span><span class=s2>&#34;CPU&#34;</span><span class=p>,</span> <span class=s2>&#34;AUTO&#34;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>        <span class=n>compiled</span> <span class=o>=</span> <span class=n>core</span><span class=o>.</span><span class=n>compile_model</span><span class=p>(</span><span class=n>model</span><span class=p>,</span> <span class=n>device</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>req</span> <span class=o>=</span> <span class=n>compiled</span><span class=o>.</span><span class=n>create_infer_request</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># Warmup (avoid first-inference kernel compilation overhead)</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>20</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>req</span><span class=o>.</span><span class=n>infer</span><span class=p>({</span><span class=s2>&#34;images&#34;</span><span class=p>:</span> <span class=n>dummy</span><span class=p>})</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=n>times</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>200</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>t0</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>            <span class=n>req</span><span class=o>.</span><span class=n>infer</span><span class=p>({</span><span class=s2>&#34;images&#34;</span><span class=p>:</span> <span class=n>dummy</span><span class=p>})</span>
+</span></span><span class=line><span class=cl>            <span class=n>times</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span> <span class=o>-</span> <span class=n>t0</span><span class=p>)</span> <span class=o>*</span> <span class=mi>1000</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=n>times</span><span class=o>.</span><span class=n>sort</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;OpenVINO </span><span class=si>{</span><span class=n>device</span><span class=si>}</span><span class=s2>: &#34;</span>
+</span></span><span class=line><span class=cl>              <span class=sa>f</span><span class=s2>&#34;Mean </span><span class=si>{</span><span class=n>np</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=n>times</span><span class=p>)</span><span class=si>:</span><span class=s2>.1f</span><span class=si>}</span><span class=s2>ms | &#34;</span>
+</span></span><span class=line><span class=cl>              <span class=sa>f</span><span class=s2>&#34;P99 </span><span class=si>{</span><span class=n>times</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=mi>199</span><span class=o>*</span><span class=mf>0.99</span><span class=p>)]</span><span class=si>:</span><span class=s2>.1f</span><span class=si>}</span><span class=s2>ms | &#34;</span>
+</span></span><span class=line><span class=cl>              <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=mi>1000</span><span class=o>/</span><span class=n>np</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=n>times</span><span class=p>)</span><span class=si>:</span><span class=s2>.0f</span><span class=si>}</span><span class=s2> FPS&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>benchmark_openvino</span><span class=p>()</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=ncnn-mobile-deployment>NCNN Mobile Deployment</h3><p>NCNN is Tencent&rsquo;s open-source mobile inference framework supporting ARM NEON and Vulkan GPU acceleration.</p><p><strong>Model Optimization (ncnnoptimize):</strong></p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># FP32 optimization (best compatibility)</span>
+</span></span><span class=line><span class=cl>ncnnoptimize yolo26n.param yolo26n.bin yolo26n-opt.param yolo26n-opt.bin <span class=m>0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># FP16 optimization (speed first, requires FP16 support)</span>
+</span></span><span class=line><span class=cl>ncnnoptimize yolo26n.param yolo26n.bin yolo26n-fp16.param yolo26n-fp16.bin <span class=m>1</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Python Binding Inference:</strong></p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>ncnn</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>ncnn_infer</span><span class=p>(</span><span class=n>image_path</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>net</span> <span class=o>=</span> <span class=n>ncnn</span><span class=o>.</span><span class=n>Net</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>net</span><span class=o>.</span><span class=n>load_param</span><span class=p>(</span><span class=s2>&#34;yolo26n-opt.param&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>net</span><span class=o>.</span><span class=n>load_model</span><span class=p>(</span><span class=s2>&#34;yolo26n-opt.bin&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>net</span><span class=o>.</span><span class=n>opt</span><span class=o>.</span><span class=n>use_vulkan_compute</span> <span class=o>=</span> <span class=kc>True</span>   <span class=c1># GPU acceleration</span>
+</span></span><span class=line><span class=cl>    <span class=n>net</span><span class=o>.</span><span class=n>opt</span><span class=o>.</span><span class=n>use_bf16_storage</span> <span class=o>=</span> <span class=kc>True</span>     <span class=c1># Storage optimization</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>img</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>imread</span><span class=p>(</span><span class=n>image_path</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>img</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>img</span><span class=p>,</span> <span class=p>(</span><span class=mi>640</span><span class=p>,</span> <span class=mi>640</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>in_mat</span> <span class=o>=</span> <span class=n>ncnn</span><span class=o>.</span><span class=n>Mat</span><span class=o>.</span><span class=n>from_pixels</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>img</span><span class=p>,</span> <span class=n>ncnn</span><span class=o>.</span><span class=n>Mat</span><span class=o>.</span><span class=n>PixelType</span><span class=o>.</span><span class=n>PIXEL_BGR2RGB</span><span class=p>,</span> <span class=mi>640</span><span class=p>,</span> <span class=mi>640</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>in_mat</span><span class=o>.</span><span class=n>substract_mean_normalize</span><span class=p>([</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>],</span> <span class=p>[</span><span class=mi>1</span><span class=o>/</span><span class=mf>255.0</span><span class=p>,</span> <span class=mi>1</span><span class=o>/</span><span class=mf>255.0</span><span class=p>,</span> <span class=mi>1</span><span class=o>/</span><span class=mf>255.0</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>ex</span> <span class=o>=</span> <span class=n>net</span><span class=o>.</span><span class=n>create_extractor</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>ex</span><span class=o>.</span><span class=n>input</span><span class=p>(</span><span class=s2>&#34;images&#34;</span><span class=p>,</span> <span class=n>in_mat</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>out</span> <span class=o>=</span> <span class=n>ex</span><span class=o>.</span><span class=n>extract</span><span class=p>(</span><span class=s2>&#34;output0&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>(</span><span class=n>out</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Android JNI Integration:</strong></p><div class=code-block-wrapper data-lang=cpp><div class=code-block-header><div class=code-block-meta><span class=code-language>cpp</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=c1>// ncnn_jni.cpp — Android JNI calling NCNN
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;jni.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;ncnn/net.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>extern</span> <span class=s>&#34;C&#34;</span> <span class=n>JNIEXPORT</span> <span class=n>jfloatArray</span> <span class=n>JNICALL</span>
+</span></span><span class=line><span class=cl><span class=n>Java_com_example_yolo_NCNNHelper_detect</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>JNIEnv</span><span class=o>*</span> <span class=n>env</span><span class=p>,</span> <span class=n>jobject</span> <span class=n>thiz</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>jbyteArray</span> <span class=n>image_data</span><span class=p>,</span> <span class=n>jint</span> <span class=n>width</span><span class=p>,</span> <span class=n>jint</span> <span class=n>height</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>jstring</span> <span class=n>param_path</span><span class=p>,</span> <span class=n>jstring</span> <span class=n>bin_path</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>ncnn</span><span class=o>::</span><span class=n>Net</span> <span class=n>net</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>param</span> <span class=o>=</span> <span class=n>env</span><span class=o>-&gt;</span><span class=n>GetStringUTFChars</span><span class=p>(</span><span class=n>param_path</span><span class=p>,</span> <span class=k>nullptr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>bin</span>  <span class=o>=</span> <span class=n>env</span><span class=o>-&gt;</span><span class=n>GetStringUTFChars</span><span class=p>(</span><span class=n>bin_path</span><span class=p>,</span> <span class=k>nullptr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>net</span><span class=p>.</span><span class=n>load_param</span><span class=p>(</span><span class=n>param</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>net</span><span class=p>.</span><span class=n>load_model</span><span class=p>(</span><span class=n>bin</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>net</span><span class=p>.</span><span class=n>opt</span><span class=p>.</span><span class=n>use_vulkan_compute</span> <span class=o>=</span> <span class=nb>true</span><span class=p>;</span>   <span class=c1>// GPU acceleration
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>env</span><span class=o>-&gt;</span><span class=n>ReleaseStringUTFChars</span><span class=p>(</span><span class=n>param_path</span><span class=p>,</span> <span class=n>param</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>env</span><span class=o>-&gt;</span><span class=n>ReleaseStringUTFChars</span><span class=p>(</span><span class=n>bin_path</span><span class=p>,</span> <span class=n>bin</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>jbyte</span><span class=o>*</span> <span class=n>data</span> <span class=o>=</span> <span class=n>env</span><span class=o>-&gt;</span><span class=n>GetByteArrayElements</span><span class=p>(</span><span class=n>image_data</span><span class=p>,</span> <span class=k>nullptr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>ncnn</span><span class=o>::</span><span class=n>Mat</span> <span class=n>in</span> <span class=o>=</span> <span class=n>ncnn</span><span class=o>::</span><span class=n>Mat</span><span class=o>::</span><span class=n>from_pixels</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span><span class=o>*</span><span class=p>)</span><span class=n>data</span><span class=p>,</span> <span class=n>ncnn</span><span class=o>::</span><span class=n>Mat</span><span class=o>::</span><span class=n>PIXEL_RGBA2RGB</span><span class=p>,</span> <span class=n>width</span><span class=p>,</span> <span class=n>height</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>ncnn</span><span class=o>::</span><span class=n>Mat</span> <span class=n>out</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>ncnn</span><span class=o>::</span><span class=n>Extractor</span> <span class=n>ex</span> <span class=o>=</span> <span class=n>net</span><span class=p>.</span><span class=n>create_extractor</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>ex</span><span class=p>.</span><span class=n>input</span><span class=p>(</span><span class=s>&#34;images&#34;</span><span class=p>,</span> <span class=n>in</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>ex</span><span class=p>.</span><span class=n>extract</span><span class=p>(</span><span class=s>&#34;output0&#34;</span><span class=p>,</span> <span class=n>out</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>env</span><span class=o>-&gt;</span><span class=n>ReleaseByteArrayElements</span><span class=p>(</span><span class=n>image_data</span><span class=p>,</span> <span class=n>data</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>jfloatArray</span> <span class=n>result</span> <span class=o>=</span> <span class=n>env</span><span class=o>-&gt;</span><span class=n>NewFloatArray</span><span class=p>(</span><span class=n>out</span><span class=p>.</span><span class=n>total</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>    <span class=n>env</span><span class=o>-&gt;</span><span class=n>SetFloatArrayRegion</span><span class=p>(</span><span class=n>result</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=n>out</span><span class=p>.</span><span class=n>total</span><span class=p>(),</span> <span class=p>(</span><span class=n>jfloat</span><span class=o>*</span><span class=p>)</span><span class=n>out</span><span class=p>.</span><span class=n>data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Performance Reference (YOLO26n, 640×640):</strong></p><table><thead><tr><th>Device</th><th>Backend</th><th>Latency</th><th>Power</th></tr></thead><tbody><tr><td>Snapdragon 8 Gen 3</td><td>NCNN Vulkan</td><td>~8ms</td><td>3.5W</td></tr><tr><td>Snapdragon 8 Gen 3</td><td>NCNN CPU</td><td>~18ms</td><td>2.1W</td></tr><tr><td>Apple A17 Pro</td><td>CoreML/ANE</td><td>~6ms</td><td>2.8W</td></tr><tr><td>MediaTek Dimensity 9300</td><td>NCNN GPU</td><td>~10ms</td><td>3.2W</td></tr><tr><td>Raspberry Pi 5</td><td>NCNN CPU</td><td>~120ms</td><td>5W</td></tr></tbody></table><h2 id=c-deployment-practice>C++ Deployment Practice</h2><h3 id=opencv-dnn-deployment-simplest>OpenCV DNN Deployment (Simplest)</h3><div class=code-block-wrapper data-lang=cpp><div class=code-block-header><div class=code-block-meta><span class=code-language>cpp</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;opencv2/dnn.hpp&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;opencv2/opencv.hpp&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// Load ONNX model
+</span></span></span><span class=line><span class=cl>    <span class=n>cv</span><span class=o>::</span><span class=n>dnn</span><span class=o>::</span><span class=n>Net</span> <span class=n>net</span> <span class=o>=</span> <span class=n>cv</span><span class=o>::</span><span class=n>dnn</span><span class=o>::</span><span class=n>readNetFromONNX</span><span class=p>(</span><span class=s>&#34;yolo26n.onnx&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>net</span><span class=p>.</span><span class=n>setPreferableBackend</span><span class=p>(</span><span class=n>cv</span><span class=o>::</span><span class=n>dnn</span><span class=o>::</span><span class=n>DNN_BACKEND_OPENCV</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>net</span><span class=p>.</span><span class=n>setPreferableTarget</span><span class=p>(</span><span class=n>cv</span><span class=o>::</span><span class=n>dnn</span><span class=o>::</span><span class=n>DNN_TARGET_CPU</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// Preprocessing
+</span></span></span><span class=line><span class=cl>    <span class=n>cv</span><span class=o>::</span><span class=n>Mat</span> <span class=n>img</span> <span class=o>=</span> <span class=n>cv</span><span class=o>::</span><span class=n>imread</span><span class=p>(</span><span class=s>&#34;test.jpg&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>cv</span><span class=o>::</span><span class=n>Mat</span> <span class=n>blob</span> <span class=o>=</span> <span class=n>cv</span><span class=o>::</span><span class=n>dnn</span><span class=o>::</span><span class=n>blobFromImage</span><span class=p>(</span><span class=n>img</span><span class=p>,</span> <span class=mi>1</span><span class=o>/</span><span class=mf>255.0</span><span class=p>,</span> <span class=n>cv</span><span class=o>::</span><span class=n>Size</span><span class=p>(</span><span class=mi>640</span><span class=p>,</span> <span class=mi>640</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>                                          <span class=n>cv</span><span class=o>::</span><span class=n>Scalar</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span><span class=mi>0</span><span class=p>,</span><span class=mi>0</span><span class=p>),</span> <span class=nb>true</span><span class=p>,</span> <span class=nb>false</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// Inference
+</span></span></span><span class=line><span class=cl>    <span class=n>net</span><span class=p>.</span><span class=n>setInput</span><span class=p>(</span><span class=n>blob</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=n>cv</span><span class=o>::</span><span class=n>Mat</span><span class=o>&gt;</span> <span class=n>outputs</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>net</span><span class=p>.</span><span class=n>forward</span><span class=p>(</span><span class=n>outputs</span><span class=p>,</span> <span class=n>net</span><span class=p>.</span><span class=n>getUnconnectedOutLayersNames</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// YOLO26: No NMS needed! Directly parse output
+</span></span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=docker-multi-stage-deployment>Docker Multi-Stage Deployment</h2><h3 id=dockerfile-build>Dockerfile Build</h3><div class=code-block-wrapper data-lang=dockerfile><div class=code-block-header><div class=code-block-meta><span class=code-language>dockerfile</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl><span class=c># Stage 1: Dependency installation</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>FROM</span><span class=w> </span><span class=s>python:3.11-slim</span><span class=w> </span><span class=k>AS</span><span class=w> </span><span class=s>builder</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>WORKDIR</span><span class=w> </span><span class=s>/app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>COPY</span> requirements.txt .<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> pip install --no-cache-dir -r requirements.txt<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Stage 2: Runtime image (minimized)</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>FROM</span><span class=w> </span><span class=s>python:3.11-slim</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> apt-get update <span class=o>&amp;&amp;</span> apt-get install -y --no-install-recommends <span class=se>\
+</span></span></span><span class=line><span class=cl>    libgomp1 libglib2.0-0 libgl1-mesa-glx <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    rm -rf /var/lib/apt/lists/*<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>WORKDIR</span><span class=w> </span><span class=s>/app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>COPY</span> --from<span class=o>=</span>builder /usr/local/lib/python3.11/site-packages <span class=se>\
+</span></span></span><span class=line><span class=cl>     /usr/local/lib/python3.11/site-packages<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Bake in model file</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>COPY</span> yolo26n.onnx /app/models/<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Inference service code</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>COPY</span> serve.py /app/<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>HEALTHCHECK</span> --interval<span class=o>=</span>30s --timeout<span class=o>=</span>3s --retries<span class=o>=</span><span class=m>3</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>    <span class=k>CMD</span> python -c <span class=s2>&#34;import urllib.request; urllib.request.urlopen(&#39;http://localhost:8000/health&#39;)&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>EXPOSE</span><span class=w> </span><span class=s>8000</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;python&#34;</span><span class=p>,</span> <span class=s2>&#34;serve.py&#34;</span><span class=p>]</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=docker-compose-orchestration>docker-compose Orchestration</h3><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>version</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;3.8&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>services</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>yolo-server</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>build</span><span class=p>:</span><span class=w> </span><span class=l>.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;8000:8000&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>deploy</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>resources</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>limits</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>cpus</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;2&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>memory</span><span class=p>:</span><span class=w> </span><span class=l>2G</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>reservations</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>cpus</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;1&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>memory</span><span class=p>:</span><span class=w> </span><span class=l>1G</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>environment</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>MODEL_PATH=/app/models/yolo26n.onnx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>NUM_WORKERS=2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>healthcheck</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>test</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;CMD&#34;</span><span class=p>,</span><span class=w> </span><span class=s2>&#34;python&#34;</span><span class=p>,</span><span class=w> </span><span class=s2>&#34;-c&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>             </span><span class=s2>&#34;import urllib.request; assert urllib.request.urlopen(&#39;http://localhost:8000/health&#39;).status == 200&#34;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>interval</span><span class=p>:</span><span class=w> </span><span class=l>30s</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>timeout</span><span class=p>:</span><span class=w> </span><span class=l>10s</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>retries</span><span class=p>:</span><span class=w> </span><span class=m>3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>restart</span><span class=p>:</span><span class=w> </span><span class=l>unless-stopped</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=health-check--inference-service>Health Check & Inference Service</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># serve.py — FastAPI inference service</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>FastAPI</span><span class=p>,</span> <span class=n>File</span><span class=p>,</span> <span class=n>UploadFile</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>onnxruntime</span> <span class=k>as</span> <span class=nn>ort</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>app</span> <span class=o>=</span> <span class=n>FastAPI</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>session</span> <span class=o>=</span> <span class=n>ort</span><span class=o>.</span><span class=n>InferenceSession</span><span class=p>(</span><span class=s2>&#34;models/yolo26n.onnx&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@app.get</span><span class=p>(</span><span class=s2>&#34;/health&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>async</span> <span class=k>def</span> <span class=nf>health</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{</span><span class=s2>&#34;status&#34;</span><span class=p>:</span> <span class=s2>&#34;ok&#34;</span><span class=p>,</span> <span class=s2>&#34;model&#34;</span><span class=p>:</span> <span class=s2>&#34;yolo26n&#34;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@app.post</span><span class=p>(</span><span class=s2>&#34;/predict&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>async</span> <span class=k>def</span> <span class=nf>predict</span><span class=p>(</span><span class=n>file</span><span class=p>:</span> <span class=n>UploadFile</span> <span class=o>=</span> <span class=n>File</span><span class=p>(</span><span class=o>...</span><span class=p>)):</span>
+</span></span><span class=line><span class=cl>    <span class=n>contents</span> <span class=o>=</span> <span class=k>await</span> <span class=n>file</span><span class=o>.</span><span class=n>read</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>img</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>imdecode</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>frombuffer</span><span class=p>(</span><span class=n>contents</span><span class=p>,</span> <span class=n>np</span><span class=o>.</span><span class=n>uint8</span><span class=p>),</span> <span class=n>cv2</span><span class=o>.</span><span class=n>IMREAD_COLOR</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>blob</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>img</span><span class=p>,</span> <span class=p>(</span><span class=mi>640</span><span class=p>,</span> <span class=mi>640</span><span class=p>))</span><span class=o>.</span><span class=n>transpose</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>blob</span> <span class=o>=</span> <span class=n>blob</span><span class=p>[</span><span class=n>np</span><span class=o>.</span><span class=n>newaxis</span><span class=p>]</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>float32</span><span class=p>)</span> <span class=o>/</span> <span class=mf>255.0</span>
+</span></span><span class=line><span class=cl>    <span class=n>outputs</span> <span class=o>=</span> <span class=n>session</span><span class=o>.</span><span class=n>run</span><span class=p>(</span><span class=kc>None</span><span class=p>,</span> <span class=p>{</span><span class=s2>&#34;images&#34;</span><span class=p>:</span> <span class=n>blob</span><span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{</span><span class=s2>&#34;detections&#34;</span><span class=p>:</span> <span class=n>outputs</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>tolist</span><span class=p>()}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=resource-limit-reference>Resource Limit Reference</h3><table><thead><tr><th>Resource</th><th>Minimum</th><th>Recommended</th></tr></thead><tbody><tr><td>CPU</td><td>2 cores</td><td>4+ cores</td></tr><tr><td>Memory</td><td>2 GB</td><td>4 GB</td></tr><tr><td>GPU (Optional)</td><td>NVIDIA T4</td><td>A10G+</td></tr></tbody></table><h2 id=edge-device-deployment>Edge Device Deployment</h2><h3 id=rockchip-rknn-rk3588--rk3566>Rockchip RKNN (RK3588 / RK3566)</h3><p>Rockchip NPU uses the RKNN format — requires converting ONNX models:</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>rknn.api</span> <span class=kn>import</span> <span class=n>RKNN</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>rknn</span> <span class=o>=</span> <span class=n>RKNN</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Configure target platform</span>
+</span></span><span class=line><span class=cl><span class=n>ret</span> <span class=o>=</span> <span class=n>rknn</span><span class=o>.</span><span class=n>config</span><span class=p>(</span><span class=n>mean_values</span><span class=o>=</span><span class=p>[[</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>]],</span> <span class=n>std_values</span><span class=o>=</span><span class=p>[[</span><span class=mi>255</span><span class=p>,</span> <span class=mi>255</span><span class=p>,</span> <span class=mi>255</span><span class=p>]],</span>
+</span></span><span class=line><span class=cl>                  <span class=n>target_platform</span><span class=o>=</span><span class=s2>&#34;rk3588&#34;</span><span class=p>)</span>  <span class=c1># RK3566 → &#34;rk3566&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Load ONNX and build</span>
+</span></span><span class=line><span class=cl><span class=n>ret</span> <span class=o>=</span> <span class=n>rknn</span><span class=o>.</span><span class=n>load_onnx</span><span class=p>(</span><span class=s2>&#34;yolo26n.onnx&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>ret</span> <span class=o>=</span> <span class=n>rknn</span><span class=o>.</span><span class=n>build</span><span class=p>(</span><span class=n>do_quantization</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span> <span class=n>dataset</span><span class=o>=</span><span class=s2>&#34;dataset.txt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>rknn</span><span class=o>.</span><span class=n>export_rknn</span><span class=p>(</span><span class=s2>&#34;yolo26n.rknn&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Inference</span>
+</span></span><span class=line><span class=cl><span class=n>ret</span> <span class=o>=</span> <span class=n>rknn</span><span class=o>.</span><span class=n>init_runtime</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>outputs</span> <span class=o>=</span> <span class=n>rknn</span><span class=o>.</span><span class=n>inference</span><span class=p>(</span><span class=n>inputs</span><span class=o>=</span><span class=p>[</span><span class=n>preprocess</span><span class=p>(</span><span class=n>img</span><span class=p>)])</span>
+</span></span><span class=line><span class=cl><span class=n>rknn</span><span class=o>.</span><span class=n>release</span><span class=p>()</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Key Parameters:</strong></p><ul><li><code>do_quantization=True</code>: INT8 quantization, 3-5x throughput improvement</li><li><code>target_platform</code>: RK3588 / RK3566 / RK3399Pro</li><li>NPU inference latency (RK3588): typically &lt;10ms</li></ul><h3 id=nvidia-jetson-jetpack--tensorrt>NVIDIA Jetson (JetPack + TensorRT)</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Install JetPack (includes TensorRT, CUDA, cuDNN)</span>
+</span></span><span class=line><span class=cl>sudo apt-get install nvidia-jetpack
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Build TensorRT engine (native Jetson)</span>
+</span></span><span class=line><span class=cl>trtexec --onnx<span class=o>=</span>yolo26n.onnx <span class=se>\
+</span></span></span><span class=line><span class=cl>        --fp16 <span class=se>\
+</span></span></span><span class=line><span class=cl>        --saveEngine<span class=o>=</span>yolo26n.engine <span class=se>\
+</span></span></span><span class=line><span class=cl>        --workspace<span class=o>=</span><span class=m>2048</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Performance test</span>
+</span></span><span class=line><span class=cl>trtexec --loadEngine<span class=o>=</span>yolo26n.engine --best</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Jetson Model Performance Estimate (YOLO26n, FP16, 640×640):</strong></p><table><thead><tr><th>Device</th><th>Inference Latency</th><th>Tier</th></tr></thead><tbody><tr><td>Jetson Orin NX 16GB</td><td>~6ms</td><td>Edge Flagship</td></tr><tr><td>Jetson Orin Nano 8GB</td><td>~12ms</td><td>Best Value</td></tr><tr><td>Jetson Xavier NX</td><td>~15ms</td><td>Previous Gen Flagship</td></tr><tr><td>Jetson Nano</td><td>~45ms</td><td>Entry Level</td></tr></tbody></table><h3 id=google-coral-edge-tpu-tflite>Google Coral Edge TPU (TFLite)</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Compile quantized model for Edge TPU</span>
+</span></span><span class=line><span class=cl>edgetpu_compiler yolo26n_full_integer_quant.tflite
+</span></span><span class=line><span class=cl><span class=c1># Output: yolo26n_edgetpu.tflite</span></span></span></code></pre></td></tr></table></div></div></div></div><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>pycoral.adapters</span> <span class=kn>import</span> <span class=n>common</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>pycoral.utils.edgetpu</span> <span class=kn>import</span> <span class=n>make_interpreter</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>interpreter</span> <span class=o>=</span> <span class=n>make_interpreter</span><span class=p>(</span><span class=s2>&#34;yolo26n_edgetpu.tflite&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>interpreter</span><span class=o>.</span><span class=n>allocate_tensors</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Warmup (first inference includes compilation overhead)</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>5</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>common</span><span class=o>.</span><span class=n>set_input</span><span class=p>(</span><span class=n>interpreter</span><span class=p>,</span> <span class=n>input_data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>interpreter</span><span class=o>.</span><span class=n>invoke</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Benchmark</span>
+</span></span><span class=line><span class=cl><span class=n>times</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>50</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>t0</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>common</span><span class=o>.</span><span class=n>set_input</span><span class=p>(</span><span class=n>interpreter</span><span class=p>,</span> <span class=n>input_data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>interpreter</span><span class=o>.</span><span class=n>invoke</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>times</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span> <span class=o>-</span> <span class=n>t0</span><span class=p>)</span> <span class=o>*</span> <span class=mi>1000</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Edge TPU: Mean </span><span class=si>{</span><span class=n>np</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=n>times</span><span class=p>)</span><span class=si>:</span><span class=s2>.1f</span><span class=si>}</span><span class=s2>ms | &#34;</span>
+</span></span><span class=line><span class=cl>      <span class=sa>f</span><span class=s2>&#34;P99: </span><span class=si>{</span><span class=nb>sorted</span><span class=p>(</span><span class=n>times</span><span class=p>)[</span><span class=nb>int</span><span class=p>(</span><span class=mi>49</span><span class=o>*</span><span class=mf>0.99</span><span class=p>)]</span><span class=si>:</span><span class=s2>.1f</span><span class=si>}</span><span class=s2>ms&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=mobile-deployment>Mobile Deployment</h2><h3 id=android-deployment-tflite>Android Deployment (TFLite)</h3><div class=code-block-wrapper data-lang=java><div class=code-block-header><div class=code-block-meta><span class=code-language>java</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=c1>// Android TFLite Inference</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=n>Interpreter</span><span class=w> </span><span class=n>interpreter</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>Interpreter</span><span class=p>(</span><span class=n>loadModelFile</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// Input preprocessing</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kt>float</span><span class=o>[][][][]</span><span class=w> </span><span class=n>input</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>preprocess</span><span class=p>(</span><span class=n>bitmap</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// Inference</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kt>float</span><span class=o>[][]</span><span class=w> </span><span class=n>output</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=kt>float</span><span class=o>[</span><span class=n>1</span><span class=o>][</span><span class=n>8400</span><span class=o>][</span><span class=n>85</span><span class=o>]</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=n>interpreter</span><span class=p>.</span><span class=na>run</span><span class=p>(</span><span class=n>input</span><span class=p>,</span><span class=w> </span><span class=n>output</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>//</span><span class=w> </span><span class=n>YOLO26</span><span class=w> </span><span class=n>advantage</span><span class=p>:</span><span class=w> </span><span class=n>No</span><span class=w> </span><span class=n>NMS</span><span class=p>,</span><span class=w> </span><span class=n>Java</span><span class=w> </span><span class=n>post</span><span class=o>-</span><span class=n>processing</span><span class=w> </span><span class=n>code</span><span class=w> </span><span class=n>greatly</span><span class=w> </span><span class=n>simplified</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=web-deployment>Web Deployment</h2><h3 id=onnx-runtime-web>ONNX Runtime Web</h3><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// JavaScript Web Deployment
+</span></span></span><span class=line><span class=cl><span class=kr>import</span> <span class=o>*</span> <span class=nx>as</span> <span class=nx>ort</span> <span class=nx>from</span> <span class=s1>&#39;onnxruntime-web&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>async</span> <span class=kd>function</span> <span class=nx>runYOLO</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>session</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>ort</span><span class=p>.</span><span class=nx>InferenceSession</span><span class=p>.</span><span class=nx>create</span><span class=p>(</span><span class=s1>&#39;yolo26n.onnx&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// Image preprocessing
+</span></span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>input</span> <span class=o>=</span> <span class=nx>preprocessImage</span><span class=p>(</span><span class=nx>imageElement</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// Inference
+</span></span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>outputs</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>session</span><span class=p>.</span><span class=nx>run</span><span class=p>({</span> <span class=nx>images</span><span class=o>:</span> <span class=nx>input</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// YOLO26: No NMS, frontend code cleaner
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=benchmark-methodology>Benchmark Methodology</h2><h3 id=standardized-benchmark-script>Standardized Benchmark Script</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># benchmark.py — Unified benchmark template</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>onnxruntime</span> <span class=k>as</span> <span class=nn>ort</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>json</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>platform</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>benchmark_model</span><span class=p>(</span><span class=n>infer_fn</span><span class=p>,</span> <span class=n>input_data</span><span class=p>,</span> <span class=n>warmup</span><span class=o>=</span><span class=mi>30</span><span class=p>,</span> <span class=n>runs</span><span class=o>=</span><span class=mi>200</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                    <span class=n>model_name</span><span class=o>=</span><span class=s2>&#34;model&#34;</span><span class=p>,</span> <span class=n>device_info</span><span class=o>=</span><span class=s2>&#34;&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    Standardized benchmark
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Args:
+</span></span></span><span class=line><span class=cl><span class=s2>        infer_fn: Inference function (receives input_data, returns output)
+</span></span></span><span class=line><span class=cl><span class=s2>        input_data: Fixed input data (numpy array)
+</span></span></span><span class=line><span class=cl><span class=s2>        warmup: Number of warmup iterations
+</span></span></span><span class=line><span class=cl><span class=s2>        runs: Number of benchmark iterations
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Warmup (exclude first-inference kernel compilation, cache filling)</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>warmup</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>_</span> <span class=o>=</span> <span class=n>infer_fn</span><span class=p>(</span><span class=n>input_data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Benchmark</span>
+</span></span><span class=line><span class=cl>    <span class=n>latencies</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>runs</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>t0</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>_</span> <span class=o>=</span> <span class=n>infer_fn</span><span class=p>(</span><span class=n>input_data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>latencies</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span> <span class=o>-</span> <span class=n>t0</span><span class=p>)</span> <span class=o>*</span> <span class=mi>1000</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>latencies</span><span class=o>.</span><span class=n>sort</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>result</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;model&#34;</span><span class=p>:</span> <span class=n>model_name</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;device&#34;</span><span class=p>:</span> <span class=n>device_info</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;mean_ms&#34;</span><span class=p>:</span> <span class=nb>float</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=n>latencies</span><span class=p>)),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;median_ms&#34;</span><span class=p>:</span> <span class=nb>float</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>median</span><span class=p>(</span><span class=n>latencies</span><span class=p>)),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;p50_ms&#34;</span><span class=p>:</span> <span class=nb>float</span><span class=p>(</span><span class=n>latencies</span><span class=p>[</span><span class=n>runs</span> <span class=o>//</span> <span class=mi>2</span><span class=p>]),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;p90_ms&#34;</span><span class=p>:</span> <span class=nb>float</span><span class=p>(</span><span class=n>latencies</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>runs</span> <span class=o>*</span> <span class=mf>0.90</span><span class=p>)]),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;p95_ms&#34;</span><span class=p>:</span> <span class=nb>float</span><span class=p>(</span><span class=n>latencies</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>runs</span> <span class=o>*</span> <span class=mf>0.95</span><span class=p>)]),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;p99_ms&#34;</span><span class=p>:</span> <span class=nb>float</span><span class=p>(</span><span class=n>latencies</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>runs</span> <span class=o>*</span> <span class=mf>0.99</span><span class=p>)]),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;min_ms&#34;</span><span class=p>:</span> <span class=nb>float</span><span class=p>(</span><span class=n>latencies</span><span class=p>[</span><span class=mi>0</span><span class=p>]),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;max_ms&#34;</span><span class=p>:</span> <span class=nb>float</span><span class=p>(</span><span class=n>latencies</span><span class=p>[</span><span class=o>-</span><span class=mi>1</span><span class=p>]),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;std_ms&#34;</span><span class=p>:</span> <span class=nb>float</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>std</span><span class=p>(</span><span class=n>latencies</span><span class=p>)),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;fps&#34;</span><span class=p>:</span> <span class=mf>1000.0</span> <span class=o>/</span> <span class=n>np</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=n>latencies</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;runs&#34;</span><span class=p>:</span> <span class=n>runs</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;warmup&#34;</span><span class=p>:</span> <span class=n>warmup</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;system&#34;</span><span class=p>:</span> <span class=n>platform</span><span class=o>.</span><span class=n>platform</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;processor&#34;</span><span class=p>:</span> <span class=n>platform</span><span class=o>.</span><span class=n>processor</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>result</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Usage example</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>test_ort_cpu</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>session</span> <span class=o>=</span> <span class=n>ort</span><span class=o>.</span><span class=n>InferenceSession</span><span class=p>(</span><span class=s2>&#34;yolo26n.onnx&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                    <span class=n>providers</span><span class=o>=</span><span class=p>[</span><span class=s2>&#34;CPUExecutionProvider&#34;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=n>dummy</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>randn</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>3</span><span class=p>,</span> <span class=mi>640</span><span class=p>,</span> <span class=mi>640</span><span class=p>)</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>float32</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>benchmark_model</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=n>session</span><span class=o>.</span><span class=n>run</span><span class=p>(</span><span class=kc>None</span><span class=p>,</span> <span class=p>{</span><span class=s2>&#34;images&#34;</span><span class=p>:</span> <span class=n>x</span><span class=p>}),</span>
+</span></span><span class=line><span class=cl>        <span class=n>dummy</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>model_name</span><span class=o>=</span><span class=s2>&#34;YOLO26n ONNX Runtime CPU&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>device_info</span><span class=o>=</span><span class=s2>&#34;Intel i7-12700, 16GB DDR5&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>result</span> <span class=o>=</span> <span class=n>test_ort_cpu</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>json</span><span class=o>.</span><span class=n>dumps</span><span class=p>(</span><span class=n>result</span><span class=p>,</span> <span class=n>indent</span><span class=o>=</span><span class=mi>2</span><span class=p>))</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=report-format>Report Format</h3><div class=code-block-wrapper data-lang=json><div class=code-block-header><div class=code-block-meta><span class=code-language>json</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;model&#34;</span><span class=p>:</span> <span class=s2>&#34;YOLO26n ONNX Runtime CPU&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;device&#34;</span><span class=p>:</span> <span class=s2>&#34;Intel i7-12700, 16GB DDR5&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;mean_ms&#34;</span><span class=p>:</span> <span class=mf>12.3</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;p50_ms&#34;</span><span class=p>:</span> <span class=mf>12.1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;p99_ms&#34;</span><span class=p>:</span> <span class=mf>15.2</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;min_ms&#34;</span><span class=p>:</span> <span class=mf>11.8</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;max_ms&#34;</span><span class=p>:</span> <span class=mf>18.7</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;std_ms&#34;</span><span class=p>:</span> <span class=mf>0.8</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;fps&#34;</span><span class=p>:</span> <span class=mf>81.3</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;warmup&#34;</span><span class=p>:</span> <span class=mi>30</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;runs&#34;</span><span class=p>:</span> <span class=mi>200</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;system&#34;</span><span class=p>:</span> <span class=s2>&#34;Linux-6.8.0-x86_64&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;processor&#34;</span><span class=p>:</span> <span class=s2>&#34;x86_64&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=testing-considerations>Testing Considerations</h3><table><thead><tr><th>Consideration</th><th>Description</th></tr></thead><tbody><tr><td>CPU Frequency Locking</td><td>Disable scaling: <code>cpupower frequency-set -g performance</code></td></tr><tr><td>GPU Warmup</td><td>TensorRT first inference includes kernel compilation — warm up 10+ iterations</td></tr><tr><td>Batch Size Impact</td><td>Larger batches increase throughput but add latency — choose based on SLA</td></tr><tr><td>Memory Bandwidth</td><td>CPU inference is often memory-bandwidth bound — watch DDR frequency</td></tr><tr><td>Temperature Control</td><td>Edge device latency increases with temperature — monitor SoC temp</td></tr><tr><td>Reproducibility</td><td>Fix random seed, lock CPU affinity, disable hyperthreading</td></tr></tbody></table><h2 id=export-troubleshooting>Export Troubleshooting</h2><h3 id=common-errors--fixes>Common Errors & Fixes</h3><table><thead><tr><th>Platform</th><th>Common Error</th><th>Solution</th></tr></thead><tbody><tr><td>ONNX</td><td><code>Opset version mismatch</code></td><td>Specify <code>opset=15</code> or <code>opset=17</code></td></tr><tr><td>ONNX</td><td><code>Dynamic shape unsupported</code></td><td>Set <code>dynamic=False, imgsz=640</code></td></tr><tr><td>TensorRT</td><td><code>Plugin not found</code></td><td>Upgrade TensorRT or set <code>workspace=8</code></td></tr><tr><td>TensorRT</td><td><code>Half precision not supported</code></td><td>Use <code>half=False</code> or upgrade GPU</td></tr><tr><td>OpenVINO</td><td><code>FP16 not supported on device</code></td><td>Device doesn&rsquo;t support FP16, set <code>half=False</code></td></tr><tr><td>TFLite</td><td><code>Quantization not supported</code></td><td>Use <code>int8=False</code> or provide calibration dataset</td></tr><tr><td>NCNN</td><td><code>Vulkan not initialized</code></td><td>Check GPU driver, compile with <code>-DNCNN_VULKAN=ON</code></td></tr><tr><td>RKNN</td><td><code>Platform mismatch</code></td><td>Check <code>target_platform</code> parameter</td></tr><tr><td>CoreML</td><td><code>Min deployment target</code></td><td>Use <code>mlmodel</code> format instead of <code>mlpackage</code></td></tr></tbody></table><h3 id=debug-tips>Debug Tips</h3><ul><li><strong>Verbose export logging</strong>:<div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s2>&#34;onnx&#34;</span><span class=p>,</span> <span class=n>verbose</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div></li><li><strong>ONNX integrity check</strong>:<div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>python -m onnxruntime.tools.check_model yolo26n.onnx</span></span></code></pre></td></tr></table></div></div></div></div></li><li><strong>TensorRT verbose logging</strong>:<div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>trt</span><span class=o>.</span><span class=n>Logger</span><span class=p>(</span><span class=n>trt</span><span class=o>.</span><span class=n>Logger</span><span class=o>.</span><span class=n>VERBOSE</span><span class=p>)</span>  <span class=c1># Replace WARNING</span></span></span></code></pre></td></tr></table></div></div></div></div></li><li><strong>Graph visualization</strong>:<div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>netron</span>
+</span></span><span class=line><span class=cl><span class=n>netron</span><span class=o>.</span><span class=n>start</span><span class=p>(</span><span class=s2>&#34;yolo26n.onnx&#34;</span><span class=p>)</span>  <span class=c1># View model structure in browser</span></span></span></code></pre></td></tr></table></div></div></div></div></li></ul><h2 id=version-deployment-differences-summary>Version Deployment Differences Summary</h2><table><thead><tr><th>Deployment Aspect</th><th>YOLOv8</th><th>YOLO11</th><th>YOLO26</th></tr></thead><tbody><tr><td>NMS Post-processing</td><td>Required</td><td>Required</td><td><strong>Not Required</strong></td></tr><tr><td>DFL Parsing</td><td>Required</td><td>Required</td><td><strong>Not Required</strong></td></tr><tr><td>Deployment Code Size</td><td>Baseline</td><td>Baseline</td><td><strong>Reduced by 50%</strong></td></tr><tr><td>CPU Inference Speed</td><td>Baseline</td><td>+25%</td><td><strong>+43%</strong></td></tr><tr><td>Hardware Compatibility</td><td>Good</td><td>Good</td><td><strong>Best</strong></td></tr><tr><td>Edge Device Adaptation</td><td>Average</td><td>Better</td><td><strong>Designed for Edge</strong></td></tr></tbody></table></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>Part of series:</span>
+<a href=/en/series/yolo-from-zero-to-mastery/>YOLO From Zero to Mastery</a></div><div class=series-nav__links><a href=/en/posts/aihelper/yolo-advanced-optimization/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>Previous</span>
+<span class=series-nav__title>YOLO Advanced Optimization: Lightweight, Quantization and Accuracy</span>
+</a><a href=/en/posts/aihelper/yolo-faq/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>Next</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>YOLO FAQ: Common Problems and Solutions</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/yolo/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+YOLO
+</a><a class=tag-chip href=/en/tags/model-deployment/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Model Deployment
+</a><a class=tag-chip href=/en/tags/onnx/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+ONNX
+</a><a class=tag-chip href=/en/tags/tensorrt/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+TensorRT
+</a><a class=tag-chip href=/en/tags/edge-computing/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Edge Computing</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>

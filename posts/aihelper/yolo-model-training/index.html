@@ -1,0 +1,603 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - YOLO 模型训练：自定义数据集完整流程</title><meta name=description content="YOLO 自定义数据集训练完整教程：Ultralytics 统一训练代码、学习率调优、批次大小选择、早停与恢复训练、训练日志可视化分析。"><meta name=keywords content="YOLO,,training,,hyperparameter,tuning,,Ultralytics,,deep,learning"><link rel=canonical href=/posts/aihelper/yolo-model-training/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - YOLO 模型训练：自定义数据集完整流程"><meta property="og:description" content="YOLO 自定义数据集训练完整教程：Ultralytics 统一训练代码、学习率调优、批次大小选择、早停与恢复训练、训练日志可视化分析。"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/aihelper/yolo-model-training/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-14 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-14 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - YOLO 模型训练：自定义数据集完整流程"><meta name=twitter:description content="YOLO 自定义数据集训练完整教程：Ultralytics 统一训练代码、学习率调优、批次大小选择、早停与恢复训练、训练日志可视化分析。"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/aihelper/yolo-model-training/><link rel=alternate hreflang=en href=/en/posts/aihelper/yolo-model-training/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/series/>系列</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label=切换语言 aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>中文</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/en/posts/aihelper/yolo-model-training/ lang=en rel=alternate>English</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#自定义数据集完整训练流程>自定义数据集完整训练流程</a><ul><li><a href=#ultralytics-统一训练代码>Ultralytics 统一训练代码</a></li><li><a href=#各版本训练参数差异>各版本训练参数差异</a></li><li><a href=#损失函数详解>损失函数详解</a><ul><li><a href=#边框回归损失--ciou>边框回归损失 — CIoU</a></li><li><a href=#分类损失--bce-loss>分类损失 — BCE Loss</a></li><li><a href=#dfl-损失-distribution-focal-loss>DFL 损失 (Distribution Focal Loss)</a></li><li><a href=#yolo26-的-progloss>YOLO26 的 ProgLoss</a></li><li><a href=#损失权重调优建议>损失权重调优建议</a></li></ul></li></ul></li><li><a href=#训练调优最佳实践>训练调优最佳实践</a><ul><li><a href=#学习率调优>学习率调优</a></li><li><a href=#批次大小选择>批次大小选择</a></li><li><a href=#多-gpu-训练>多 GPU 训练</a><ul><li><a href=#ddp-distributed-data-parallel>DDP (Distributed Data Parallel)</a></li><li><a href=#批次大小缩放规则>批次大小缩放规则</a></li><li><a href=#注意事项>注意事项</a></li></ul></li><li><a href=#早停与恢复训练>早停与恢复训练</a></li></ul></li><li><a href=#训练可视化分析>训练可视化分析</a></li><li><a href=#超参数搜索>超参数搜索</a><ul><li><a href=#使用-ultralytics-自动调参>使用 Ultralytics 自动调参</a><ul><li><a href=#搜索空间配置>搜索空间配置</a></li><li><a href=#与-ray-tune-集成>与 Ray Tune 集成</a></li><li><a href=#搜索结果解读>搜索结果解读</a></li></ul></li></ul></li><li><a href=#过拟合诊断与正则化>过拟合诊断与正则化</a><ul><li><a href=#从损失曲线识别过拟合>从损失曲线识别过拟合</a></li><li><a href=#正则化技术>正则化技术</a></li><li><a href=#数据增强调优>数据增强调优</a></li><li><a href=#早停策略调优>早停策略调优</a></li><li><a href=#结果文件说明>结果文件说明</a></li><li><a href=#关键指标解读>关键指标解读</a></li><li><a href=#验证指标深度解析>验证指标深度解析</a><ul><li><a href=#precision-与-recall>Precision 与 Recall</a></li><li><a href=#混淆矩阵-confusion-matrix>混淆矩阵 (Confusion Matrix)</a></li><li><a href=#map-计算流程>mAP 计算流程</a></li><li><a href=#用指标诊断模型问题>用指标诊断模型问题</a></li><li><a href=#f1-confidence-曲线>F1-Confidence 曲线</a></li></ul></li></ul></li><li><a href=#yolo26-专属训练方案>YOLO26 专属训练方案</a><ul><li><a href=#musgd-优化器>MuSGD 优化器</a></li><li><a href=#progloss-渐进式损失平衡>ProgLoss 渐进式损失平衡</a></li><li><a href=#stal-小目标增强训练>STAL 小目标增强训练</a></li><li><a href=#yolo26-训练清单>YOLO26 训练清单</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-md"><span>yolo</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-sm"><span>开源</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-sm"><span>架构</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-xs"><span>摄像头</span>
+</a><a href=/tags/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/ class="tag-cloud__item tag-size-xs"><span>智能家居</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>YOLO 模型训练：自定义数据集完整流程</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-14T00:00:00+00:00>May 14, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/ai%E5%B7%A5%E5%85%B7/>AI工具</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/yolo/>YOLO</a>, <a href=/tags/%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/>模型训练</a>, <a href=/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/>深度学习</a>, <a href=/tags/%E8%B0%83%E4%BC%98/>调优</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/series/yolo-%E4%BB%8E%E9%9B%B6%E5%88%B0%E7%B2%BE%E9%80%9A/>YOLO 从零到精通</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>4532 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>10 分钟阅读</span></span></div></header><div class=Content><h2 id=自定义数据集完整训练流程>自定义数据集完整训练流程</h2><h3 id=ultralytics-统一训练代码>Ultralytics 统一训练代码</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 加载模型</span>
+</span></span><span class=line><span class=cl><span class=c1># model = YOLO(&#34;yolov8n.yaml&#34;)  # 从头训练</span>
+</span></span><span class=line><span class=cl><span class=c1># model = YOLO(&#34;yolo11n.pt&#34;)    # 基于预训练权重</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>      <span class=c1># 2026推荐，边缘部署首选</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 开始训练</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 基础配置</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span><span class=s2>&#34;data.yaml&#34;</span><span class=p>,</span>        <span class=c1># 数据集配置</span>
+</span></span><span class=line><span class=cl>    <span class=n>epochs</span><span class=o>=</span><span class=mi>100</span><span class=p>,</span>              <span class=c1># 训练轮数</span>
+</span></span><span class=line><span class=cl>    <span class=n>imgsz</span><span class=o>=</span><span class=mi>640</span><span class=p>,</span>               <span class=c1># 输入尺寸</span>
+</span></span><span class=line><span class=cl>    <span class=n>batch</span><span class=o>=</span><span class=mi>16</span><span class=p>,</span>                <span class=c1># 批次大小</span>
+</span></span><span class=line><span class=cl>    <span class=n>workers</span><span class=o>=</span><span class=mi>8</span><span class=p>,</span>               <span class=c1># 数据加载线程数</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 优化器配置</span>
+</span></span><span class=line><span class=cl>    <span class=n>optimizer</span><span class=o>=</span><span class=s2>&#34;auto&#34;</span><span class=p>,</span>        <span class=c1># YOLO26自动使用MuSGD</span>
+</span></span><span class=line><span class=cl>    <span class=n>lr0</span><span class=o>=</span><span class=mf>0.01</span><span class=p>,</span>                <span class=c1># 初始学习率</span>
+</span></span><span class=line><span class=cl>    <span class=n>lrf</span><span class=o>=</span><span class=mf>0.01</span><span class=p>,</span>                <span class=c1># 最终学习率因子</span>
+</span></span><span class=line><span class=cl>    <span class=n>momentum</span><span class=o>=</span><span class=mf>0.937</span><span class=p>,</span>          <span class=c1># SGD动量</span>
+</span></span><span class=line><span class=cl>    <span class=n>weight_decay</span><span class=o>=</span><span class=mf>0.0005</span><span class=p>,</span>     <span class=c1># 权重衰减</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 数据增强</span>
+</span></span><span class=line><span class=cl>    <span class=n>mosaic</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixup</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>copy_paste</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 其他配置</span>
+</span></span><span class=line><span class=cl>    <span class=n>device</span><span class=o>=</span><span class=mi>0</span><span class=p>,</span>                <span class=c1># GPU设备，&#34;cpu&#34;为CPU</span>
+</span></span><span class=line><span class=cl>    <span class=n>project</span><span class=o>=</span><span class=s2>&#34;runs/train&#34;</span><span class=p>,</span>    <span class=c1># 保存路径</span>
+</span></span><span class=line><span class=cl>    <span class=n>name</span><span class=o>=</span><span class=s2>&#34;yolo26_exp1&#34;</span><span class=p>,</span>      <span class=c1># 实验名称</span>
+</span></span><span class=line><span class=cl>    <span class=n>exist_ok</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>          <span class=c1># 是否覆盖</span>
+</span></span><span class=line><span class=cl>    <span class=n>pretrained</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>         <span class=c1># 使用预训练</span>
+</span></span><span class=line><span class=cl>    <span class=n>verbose</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>            <span class=c1># 详细日志</span>
+</span></span><span class=line><span class=cl>    <span class=n>seed</span><span class=o>=</span><span class=mi>42</span><span class=p>,</span>                 <span class=c1># 随机种子</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证模型</span>
+</span></span><span class=line><span class=cl><span class=n>metrics</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>val</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;mAP50: </span><span class=si>{</span><span class=n>metrics</span><span class=o>.</span><span class=n>box</span><span class=o>.</span><span class=n>map50</span><span class=si>:</span><span class=s2>.3f</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;mAP50-95: </span><span class=si>{</span><span class=n>metrics</span><span class=o>.</span><span class=n>box</span><span class=o>.</span><span class=n>map</span><span class=si>:</span><span class=s2>.3f</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=各版本训练参数差异>各版本训练参数差异</h3><table><thead><tr><th>参数</th><th>YOLOv8</th><th>YOLO11</th><th>YOLO26</th></tr></thead><tbody><tr><td>默认优化器</td><td>SGD</td><td>SGD</td><td><strong>MuSGD</strong></td></tr><tr><td>DFL 损失</td><td>✅</td><td>✅</td><td>❌ 已移除</td></tr><tr><td>NMS 后处理</td><td>✅</td><td>✅</td><td>❌ 原生无 NMS</td></tr><tr><td>小目标优化</td><td>一般</td><td>较好</td><td><strong>最佳 (STAL)</strong></td></tr><tr><td>CPU 推理速度</td><td>基准</td><td>+25%</td><td><strong>+43%</strong></td></tr></tbody></table><h3 id=损失函数详解>损失函数详解</h3><p>YOLO 的损失函数由三部分组成，每部分针对不同的学习目标：</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># 损失权重配置 (ultralytics/cfg/default.yaml)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>loss_weights</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>box</span><span class=p>:</span><span class=w> </span><span class=m>7.5</span><span class=w>    </span><span class=c># 边框回归损失权重</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>cls</span><span class=p>:</span><span class=w> </span><span class=m>0.5</span><span class=w>    </span><span class=c># 分类损失权重</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>dfl</span><span class=p>:</span><span class=w> </span><span class=m>1.5</span><span class=w>    </span><span class=c># DFL 损失权重 (仅 YOLOv8/v11)</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=边框回归损失--ciou>边框回归损失 — CIoU</h4><p>YOLO 使用 <strong>CIoU (Complete IoU)</strong> 作为边框回归损失。CIoU 在标准 IoU 基础上增加了中心点距离和长宽比一致性惩罚：</p><p>$$
+L_{CIoU} = 1 - IoU + \frac{\rho^2(b, b_{gt})}{c^2} + \alpha v
+$$</p><ul><li>$IoU$：预测框与真实框的交并比</li><li>$\rho^2(b, b_{gt})$：两个框中心点的欧氏距离</li><li>$c^2$：最小外接矩形的对角线长度</li><li>$\alpha v$：长宽比一致性惩罚项</li></ul><p>CIoU 相比普通 IoU 损失的核心优势：即使两个框完全不重叠，梯度依然存在，模型可以持续学习。</p><h4 id=分类损失--bce-loss>分类损失 — BCE Loss</h4><p>分类任务使用 <strong>二元交叉熵损失 (Binary Cross-Entropy)</strong>：</p><p>$$
+L_{cls} = -\sum_{i=1}^{C} [y_i \cdot \log(\hat{y}_i) + (1 - y_i) \cdot \log(1 - \hat{y}_i)]
+$$</p><p>YOLO 采用多标签分类（Multi-label Classification）而非 Softmax，因为一个锚点可能同时包含多个目标。每个类别独立计算 BCE 损失后求和。</p><h4 id=dfl-损失-distribution-focal-loss>DFL 损失 (Distribution Focal Loss)</h4><p>YOLOv8/YOLO11 将边界框的四条边距建模为离散概率分布：</p><p>$$
+DFL(\mathcal{S}<em>i, \mathcal{S}</em>{gt}) = -\sum_{k=0}^{15} \text{Cat}(k; y_{gt}) \cdot \log(\mathcal{S}_i[k])
+$$</p><p>每条边由 16 个离散值表示，使模型能表达定位的不确定性。首次出现 DFL 损失时 loss 值通常在 3~5 之间，随着训练逐渐降到 1 以下。</p><h4 id=yolo26-的-progloss>YOLO26 的 ProgLoss</h4><p>YOLO26 移除了 DFL，引入 <strong>ProgLoss (Progressive Loss Balancing)</strong>：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># YOLO26 损失函数特点</span>
+</span></span><span class=line><span class=cl><span class=c1># ❌ DFL 已移除 —— 简化训练，减少超参数</span>
+</span></span><span class=line><span class=cl><span class=c1># ✅ ProgLoss：渐进式平衡 box/cls 损失权重</span>
+</span></span><span class=line><span class=cl><span class=c1>#     - 早期阶段：侧重分类学习 (cls 权重升高)</span>
+</span></span><span class=line><span class=cl><span class=c1>#     - 后期阶段：侧重边框精调 (box 权重升高)</span>
+</span></span><span class=line><span class=cl><span class=c1># ✅ 损失曲线更平滑，调参更直观</span></span></span></code></pre></td></tr></table></div></div></div></div><p>ProgLoss 采用<strong>课程学习 (Curriculum Learning)</strong> 策略：训练初期模型先学会「是什么」（分类），再学会「在哪里」（定位），避免早期定位损失过大干扰分类学习。</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>ProgLoss weight schedule (示意):
+</span></span><span class=line><span class=cl>Epoch  0-10:  cls=1.0, box=5.0  → 侧重分类
+</span></span><span class=line><span class=cl>Epoch 10-30:  cls=1.0, box=7.5  → 均衡学习
+</span></span><span class=line><span class=cl>Epoch 30+:    cls=0.5, box=7.5  → 侧重边框</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=损失权重调优建议>损失权重调优建议</h4><table><thead><tr><th>场景</th><th>box 权重</th><th>cls 权重</th><th>说明</th></tr></thead><tbody><tr><td>通用检测</td><td>7.5</td><td>0.5</td><td>Ultralytics 默认值</td></tr><tr><td>小目标为主</td><td>10.0</td><td>0.3</td><td>提升边框精度</td></tr><tr><td>分类精度优先</td><td>5.0</td><td>1.0</td><td>减少误检</td></tr><tr><td>高 IoU 要求</td><td>12.0</td><td>0.3</td><td>提升定位精度</td></tr></tbody></table><h2 id=训练调优最佳实践>训练调优最佳实践</h2><h3 id=学习率调优>学习率调优</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 小数据集：降低学习率</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>lr0</span><span class=o>=</span><span class=mf>0.001</span><span class=p>,</span>    <span class=c1># 从0.01降到0.001</span>
+</span></span><span class=line><span class=cl>    <span class=n>epochs</span><span class=o>=</span><span class=mi>200</span><span class=p>,</span>   <span class=c1># 增加轮数</span>
+</span></span><span class=line><span class=cl>    <span class=n>cos_lr</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>  <span class=c1># 使用余弦退火</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 大数据集：标准配置</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>lr0</span><span class=o>=</span><span class=mf>0.01</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>epochs</span><span class=o>=</span><span class=mi>100</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>warmup_epochs</span><span class=o>=</span><span class=mi>3</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=批次大小选择>批次大小选择</h3><table><thead><tr><th>GPU 显存</th><th>推荐 batch</th><th>模型尺寸</th></tr></thead><tbody><tr><td>4GB</td><td>8</td><td>n/s</td></tr><tr><td>8GB</td><td>16</td><td>n/s/m</td></tr><tr><td>12GB</td><td>32</td><td>n/s/m/l</td></tr><tr><td>24GB</td><td>64</td><td>全部</td></tr></tbody></table><h3 id=多-gpu-训练>多 GPU 训练</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 指定多个 GPU</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>device</span><span class=o>=</span><span class=p>[</span><span class=mi>0</span><span class=p>,</span> <span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>],</span>   <span class=c1># 使用 4 张 GPU</span>
+</span></span><span class=line><span class=cl>    <span class=n>batch</span><span class=o>=</span><span class=mi>64</span><span class=p>,</span>               <span class=c1># 总 batch = 单卡 batch × GPU 数</span>
+</span></span><span class=line><span class=cl>    <span class=n>workers</span><span class=o>=</span><span class=mi>8</span><span class=p>,</span>              <span class=c1># 数据加载线程数</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=ddp-distributed-data-parallel>DDP (Distributed Data Parallel)</h4><p>Ultralytics 使用 PyTorch 的 <code>DistributedDataParallel</code> 实现多卡训练。DDP 将模型复制到每张 GPU，每个进程独立计算梯度后通过 AllReduce 同步：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 自动启用 DDP (无需手动配置)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>device</span><span class=o>=</span><span class=p>[</span><span class=mi>0</span><span class=p>,</span> <span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=n>batch</span><span class=o>=</span><span class=mi>64</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=批次大小缩放规则>批次大小缩放规则</h4><table><thead><tr><th>显卡数</th><th>单卡 batch</th><th>总 batch</th><th>学习率调整</th></tr></thead><tbody><tr><td>1</td><td>16</td><td>16</td><td>lr0=0.01 (基准)</td></tr><tr><td>2</td><td>16</td><td>32</td><td>lr0=0.02</td></tr><tr><td>4</td><td>16</td><td>64</td><td>lr0=0.04</td></tr><tr><td>8</td><td>16</td><td>128</td><td>lr0=0.08</td></tr></tbody></table><p><strong>线性缩放法则 (Linear Scaling Rule)</strong>：多卡训练时，学习率应随总 batch 大小线性增加。起始学习率 = 基准 lr0 × (总 batch / 单卡基准 batch)。建议配合 <code>warmup_epochs</code> 在前几个 epoch 逐步升温到目标学习率，防止初期梯度不稳定。</p><h4 id=注意事项>注意事项</h4><ul><li><strong>Batch Normalization</strong>：DDP 默认同步 BN 统计量，多卡训练 BN 估计更准确</li><li><strong>梯度累积 (Gradient Accumulation)</strong>：显存不足时可通过 <code>accumulate</code> 参数模拟大 batch 效果</li><li><strong>显存均衡</strong>：确保各卡的 batch 和图像尺寸一致，避免 straggler 拖慢整体速度</li><li><strong>同步种子</strong>：设置 <code>seed=42</code> 确保各卡初始化一致</li></ul><h3 id=早停与恢复训练>早停与恢复训练</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 启用早停</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>patience</span><span class=o>=</span><span class=mi>50</span><span class=p>,</span>    <span class=c1># 50轮无提升则停止</span>
+</span></span><span class=line><span class=cl>    <span class=o>...</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 恢复中断的训练</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;runs/train/exp/weights/last.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span><span class=n>resume</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=训练可视化分析>训练可视化分析</h2><h2 id=超参数搜索>超参数搜索</h2><h3 id=使用-ultralytics-自动调参>使用 Ultralytics 自动调参</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动超参数搜索</span>
+</span></span><span class=line><span class=cl><span class=n>result</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>tune</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span><span class=s2>&#34;data.yaml&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>epochs</span><span class=o>=</span><span class=mi>50</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>iterations</span><span class=o>=</span><span class=mi>100</span><span class=p>,</span>         <span class=c1># 搜索迭代次数</span>
+</span></span><span class=line><span class=cl>    <span class=n>optimizer</span><span class=o>=</span><span class=s2>&#34;AdamW&#34;</span><span class=p>,</span>      <span class=c1># 搜索时建议使用 AdamW</span>
+</span></span><span class=line><span class=cl>    <span class=n>device</span><span class=o>=</span><span class=mi>0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>batch</span><span class=o>=</span><span class=mi>16</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>plots</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>             <span class=c1># 绘制调参过程</span>
+</span></span><span class=line><span class=cl>    <span class=n>save</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>              <span class=c1># 保存每次 trial 结果</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=搜索空间配置>搜索空间配置</h4><p>Ultralytics 内置的默认搜索空间涵盖 10+ 个超参数：</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># 默认搜索空间 (ultralytics/cfg/tune.yaml)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>lr0</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0001</span><span class=p>,</span><span class=w> </span><span class=m>0.01</span><span class=p>]</span><span class=w>         </span><span class=c># 初始学习率</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>lrf</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0001</span><span class=p>,</span><span class=w> </span><span class=m>0.1</span><span class=p>]</span><span class=w>          </span><span class=c># 最终学习率因子</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>momentum</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.7</span><span class=p>,</span><span class=w> </span><span class=m>0.99</span><span class=p>]</span><span class=w>       </span><span class=c># SGD 动量</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>weight_decay</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0</span><span class=p>,</span><span class=w> </span><span class=m>0.002</span><span class=p>]</span><span class=w>  </span><span class=c># 权重衰减</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>warmup_epochs</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0</span><span class=p>,</span><span class=w> </span><span class=m>5</span><span class=p>]</span><span class=w>       </span><span class=c># 预热轮数</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>warmup_momentum</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0</span><span class=p>,</span><span class=w> </span><span class=m>0.95</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>mosaic</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0</span><span class=p>,</span><span class=w> </span><span class=m>1.0</span><span class=p>]</span><span class=w>          </span><span class=c># Mosaic 增强概率</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>mixup</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0</span><span class=p>,</span><span class=w> </span><span class=m>0.5</span><span class=p>]</span><span class=w>           </span><span class=c># MixUp 增强概率</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>copy_paste</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0</span><span class=p>,</span><span class=w> </span><span class=m>0.5</span><span class=p>]</span><span class=w>      </span><span class=c># Copy-Paste 增强概率</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>hsv_h</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0</span><span class=p>,</span><span class=w> </span><span class=m>0.1</span><span class=p>]</span><span class=w>           </span><span class=c># HSV 色调增强</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>hsv_s</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0</span><span class=p>,</span><span class=w> </span><span class=m>0.9</span><span class=p>]</span><span class=w>           </span><span class=c># HSV 饱和度增强</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>hsv_v</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0</span><span class=p>,</span><span class=w> </span><span class=m>0.9</span><span class=p>]</span><span class=w>           </span><span class=c># HSV 明度增强</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>flipud</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0</span><span class=p>,</span><span class=w> </span><span class=m>1.0</span><span class=p>]</span><span class=w>          </span><span class=c># 上下翻转</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>fliplr</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=m>0.0</span><span class=p>,</span><span class=w> </span><span class=m>1.0</span><span class=p>]</span><span class=w>          </span><span class=c># 左右翻转</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=与-ray-tune-集成>与 Ray Tune 集成</h4><p>对于更大规模的超参数搜索，Ultralytics 支持与 Ray Tune 集成：</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pip install ray<span class=o>[</span>tune<span class=o>]</span></span></span></code></pre></td></tr></table></div></div></div></div><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>ray</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ray</span> <span class=kn>import</span> <span class=n>tune</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Ray Tune 搜索空间</span>
+</span></span><span class=line><span class=cl><span class=n>search_space</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;lr0&#34;</span><span class=p>:</span> <span class=n>tune</span><span class=o>.</span><span class=n>loguniform</span><span class=p>(</span><span class=mf>1e-4</span><span class=p>,</span> <span class=mf>1e-2</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;lrf&#34;</span><span class=p>:</span> <span class=n>tune</span><span class=o>.</span><span class=n>loguniform</span><span class=p>(</span><span class=mf>1e-4</span><span class=p>,</span> <span class=mf>1e-1</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;momentum&#34;</span><span class=p>:</span> <span class=n>tune</span><span class=o>.</span><span class=n>uniform</span><span class=p>(</span><span class=mf>0.7</span><span class=p>,</span> <span class=mf>0.99</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;weight_decay&#34;</span><span class=p>:</span> <span class=n>tune</span><span class=o>.</span><span class=n>uniform</span><span class=p>(</span><span class=mf>0.0</span><span class=p>,</span> <span class=mf>0.002</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;mosaic&#34;</span><span class=p>:</span> <span class=n>tune</span><span class=o>.</span><span class=n>uniform</span><span class=p>(</span><span class=mf>0.0</span><span class=p>,</span> <span class=mf>1.0</span><span class=p>),</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动 Ray Tune 搜索</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>result</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>tune</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span><span class=s2>&#34;data.yaml&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>epochs</span><span class=o>=</span><span class=mi>50</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>iterations</span><span class=o>=</span><span class=mi>100</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>use_ray</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>                <span class=c1># 启用 Ray Tune</span>
+</span></span><span class=line><span class=cl>    <span class=n>ray_search_alg</span><span class=o>=</span><span class=s2>&#34;asha&#34;</span><span class=p>,</span>       <span class=c1># Async Successive Halving Algorithm</span>
+</span></span><span class=line><span class=cl>    <span class=n>device</span><span class=o>=</span><span class=p>[</span><span class=mi>0</span><span class=p>,</span> <span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>],</span>         <span class=c1># 多卡并行搜索</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=搜索结果解读>搜索结果解读</h4><p><code>runs/tune/</code> 目录下生成：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>runs/tune/
+</span></span><span class=line><span class=cl>├── exp1/            # 每次 trial 的完整训练结果
+</span></span><span class=line><span class=cl>├── exp2/
+</span></span><span class=line><span class=cl>├── ...
+</span></span><span class=line><span class=cl>├── tune_results.csv # 所有试验的超参数与指标汇总
+</span></span><span class=line><span class=cl>└── tune_scatter.png # 超参数相关性散点图</span></span></code></pre></td></tr></table></div></div></div></div><p>解读技巧：</p><ul><li><strong>学习率 vs mAP</strong>：散点图左上角密集区对应最优学习率范围</li><li><strong>增强强度 vs 过拟合</strong>：如果高 mosaic/mixup 值对应更高的 val mAP，说明数据增强有效</li><li><strong>权重衰减敏感度</strong>：小数据集通常对 weight_decay 更敏感，最优值在 0.0003~0.0007</li></ul><h2 id=过拟合诊断与正则化>过拟合诊断与正则化</h2><h3 id=从损失曲线识别过拟合>从损失曲线识别过拟合</h3><p>训练过程出现以下信号时，模型可能正在过拟合：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Loss curves:
+</span></span><span class=line><span class=cl>📈 Train Loss:  持续下降
+</span></span><span class=line><span class=cl>📉 Val Loss:    先降后升 (拐点 = 过拟合开始)
+</span></span><span class=line><span class=cl>📊 mAP:         在验证集上停滞或下降</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>关键判断指标</strong>：当训练损失持续下降但验证损失开始上升时，即出现<strong>泛化差距 (Generalization Gap)</strong>，这是过拟合的最明确信号。</p><h3 id=正则化技术>正则化技术</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 在训练中应用多种正则化</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 显式正则化</span>
+</span></span><span class=line><span class=cl>    <span class=n>weight_decay</span><span class=o>=</span><span class=mf>0.001</span><span class=p>,</span>       <span class=c1># L2 正则化（权重衰减）</span>
+</span></span><span class=line><span class=cl>    <span class=n>dropout</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>              <span class=c1># Dropout 概率</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 隐式正则化（数据增强）</span>
+</span></span><span class=line><span class=cl>    <span class=n>mosaic</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixup</span><span class=o>=</span><span class=mf>0.2</span><span class=p>,</span>                <span class=c1># 混合两张图像</span>
+</span></span><span class=line><span class=cl>    <span class=n>copy_paste</span><span class=o>=</span><span class=mf>0.2</span><span class=p>,</span>           <span class=c1># 复制粘贴增强</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 训练控制</span>
+</span></span><span class=line><span class=cl>    <span class=n>patience</span><span class=o>=</span><span class=mi>30</span><span class=p>,</span>              <span class=c1># 早停</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li><strong>L2 正则化 (Weight Decay)</strong>：惩罚大权重，防止模型过于依赖少数特征</li><li><strong>Dropout</strong>：随机丢弃部分神经元，强制模型学习冗余特征</li><li><strong>数据增强</strong>：Mosaic、MixUp、Copy-Paste 等增强策略隐式地扩充训练分布</li><li><strong>标签平滑 (Label Smoothing)</strong>：通过 <code>label_smoothing</code> 参数控制，防止模型过度自信</li></ul><h3 id=数据增强调优>数据增强调优</h3><p>不同数据集适合不同的增强策略：</p><table><thead><tr><th>数据集类型</th><th>推荐增强</th><th>说明</th><th></th></tr></thead><tbody><tr><td>小数据集 (&lt;1000 张)</td><td>mosaic=1.0, mixup=0.3</td><td>强增强扩充多样性</td><td></td></tr><tr><td>中等数据集</td><td>mosaic=1.0, mixup=0.1</td><td>适中的增强</td><td></td></tr><tr><td>大数据集 (>10K)</td><td>mosaic=0.5, mixup=0.0</td><td>弱增强，保留原始分布</td><td></td></tr><tr><td>密集场景</td><td>copy_paste=0.3</td><td>提升遮挡检测能力</td><td></td></tr><tr><td>航拍/卫星图</td><td>mosaic=1.0, flipud=0.5</td><td>利用旋转不变性</td><td></td></tr></tbody></table><h3 id=早停策略调优>早停策略调优</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>patience</span><span class=o>=</span><span class=mi>50</span><span class=p>,</span>          <span class=c1># 默认 50，小数据集建议 20~30</span>
+</span></span><span class=line><span class=cl>    <span class=n>save_period</span><span class=o>=</span><span class=mi>10</span><span class=p>,</span>       <span class=c1># 每 N 轮保存一次方便回溯</span>
+</span></span><span class=line><span class=cl>    <span class=n>cos_lr</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>          <span class=c1># 余弦退火配合早停</span>
+</span></span><span class=line><span class=cl>    <span class=n>lrf</span><span class=o>=</span><span class=mf>0.001</span><span class=p>,</span>            <span class=c1># 最终学习率接近零</span>
+</span></span><span class=line><span class=cl>    <span class=n>warmup_epochs</span><span class=o>=</span><span class=mi>3</span><span class=p>,</span>      <span class=c1># 预热防止早停误判</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><blockquote><p>过拟合严重时，首选手段是<strong>增加数据量</strong>或<strong>降低模型复杂度</strong>（选择更小的模型规模如 n→s），正则化只是辅助手段。</p></blockquote><h3 id=结果文件说明>结果文件说明</h3><p>训练完成后 <code>runs/train/exp/</code> 目录：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>weights/
+</span></span><span class=line><span class=cl>├── best.pt          # 最佳权重
+</span></span><span class=line><span class=cl>└── last.pt          # 最后一轮权重
+</span></span><span class=line><span class=cl>results.csv          # 训练日志CSV
+</span></span><span class=line><span class=cl>results.png          # 损失曲线
+</span></span><span class=line><span class=cl>confusion_matrix.png # 混淆矩阵
+</span></span><span class=line><span class=cl>PR_curve.png         # PR曲线
+</span></span><span class=line><span class=cl>F1_curve.png         # F1曲线</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=关键指标解读>关键指标解读</h3><ul><li><p><strong>Box Loss</strong>：检测框回归损失 → 持续下降</p></li><li><p><strong>Cls Loss</strong>：分类损失 → 持续下降</p></li><li><p><strong>mAP50</strong>：IOU=0.5 时的平均精度 → 持续上升</p></li><li><p><strong>mAP50-95</strong>：IOU 0.5~0.95 平均精度 → 核心指标</p></li></ul><h3 id=验证指标深度解析>验证指标深度解析</h3><h4 id=precision-与-recall>Precision 与 Recall</h4><p>YOLO 训练输出的指标基于以下定义：</p><table><thead><tr><th>指标</th><th>公式</th><th>含义</th></tr></thead><tbody><tr><td>Precision (精确率)</td><td>TP / (TP + FP)</td><td>预测为真的样本中，实际为真的比例</td></tr><tr><td>Recall (召回率)</td><td>TP / (TP + FN)</td><td>实际为真的样本中，被正确预测的比例</td></tr><tr><td>F1-Score</td><td>2 × P × R / (P + R)</td><td>Precision 与 Recall 的调和平均</td></tr></tbody></table><p>这些指标随 Confidence 阈值变化 —— 高阈值提升 Precision 但降低 Recall，反之亦然。</p><h4 id=混淆矩阵-confusion-matrix>混淆矩阵 (Confusion Matrix)</h4><p><code>confusion_matrix.png</code> 是诊断模型行为的核心工具：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>            预测类别
+</span></span><span class=line><span class=cl>          ┌─────────────────┐
+</span></span><span class=line><span class=cl>  实际    │ TP │ FP (误检)  │
+</span></span><span class=line><span class=cl>  类别    ├─────┼───────────┤
+</span></span><span class=line><span class=cl>          │ FN │ background │
+</span></span><span class=line><span class=cl>          │(漏检)│ (背景误判)  │
+</span></span><span class=line><span class=cl>          └─────┴───────────┘</span></span></code></pre></td></tr></table></div></div></div></div><ul><li><strong>对角线</strong>：正确分类的样本（越多越好）</li><li><strong>非对角线</strong>：类别混淆（如将"猫"预测为"狗"）→ 需增加类别区分度特征</li><li><strong>Background FP</strong>：模型将背景误检为目标 → 增加负样本或降低置信度阈值</li><li><strong>漏检 (FN)</strong>：目标未被检测到 → 降低置信度阈值或增加小目标检测头</li></ul><h4 id=map-计算流程>mAP 计算流程</h4><p><strong>mAP (Mean Average Precision)</strong> 是 YOLO 的核心评估指标：</p><ol><li>对所有检测结果按 Confidence 排序</li><li>依次计算每个 Confidence 阈值下的 Precision 和 Recall</li><li>绘制 PR 曲线（Precision-Recall Curve），曲线下面积即为 AP</li><li><strong>mAP50</strong>：IoU 阈值设为 0.5 时所有类别的 AP 均值</li><li><strong>mAP50-95</strong>：IoU 从 0.5 到 0.95（步长 0.05）取 10 个阈值的 AP 均值</li></ol><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>mAP50     = 宽松评估 → 目标大致位置正确即可
+</span></span><span class=line><span class=cl>mAP50-95  = 严格评估 → 框必须精确贴合目标</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=用指标诊断模型问题>用指标诊断模型问题</h4><table><thead><tr><th>现象</th><th>可能原因</th><th>解决方向</th></tr></thead><tbody><tr><td>Precision 高、Recall 低</td><td>漏检严重</td><td>降低置信度阈值、增加小目标数据</td></tr><tr><td>Recall 高、Precision 低</td><td>误检过多</td><td>提高置信度阈值、增加负样本</td></tr><tr><td>mAP50 高、mAP50-95 低</td><td>框不够精确</td><td>增加 box 损失权重、细化标注</td></tr><tr><td>类别 A 的 AP 远低于其他类</td><td>类别不平衡</td><td>增加 A 类样本或使用 Class Weights</td></tr><tr><td>PR 曲线突降</td><td>难例集中</td><td>Hard Negative Mining、数据增强</td></tr></tbody></table><h4 id=f1-confidence-曲线>F1-Confidence 曲线</h4><p><code>F1_curve.png</code> 展示了不同 Confidence 阈值下 F1 得分的曲线。曲线最高点对应的 Confidence 值即为该模型的最优阈值：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 自动寻找最优 Confidence 阈值</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>val</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>best_conf</span> <span class=o>=</span> <span class=n>results</span><span class=o>.</span><span class=n>f1_score</span><span class=p>(</span><span class=n>threshold</span><span class=o>=...</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;最优置信度阈值: </span><span class=si>{</span><span class=n>best_conf</span><span class=si>:</span><span class=s2>.3f</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=yolo26-专属训练方案>YOLO26 专属训练方案</h2><h3 id=musgd-优化器>MuSGD 优化器</h3><p>YOLO26 默认使用 <strong>MuSGD (Momentum with Scheduled Updates)</strong>，这是对标准 SGD 的改进：</p><ul><li><strong>自适应动量调度</strong>：动量值在训练过程中根据梯度方差动态调整</li><li><strong>时间感知学习率</strong>：集成 cosine annealing 的变体，无需单独设置 <code>cos_lr=True</code></li><li><strong>更快的收敛</strong>：在相同 epoch 数下，MuSGD 通常比标准 SGD 提前 10~15% 达到同等精度</li></ul><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># YOLO26 推荐训练配置</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>optimizer</span><span class=o>=</span><span class=s2>&#34;auto&#34;</span><span class=p>,</span>         <span class=c1># 自动选择 MuSGD</span>
+</span></span><span class=line><span class=cl>    <span class=n>lr0</span><span class=o>=</span><span class=mf>0.01</span><span class=p>,</span>                 <span class=c1># MuSGD 对学习率不敏感，0.005~0.02 均可</span>
+</span></span><span class=line><span class=cl>    <span class=n>momentum</span><span class=o>=</span><span class=mf>0.937</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>weight_decay</span><span class=o>=</span><span class=mf>0.0005</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>cos_lr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>             <span class=c1># MuSGD 内置调度，无需额外余弦退火</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=progloss-渐进式损失平衡>ProgLoss 渐进式损失平衡</h3><p>YOLO26 的 ProgLoss 自动管理 box/cls 损失的权重调度，无需手动调参：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Training stage          Focus                    Loss behavior
+</span></span><span class=line><span class=cl>──────────────────────────────────────────────────────────────
+</span></span><span class=line><span class=cl>Epoch 1-10  (warmup)   分类学习为主              cls loss 快速下降
+</span></span><span class=line><span class=cl>Epoch 10-30 (explore)  分类+定位均衡             box loss 开始显著下降
+</span></span><span class=line><span class=cl>Epoch 30+   (refine)   定位精调为主              box loss 缓慢收敛</span></span></code></pre></td></tr></table></div></div></div></div><p>如果在训练日志中观察到 cls loss 长时间不降，说明 ProgLoss 的默认调度可能不适合当前数据集。此时可回退到手动模式：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 禁用 ProgLoss 手动设置权重</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>loss_weights</span><span class=o>=</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;box&#34;</span><span class=p>:</span> <span class=mf>7.5</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;cls&#34;</span><span class=p>:</span> <span class=mf>0.5</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=n>prog_loss</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=stal-小目标增强训练>STAL 小目标增强训练</h3><p>YOLO26 的 <strong>STAL (Small Target Augmentation Layer)</strong> 专门优化小目标检测：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 启用 STAL（YOLO26 默认启用）</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>stal</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>                     <span class=c1># 小目标增强层</span>
+</span></span><span class=line><span class=cl>    <span class=n>stal_scale_range</span><span class=o>=</span><span class=p>[</span><span class=mf>0.5</span><span class=p>,</span> <span class=mf>1.0</span><span class=p>],</span>  <span class=c1># 缩放范围</span>
+</span></span><span class=line><span class=cl>    <span class=n>stal_epoch_gamma</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>         <span class=c1># 增强衰减系数</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p>STAL 工作原理：</p><ol><li><strong>检测阶段</strong>：识别图像中尺寸小于 32×32 像素的目标</li><li><strong>增强阶段</strong>：对这些小目标进行上采样、复制、粘贴到图像其他区域</li><li><strong>衰减策略</strong>：随着训练进行，STAL 增强强度逐渐降低，让模型逐步适应原始分布</li></ol><h3 id=yolo26-训练清单>YOLO26 训练清单</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># ===== YOLO26 推荐完整训练配置 =====</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 数据</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span><span class=s2>&#34;data.yaml&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>epochs</span><span class=o>=</span><span class=mi>200</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>imgsz</span><span class=o>=</span><span class=mi>640</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>batch</span><span class=o>=</span><span class=mi>16</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 优化器 (MuSGD)</span>
+</span></span><span class=line><span class=cl>    <span class=n>optimizer</span><span class=o>=</span><span class=s2>&#34;auto&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>lr0</span><span class=o>=</span><span class=mf>0.01</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>momentum</span><span class=o>=</span><span class=mf>0.937</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>weight_decay</span><span class=o>=</span><span class=mf>0.0005</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 增强 (STAL 自动启用)</span>
+</span></span><span class=line><span class=cl>    <span class=n>mosaic</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixup</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>copy_paste</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 正则化</span>
+</span></span><span class=line><span class=cl>    <span class=n>dropout</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>label_smoothing</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 其他</span>
+</span></span><span class=line><span class=cl>    <span class=n>device</span><span class=o>=</span><span class=mi>0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>patience</span><span class=o>=</span><span class=mi>50</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>seed</span><span class=o>=</span><span class=mi>42</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>verbose</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><blockquote><p><strong>提示</strong>：YOLO26 在边缘设备（Jetson、树莓派等）上部署时，建议使用 <code>imgsz=320</code> 或 <code>imgsz=480</code>，推理速度可提升 2<del>3 倍，mAP 下降仅 1</del>3%。</p></blockquote></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>所属系列:</span>
+<a href=/series/yolo-%E4%BB%8E%E9%9B%B6%E5%88%B0%E7%B2%BE%E9%80%9A/>YOLO 从零到精通</a></div><div class=series-nav__links><a href=/posts/aihelper/yolo-dataset-preparation/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>上一篇</span>
+<span class=series-nav__title>YOLO 数据集制作：标注工具与格式转换</span>
+</a><a href=/posts/aihelper/yolo-advanced-optimization/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>下一篇</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>YOLO 进阶优化：轻量化、量化与精度提升</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/yolo/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+YOLO
+</a><a class=tag-chip href=/tags/%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+模型训练
+</a><a class=tag-chip href=/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+深度学习
+</a><a class=tag-chip href=/tags/%E8%B0%83%E4%BC%98/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+调优</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>

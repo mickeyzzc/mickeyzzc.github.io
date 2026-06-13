@@ -1,0 +1,1022 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - YOLO Dataset Preparation: Annotation Tools and Format Conversion</title><meta name=description content="Complete YOLO dataset preparation guide: LabelImg/LabelMe annotation tools, YOLO format specification, VOC to YOLO conversion, and Albumentations data augmentation strategies."><meta name=keywords content="YOLO,,dataset,,annotation,,LabelImg,,data,augmentation"><link rel=canonical href=/en/posts/aihelper/yolo-dataset-preparation/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - YOLO Dataset Preparation: Annotation Tools and Format Conversion"><meta property="og:description" content="Complete YOLO dataset preparation guide: LabelImg/LabelMe annotation tools, YOLO format specification, VOC to YOLO conversion, and Albumentations data augmentation strategies."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/posts/aihelper/yolo-dataset-preparation/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-11 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-11 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - YOLO Dataset Preparation: Annotation Tools and Format Conversion"><meta name=twitter:description content="Complete YOLO dataset preparation guide: LabelImg/LabelMe annotation tools, YOLO format specification, VOC to YOLO conversion, and Albumentations data augmentation strategies."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/aihelper/yolo-dataset-preparation/><link rel=alternate hreflang=en href=/en/posts/aihelper/yolo-dataset-preparation/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/series/>Series</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/posts/aihelper/yolo-dataset-preparation/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#data-annotation-tools-usage>Data Annotation Tools Usage</a><ul><li><a href=#labelimg-installation-and-usage>LabelImg Installation and Usage</a></li><li><a href=#labelme-installation-and-usage>LabelMe Installation and Usage</a></li><li><a href=#cvat-self-hosted-annotation-platform>CVAT Self-Hosted Annotation Platform</a></li><li><a href=#roboflow-online-annotation-platform>Roboflow Online Annotation Platform</a></li><li><a href=#label-studio-multi-task-annotation>Label Studio Multi-Task Annotation</a></li></ul></li><li><a href=#dataset-standard-format>Dataset Standard Format</a><ul><li><a href=#yolo-format-directory-structure>YOLO Format Directory Structure</a></li><li><a href=#yolo-annotation-format-specification>YOLO Annotation Format Specification</a></li><li><a href=#datayaml-configuration-file>data.yaml Configuration File</a></li></ul></li><li><a href=#format-conversion-tools>Format Conversion Tools</a><ul><li><a href=#voc--yolo-conversion>VOC → YOLO Conversion</a></li><li><a href=#coco---yolo-conversion>COCO -> YOLO Conversion</a></li></ul></li><li><a href=#dataset-splitting-tool>Dataset Splitting Tool</a></li><li><a href=#class-balance-analysis>Class Balance Analysis</a></li><li><a href=#data-augmentation-strategies>Data Augmentation Strategies</a><ul><li><a href=#built-in-augmentation-ultralytics>Built-in Augmentation (Ultralytics)</a></li><li><a href=#custom-augmentation-albumentations>Custom Augmentation (Albumentations)</a></li><li><a href=#mosaic-augmentation-explained>Mosaic Augmentation Explained</a></li><li><a href=#mixup-augmentation-explained>Mixup Augmentation Explained</a></li><li><a href=#copy-paste-augmentation-explained>Copy-Paste Augmentation Explained</a></li></ul></li><li><a href=#data-quality-checklist>Data Quality Checklist</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-md"><span>yolo</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-sm"><span>architecture</span>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-xs"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-xs"><span>smart home</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>YOLO Dataset Preparation: Annotation Tools and Format Conversion</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-11T00:00:00+00:00>May 11, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/ai-tools/>AI Tools</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/yolo/>YOLO</a>, <a href=/en/tags/dataset/>Dataset</a>, <a href=/en/tags/data-annotation/>Data Annotation</a>, <a href=/en/tags/data-augmentation/>Data Augmentation</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/en/series/yolo-from-zero-to-mastery/>YOLO From Zero to Mastery</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>3032 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>15 min read</span></span></div></header><div class=Content><h2 id=data-annotation-tools-usage>Data Annotation Tools Usage</h2><h3 id=labelimg-installation-and-usage>LabelImg Installation and Usage</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Installation</span>
+</span></span><span class=line><span class=cl>pip install labelImg
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Launch</span>
+</span></span><span class=line><span class=cl>labelImg</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Annotation Process:</strong></p><ol><li>Open Dir → Select image folder</li><li>Change Save Dir → Select annotation save folder</li><li>Select YOLO format</li><li>Create RectBox → Draw bounding box → Enter class name</li><li>Save</li></ol><h3 id=labelme-installation-and-usage>LabelMe Installation and Usage</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pip install labelme
+</span></span><span class=line><span class=cl>labelme</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=cvat-self-hosted-annotation-platform>CVAT Self-Hosted Annotation Platform</h3><p>CVAT (Computer Vision Annotation Tool) is an open-source annotation platform by Intel, supporting Docker self-hosted deployment for team collaboration and large-scale annotation projects.</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Docker deployment</span>
+</span></span><span class=line><span class=cl>git clone https://github.com/opencv/cvat
+</span></span><span class=line><span class=cl><span class=nb>cd</span> cvat
+</span></span><span class=line><span class=cl>docker compose up -d</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Annotation Workflow:</strong></p><ol><li>Create a project → Define label list (person, car, dog&mldr;)</li><li>Upload images or video frame sequences</li><li>Create tasks → Assign annotators</li><li>Annotate using rectangles, polygons, keypoints, etc.</li><li>Review → Export in YOLO format</li></ol><p><strong>Export to YOLO:</strong> CVAT supports YOLO 1.1 format export, automatically generating <code>data.yaml</code>.</p><h3 id=roboflow-online-annotation-platform>Roboflow Online Annotation Platform</h3><p>Roboflow is a cloud-based full-pipeline dataset management platform that requires no local deployment, providing a complete toolchain from annotation to model deployment.</p><p><strong>Core Features:</strong></p><ul><li>Online annotation (bounding boxes, polygons, segmentation masks, keypoints)</li><li>Dataset version management (new version on each modification)</li><li>Built-in preprocessing (auto-resize, normalization, etc.)</li><li>Built-in data augmentation (rotation, flip, noise, mosaic, etc.)</li><li>One-click export to YOLO, COCO, Pascal VOC formats</li></ul><p><strong>Export to YOLO Steps:</strong></p><ol><li>Create a project → Upload images</li><li>Annotate online or import existing annotations (supports COCO/VOC/YOLO format import)</li><li>Click <strong>Generate</strong> → Select preprocessing and augmentation</li><li>Export → Select <strong>YOLO v5/v8 PyTorch</strong> format</li><li>Download ZIP, ready for training</li></ol><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Download dataset directly via Roboflow API</span>
+</span></span><span class=line><span class=cl><span class=c1># pip install roboflow</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>roboflow</span> <span class=kn>import</span> <span class=n>Roboflow</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>rf</span> <span class=o>=</span> <span class=n>Roboflow</span><span class=p>(</span><span class=n>api_key</span><span class=o>=</span><span class=s2>&#34;YOUR_API_KEY&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>project</span> <span class=o>=</span> <span class=n>rf</span><span class=o>.</span><span class=n>workspace</span><span class=p>(</span><span class=s2>&#34;workspace-name&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>project</span><span class=p>(</span><span class=s2>&#34;project-name&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>dataset</span> <span class=o>=</span> <span class=n>project</span><span class=o>.</span><span class=n>version</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span><span class=o>.</span><span class=n>download</span><span class=p>(</span><span class=s2>&#34;yolov8&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=label-studio-multi-task-annotation>Label Studio Multi-Task Annotation</h3><p>Label Studio is an open-source multi-task annotation platform supporting images, text, audio, time series, and more.</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Installation</span>
+</span></span><span class=line><span class=cl>pip install label-studio
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Launch</span>
+</span></span><span class=line><span class=cl>label-studio
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Docker deployment (recommended for production)</span>
+</span></span><span class=line><span class=cl>docker run -it -p 8080:8080 -v <span class=k>$(</span><span class=nb>pwd</span><span class=k>)</span>/data:/label-studio/data heartexlabs/label-studio:latest</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>YOLO Annotation Configuration:</strong></p><ol><li>Create a project → Select <strong>Object Detection with Bounding Boxes</strong> template</li><li>Configure labels (Labeling Setup → Add label names)</li><li>Import images → Start annotating</li><li>Export after completion → Select <strong>YOLO</strong> format</li></ol><p><strong>Advanced Features:</strong></p><ul><li>Multi-user collaboration and annotation consistency checks</li><li>ML-assisted labeling for auto pre-annotation</li><li>Customizable annotation interface and templates</li></ul><h2 id=dataset-standard-format>Dataset Standard Format</h2><h3 id=yolo-format-directory-structure>YOLO Format Directory Structure</h3><div class=code-block-wrapper data-lang=Plain><div class=code-block-header><div class=code-block-meta><span class=code-language>Plain</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Plain data-lang=Plain><span class=line><span class=cl>my_dataset/
+</span></span><span class=line><span class=cl>├── images/
+</span></span><span class=line><span class=cl>│   ├── train/          # Training set images
+</span></span><span class=line><span class=cl>│   ├── val/            # Validation set images
+</span></span><span class=line><span class=cl>│   └── test/           # Test set images (optional)
+</span></span><span class=line><span class=cl>├── labels/
+</span></span><span class=line><span class=cl>│   ├── train/          # Training set annotations
+</span></span><span class=line><span class=cl>│   ├── val/            # Validation set annotations
+</span></span><span class=line><span class=cl>│   └── test/           # Test set annotations
+</span></span><span class=line><span class=cl>└── data.yaml           # Dataset configuration file</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=yolo-annotation-format-specification>YOLO Annotation Format Specification</h3><p>Each <code>.txt</code> annotation file format:</p><div class=code-block-wrapper data-lang=Plain><div class=code-block-header><div class=code-block-meta><span class=code-language>Plain</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Plain data-lang=Plain><span class=line><span class=cl>&lt;class_id&gt; &lt;x_center&gt; &lt;y_center&gt; &lt;width&gt; &lt;height&gt;</span></span></code></pre></td></tr></table></div></div></div></div><ul><li>All coordinates are <strong>normalized values</strong> (0~1)</li><li>x_center, y_center: Bounding box center relative to image width/height</li><li>width, height: Bounding box width/height relative to image width/height</li></ul><h3 id=datayaml-configuration-file>data.yaml Configuration File</h3><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># Dataset root path (absolute or relative)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>../datasets/my_dataset</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Train/validation/test set paths (relative to path)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>train</span><span class=p>:</span><span class=w> </span><span class=l>images/train</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>val</span><span class=p>:</span><span class=w> </span><span class=l>images/val</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>test</span><span class=p>:</span><span class=w> </span><span class=l>images/test </span><span class=w> </span><span class=c># Optional</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Number of classes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>nc</span><span class=p>:</span><span class=w> </span><span class=m>3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># Class names</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>names</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>0</span><span class=p>:</span><span class=w> </span><span class=l>person</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>1</span><span class=p>:</span><span class=w> </span><span class=l>car</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>2</span><span class=p>:</span><span class=w> </span><span class=l>dog</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=format-conversion-tools>Format Conversion Tools</h2><h3 id=voc--yolo-conversion>VOC → YOLO Conversion</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>xml.etree.ElementTree</span> <span class=k>as</span> <span class=nn>ET</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>voc_to_yolo</span><span class=p>(</span><span class=n>xml_path</span><span class=p>,</span> <span class=n>img_w</span><span class=p>,</span> <span class=n>img_h</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>tree</span> <span class=o>=</span> <span class=n>ET</span><span class=o>.</span><span class=n>parse</span><span class=p>(</span><span class=n>xml_path</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>root</span> <span class=o>=</span> <span class=n>tree</span><span class=o>.</span><span class=n>getroot</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>yolo_lines</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>obj</span> <span class=ow>in</span> <span class=n>root</span><span class=o>.</span><span class=n>iter</span><span class=p>(</span><span class=s1>&#39;object&#39;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>cls</span> <span class=o>=</span> <span class=n>obj</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;name&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>text</span>
+</span></span><span class=line><span class=cl>        <span class=n>xmlbox</span> <span class=o>=</span> <span class=n>obj</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;bndbox&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xmin</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>xmlbox</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;xmin&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>text</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>ymin</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>xmlbox</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;ymin&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>text</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xmax</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>xmlbox</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;xmax&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>text</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>ymax</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>xmlbox</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;ymax&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>text</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># Convert to normalized coordinates</span>
+</span></span><span class=line><span class=cl>        <span class=n>x_center</span> <span class=o>=</span> <span class=p>(</span><span class=n>xmin</span> <span class=o>+</span> <span class=n>xmax</span><span class=p>)</span> <span class=o>/</span> <span class=mf>2.0</span> <span class=o>/</span> <span class=n>img_w</span>
+</span></span><span class=line><span class=cl>        <span class=n>y_center</span> <span class=o>=</span> <span class=p>(</span><span class=n>ymin</span> <span class=o>+</span> <span class=n>ymax</span><span class=p>)</span> <span class=o>/</span> <span class=mf>2.0</span> <span class=o>/</span> <span class=n>img_h</span>
+</span></span><span class=line><span class=cl>        <span class=n>width</span> <span class=o>=</span> <span class=p>(</span><span class=n>xmax</span> <span class=o>-</span> <span class=n>xmin</span><span class=p>)</span> <span class=o>/</span> <span class=n>img_w</span>
+</span></span><span class=line><span class=cl>        <span class=n>height</span> <span class=o>=</span> <span class=p>(</span><span class=n>ymax</span> <span class=o>-</span> <span class=n>ymin</span><span class=p>)</span> <span class=o>/</span> <span class=n>img_h</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=n>yolo_lines</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;0 </span><span class=si>{</span><span class=n>x_center</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>y_center</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>width</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>height</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>yolo_lines</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=coco---yolo-conversion>COCO -> YOLO Conversion</h3><p>COCO format stores all annotations in a single JSON file, where each image can have multiple object instances and categories. Converting to YOLO format requires splitting the JSON into individual <code>.txt</code> files per image.</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>json</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>coco_to_yolo</span><span class=p>(</span><span class=n>coco_json_path</span><span class=p>,</span> <span class=n>output_dir</span><span class=p>,</span> <span class=n>images_dir</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    Convert COCO JSON annotations to YOLO txt format
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Args:
+</span></span></span><span class=line><span class=cl><span class=s2>        coco_json_path: Path to COCO annotation JSON
+</span></span></span><span class=line><span class=cl><span class=s2>        output_dir: Output directory for YOLO labels
+</span></span></span><span class=line><span class=cl><span class=s2>        images_dir: Image directory (for validation)
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=n>coco_json_path</span><span class=p>,</span> <span class=s1>&#39;r&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>f</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>coco</span> <span class=o>=</span> <span class=n>json</span><span class=o>.</span><span class=n>load</span><span class=p>(</span><span class=n>f</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Build category ID to sequential index mapping</span>
+</span></span><span class=line><span class=cl>    <span class=c1># COCO category IDs are not sequential (e.g., 1: person, 3: car...)</span>
+</span></span><span class=line><span class=cl>    <span class=n>categories</span> <span class=o>=</span> <span class=p>{</span><span class=n>cat</span><span class=p>[</span><span class=s1>&#39;id&#39;</span><span class=p>]:</span> <span class=n>idx</span> <span class=k>for</span> <span class=n>idx</span><span class=p>,</span> <span class=n>cat</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>coco</span><span class=p>[</span><span class=s1>&#39;categories&#39;</span><span class=p>])}</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Category mapping: </span><span class=si>{</span><span class=n>categories</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Build image info dictionary</span>
+</span></span><span class=line><span class=cl>    <span class=n>images_info</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>img</span> <span class=ow>in</span> <span class=n>coco</span><span class=p>[</span><span class=s1>&#39;images&#39;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>        <span class=n>images_info</span><span class=p>[</span><span class=n>img</span><span class=p>[</span><span class=s1>&#39;id&#39;</span><span class=p>]]</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;file_name&#39;</span><span class=p>:</span> <span class=n>img</span><span class=p>[</span><span class=s1>&#39;file_name&#39;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;width&#39;</span><span class=p>:</span> <span class=n>img</span><span class=p>[</span><span class=s1>&#39;width&#39;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;height&#39;</span><span class=p>:</span> <span class=n>img</span><span class=p>[</span><span class=s1>&#39;height&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Group annotations by image_id</span>
+</span></span><span class=line><span class=cl>    <span class=n>annotations_by_image</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>ann</span> <span class=ow>in</span> <span class=n>coco</span><span class=p>[</span><span class=s1>&#39;annotations&#39;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>        <span class=n>img_id</span> <span class=o>=</span> <span class=n>ann</span><span class=p>[</span><span class=s1>&#39;image_id&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>img_id</span> <span class=ow>not</span> <span class=ow>in</span> <span class=n>annotations_by_image</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>annotations_by_image</span><span class=p>[</span><span class=n>img_id</span><span class=p>]</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=n>annotations_by_image</span><span class=p>[</span><span class=n>img_id</span><span class=p>]</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>ann</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Convert per-image to YOLO format</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>img_id</span><span class=p>,</span> <span class=n>anns</span> <span class=ow>in</span> <span class=n>annotations_by_image</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=n>img_info</span> <span class=o>=</span> <span class=n>images_info</span><span class=p>[</span><span class=n>img_id</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>img_w</span><span class=p>,</span> <span class=n>img_h</span> <span class=o>=</span> <span class=n>img_info</span><span class=p>[</span><span class=s1>&#39;width&#39;</span><span class=p>],</span> <span class=n>img_info</span><span class=p>[</span><span class=s1>&#39;height&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>base_name</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>splitext</span><span class=p>(</span><span class=n>img_info</span><span class=p>[</span><span class=s1>&#39;file_name&#39;</span><span class=p>])[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>txt_path</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>output_dir</span><span class=p>,</span> <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>base_name</span><span class=si>}</span><span class=s2>.txt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=n>txt_path</span><span class=p>,</span> <span class=s1>&#39;w&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>f</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>ann</span> <span class=ow>in</span> <span class=n>anns</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>cls_id</span> <span class=o>=</span> <span class=n>categories</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>ann</span><span class=p>[</span><span class=s1>&#39;category_id&#39;</span><span class=p>],</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>cls_id</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=k>continue</span>  <span class=c1># Skip unmapped categories</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=c1># COCO format: [x, y, width, height] (top-left + dimensions)</span>
+</span></span><span class=line><span class=cl>                <span class=n>bbox</span> <span class=o>=</span> <span class=n>ann</span><span class=p>[</span><span class=s1>&#39;bbox&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>                <span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=n>h</span> <span class=o>=</span> <span class=n>bbox</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=c1># Convert to YOLO normalized center coordinates</span>
+</span></span><span class=line><span class=cl>                <span class=n>x_center</span> <span class=o>=</span> <span class=p>(</span><span class=n>x</span> <span class=o>+</span> <span class=n>w</span> <span class=o>/</span> <span class=mi>2</span><span class=p>)</span> <span class=o>/</span> <span class=n>img_w</span>
+</span></span><span class=line><span class=cl>                <span class=n>y_center</span> <span class=o>=</span> <span class=p>(</span><span class=n>y</span> <span class=o>+</span> <span class=n>h</span> <span class=o>/</span> <span class=mi>2</span><span class=p>)</span> <span class=o>/</span> <span class=n>img_h</span>
+</span></span><span class=line><span class=cl>                <span class=n>width</span> <span class=o>=</span> <span class=n>w</span> <span class=o>/</span> <span class=n>img_w</span>
+</span></span><span class=line><span class=cl>                <span class=n>height</span> <span class=o>=</span> <span class=n>h</span> <span class=o>/</span> <span class=n>img_h</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=n>f</span><span class=o>.</span><span class=n>write</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>cls_id</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>x_center</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>y_center</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>width</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>height</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Conversion complete! Processed </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>annotations_by_image</span><span class=p>)</span><span class=si>}</span><span class=s2> images&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Usage example</span>
+</span></span><span class=line><span class=cl><span class=n>coco_to_yolo</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>coco_json_path</span><span class=o>=</span><span class=s2>&#34;annotations/instances_train2017.json&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>output_dir</span><span class=o>=</span><span class=s2>&#34;labels/train&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>images_dir</span><span class=o>=</span><span class=s2>&#34;images/train&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=dataset-splitting-tool>Dataset Splitting Tool</h2><p>Split images and annotation files into training, validation, and test sets by ratio.</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>random</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>shutil</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.model_selection</span> <span class=kn>import</span> <span class=n>train_test_split</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>split_dataset</span><span class=p>(</span><span class=n>image_dir</span><span class=p>,</span> <span class=n>label_dir</span><span class=p>,</span> <span class=n>output_dir</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                  <span class=n>train_ratio</span><span class=o>=</span><span class=mf>0.7</span><span class=p>,</span> <span class=n>val_ratio</span><span class=o>=</span><span class=mf>0.15</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                  <span class=n>test_ratio</span><span class=o>=</span><span class=mf>0.15</span><span class=p>,</span> <span class=n>random_seed</span><span class=o>=</span><span class=mi>42</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    Split dataset by ratio
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Args:
+</span></span></span><span class=line><span class=cl><span class=s2>        image_dir: Source image directory
+</span></span></span><span class=line><span class=cl><span class=s2>        label_dir: Source label directory
+</span></span></span><span class=line><span class=cl><span class=s2>        output_dir: Output root directory
+</span></span></span><span class=line><span class=cl><span class=s2>        train_ratio: Training set ratio
+</span></span></span><span class=line><span class=cl><span class=s2>        val_ratio: Validation set ratio
+</span></span></span><span class=line><span class=cl><span class=s2>        test_ratio: Test set ratio
+</span></span></span><span class=line><span class=cl><span class=s2>        random_seed: Random seed (for reproducibility)
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>random</span><span class=o>.</span><span class=n>seed</span><span class=p>(</span><span class=n>random_seed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Get all image files</span>
+</span></span><span class=line><span class=cl>    <span class=n>images</span> <span class=o>=</span> <span class=p>[</span><span class=n>f</span> <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>os</span><span class=o>.</span><span class=n>listdir</span><span class=p>(</span><span class=n>image_dir</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>              <span class=k>if</span> <span class=n>f</span><span class=o>.</span><span class=n>lower</span><span class=p>()</span><span class=o>.</span><span class=n>endswith</span><span class=p>((</span><span class=s1>&#39;.jpg&#39;</span><span class=p>,</span> <span class=s1>&#39;.jpeg&#39;</span><span class=p>,</span> <span class=s1>&#39;.png&#39;</span><span class=p>))]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>test_ratio</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Split test set first, then split validation from remainder</span>
+</span></span><span class=line><span class=cl>        <span class=n>train_val</span><span class=p>,</span> <span class=n>test</span> <span class=o>=</span> <span class=n>train_test_split</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>images</span><span class=p>,</span> <span class=n>test_size</span><span class=o>=</span><span class=n>test_ratio</span><span class=p>,</span> <span class=n>random_state</span><span class=o>=</span><span class=n>random_seed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>val_ratio_adj</span> <span class=o>=</span> <span class=n>val_ratio</span> <span class=o>/</span> <span class=p>(</span><span class=n>train_ratio</span> <span class=o>+</span> <span class=n>val_ratio</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>train</span><span class=p>,</span> <span class=n>val</span> <span class=o>=</span> <span class=n>train_test_split</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>train_val</span><span class=p>,</span> <span class=n>test_size</span><span class=o>=</span><span class=n>val_ratio_adj</span><span class=p>,</span> <span class=n>random_state</span><span class=o>=</span><span class=n>random_seed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>train</span><span class=p>,</span> <span class=n>val</span> <span class=o>=</span> <span class=n>train_test_split</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>images</span><span class=p>,</span> <span class=n>test_size</span><span class=o>=</span><span class=n>val_ratio</span><span class=o>/</span><span class=p>(</span><span class=n>train_ratio</span><span class=o>+</span><span class=n>val_ratio</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=n>random_state</span><span class=o>=</span><span class=n>random_seed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>test</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>splits</span> <span class=o>=</span> <span class=p>{</span><span class=s1>&#39;train&#39;</span><span class=p>:</span> <span class=n>train</span><span class=p>,</span> <span class=s1>&#39;val&#39;</span><span class=p>:</span> <span class=n>val</span><span class=p>,</span> <span class=s1>&#39;test&#39;</span><span class=p>:</span> <span class=n>test</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Copy files to corresponding directories</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>split_name</span><span class=p>,</span> <span class=n>split_images</span> <span class=ow>in</span> <span class=n>splits</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=n>os</span><span class=o>.</span><span class=n>makedirs</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>output_dir</span><span class=si>}</span><span class=s2>/images/</span><span class=si>{</span><span class=n>split_name</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span> <span class=n>exist_ok</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>os</span><span class=o>.</span><span class=n>makedirs</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>output_dir</span><span class=si>}</span><span class=s2>/labels/</span><span class=si>{</span><span class=n>split_name</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span> <span class=n>exist_ok</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>img_file</span> <span class=ow>in</span> <span class=n>split_images</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># Copy image</span>
+</span></span><span class=line><span class=cl>            <span class=n>shutil</span><span class=o>.</span><span class=n>copy2</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>                <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>image_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>img_file</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>output_dir</span><span class=si>}</span><span class=s2>/images/</span><span class=si>{</span><span class=n>split_name</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>img_file</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=c1># Copy corresponding label file</span>
+</span></span><span class=line><span class=cl>            <span class=n>base</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>splitext</span><span class=p>(</span><span class=n>img_file</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>            <span class=n>label_file</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>base</span><span class=si>}</span><span class=s2>.txt&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>exists</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>label_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>label_file</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=n>shutil</span><span class=o>.</span><span class=n>copy2</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>                    <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>label_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>label_file</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                    <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>output_dir</span><span class=si>}</span><span class=s2>/labels/</span><span class=si>{</span><span class=n>split_name</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>label_file</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Dataset split complete!&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;   Training set: </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>train</span><span class=p>)</span><span class=si>}</span><span class=s2> images&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;   Validation set: </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>val</span><span class=p>)</span><span class=si>}</span><span class=s2> images&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;   Test set: </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>test</span><span class=p>)</span><span class=si>}</span><span class=s2> images&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Usage example</span>
+</span></span><span class=line><span class=cl><span class=n>split_dataset</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>image_dir</span><span class=o>=</span><span class=s2>&#34;raw_images&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>label_dir</span><span class=o>=</span><span class=s2>&#34;raw_labels&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>output_dir</span><span class=o>=</span><span class=s2>&#34;datasets/my_dataset&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>train_ratio</span><span class=o>=</span><span class=mf>0.7</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>val_ratio</span><span class=o>=</span><span class=mf>0.15</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>test_ratio</span><span class=o>=</span><span class=mf>0.15</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>random_seed</span><span class=o>=</span><span class=mi>42</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Stratified Split:</strong>
+When class distribution is severely imbalanced, simple random splitting may cause a subset to lack certain classes. Use stratified splitting to maintain class proportions:</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.model_selection</span> <span class=kn>import</span> <span class=n>StratifiedShuffleSplit</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>stratified_split</span><span class=p>(</span><span class=n>image_dir</span><span class=p>,</span> <span class=n>label_dir</span><span class=p>,</span> <span class=n>output_dir</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                     <span class=n>test_size</span><span class=o>=</span><span class=mf>0.2</span><span class=p>,</span> <span class=n>random_seed</span><span class=o>=</span><span class=mi>42</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Split dataset by class proportion&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>images</span><span class=p>,</span> <span class=n>labels</span> <span class=o>=</span> <span class=p>[],</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>os</span><span class=o>.</span><span class=n>listdir</span><span class=p>(</span><span class=n>image_dir</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>f</span><span class=o>.</span><span class=n>lower</span><span class=p>()</span><span class=o>.</span><span class=n>endswith</span><span class=p>((</span><span class=s1>&#39;.jpg&#39;</span><span class=p>,</span> <span class=s1>&#39;.jpeg&#39;</span><span class=p>,</span> <span class=s1>&#39;.png&#39;</span><span class=p>)):</span>
+</span></span><span class=line><span class=cl>            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>        <span class=n>base</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>splitext</span><span class=p>(</span><span class=n>f</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>txt_path</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>label_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>base</span><span class=si>}</span><span class=s2>.txt&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>exists</span><span class=p>(</span><span class=n>txt_path</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># Read classes present in this image</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=n>txt_path</span><span class=p>)</span> <span class=k>as</span> <span class=n>fh</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>classes</span> <span class=o>=</span> <span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>line</span><span class=o>.</span><span class=n>split</span><span class=p>()[</span><span class=mi>0</span><span class=p>])</span> <span class=k>for</span> <span class=n>line</span> <span class=ow>in</span> <span class=n>fh</span> <span class=k>if</span> <span class=n>line</span><span class=o>.</span><span class=n>strip</span><span class=p>()]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>classes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>images</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>f</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>labels</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>classes</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span>  <span class=c1># Use first class for stratification</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>sss</span> <span class=o>=</span> <span class=n>StratifiedShuffleSplit</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>n_splits</span><span class=o>=</span><span class=mi>1</span><span class=p>,</span> <span class=n>test_size</span><span class=o>=</span><span class=n>test_size</span><span class=p>,</span> <span class=n>random_state</span><span class=o>=</span><span class=n>random_seed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>train_idx</span><span class=p>,</span> <span class=n>val_idx</span> <span class=o>=</span> <span class=nb>next</span><span class=p>(</span><span class=n>sss</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=n>images</span><span class=p>,</span> <span class=n>labels</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>train</span> <span class=o>=</span> <span class=p>[</span><span class=n>images</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>train_idx</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>val</span> <span class=o>=</span> <span class=p>[</span><span class=n>images</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>val_idx</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># File copying logic (same as split_dataset)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Stratified split complete: </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>train</span><span class=p>)</span><span class=si>}</span><span class=s2> training, </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>val</span><span class=p>)</span><span class=si>}</span><span class=s2> validation&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=class-balance-analysis>Class Balance Analysis</h2><p>Analyze the distribution of each class in the dataset, detect class imbalance issues, and take corrective measures.</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>matplotlib.pyplot</span> <span class=k>as</span> <span class=nn>plt</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>collections</span> <span class=kn>import</span> <span class=n>Counter</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>analyze_class_balance</span><span class=p>(</span><span class=n>label_dir</span><span class=p>,</span> <span class=n>class_names</span><span class=o>=</span><span class=kc>None</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    Analyze dataset class distribution
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Args:
+</span></span></span><span class=line><span class=cl><span class=s2>        label_dir: Label file directory
+</span></span></span><span class=line><span class=cl><span class=s2>        class_names: List of class names (optional)
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Returns:
+</span></span></span><span class=line><span class=cl><span class=s2>        class_counts: Counter object with instance counts per class
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>class_counts</span> <span class=o>=</span> <span class=n>Counter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>label_files</span> <span class=o>=</span> <span class=p>[</span><span class=n>f</span> <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>os</span><span class=o>.</span><span class=n>listdir</span><span class=p>(</span><span class=n>label_dir</span><span class=p>)</span> <span class=k>if</span> <span class=n>f</span><span class=o>.</span><span class=n>endswith</span><span class=p>(</span><span class=s1>&#39;.txt&#39;</span><span class=p>)]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>label_files</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>label_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span> <span class=s1>&#39;r&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>fh</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>line</span> <span class=ow>in</span> <span class=n>fh</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>line</span><span class=o>.</span><span class=n>strip</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>                    <span class=n>cls_id</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>line</span><span class=o>.</span><span class=n>split</span><span class=p>()[</span><span class=mi>0</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>                    <span class=n>class_counts</span><span class=p>[</span><span class=n>cls_id</span><span class=p>]</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Visualize distribution</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>class_names</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>class_names</span> <span class=o>=</span> <span class=p>[</span><span class=sa>f</span><span class=s2>&#34;class_</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s2>&#34;</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>class_counts</span><span class=p>))]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>names</span> <span class=o>=</span> <span class=p>[</span><span class=n>class_names</span><span class=p>[</span><span class=n>cid</span><span class=p>]</span> <span class=k>for</span> <span class=n>cid</span><span class=p>,</span> <span class=n>_</span> <span class=ow>in</span> <span class=n>class_counts</span><span class=o>.</span><span class=n>most_common</span><span class=p>()]</span>
+</span></span><span class=line><span class=cl>    <span class=n>counts</span> <span class=o>=</span> <span class=p>[</span><span class=n>cnt</span> <span class=k>for</span> <span class=n>_</span><span class=p>,</span> <span class=n>cnt</span> <span class=ow>in</span> <span class=n>class_counts</span><span class=o>.</span><span class=n>most_common</span><span class=p>()]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>figure</span><span class=p>(</span><span class=n>figsize</span><span class=o>=</span><span class=p>(</span><span class=mi>10</span><span class=p>,</span> <span class=mi>5</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>bars</span> <span class=o>=</span> <span class=n>plt</span><span class=o>.</span><span class=n>bar</span><span class=p>(</span><span class=nb>range</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>names</span><span class=p>)),</span> <span class=n>counts</span><span class=p>,</span> <span class=n>color</span><span class=o>=</span><span class=s1>&#39;steelblue&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>xticks</span><span class=p>(</span><span class=nb>range</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>names</span><span class=p>)),</span> <span class=n>names</span><span class=p>,</span> <span class=n>rotation</span><span class=o>=</span><span class=mi>45</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>ylabel</span><span class=p>(</span><span class=s1>&#39;Instance Count&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>title</span><span class=p>(</span><span class=s1>&#39;Dataset Class Distribution&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Annotate bar chart with values</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>bar</span><span class=p>,</span> <span class=n>count</span> <span class=ow>in</span> <span class=nb>zip</span><span class=p>(</span><span class=n>bars</span><span class=p>,</span> <span class=n>counts</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>plt</span><span class=o>.</span><span class=n>text</span><span class=p>(</span><span class=n>bar</span><span class=o>.</span><span class=n>get_x</span><span class=p>()</span> <span class=o>+</span> <span class=n>bar</span><span class=o>.</span><span class=n>get_width</span><span class=p>()</span><span class=o>/</span><span class=mi>2</span><span class=p>,</span> <span class=n>bar</span><span class=o>.</span><span class=n>get_height</span><span class=p>()</span> <span class=o>+</span> <span class=nb>max</span><span class=p>(</span><span class=n>counts</span><span class=p>)</span><span class=o>*</span><span class=mf>0.01</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                 <span class=nb>str</span><span class=p>(</span><span class=n>count</span><span class=p>),</span> <span class=n>ha</span><span class=o>=</span><span class=s1>&#39;center&#39;</span><span class=p>,</span> <span class=n>va</span><span class=o>=</span><span class=s1>&#39;bottom&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>tight_layout</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>savefig</span><span class=p>(</span><span class=s1>&#39;class_distribution.png&#39;</span><span class=p>,</span> <span class=n>dpi</span><span class=o>=</span><span class=mi>150</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>show</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>class_counts</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Usage example</span>
+</span></span><span class=line><span class=cl><span class=n>class_names</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;person&#39;</span><span class=p>,</span> <span class=s1>&#39;car&#39;</span><span class=p>,</span> <span class=s1>&#39;dog&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=n>counts</span> <span class=o>=</span> <span class=n>analyze_class_balance</span><span class=p>(</span><span class=s1>&#39;labels/train&#39;</span><span class=p>,</span> <span class=n>class_names</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Class distribution: </span><span class=si>{</span><span class=nb>dict</span><span class=p>(</span><span class=n>counts</span><span class=p>)</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>total_instances</span> <span class=o>=</span> <span class=nb>sum</span><span class=p>(</span><span class=n>counts</span><span class=o>.</span><span class=n>values</span><span class=p>())</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Total instances: </span><span class=si>{</span><span class=n>total_instances</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Handling Class Imbalance:</strong></p><table><thead><tr><th>Method</th><th>Description</th><th>Use Case</th></tr></thead><tbody><tr><td><strong>Oversampling</strong></td><td>Duplicate minority class samples or apply mild augmentation</td><td>Majority class has enough samples</td></tr><tr><td><strong>Undersampling</strong></td><td>Randomly discard majority class samples</td><td>Large dataset with redundant majority class</td></tr><tr><td><strong>Class Weight</strong></td><td>Assign higher weight to minority classes in the loss function</td><td>Set via <code>cls_pw</code> in YOLO</td></tr><tr><td><strong>Data Augmentation</strong></td><td>Apply more augmentations to minority classes</td><td>General approach, recommended first</td></tr></tbody></table><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Set per-class weights in YOLO training</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span><span class=s2>&#34;data.yaml&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>cls_pw</span><span class=o>=</span><span class=p>[</span><span class=mf>1.0</span><span class=p>,</span> <span class=mf>2.0</span><span class=p>,</span> <span class=mf>5.0</span><span class=p>],</span>  <span class=c1># Per-class loss weights (3rd class has highest weight)</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=data-augmentation-strategies>Data Augmentation Strategies</h2><h3 id=built-in-augmentation-ultralytics>Built-in Augmentation (Ultralytics)</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span><span class=s2>&#34;data.yaml&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Basic augmentation</span>
+</span></span><span class=line><span class=cl>    <span class=n>hsv_h</span><span class=o>=</span><span class=mf>0.015</span><span class=p>,</span>      <span class=c1># Hue augmentation</span>
+</span></span><span class=line><span class=cl>    <span class=n>hsv_s</span><span class=o>=</span><span class=mf>0.7</span><span class=p>,</span>        <span class=c1># Saturation augmentation</span>
+</span></span><span class=line><span class=cl>    <span class=n>hsv_v</span><span class=o>=</span><span class=mf>0.4</span><span class=p>,</span>        <span class=c1># Brightness augmentation</span>
+</span></span><span class=line><span class=cl>    <span class=n>degrees</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>      <span class=c1># Rotation angle</span>
+</span></span><span class=line><span class=cl>    <span class=n>translate</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>    <span class=c1># Translation</span>
+</span></span><span class=line><span class=cl>    <span class=n>scale</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>        <span class=c1># Scale</span>
+</span></span><span class=line><span class=cl>    <span class=n>shear</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>        <span class=c1># Shear</span>
+</span></span><span class=line><span class=cl>    <span class=n>perspective</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>  <span class=c1># Perspective transformation</span>
+</span></span><span class=line><span class=cl>    <span class=n>flipud</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>       <span class=c1># Vertical flip probability</span>
+</span></span><span class=line><span class=cl>    <span class=n>fliplr</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>       <span class=c1># Horizontal flip probability</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Advanced augmentation</span>
+</span></span><span class=line><span class=cl>    <span class=n>mosaic</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span>       <span class=c1># Mosaic augmentation</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixup</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>        <span class=c1># Mixup augmentation</span>
+</span></span><span class=line><span class=cl>    <span class=n>copy_paste</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>   <span class=c1># Copy-Paste augmentation</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=custom-augmentation-albumentations>Custom Augmentation (Albumentations)</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>albumentations</span> <span class=k>as</span> <span class=nn>A</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>transform</span> <span class=o>=</span> <span class=n>A</span><span class=o>.</span><span class=n>Compose</span><span class=p>([</span>
+</span></span><span class=line><span class=cl>    <span class=n>A</span><span class=o>.</span><span class=n>RandomBrightnessContrast</span><span class=p>(</span><span class=n>p</span><span class=o>=</span><span class=mf>0.5</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=n>A</span><span class=o>.</span><span class=n>GaussianBlur</span><span class=p>(</span><span class=n>p</span><span class=o>=</span><span class=mf>0.3</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=n>A</span><span class=o>.</span><span class=n>GaussNoise</span><span class=p>(</span><span class=n>p</span><span class=o>=</span><span class=mf>0.3</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=n>A</span><span class=o>.</span><span class=n>HorizontalFlip</span><span class=p>(</span><span class=n>p</span><span class=o>=</span><span class=mf>0.5</span><span class=p>),</span>
+</span></span><span class=line><span class=cl><span class=p>],</span> <span class=n>bbox_params</span><span class=o>=</span><span class=n>A</span><span class=o>.</span><span class=n>BboxParams</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s1>&#39;yolo&#39;</span><span class=p>,</span> <span class=n>label_fields</span><span class=o>=</span><span class=p>[</span><span class=s1>&#39;class_labels&#39;</span><span class=p>]))</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=mosaic-augmentation-explained>Mosaic Augmentation Explained</h3><p>Mosaic augmentation, introduced in YOLOv4, is a key technique that stitches 4 images into one large composite, significantly improving small object detection.</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>mosaic_augmentation</span><span class=p>(</span><span class=n>image1</span><span class=p>,</span> <span class=n>image2</span><span class=p>,</span> <span class=n>image3</span><span class=p>,</span> <span class=n>image4</span><span class=p>,</span> <span class=n>img_size</span><span class=o>=</span><span class=mi>640</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Simulate the core stitching logic of Mosaic augmentation&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>h</span><span class=p>,</span> <span class=n>w</span> <span class=o>=</span> <span class=n>img_size</span><span class=p>,</span> <span class=n>img_size</span>
+</span></span><span class=line><span class=cl>    <span class=n>mid_x</span> <span class=o>=</span> <span class=n>w</span> <span class=o>//</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl>    <span class=n>mid_y</span> <span class=o>=</span> <span class=n>h</span> <span class=o>//</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Resize all four images to the same dimensions</span>
+</span></span><span class=line><span class=cl>    <span class=n>images</span> <span class=o>=</span> <span class=p>[</span><span class=n>image1</span><span class=p>,</span> <span class=n>image2</span><span class=p>,</span> <span class=n>image3</span><span class=p>,</span> <span class=n>image4</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>resized</span> <span class=o>=</span> <span class=p>[</span><span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>img</span><span class=p>,</span> <span class=p>(</span><span class=n>w</span><span class=p>,</span> <span class=n>h</span><span class=p>))</span> <span class=k>for</span> <span class=n>img</span> <span class=ow>in</span> <span class=n>images</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Create canvas</span>
+</span></span><span class=line><span class=cl>    <span class=n>canvas</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>zeros</span><span class=p>((</span><span class=n>h</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=mi>3</span><span class=p>),</span> <span class=n>dtype</span><span class=o>=</span><span class=n>np</span><span class=o>.</span><span class=n>uint8</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Place images at top-left, top-right, bottom-left, bottom-right</span>
+</span></span><span class=line><span class=cl>    <span class=n>canvas</span><span class=p>[:</span><span class=n>mid_y</span><span class=p>,</span> <span class=p>:</span><span class=n>mid_x</span><span class=p>]</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>resized</span><span class=p>[</span><span class=mi>0</span><span class=p>],</span> <span class=p>(</span><span class=n>mid_x</span><span class=p>,</span> <span class=n>mid_y</span><span class=p>))</span>    <span class=c1># top-left</span>
+</span></span><span class=line><span class=cl>    <span class=n>canvas</span><span class=p>[:</span><span class=n>mid_y</span><span class=p>,</span> <span class=n>mid_x</span><span class=p>:]</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>resized</span><span class=p>[</span><span class=mi>1</span><span class=p>],</span> <span class=p>(</span><span class=n>w</span><span class=o>-</span><span class=n>mid_x</span><span class=p>,</span> <span class=n>mid_y</span><span class=p>))</span>  <span class=c1># top-right</span>
+</span></span><span class=line><span class=cl>    <span class=n>canvas</span><span class=p>[</span><span class=n>mid_y</span><span class=p>:,</span> <span class=p>:</span><span class=n>mid_x</span><span class=p>]</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>resized</span><span class=p>[</span><span class=mi>2</span><span class=p>],</span> <span class=p>(</span><span class=n>mid_x</span><span class=p>,</span> <span class=n>h</span><span class=o>-</span><span class=n>mid_y</span><span class=p>))</span>  <span class=c1># bottom-left</span>
+</span></span><span class=line><span class=cl>    <span class=n>canvas</span><span class=p>[</span><span class=n>mid_y</span><span class=p>:,</span> <span class=n>mid_x</span><span class=p>:]</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>resized</span><span class=p>[</span><span class=mi>3</span><span class=p>],</span> <span class=p>(</span><span class=n>w</span><span class=o>-</span><span class=n>mid_x</span><span class=p>,</span> <span class=n>h</span><span class=o>-</span><span class=n>mid_y</span><span class=p>))</span>  <span class=c1># bottom-right</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># In practice, the stitch point is randomly chosen each epoch</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>canvas</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Internal Mechanics:</strong></p><ol><li>Randomly select 4 images per training iteration</li><li>Randomly choose a stitch center point (not fixed image center)</li><li>Stitch the 4 images around the center point into one composite</li><li>Recalculate all bounding box coordinates relative to the composite</li><li>Boxes that fall outside the composite are cropped or discarded</li></ol><p><strong>Effect:</strong> Each training image contains content from 4 images, enriching BN layer statistics and improving small object context diversity.</p><h3 id=mixup-augmentation-explained>Mixup Augmentation Explained</h3><p>Mixup originates from image classification and was later adopted in object detection. The core idea is to blend two images proportionally.</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>mixup_augmentation</span><span class=p>(</span><span class=n>image1</span><span class=p>,</span> <span class=n>image2</span><span class=p>,</span> <span class=n>alpha</span><span class=o>=</span><span class=mf>0.5</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Simulate the core blending logic of Mixup augmentation&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Mixup coefficient sampled from Beta distribution</span>
+</span></span><span class=line><span class=cl>    <span class=n>lam</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>beta</span><span class=p>(</span><span class=n>alpha</span><span class=p>,</span> <span class=n>alpha</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Blend two images proportionally</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixed</span> <span class=o>=</span> <span class=n>lam</span> <span class=o>*</span> <span class=n>image1</span> <span class=o>+</span> <span class=p>(</span><span class=mi>1</span> <span class=o>-</span> <span class=n>lam</span><span class=p>)</span> <span class=o>*</span> <span class=n>image2</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Bounding boxes from both images are retained</span>
+</span></span><span class=line><span class=cl>    <span class=c1># but contribute to the loss with weights lam and (1-lam) respectively</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>mixed</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>uint8</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Internal Mechanics:</strong></p><ol><li>Randomly select two images and their annotations from the current batch</li><li>Sample blend coefficient lam from Beta(alpha, alpha) (typically alpha=0.5~1.0)</li><li>Pixel-level blending: <code>mixed_img = lam * img1 + (1-lam) * img2</code></li><li>Bounding boxes from <strong>both</strong> images are retained, contributing to the loss with weights lam and 1-lam</li><li>Label smoothing effect: the model sees blended images, providing implicit regularization</li></ol><p><strong>Note:</strong> Mixup slightly reduces training speed (double the boxes to process) but effectively reduces overfitting.</p><h3 id=copy-paste-augmentation-explained>Copy-Paste Augmentation Explained</h3><p>Copy-Paste augmentation copies objects from one image and pastes them onto another, significantly increasing instance count and background diversity.</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>copy_paste_augmentation</span><span class=p>(</span><span class=n>source_img</span><span class=p>,</span> <span class=n>target_img</span><span class=p>,</span> <span class=n>source_bbox</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Simulate the core pasting logic of Copy-Paste augmentation&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>x1</span><span class=p>,</span> <span class=n>y1</span><span class=p>,</span> <span class=n>x2</span><span class=p>,</span> <span class=n>y2</span> <span class=o>=</span> <span class=nb>map</span><span class=p>(</span><span class=nb>int</span><span class=p>,</span> <span class=n>source_bbox</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>obj</span> <span class=o>=</span> <span class=n>source_img</span><span class=p>[</span><span class=n>y1</span><span class=p>:</span><span class=n>y2</span><span class=p>,</span> <span class=n>x1</span><span class=p>:</span><span class=n>x2</span><span class=p>]</span><span class=o>.</span><span class=n>copy</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Randomly select paste location</span>
+</span></span><span class=line><span class=cl>    <span class=n>h</span><span class=p>,</span> <span class=n>w</span> <span class=o>=</span> <span class=n>target_img</span><span class=o>.</span><span class=n>shape</span><span class=p>[:</span><span class=mi>2</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>obj_h</span><span class=p>,</span> <span class=n>obj_w</span> <span class=o>=</span> <span class=n>obj</span><span class=o>.</span><span class=n>shape</span><span class=p>[:</span><span class=mi>2</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>paste_x</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>randint</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>w</span> <span class=o>-</span> <span class=n>obj_w</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>paste_y</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>randint</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>h</span> <span class=o>-</span> <span class=n>obj_h</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Overlay onto target image</span>
+</span></span><span class=line><span class=cl>    <span class=n>target_img</span><span class=p>[</span><span class=n>paste_y</span><span class=p>:</span><span class=n>paste_y</span><span class=o>+</span><span class=n>obj_h</span><span class=p>,</span> <span class=n>paste_x</span><span class=p>:</span><span class=n>paste_x</span><span class=o>+</span><span class=n>obj_w</span><span class=p>]</span> <span class=o>=</span> <span class=n>obj</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># New bounding box</span>
+</span></span><span class=line><span class=cl>    <span class=n>new_bbox</span> <span class=o>=</span> <span class=p>[</span><span class=n>paste_x</span><span class=p>,</span> <span class=n>paste_y</span><span class=p>,</span> <span class=n>paste_x</span><span class=o>+</span><span class=n>obj_w</span><span class=p>,</span> <span class=n>paste_y</span><span class=o>+</span><span class=n>obj_h</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>target_img</span><span class=p>,</span> <span class=n>new_bbox</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Internal Mechanics:</strong></p><ol><li>Randomly select two images from the dataset: source (providing the object) and target</li><li>Randomly choose one object instance from the source image</li><li>Use segmentation mask for precise contour extraction if available; otherwise crop via bounding box</li><li>Apply slight scaling and rotation to the object</li><li>Paste onto the target image — may apply random scaling/flipping before pasting</li><li>If the paste location overlaps with other boxes, skip or blend with transparency</li></ol><p><strong>Use Cases:</strong> Small object detection, rare class augmentation. Avoid overuse to prevent losing background information.</p><p><strong>Augmentation Parameter Reference:</strong></p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Mosaic parameters</span>
+</span></span><span class=line><span class=cl>    <span class=n>mosaic</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span>           <span class=c1># 1.0 = apply Mosaic to every training image</span>
+</span></span><span class=line><span class=cl>    <span class=n>mosaic_center</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>    <span class=c1># Random range for stitch center point</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Mixup parameters</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixup</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>            <span class=c1># Mixup application probability</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixup_alpha</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>      <span class=c1># Beta distribution alpha parameter</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Copy-Paste parameters</span>
+</span></span><span class=line><span class=cl>    <span class=n>copy_paste</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>       <span class=c1># Copy-Paste application probability</span>
+</span></span><span class=line><span class=cl>    <span class=n>paste_in</span><span class=o>=</span><span class=mf>0.15</span><span class=p>,</span>        <span class=c1># Probability of pasting objects onto background</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=data-quality-checklist>Data Quality Checklist</h2><p>Carefully inspect dataset quality before training to avoid wasting training time.</p><p><strong>1. Annotation Consistency</strong></p><ul><li>Are bounding box sizes and aspect ratios consistent for the same class?</li><li>Are all objects annotated (no missing labels)?</li><li>Are class names spelled consistently (no typos or capitalization issues)?</li></ul><p><strong>2. Annotation Boundary Check</strong></p><ul><li>Are coordinates within the 0~1 range (YOLO normalized format)?</li><li>Are there any invalid boxes with width or height of 0?</li><li>Do boxes extend beyond image boundaries? Minor issues are acceptable, excessive ones indicate annotation errors</li></ul><p><strong>3. Image Quality</strong></p><ul><li>Are there any corrupted or unopenable image files?</li><li>Are image channel counts consistent (all RGB)?</li><li>Are image resolution differences too large? Recommend keeping the longest side under 1920</li></ul><p><strong>4. Class Check</strong></p><ul><li>Does <code>nc</code> (number of classes) in <code>data.yaml</code> match the actual annotation files?</li><li>Are all class_ids in <code>.txt</code> files within the <code>0 ~ nc-1</code> range?</li><li>Are there empty annotation files (background images)? Is that expected?</li></ul><p><strong>5. Dataset Balance</strong></p><ul><li>Are instance counts severely imbalanced across classes?</li><li>Is the class distribution consistent across training/validation/test sets?</li></ul><p><strong>6. Automated Validation Script</strong></p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>validate_dataset</span><span class=p>(</span><span class=n>image_dir</span><span class=p>,</span> <span class=n>label_dir</span><span class=p>,</span> <span class=n>num_classes</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Automated dataset quality check&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>issues</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>os</span><span class=o>.</span><span class=n>listdir</span><span class=p>(</span><span class=n>label_dir</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>f</span><span class=o>.</span><span class=n>endswith</span><span class=p>(</span><span class=s1>&#39;.txt&#39;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>filepath</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>label_dir</span><span class=p>,</span> <span class=n>f</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=n>filepath</span><span class=p>,</span> <span class=s1>&#39;r&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>fh</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>line_num</span><span class=p>,</span> <span class=n>line</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>fh</span><span class=p>,</span> <span class=mi>1</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=n>parts</span> <span class=o>=</span> <span class=n>line</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span><span class=o>.</span><span class=n>split</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>parts</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>5</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>issues</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>line_num</span><span class=si>}</span><span class=s2> format error — expected 5 fields, got </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>parts</span><span class=p>)</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=k>continue</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=n>cls_id</span><span class=p>,</span> <span class=n>xc</span><span class=p>,</span> <span class=n>yc</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=n>h</span> <span class=o>=</span> <span class=n>parts</span>
+</span></span><span class=line><span class=cl>                <span class=n>cls_id</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>cls_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=n>xc</span><span class=p>,</span> <span class=n>yc</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=n>h</span> <span class=o>=</span> <span class=nb>map</span><span class=p>(</span><span class=nb>float</span><span class=p>,</span> <span class=p>[</span><span class=n>xc</span><span class=p>,</span> <span class=n>yc</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=n>h</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>cls_id</span> <span class=o>&lt;</span> <span class=mi>0</span> <span class=ow>or</span> <span class=n>cls_id</span> <span class=o>&gt;=</span> <span class=n>num_classes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>issues</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>line_num</span><span class=si>}</span><span class=s2> class_id </span><span class=si>{</span><span class=n>cls_id</span><span class=si>}</span><span class=s2> out of range 0~</span><span class=si>{</span><span class=n>num_classes</span><span class=o>-</span><span class=mi>1</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>w</span> <span class=o>&lt;=</span> <span class=mi>0</span> <span class=ow>or</span> <span class=n>h</span> <span class=o>&lt;=</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>issues</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>line_num</span><span class=si>}</span><span class=s2> invalid box size: w=</span><span class=si>{</span><span class=n>w</span><span class=si>}</span><span class=s2>, h=</span><span class=si>{</span><span class=n>h</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>xc</span> <span class=o>&lt;</span> <span class=mi>0</span> <span class=ow>or</span> <span class=n>xc</span> <span class=o>&gt;</span> <span class=mi>1</span> <span class=ow>or</span> <span class=n>yc</span> <span class=o>&lt;</span> <span class=mi>0</span> <span class=ow>or</span> <span class=n>yc</span> <span class=o>&gt;</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>issues</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>line_num</span><span class=si>}</span><span class=s2> center coordinates out of bounds: xc=</span><span class=si>{</span><span class=n>xc</span><span class=si>}</span><span class=s2>, yc=</span><span class=si>{</span><span class=n>yc</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># Check if corresponding image exists</span>
+</span></span><span class=line><span class=cl>        <span class=n>base</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>splitext</span><span class=p>(</span><span class=n>f</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>img_exists</span> <span class=o>=</span> <span class=nb>any</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>exists</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>image_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>base</span><span class=si>}{</span><span class=n>ext</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>for</span> <span class=n>ext</span> <span class=ow>in</span> <span class=p>[</span><span class=s1>&#39;.jpg&#39;</span><span class=p>,</span> <span class=s1>&#39;.jpeg&#39;</span><span class=p>,</span> <span class=s1>&#39;.png&#39;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>img_exists</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>issues</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>: corresponding image not found&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>issues</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Issues found:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>issue</span> <span class=ow>in</span> <span class=n>issues</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;  - </span><span class=si>{</span><span class=n>issue</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Dataset validation passed!&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>len</span><span class=p>(</span><span class=n>issues</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Usage example</span>
+</span></span><span class=line><span class=cl><span class=n>validate_dataset</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>image_dir</span><span class=o>=</span><span class=s1>&#39;datasets/my_dataset/images/train&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>label_dir</span><span class=o>=</span><span class=s1>&#39;datasets/my_dataset/labels/train&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>num_classes</span><span class=o>=</span><span class=mi>3</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>Part of series:</span>
+<a href=/en/series/yolo-from-zero-to-mastery/>YOLO From Zero to Mastery</a></div><div class=series-nav__links><a href=/en/posts/aihelper/yolo-quick-start/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>Previous</span>
+<span class=series-nav__title>YOLO Quick Start: Model Loading and Inference</span>
+</a><a href=/en/posts/aihelper/yolo-model-training/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>Next</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>YOLO Model Training: Complete Custom Dataset Workflow</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/yolo/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+YOLO
+</a><a class=tag-chip href=/en/tags/dataset/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Dataset
+</a><a class=tag-chip href=/en/tags/data-annotation/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Data Annotation
+</a><a class=tag-chip href=/en/tags/data-augmentation/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Data Augmentation</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>

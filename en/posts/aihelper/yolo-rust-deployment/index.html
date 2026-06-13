@@ -1,0 +1,984 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - YOLO Rust Deployment Guide</title><meta name=description content="Complete guide for deploying YOLO models with Rust: ort + image library setup, safe and efficient inference, production-grade high-concurrency service architecture, cross-compilation for edge devices, and Docker deployment."><meta name=keywords content="YOLO,,Rust,,ONNX,Runtime,,ort,,model,deployment,,edge,computing"><link rel=canonical href=/en/posts/aihelper/yolo-rust-deployment/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - YOLO Rust Deployment Guide"><meta property="og:description" content="Complete guide for deploying YOLO models with Rust: ort + image library setup, safe and efficient inference, production-grade high-concurrency service architecture, cross-compilation for edge devices, and Docker deployment."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/posts/aihelper/yolo-rust-deployment/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-29 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-29 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - YOLO Rust Deployment Guide"><meta name=twitter:description content="Complete guide for deploying YOLO models with Rust: ort + image library setup, safe and efficient inference, production-grade high-concurrency service architecture, cross-compilation for edge devices, and Docker deployment."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/aihelper/yolo-rust-deployment/><link rel=alternate hreflang=en href=/en/posts/aihelper/yolo-rust-deployment/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/series/>Series</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/posts/aihelper/yolo-rust-deployment/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#chapter-9-complete-yolo-tutorial-with-rust>Chapter 9: Complete YOLO Tutorial with Rust</a></li><li><a href=#yolo-related-libraries-in-rust-ecosystem>YOLO-related Libraries in Rust Ecosystem</a></li><li><a href=#environment-setup-rust-toolchain-dependency-configuration>Environment Setup (Rust Toolchain, Dependency Configuration)</a><ul><li><a href=#rust-toolchain-installation>Rust Toolchain Installation</a></li><li><a href=#ort-onnx-runtime-configuration>ort (ONNX Runtime) Configuration</a></li><li><a href=#opencv-rust-installation-optional-for-image-processing>opencv-rust Installation (Optional, for image processing)</a></li></ul></li><li><a href=#model-export-and-loading>Model Export and Loading</a><ul><li><a href=#model-export-same-as-go-yolo26-recommended>Model Export (Same as Go, YOLO26 recommended)</a></li><li><a href=#rust-side-model-loading>Rust-side Model Loading</a></li></ul></li><li><a href=#safe-and-efficient-inference-implementation>Safe and Efficient Inference Implementation</a><ul><li><a href=#complete-runnable-code-pure-rust--ort--image>Complete Runnable Code (Pure Rust + ort + image)</a></li></ul></li><li><a href=#video-stream-inference-processing>Video Stream Inference Processing</a></li><li><a href=#integration-tests>Integration Tests</a></li><li><a href=#benchmarking-methodology>Benchmarking Methodology</a></li><li><a href=#performance-comparison-and-optimization-different-inference-backends>Performance Comparison and Optimization (Different Inference Backends)</a><ul><li><a href=#inference-backend-performance-comparison-yolo26n-640x640>Inference Backend Performance Comparison (YOLO26n 640x640)</a></li><li><a href=#key-optimization-techniques>Key Optimization Techniques</a></li></ul></li><li><a href=#production-deployment-recommendations>Production Deployment Recommendations</a><ul><li><a href=#high-concurrency-service-architecture>High-Concurrency Service Architecture</a></li><li><a href=#edge-device-deployment>Edge Device Deployment</a></li></ul></li><li><a href=#complete-cargotoml-configuration-example>Complete Cargo.toml Configuration Example</a></li><li><a href=#-deployment-language-selection-summary-2026>🎯 Deployment Language Selection Summary (2026)</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-md"><span>yolo</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-sm"><span>architecture</span>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-xs"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-xs"><span>smart home</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>YOLO Rust Deployment Guide</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-29T00:00:00+00:00>May 29, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/ai-tools/>AI Tools</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/yolo/>YOLO</a>, <a href=/en/tags/rust/>Rust</a>, <a href=/en/tags/onnx-runtime/>ONNX Runtime</a>, <a href=/en/tags/model-deployment/>Model Deployment</a>, <a href=/en/tags/edge-computing/>Edge Computing</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/en/series/yolo-from-zero-to-mastery/>YOLO From Zero to Mastery</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2895 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>6 min read</span></span></div></header><div class=Content><h2 id=chapter-9-complete-yolo-tutorial-with-rust>Chapter 9: Complete YOLO Tutorial with Rust</h2><p>With its three core characteristics of memory safety, zero-cost abstractions, and extreme performance, Rust has become the ultimate choice for production-grade YOLO deployment. In edge computing and high-concurrency scenarios, Rust&rsquo;s performance advantages are particularly significant.</p><h2 id=yolo-related-libraries-in-rust-ecosystem>YOLO-related Libraries in Rust Ecosystem</h2><table><thead><tr><th>Library Name</th><th><a href=Crates.io>Crates.io</a></th><th>Maintenance Status</th><th>Use Cases</th><th>Recommendation Index</th></tr></thead><tbody><tr><td><strong>ort (onnxruntime-rs)</strong></td><td>v2.0.0</td><td>Super Active</td><td>Official ONNX binding, full platform support</td><td>⭐⭐⭐⭐⭐</td></tr><tr><td><strong>ultralytics-inference</strong></td><td>v0.0.11</td><td>Official Maintenance</td><td>Official Ultralytics Rust library</td><td>⭐⭐⭐⭐⭐</td></tr><tr><td><strong>tract</strong></td><td>v0.21.0</td><td>Active</td><td>Pure Rust inference engine, no external dependencies</td><td>⭐⭐⭐⭐</td></tr><tr><td><strong>opencv-rust</strong></td><td>v0.94.0</td><td>Active</td><td>OpenCV binding, DNN + image processing</td><td>⭐⭐⭐⭐</td></tr><tr><td><strong>tch-rs</strong></td><td>v0.15.0</td><td>Active</td><td>LibTorch binding, PyTorch models</td><td>⭐⭐⭐</td></tr><tr><td><strong>candle</strong></td><td>v0.6.0</td><td>Super Active</td><td>HuggingFace pure Rust ML framework</td><td>⭐⭐⭐⭐</td></tr></tbody></table><p><strong>Core Features Comparison:</strong></p><table><thead><tr><th>Feature</th><th>ort</th><th>ultralytics-inference</th><th>tract</th><th>opencv-rust</th><th>candle</th></tr></thead><tbody><tr><td>YOLOv8/11/26 Support</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>GPU Acceleration (CUDA)</td><td>✅</td><td>✅</td><td>❌</td><td>✅</td><td>✅</td></tr><tr><td>Auto Model Download</td><td>❌</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr><tr><td>Pure Rust No Dependencies</td><td>❌</td><td>❌</td><td>✅</td><td>❌</td><td>✅</td></tr><tr><td>Video Stream Support</td><td>Requires配合</td><td>✅</td><td>❌</td><td>✅</td><td>Requires配合</td></tr><tr><td>NMS Built-in</td><td>❌</td><td>✅</td><td>❌</td><td>✅</td><td>❌</td></tr><tr><td>WASM Support</td><td>✅</td><td>❌</td><td>✅</td><td>❌</td><td>✅</td></tr></tbody></table><p><strong>Production Environment Recommendations:</strong></p><ul><li>✅ <strong>First Choice: ort (onnxruntime-rs)</strong> - Best performance, most mature ecosystem</li><li>✅ <strong>Rapid Development: ultralytics-inference</strong> - Official, consistent API with Python</li><li>✅ <strong>Pure Rust Deployment: tract + candle</strong> - No external dependencies, cross-compilation friendly</li></ul><h2 id=environment-setup-rust-toolchain-dependency-configuration>Environment Setup (Rust Toolchain, Dependency Configuration)</h2><h3 id=rust-toolchain-installation>Rust Toolchain Installation</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Install Rust (recommended 1.85+, Edition 2024)</span>
+</span></span><span class=line><span class=cl>curl --proto <span class=s1>&#39;=https&#39;</span> --tlsv1.2 -sSf https://sh.rustup.rs <span class=p>|</span> sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Switch to stable edition and enable 2024 Edition</span>
+</span></span><span class=line><span class=cl>rustup default stable
+</span></span><span class=line><span class=cl>rustup update
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Verify</span>
+</span></span><span class=line><span class=cl>rustc --version  <span class=c1># rustc 1.85.0+</span>
+</span></span><span class=line><span class=cl>cargo --version</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=ort-onnx-runtime-configuration>ort (ONNX Runtime) Configuration</h3><p><strong>Minimal Cargo.toml Configuration:</strong></p><div class=code-block-wrapper data-lang=toml><div class=code-block-header><div class=code-block-meta><span class=code-language>toml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-toml data-lang=toml><span class=line><span class=cl><span class=p>[</span><span class=nx>dependencies</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=nx>ort</span> <span class=p>=</span> <span class=p>{</span> <span class=nx>version</span> <span class=p>=</span> <span class=s2>&#34;2.0.0-rc.12&#34;</span><span class=p>,</span> <span class=nx>features</span> <span class=p>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;download-binaries&#34;</span><span class=p>,</span>  <span class=c># Auto-download ONNX Runtime binaries</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;ndarray&#34;</span><span class=p>,</span>            <span class=c># ndarray integration</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;cuda&#34;</span><span class=p>,</span>               <span class=c># CUDA support (optional)</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;tensorrt&#34;</span><span class=p>,</span>           <span class=c># TensorRT support (optional)</span>
+</span></span><span class=line><span class=cl><span class=p>]</span> <span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>✅ No manual ONNX Runtime installation required!</strong> The <code>download-binaries</code> feature automatically downloads precompiled binaries for the target platform.</p><h3 id=opencv-rust-installation-optional-for-image-processing>opencv-rust Installation (Optional, for image processing)</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Ubuntu/Debian</span>
+</span></span><span class=line><span class=cl>sudo apt install libopencv-dev clang libclang-dev
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># macOS</span>
+</span></span><span class=line><span class=cl>brew install opencv
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Windows</span>
+</span></span><span class=line><span class=cl><span class=c1># Use vcpkg or precompiled packages</span></span></span></code></pre></td></tr></table></div></div></div></div><div class=code-block-wrapper data-lang=toml><div class=code-block-header><div class=code-block-meta><span class=code-language>toml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-toml data-lang=toml><span class=line><span class=cl><span class=p>[</span><span class=nx>dependencies</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=nx>opencv</span> <span class=p>=</span> <span class=p>{</span> <span class=nx>version</span> <span class=p>=</span> <span class=s2>&#34;0.94.4&#34;</span><span class=p>,</span> <span class=nx>features</span> <span class=p>=</span> <span class=p>[</span><span class=s2>&#34;opencv-480&#34;</span><span class=p>]</span> <span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=model-export-and-loading>Model Export and Loading</h2><h3 id=model-export-same-as-go-yolo26-recommended>Model Export (Same as Go, YOLO26 recommended)</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ✅ YOLO26 recommended, simplest post-processing in Rust</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s2>&#34;onnx&#34;</span><span class=p>,</span> <span class=n>simplify</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span> <span class=n>opset</span><span class=o>=</span><span class=mi>17</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># YOLO11/v8 also supported</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo11n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s2>&#34;onnx&#34;</span><span class=p>,</span> <span class=n>simplify</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=rust-side-model-loading>Rust-side Model Loading</h3><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>ort</span>::<span class=p>{</span><span class=n>session</span>::<span class=n>Session</span><span class=p>,</span><span class=w> </span><span class=n>GraphOptimizationLevel</span><span class=p>,</span><span class=w> </span><span class=n>Environment</span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>std</span>::<span class=n>path</span>::<span class=n>Path</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>const</span><span class=w> </span><span class=no>MODEL_PATH</span>: <span class=kp>&amp;</span><span class=kt>str</span> <span class=o>=</span><span class=w> </span><span class=s>&#34;yolo26n.onnx&#34;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>const</span><span class=w> </span><span class=no>INPUT_SIZE</span>: <span class=kt>usize</span> <span class=o>=</span><span class=w> </span><span class=mi>640</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>const</span><span class=w> </span><span class=no>NUM_CLASSES</span>: <span class=kt>usize</span> <span class=o>=</span><span class=w> </span><span class=mi>80</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>fn</span> <span class=nf>main</span><span class=p>()</span><span class=w> </span>-&gt; <span class=nc>ort</span>::<span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Initialize global environment (only once)
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>environment</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Environment</span>::<span class=n>builder</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>with_name</span><span class=p>(</span><span class=s>&#34;yolo-inference&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>build</span><span class=p>()</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ========== Create inference session (core configuration) ==========
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>session</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Session</span>::<span class=n>builder</span><span class=p>()</span><span class=o>?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// Optimization level: Level3 = maximum optimization
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>with_optimization_level</span><span class=p>(</span><span class=n>GraphOptimizationLevel</span>::<span class=n>Level3</span><span class=p>)</span><span class=o>?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// CPU thread configuration
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>with_intra_threads</span><span class=p>(</span><span class=mi>8</span><span class=p>)</span><span class=o>?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>with_inter_threads</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span><span class=o>?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// ========== GPU acceleration (optional) ==========
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// .with_execution_providers([
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>//     ExecutionProvider::CUDA(Default::default()),
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>//     ExecutionProvider::TensorRT(Default::default()),
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// ])?
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// Load model
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>commit_from_file</span><span class=p>(</span><span class=no>MODEL_PATH</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;✅ Model loaded successfully!&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;   Input: </span><span class=si>{:?}</span><span class=s>&#34;</span><span class=p>,</span><span class=w> </span><span class=n>session</span><span class=p>.</span><span class=n>inputs</span><span class=p>[</span><span class=mi>0</span><span class=p>]);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;   Output: </span><span class=si>{:?}</span><span class=s>&#34;</span><span class=p>,</span><span class=w> </span><span class=n>session</span><span class=p>.</span><span class=n>outputs</span><span class=p>[</span><span class=mi>0</span><span class=p>]);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nb>Ok</span><span class=p>(())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=safe-and-efficient-inference-implementation>Safe and Efficient Inference Implementation</h2><h3 id=complete-runnable-code-pure-rust--ort--image>Complete Runnable Code (Pure Rust + ort + image)</h3><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span><span class=lnt>159
+</span><span class=lnt>160
+</span><span class=lnt>161
+</span><span class=lnt>162
+</span><span class=lnt>163
+</span><span class=lnt>164
+</span><span class=lnt>165
+</span><span class=lnt>166
+</span><span class=lnt>167
+</span><span class=lnt>168
+</span><span class=lnt>169
+</span><span class=lnt>170
+</span><span class=lnt>171
+</span><span class=lnt>172
+</span><span class=lnt>173
+</span><span class=lnt>174
+</span><span class=lnt>175
+</span><span class=lnt>176
+</span><span class=lnt>177
+</span><span class=lnt>178
+</span><span class=lnt>179
+</span><span class=lnt>180
+</span><span class=lnt>181
+</span><span class=lnt>182
+</span><span class=lnt>183
+</span><span class=lnt>184
+</span><span class=lnt>185
+</span><span class=lnt>186
+</span><span class=lnt>187
+</span><span class=lnt>188
+</span><span class=lnt>189
+</span><span class=lnt>190
+</span><span class=lnt>191
+</span><span class=lnt>192
+</span><span class=lnt>193
+</span><span class=lnt>194
+</span><span class=lnt>195
+</span><span class=lnt>196
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>ort</span>::<span class=p>{</span><span class=n>session</span>::<span class=n>Session</span><span class=p>,</span><span class=w> </span><span class=n>GraphOptimizationLevel</span><span class=p>,</span><span class=w> </span><span class=n>value</span>::<span class=n>Value</span><span class=p>,</span><span class=w> </span><span class=n>Tensor</span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>image</span>::<span class=p>{</span><span class=n>imageops</span>::<span class=n>FilterType</span><span class=p>,</span><span class=w> </span><span class=n>GenericImageView</span><span class=p>,</span><span class=w> </span><span class=n>Pixel</span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>ndarray</span>::<span class=p>{</span><span class=n>s</span><span class=p>,</span><span class=w> </span><span class=n>Array</span><span class=p>,</span><span class=w> </span><span class=n>Array4</span><span class=p>,</span><span class=w> </span><span class=n>Axis</span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>std</span>::<span class=n>path</span>::<span class=n>Path</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>std</span>::<span class=n>time</span>::<span class=n>Instant</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// ========== Configuration ==========
+</span></span></span><span class=line><span class=cl><span class=k>const</span><span class=w> </span><span class=no>MODEL_PATH</span>: <span class=kp>&amp;</span><span class=kt>str</span> <span class=o>=</span><span class=w> </span><span class=s>&#34;yolo26n.onnx&#34;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>const</span><span class=w> </span><span class=no>INPUT_SIZE</span>: <span class=kt>usize</span> <span class=o>=</span><span class=w> </span><span class=mi>640</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>const</span><span class=w> </span><span class=no>CONF_THRESH</span>: <span class=kt>f32</span> <span class=o>=</span><span class=w> </span><span class=mf>0.25</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>const</span><span class=w> </span><span class=no>IOU_THRESH</span>: <span class=kt>f32</span> <span class=o>=</span><span class=w> </span><span class=mf>0.45</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cp>#[derive(Debug, Clone)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>struct</span> <span class=nc>Detection</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>x1</span>: <span class=kt>f32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>y1</span>: <span class=kt>f32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>x2</span>: <span class=kt>f32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>y2</span>: <span class=kt>f32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>confidence</span>: <span class=kt>f32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>class_id</span>: <span class=kt>usize</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>class_name</span>: <span class=kp>&amp;</span><span class=nb>&#39;static</span> <span class=kt>str</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// COCO 80 class names
+</span></span></span><span class=line><span class=cl><span class=k>const</span><span class=w> </span><span class=no>CLASS_NAMES</span>: <span class=p>[</span><span class=o>&amp;</span><span class=kt>str</span><span class=p>;</span><span class=w> </span><span class=mi>80</span><span class=p>]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>[</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;person&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;bicycle&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;car&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;motorcycle&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;airplane&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;bus&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;train&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;truck&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;boat&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;traffic light&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;fire hydrant&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;stop sign&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;parking meter&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;bench&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;bird&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;cat&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;dog&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;horse&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;sheep&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;cow&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;elephant&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;bear&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;zebra&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;giraffe&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;backpack&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;umbrella&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;handbag&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;tie&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;suitcase&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;frisbee&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;skis&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;snowboard&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;sports ball&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;kite&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;baseball bat&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;baseball glove&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;skateboard&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;surfboard&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;tennis racket&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;bottle&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;wine glass&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;cup&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;fork&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;knife&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;spoon&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;bowl&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;banana&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;apple&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;sandwich&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;orange&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;broccoli&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;carrot&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;hot dog&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;pizza&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;donut&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;cake&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;chair&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;couch&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;potted plant&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;bed&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;dining table&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;toilet&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;tv&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;laptop&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;mouse&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;remote&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;keyboard&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;cell phone&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;microwave&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;oven&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;toaster&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;sink&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;refrigerator&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;book&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;clock&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;vase&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;scissors&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;teddy bear&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;hair drier&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=s>&#34;toothbrush&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>];</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>fn</span> <span class=nf>main</span><span class=p>()</span><span class=w> </span>-&gt; <span class=nc>anyhow</span>::<span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 1. Create session
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>session</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Session</span>::<span class=n>builder</span><span class=p>()</span><span class=o>?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>with_optimization_level</span><span class=p>(</span><span class=n>GraphOptimizationLevel</span>::<span class=n>Level3</span><span class=p>)</span><span class=o>?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>with_intra_threads</span><span class=p>(</span><span class=mi>8</span><span class=p>)</span><span class=o>?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>commit_from_file</span><span class=p>(</span><span class=no>MODEL_PATH</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;✅ YOLO26 Rust inference ready&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 2. Load and preprocess image
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>img_path</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=s>&#34;test.jpg&#34;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>img</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>image</span>::<span class=n>open</span><span class=p>(</span><span class=n>img_path</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=p>(</span><span class=n>orig_w</span><span class=p>,</span><span class=w> </span><span class=n>orig_h</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=n>img</span><span class=p>.</span><span class=n>width</span><span class=p>()</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f32</span><span class=p>,</span><span class=w> </span><span class=n>img</span><span class=p>.</span><span class=n>height</span><span class=p>()</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f32</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>start</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Instant</span>::<span class=n>now</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 3. Preprocessing
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>input</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>preprocess</span><span class=p>(</span><span class=o>&amp;</span><span class=n>img</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 4. Inference
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>input_value</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Tensor</span>::<span class=n>from_array</span><span class=p>(</span><span class=n>input</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>outputs</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>session</span><span class=p>.</span><span class=n>run</span><span class=p>(</span><span class=n>ort</span>::<span class=fm>inputs!</span><span class=p>[</span><span class=s>&#34;images&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=n>input_value</span><span class=p>]</span><span class=o>?</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 5. Post-processing
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>output</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>outputs</span><span class=p>[</span><span class=s>&#34;output0&#34;</span><span class=p>].</span><span class=n>try_extract_tensor</span>::<span class=o>&lt;</span><span class=kt>f32</span><span class=o>&gt;</span><span class=p>()</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>detections</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>postprocess</span><span class=p>(</span><span class=n>output</span><span class=p>.</span><span class=n>view</span><span class=p>(),</span><span class=w> </span><span class=n>orig_w</span><span class=p>,</span><span class=w> </span><span class=n>orig_h</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>elapsed</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>start</span><span class=p>.</span><span class=n>elapsed</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 6. Output results
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;</span><span class=se>\n</span><span class=s>📊 Detection completed, elapsed: </span><span class=si>{:?}</span><span class=s>&#34;</span><span class=p>,</span><span class=w> </span><span class=n>elapsed</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Total detections: </span><span class=si>{}</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span><span class=w> </span><span class=n>detections</span><span class=p>.</span><span class=n>len</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=p>(</span><span class=n>i</span><span class=p>,</span><span class=w> </span><span class=n>det</span><span class=p>)</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>detections</span><span class=p>.</span><span class=n>iter</span><span class=p>().</span><span class=n>enumerate</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=fm>println!</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=s>&#34;</span><span class=si>{:2}</span><span class=s>. </span><span class=si>{:&lt;15}</span><span class=s> Confidence: </span><span class=si>{:.3}</span><span class=s>  Location: [</span><span class=si>{:.0}</span><span class=s>, </span><span class=si>{:.0}</span><span class=s>, </span><span class=si>{:.0}</span><span class=s>, </span><span class=si>{:.0}</span><span class=s>]&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>i</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=n>det</span><span class=p>.</span><span class=n>class_name</span><span class=p>,</span><span class=w> </span><span class=n>det</span><span class=p>.</span><span class=n>confidence</span><span class=p>,</span><span class=w> </span><span class=n>det</span><span class=p>.</span><span class=n>x1</span><span class=p>,</span><span class=w> </span><span class=n>det</span><span class=p>.</span><span class=n>y1</span><span class=p>,</span><span class=w> </span><span class=n>det</span><span class=p>.</span><span class=n>x2</span><span class=p>,</span><span class=w> </span><span class=n>det</span><span class=p>.</span><span class=n>y2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nb>Ok</span><span class=p>(())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=sd>/// Image preprocessing: Resize + normalization + NCHW format
+</span></span></span><span class=line><span class=cl><span class=k>fn</span> <span class=nf>preprocess</span><span class=p>(</span><span class=n>img</span>: <span class=kp>&amp;</span><span class=nc>image</span>::<span class=n>DynamicImage</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>Array4</span><span class=o>&lt;</span><span class=kt>f32</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Resize to 640x640
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>resized</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>img</span><span class=p>.</span><span class=n>resize_exact</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=no>INPUT_SIZE</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=no>INPUT_SIZE</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>FilterType</span>::<span class=n>CatmullRom</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Create NCHW format array [1, 3, H, W]
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>input</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Array</span>::<span class=n>zeros</span><span class=p>((</span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=mi>3</span><span class=p>,</span><span class=w> </span><span class=no>INPUT_SIZE</span><span class=p>,</span><span class=w> </span><span class=no>INPUT_SIZE</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=n>y</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=mi>0</span><span class=o>..</span><span class=no>INPUT_SIZE</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>for</span><span class=w> </span><span class=n>x</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=mi>0</span><span class=o>..</span><span class=no>INPUT_SIZE</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=kd>let</span><span class=w> </span><span class=n>pixel</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>resized</span><span class=p>.</span><span class=n>get_pixel</span><span class=p>(</span><span class=n>x</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=n>y</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>).</span><span class=n>to_rgb</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>input</span><span class=p>[[</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=n>y</span><span class=p>,</span><span class=w> </span><span class=n>x</span><span class=p>]]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>pixel</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f32</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mf>255.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>input</span><span class=p>[[</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=n>y</span><span class=p>,</span><span class=w> </span><span class=n>x</span><span class=p>]]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>pixel</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f32</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mf>255.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>input</span><span class=p>[[</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>2</span><span class=p>,</span><span class=w> </span><span class=n>y</span><span class=p>,</span><span class=w> </span><span class=n>x</span><span class=p>]]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>pixel</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f32</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mf>255.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>input</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=sd>/// Post-processing: Parse output + NMS
+</span></span></span><span class=line><span class=cl><span class=k>fn</span> <span class=nf>postprocess</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>output</span>: <span class=nc>ndarray</span>::<span class=n>ArrayView3</span><span class=o>&lt;</span><span class=nb>&#39;_</span><span class=p>,</span><span class=w> </span><span class=kt>f32</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>orig_w</span>: <span class=kt>f32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>orig_h</span>: <span class=kt>f32</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Detection</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>scale_x</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>orig_w</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=no>INPUT_SIZE</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f32</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>scale_y</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>orig_h</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=no>INPUT_SIZE</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f32</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>detections</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>Vec</span>::<span class=n>new</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Output shape [1, 84, 8400] -&gt; transpose to [8400, 84]
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>output</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>output</span><span class=p>.</span><span class=n>permuted_axes</span><span class=p>((</span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=mi>2</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>)).</span><span class=n>remove_axis</span><span class=p>(</span><span class=n>Axis</span><span class=p>(</span><span class=mi>2</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=n>i</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=mi>0</span><span class=o>..</span><span class=mi>8400</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>row</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>output</span><span class=p>.</span><span class=n>slice</span><span class=p>(</span><span class=fm>s!</span><span class=p>[</span><span class=n>i</span><span class=p>,</span><span class=w> </span><span class=o>..</span><span class=p>]);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// Find maximum confidence
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=p>(</span><span class=n>class_id</span><span class=p>,</span><span class=w> </span><span class=n>confidence</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=mi>4</span><span class=o>..</span><span class=mi>84</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>.</span><span class=n>map</span><span class=p>(</span><span class=o>|</span><span class=n>c</span><span class=o>|</span><span class=w> </span><span class=p>(</span><span class=n>c</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>4</span><span class=p>,</span><span class=w> </span><span class=n>row</span><span class=p>[</span><span class=n>c</span><span class=p>]))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>.</span><span class=n>max_by</span><span class=p>(</span><span class=o>|</span><span class=n>a</span><span class=p>,</span><span class=w> </span><span class=n>b</span><span class=o>|</span><span class=w> </span><span class=n>a</span><span class=p>.</span><span class=mf>1.</span><span class=n>partial_cmp</span><span class=p>(</span><span class=o>&amp;</span><span class=n>b</span><span class=p>.</span><span class=mi>1</span><span class=p>).</span><span class=n>unwrap</span><span class=p>())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>.</span><span class=n>unwrap</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=n>confidence</span><span class=w> </span><span class=o>&lt;</span><span class=w> </span><span class=no>CONF_THRESH</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>continue</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// Parse coordinates cx, cy, w, h
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>cx</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>row</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>scale_x</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>cy</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>row</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>scale_y</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>w</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>row</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>scale_x</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>h</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>row</span><span class=p>[</span><span class=mi>3</span><span class=p>]</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>scale_y</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>detections</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>Detection</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>x1</span>: <span class=nc>cx</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>w</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mf>2.0</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>y1</span>: <span class=nc>cy</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>h</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mf>2.0</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>x2</span>: <span class=nc>cx</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>w</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mf>2.0</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>y2</span>: <span class=nc>cy</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>h</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mf>2.0</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>confidence</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>class_id</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>class_name</span>: <span class=nc>CLASS_NAMES</span><span class=p>[</span><span class=n>class_id</span><span class=p>],</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// NMS non-maximum suppression
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>nms</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>detections</span><span class=p>,</span><span class=w> </span><span class=no>IOU_THRESH</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=sd>/// Non-maximum suppression (efficient Rust implementation)
+</span></span></span><span class=line><span class=cl><span class=k>fn</span> <span class=nf>nms</span><span class=p>(</span><span class=n>detections</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Detection</span><span class=o>&gt;</span><span class=p>,</span><span class=w> </span><span class=n>iou_thresh</span>: <span class=kt>f32</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Detection</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Sort by confidence descending
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>detections</span><span class=p>.</span><span class=n>sort_by</span><span class=p>(</span><span class=o>|</span><span class=n>a</span><span class=p>,</span><span class=w> </span><span class=n>b</span><span class=o>|</span><span class=w> </span><span class=n>b</span><span class=p>.</span><span class=n>confidence</span><span class=p>.</span><span class=n>partial_cmp</span><span class=p>(</span><span class=o>&amp;</span><span class=n>a</span><span class=p>.</span><span class=n>confidence</span><span class=p>).</span><span class=n>unwrap</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>keep</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>Vec</span>::<span class=n>new</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>suppressed</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=fm>vec!</span><span class=p>[</span><span class=kc>false</span><span class=p>;</span><span class=w> </span><span class=n>detections</span><span class=p>.</span><span class=n>len</span><span class=p>()];</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=n>i</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=mi>0</span><span class=o>..</span><span class=n>detections</span><span class=p>.</span><span class=n>len</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=n>suppressed</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>continue</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>keep</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>detections</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>clone</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>for</span><span class=w> </span><span class=n>j</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=p>(</span><span class=n>i</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mi>1</span><span class=p>)</span><span class=o>..</span><span class=n>detections</span><span class=p>.</span><span class=n>len</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>if</span><span class=w> </span><span class=n>suppressed</span><span class=p>[</span><span class=n>j</span><span class=p>]</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=k>continue</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>if</span><span class=w> </span><span class=n>calculate_iou</span><span class=p>(</span><span class=o>&amp;</span><span class=n>detections</span><span class=p>[</span><span class=n>i</span><span class=p>],</span><span class=w> </span><span class=o>&amp;</span><span class=n>detections</span><span class=p>[</span><span class=n>j</span><span class=p>])</span><span class=w> </span><span class=o>&gt;</span><span class=w> </span><span class=n>iou_thresh</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>suppressed</span><span class=p>[</span><span class=n>j</span><span class=p>]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=kc>true</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>keep</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>fn</span> <span class=nf>calculate_iou</span><span class=p>(</span><span class=n>a</span>: <span class=kp>&amp;</span><span class=nc>Detection</span><span class=p>,</span><span class=w> </span><span class=n>b</span>: <span class=kp>&amp;</span><span class=nc>Detection</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>f32</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>x1</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>a</span><span class=p>.</span><span class=n>x1</span><span class=p>.</span><span class=n>max</span><span class=p>(</span><span class=n>b</span><span class=p>.</span><span class=n>x1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>y1</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>a</span><span class=p>.</span><span class=n>y1</span><span class=p>.</span><span class=n>max</span><span class=p>(</span><span class=n>b</span><span class=p>.</span><span class=n>y1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>x2</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>a</span><span class=p>.</span><span class=n>x2</span><span class=p>.</span><span class=n>min</span><span class=p>(</span><span class=n>b</span><span class=p>.</span><span class=n>x2</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>y2</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>a</span><span class=p>.</span><span class=n>y2</span><span class=p>.</span><span class=n>min</span><span class=p>(</span><span class=n>b</span><span class=p>.</span><span class=n>y2</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=n>x2</span><span class=w> </span><span class=o>&lt;=</span><span class=w> </span><span class=n>x1</span><span class=w> </span><span class=o>||</span><span class=w> </span><span class=n>y2</span><span class=w> </span><span class=o>&lt;=</span><span class=w> </span><span class=n>y1</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=mf>0.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>intersection</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=n>x2</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>x1</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=p>(</span><span class=n>y2</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>y1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>area_a</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=n>a</span><span class=p>.</span><span class=n>x2</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>a</span><span class=p>.</span><span class=n>x1</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=p>(</span><span class=n>a</span><span class=p>.</span><span class=n>y2</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>a</span><span class=p>.</span><span class=n>y1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>area_b</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=n>b</span><span class=p>.</span><span class=n>x2</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>b</span><span class=p>.</span><span class=n>x1</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=p>(</span><span class=n>b</span><span class=p>.</span><span class=n>y2</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>b</span><span class=p>.</span><span class=n>y1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>intersection</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=p>(</span><span class=n>area_a</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>area_b</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>intersection</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=video-stream-inference-processing>Video Stream Inference Processing</h2><p>Extending YOLO to video processing simply requires repeating the preprocessing→inference→postprocessing loop for each frame:</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>fn</span> <span class=nf>process_video_frames</span><span class=p>(</span><span class=n>session</span>: <span class=kp>&amp;</span><span class=nc>Session</span><span class=p>,</span><span class=w> </span><span class=n>frames</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=n>image</span>::<span class=n>DynamicImage</span><span class=p>])</span><span class=w> </span>-&gt; <span class=nc>anyhow</span>::<span class=nb>Result</span><span class=o>&lt;</span><span class=nb>Vec</span><span class=o>&lt;</span><span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Detection</span><span class=o>&gt;&gt;&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>all_detections</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>Vec</span>::<span class=n>new</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>start</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Instant</span>::<span class=n>now</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=p>(</span><span class=n>i</span><span class=p>,</span><span class=w> </span><span class=n>frame</span><span class=p>)</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>frames</span><span class=p>.</span><span class=n>iter</span><span class=p>().</span><span class=n>enumerate</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>input</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>preprocess</span><span class=p>(</span><span class=n>frame</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>outputs</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>session</span><span class=p>.</span><span class=n>run</span><span class=p>(</span><span class=n>ort</span>::<span class=fm>inputs!</span><span class=p>[</span><span class=s>&#34;images&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=n>Tensor</span>::<span class=n>from_array</span><span class=p>(</span><span class=n>input</span><span class=p>)</span><span class=o>?</span><span class=p>]</span><span class=o>?</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>output</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>outputs</span><span class=p>[</span><span class=s>&#34;output0&#34;</span><span class=p>].</span><span class=n>try_extract_tensor</span>::<span class=o>&lt;</span><span class=kt>f32</span><span class=o>&gt;</span><span class=p>()</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>detections</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>postprocess</span><span class=p>(</span><span class=n>output</span><span class=p>.</span><span class=n>view</span><span class=p>(),</span><span class=w> </span><span class=n>frame</span><span class=p>.</span><span class=n>width</span><span class=p>()</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f32</span><span class=p>,</span><span class=w> </span><span class=n>frame</span><span class=p>.</span><span class=n>height</span><span class=p>()</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f32</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>fps</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=n>i</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mi>1</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=n>start</span><span class=p>.</span><span class=n>elapsed</span><span class=p>().</span><span class=n>as_secs_f64</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Frame </span><span class=si>{}</span><span class=s>: </span><span class=si>{}</span><span class=s> detections, FPS: </span><span class=si>{:.1}</span><span class=s>&#34;</span><span class=p>,</span><span class=w> </span><span class=n>i</span><span class=p>,</span><span class=w> </span><span class=n>detections</span><span class=p>.</span><span class=n>len</span><span class=p>(),</span><span class=w> </span><span class=n>fps</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>all_detections</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>detections</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nb>Ok</span><span class=p>(</span><span class=n>all_detections</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Drawing Annotated Output (using image crate):</strong></p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>fn</span> <span class=nf>draw_detections</span><span class=p>(</span><span class=n>frame</span>: <span class=kp>&amp;</span><span class=nc>image</span>::<span class=n>DynamicImage</span><span class=p>,</span><span class=w> </span><span class=n>detections</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=n>Detection</span><span class=p>])</span><span class=w> </span>-&gt; <span class=nc>image</span>::<span class=n>RgbaImage</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>canvas</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>frame</span><span class=p>.</span><span class=n>to_rgba8</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=n>det</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>detections</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>for</span><span class=w> </span><span class=n>x</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=p>(</span><span class=n>det</span><span class=p>.</span><span class=n>x1</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>)</span><span class=o>..=</span><span class=p>(</span><span class=n>det</span><span class=p>.</span><span class=n>x2</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>canvas</span><span class=p>.</span><span class=n>put_pixel</span><span class=p>(</span><span class=n>x</span><span class=p>,</span><span class=w> </span><span class=n>det</span><span class=p>.</span><span class=n>y1</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=n>image</span>::<span class=n>Rgba</span><span class=p>([</span><span class=mi>255</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>]));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>canvas</span><span class=p>.</span><span class=n>put_pixel</span><span class=p>(</span><span class=n>x</span><span class=p>,</span><span class=w> </span><span class=n>det</span><span class=p>.</span><span class=n>y2</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=n>image</span>::<span class=n>Rgba</span><span class=p>([</span><span class=mi>255</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>]));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>for</span><span class=w> </span><span class=n>y</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=p>(</span><span class=n>det</span><span class=p>.</span><span class=n>y1</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>)</span><span class=o>..=</span><span class=p>(</span><span class=n>det</span><span class=p>.</span><span class=n>y2</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>canvas</span><span class=p>.</span><span class=n>put_pixel</span><span class=p>(</span><span class=n>det</span><span class=p>.</span><span class=n>x1</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=n>y</span><span class=p>,</span><span class=w> </span><span class=n>image</span>::<span class=n>Rgba</span><span class=p>([</span><span class=mi>255</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>]));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>canvas</span><span class=p>.</span><span class=n>put_pixel</span><span class=p>(</span><span class=n>det</span><span class=p>.</span><span class=n>x2</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=n>y</span><span class=p>,</span><span class=w> </span><span class=n>image</span>::<span class=n>Rgba</span><span class=p>([</span><span class=mi>255</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>]));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>canvas</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>For high-performance scenarios, use the <strong>ffmpeg-next</strong> crate for hardware-accelerated video decoding, combined with ort&rsquo;s GPU inference for real-time analysis.</p><h2 id=integration-tests>Integration Tests</h2><p>Write Rust integration tests for the inference pipeline to ensure refactoring doesn&rsquo;t break existing functionality:</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=cp>#[cfg(test)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>mod</span> <span class=nn>tests</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>use</span><span class=w> </span><span class=k>super</span>::<span class=o>*</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>const</span><span class=w> </span><span class=no>TEST_IMAGE</span>: <span class=kp>&amp;</span><span class=kt>str</span> <span class=o>=</span><span class=w> </span><span class=s>&#34;tests/test_car.jpg&#34;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[test]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>test_preprocess_shape</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>img</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>image</span>::<span class=n>open</span><span class=p>(</span><span class=no>TEST_IMAGE</span><span class=p>).</span><span class=n>unwrap</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>input</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>preprocess</span><span class=p>(</span><span class=o>&amp;</span><span class=n>img</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=fm>assert_eq!</span><span class=p>(</span><span class=n>input</span><span class=p>.</span><span class=n>shape</span><span class=p>(),</span><span class=w> </span><span class=o>&amp;</span><span class=p>[</span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=mi>3</span><span class=p>,</span><span class=w> </span><span class=mi>640</span><span class=p>,</span><span class=w> </span><span class=mi>640</span><span class=p>]);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=cp>#[test]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>test_nms_removes_overlaps</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>det</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>|</span><span class=n>x1</span><span class=p>,</span><span class=w> </span><span class=n>y1</span><span class=p>,</span><span class=w> </span><span class=n>x2</span><span class=p>,</span><span class=w> </span><span class=n>y2</span><span class=p>,</span><span class=w> </span><span class=n>conf</span><span class=o>|</span><span class=w> </span><span class=n>Detection</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=n>x1</span><span class=p>,</span><span class=w> </span><span class=n>y1</span><span class=p>,</span><span class=w> </span><span class=n>x2</span><span class=p>,</span><span class=w> </span><span class=n>y2</span><span class=p>,</span><span class=w> </span><span class=n>confidence</span>: <span class=nc>conf</span><span class=p>,</span><span class=w> </span><span class=n>class_id</span>: <span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=n>class_name</span>: <span class=s>&#34;person&#34;</span><span class=w> </span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>dets</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=fm>vec!</span><span class=p>[</span><span class=n>det</span><span class=p>(</span><span class=mf>10.</span><span class=p>,</span><span class=mf>10.</span><span class=p>,</span><span class=mf>100.</span><span class=p>,</span><span class=mf>100.</span><span class=p>,</span><span class=mf>0.9</span><span class=p>),</span><span class=w> </span><span class=n>det</span><span class=p>(</span><span class=mf>15.</span><span class=p>,</span><span class=mf>15.</span><span class=p>,</span><span class=mf>95.</span><span class=p>,</span><span class=mf>95.</span><span class=p>,</span><span class=mf>0.8</span><span class=p>)];</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>result</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>nms</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>dets</span><span class=p>.</span><span class=n>clone</span><span class=p>(),</span><span class=w> </span><span class=mf>0.5</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=fm>assert_eq!</span><span class=p>(</span><span class=n>result</span><span class=p>.</span><span class=n>len</span><span class=p>(),</span><span class=w> </span><span class=mi>1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Run tests: <code>cargo test --test integration -- --nocapture</code></p><h2 id=benchmarking-methodology>Benchmarking Methodology</h2><p>Accurate performance evaluation requires following these principles:</p><table><thead><tr><th>Principle</th><th>Description</th></tr></thead><tbody><tr><td><strong>Warm-up</strong></td><td>Discard first 5-10 runs, wait for JIT and cache readiness</td></tr><tr><td><strong>Split Measurement</strong></td><td>Measure only <code>session.run()</code> time, exclude image decode and preprocessing</td></tr><tr><td><strong>Multiple Runs</strong></td><td>Average over at least 100 runs to eliminate scheduling jitter</td></tr><tr><td><strong>Percentiles</strong></td><td>Record P50 / P95 / P99 instead of just average to understand latency distribution</td></tr></tbody></table><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>fn</span> <span class=nf>benchmark</span><span class=p>(</span><span class=n>session</span>: <span class=kp>&amp;</span><span class=nc>Session</span><span class=p>,</span><span class=w> </span><span class=n>input</span>: <span class=kp>&amp;</span><span class=nc>Tensor</span><span class=p>,</span><span class=w> </span><span class=n>n</span>: <span class=kt>usize</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=n>_</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=mi>0</span><span class=o>..</span><span class=mi>5</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=n>session</span><span class=p>.</span><span class=n>run</span><span class=p>(</span><span class=n>ort</span>::<span class=fm>inputs!</span><span class=p>[</span><span class=s>&#34;images&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=n>input</span><span class=p>].</span><span class=n>unwrap</span><span class=p>()).</span><span class=n>unwrap</span><span class=p>();</span><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>times</span>: <span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Duration</span><span class=o>&gt;</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=mi>0</span><span class=o>..</span><span class=n>n</span><span class=p>).</span><span class=n>map</span><span class=p>(</span><span class=o>|</span><span class=n>_</span><span class=o>|</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>s</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Instant</span>::<span class=n>now</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>session</span><span class=p>.</span><span class=n>run</span><span class=p>(</span><span class=n>ort</span>::<span class=fm>inputs!</span><span class=p>[</span><span class=s>&#34;images&#34;</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=n>input</span><span class=p>].</span><span class=n>unwrap</span><span class=p>()).</span><span class=n>unwrap</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>s</span><span class=p>.</span><span class=n>elapsed</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}).</span><span class=n>collect</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>times</span><span class=p>.</span><span class=n>sort</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>sum</span>: <span class=nc>Duration</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>times</span><span class=p>.</span><span class=n>iter</span><span class=p>().</span><span class=n>sum</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Avg: </span><span class=si>{:?}</span><span class=s> | P50: </span><span class=si>{:?}</span><span class=s> | P95: </span><span class=si>{:?}</span><span class=s> | P99: </span><span class=si>{:?}</span><span class=s>&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>sum</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=n>n</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=n>times</span><span class=p>[</span><span class=n>n</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=mi>50</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mi>100</span><span class=p>],</span><span class=w> </span><span class=n>times</span><span class=p>[</span><span class=n>n</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=mi>95</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mi>100</span><span class=p>],</span><span class=w> </span><span class=n>times</span><span class=p>[</span><span class=n>n</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=mi>99</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mi>100</span><span class=p>]);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=performance-comparison-and-optimization-different-inference-backends>Performance Comparison and Optimization (Different Inference Backends)</h2><h3 id=inference-backend-performance-comparison-yolo26n-640x640>Inference Backend Performance Comparison (YOLO26n 640x640)</h3><p><strong>Test Environment: Apple M1 MacBook Air / Intel i7-12700K / RTX 3060</strong></p><table><thead><tr><th>Inference Backend</th><th>Hardware</th><th>Average Inference Time</th><th>FPS</th><th>Notes</th></tr></thead><tbody><tr><td><strong>ort CPU</strong></td><td>M1</td><td>28ms</td><td>35.7</td><td>Level3 optimization, 8 threads</td></tr><tr><td><strong>ort CPU</strong></td><td>i7-12700K</td><td>22ms</td><td>45.5</td><td>Level3 optimization, 12 threads</td></tr><tr><td><strong>ort CoreML</strong></td><td>M1</td><td>14ms</td><td>71.4</td><td>Apple Neural Engine</td></tr><tr><td><strong>ort CUDA</strong></td><td>RTX 3060</td><td>4.2ms</td><td>238</td><td>FP32</td></tr><tr><td><strong>ort TensorRT</strong></td><td>RTX 3060</td><td>2.8ms</td><td>357</td><td>FP16 optimization</td></tr><tr><td><strong>tract CPU</strong></td><td>M1</td><td>186ms</td><td>5.4</td><td>Pure Rust, no optimization</td></tr><tr><td><strong>candle CPU</strong></td><td>M1</td><td>45ms</td><td>22.2</td><td>Pure Rust</td></tr><tr><td><strong>candle Metal</strong></td><td>M1</td><td>8ms</td><td>125</td><td>Metal acceleration</td></tr><tr><td><strong>OpenCV DNN</strong></td><td>M1</td><td>65ms</td><td>15.4</td><td>CPU</td></tr><tr><td><strong>Python PyTorch</strong></td><td>M1</td><td>52ms</td><td>19.2</td><td>Baseline comparison</td></tr></tbody></table><p><strong>✅ Rust + ort Performance Summary:</strong></p><ul><li><strong>1.8-2.5x faster</strong> than Python (CPU)</li><li><strong>1.1-1.3x faster</strong> than Go (CPU)</li><li>Memory usage &lt;80MB (Python> 450MB)</li><li>Startup time &lt;50ms (Python> 3000ms)</li></ul><h3 id=key-optimization-techniques>Key Optimization Techniques</h3><p><strong>1. Compilation Optimization (Cargo.toml)</strong></p><div class=code-block-wrapper data-lang=toml><div class=code-block-header><div class=code-block-meta><span class=code-language>toml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-toml data-lang=toml><span class=line><span class=cl><span class=p>[</span><span class=nx>profile</span><span class=p>.</span><span class=nx>release</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=nx>opt-level</span> <span class=p>=</span> <span class=mi>3</span>        <span class=c># Highest optimization level</span>
+</span></span><span class=line><span class=cl><span class=nx>lto</span> <span class=p>=</span> <span class=s2>&#34;fat&#34;</span>          <span class=c># Link-time optimization</span>
+</span></span><span class=line><span class=cl><span class=nx>codegen-units</span> <span class=p>=</span> <span class=mi>1</span>    <span class=c># Single code unit (slow compile, fast run)</span>
+</span></span><span class=line><span class=cl><span class=nx>panic</span> <span class=p>=</span> <span class=s2>&#34;abort&#34;</span>      <span class=c># Remove panic unwinding</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>2. Runtime Optimization</strong></p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=kd>let</span><span class=w> </span><span class=n>session</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Session</span>::<span class=n>builder</span><span class=p>()</span><span class=o>?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=n>with_optimization_level</span><span class=p>(</span><span class=n>GraphOptimizationLevel</span>::<span class=n>Level3</span><span class=p>)</span><span class=o>?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=n>with_intra_threads</span><span class=p>(</span><span class=n>num_cpus</span>::<span class=n>get</span><span class=p>())</span><span class=o>?</span><span class=w>  </span><span class=c1>// = CPU core count
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=n>with_memory_pattern</span><span class=p>(</span><span class=kc>true</span><span class=p>)</span><span class=o>?</span><span class=w>             </span><span class=c1>// Memory pattern optimization
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=n>with_cpu_mem_arena</span><span class=p>(</span><span class=kc>true</span><span class=p>)</span><span class=o>?</span><span class=w>              </span><span class=c1>// CPU memory arena
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>.</span><span class=n>commit_from_file</span><span class=p>(</span><span class=no>MODEL_PATH</span><span class=p>)</span><span class=o>?</span><span class=p>;</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>3. SIMD Preprocessing (using portable-simd)</strong></p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=c1>// Use Rust SIMD to accelerate normalization, 2-3x speedup
+</span></span></span><span class=line><span class=cl><span class=cp>#![feature(portable_simd)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>std</span>::<span class=n>simd</span>::<span class=n>f32x8</span><span class=p>;</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=production-deployment-recommendations>Production Deployment Recommendations</h2><h3 id=high-concurrency-service-architecture>High-Concurrency Service Architecture</h3><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>axum</span>::<span class=p>{</span><span class=n>routing</span>::<span class=n>post</span><span class=p>,</span><span class=w> </span><span class=n>Json</span><span class=p>,</span><span class=w> </span><span class=n>Router</span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>std</span>::<span class=n>sync</span>::<span class=n>Arc</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>tokio</span>::<span class=n>sync</span>::<span class=n>Semaphore</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// Session pool: one independent session per worker
+</span></span></span><span class=line><span class=cl><span class=k>struct</span> <span class=nc>AppState</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>sessions</span>: <span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Arc</span><span class=o>&lt;</span><span class=n>Session</span><span class=o>&gt;&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>semaphore</span>: <span class=nc>Semaphore</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cp>#[tokio::main]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>async</span><span class=w> </span><span class=k>fn</span> <span class=nf>main</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>num_workers</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>num_cpus</span>::<span class=n>get</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>sessions</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>Vec</span>::<span class=n>new</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Pre-create multiple inference sessions
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=n>_</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=mi>0</span><span class=o>..</span><span class=n>num_workers</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>session</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>create_session</span><span class=p>().</span><span class=n>unwrap</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>sessions</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>Arc</span>::<span class=n>new</span><span class=p>(</span><span class=n>session</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>state</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Arc</span>::<span class=n>new</span><span class=p>(</span><span class=n>AppState</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>sessions</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>semaphore</span>: <span class=nc>Semaphore</span>::<span class=n>new</span><span class=p>(</span><span class=n>num_workers</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>app</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Router</span>::<span class=n>new</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>route</span><span class=p>(</span><span class=s>&#34;/detect&#34;</span><span class=p>,</span><span class=w> </span><span class=n>post</span><span class=p>(</span><span class=n>detect_handler</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>with_state</span><span class=p>(</span><span class=n>state</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>axum</span>::<span class=n>Server</span>::<span class=n>bind</span><span class=p>(</span><span class=o>&amp;</span><span class=s>&#34;0.0.0.0:8080&#34;</span><span class=p>.</span><span class=n>parse</span><span class=p>().</span><span class=n>unwrap</span><span class=p>())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>serve</span><span class=p>(</span><span class=n>app</span><span class=p>.</span><span class=n>into_make_service</span><span class=p>())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=k>await</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>unwrap</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>async</span><span class=w> </span><span class=k>fn</span> <span class=nf>detect_handler</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>State</span><span class=p>(</span><span class=n>state</span><span class=p>)</span>: <span class=nc>State</span><span class=o>&lt;</span><span class=n>Arc</span><span class=o>&lt;</span><span class=n>AppState</span><span class=o>&gt;&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Json</span><span class=p>(</span><span class=n>req</span><span class=p>)</span>: <span class=nc>Json</span><span class=o>&lt;</span><span class=n>DetectRequest</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>Json</span><span class=o>&lt;</span><span class=n>DetectResponse</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Get permit, control concurrency
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>_permit</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>state</span><span class=p>.</span><span class=n>semaphore</span><span class=p>.</span><span class=n>acquire</span><span class=p>().</span><span class=k>await</span><span class=p>.</span><span class=n>unwrap</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>worker_id</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>_permit</span><span class=p>.</span><span class=n>id</span><span class=p>()</span><span class=w> </span><span class=o>%</span><span class=w> </span><span class=n>state</span><span class=p>.</span><span class=n>sessions</span><span class=p>.</span><span class=n>len</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Use corresponding worker&#39;s session for inference
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>result</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>infer</span><span class=p>(</span><span class=o>&amp;</span><span class=n>state</span><span class=p>.</span><span class=n>sessions</span><span class=p>[</span><span class=n>worker_id</span><span class=p>],</span><span class=w> </span><span class=o>&amp;</span><span class=n>req</span><span class=p>.</span><span class=n>image</span><span class=p>).</span><span class=k>await</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Json</span><span class=p>(</span><span class=n>result</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Architecture Advantages:</strong></p><ul><li>✅ Lock-free design, each thread has independent session</li><li>✅ Precise concurrency control, avoid OOM</li><li>✅ Tokio async, supports thousands of QPS</li><li>✅ Memory safety guaranteed by Rust compiler</li></ul><h3 id=edge-device-deployment>Edge Device Deployment</h3><p><strong>Cross-compilation to ARM (Raspberry Pi / Jetson):</strong></p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Install cross-compilation toolchain</span>
+</span></span><span class=line><span class=cl>rustup target add aarch64-unknown-linux-gnu
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Compile</span>
+</span></span><span class=line><span class=cl>cargo build --release --target aarch64-unknown-linux-gnu
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Binary size: ~5MB (statically linked)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Docker Deployment (Minimal Image):</strong></p><div class=code-block-wrapper data-lang=dockerfile><div class=code-block-header><div class=code-block-meta><span class=code-language>dockerfile</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl><span class=k>FROM</span><span class=w> </span><span class=s>rust:1.85</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=s>builder</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>WORKDIR</span><span class=w> </span><span class=s>/app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>COPY</span> . .<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> cargo build --release<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>FROM</span><span class=w> </span><span class=s>debian:bookworm-slim</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>COPY</span> --from<span class=o>=</span>builder /app/target/release/yolo-rust /usr/local/bin/<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>RUN</span> apt update <span class=o>&amp;&amp;</span> apt install -y libgcc1 <span class=o>&amp;&amp;</span> rm -rf /var/lib/apt/lists/*<span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>EXPOSE</span><span class=w> </span><span class=s>8080</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;yolo-rust&#34;</span><span class=p>]</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=c># Image size: ~80MB</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=complete-cargotoml-configuration-example>Complete Cargo.toml Configuration Example</h2><div class=code-block-wrapper data-lang=toml><div class=code-block-header><div class=code-block-meta><span class=code-language>toml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-toml data-lang=toml><span class=line><span class=cl><span class=p>[</span><span class=nx>package</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=nx>name</span> <span class=p>=</span> <span class=s2>&#34;yolo-rust&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>version</span> <span class=p>=</span> <span class=s2>&#34;0.1.0&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>edition</span> <span class=p>=</span> <span class=s2>&#34;2024&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>rust-version</span> <span class=p>=</span> <span class=s2>&#34;1.85&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>[</span><span class=nx>dependencies</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=c># Core inference</span>
+</span></span><span class=line><span class=cl><span class=nx>ort</span> <span class=p>=</span> <span class=p>{</span> <span class=nx>version</span> <span class=p>=</span> <span class=s2>&#34;2.0.0-rc.12&#34;</span><span class=p>,</span> <span class=nx>features</span> <span class=p>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;download-binaries&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;ndarray&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;fetch-models&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>]</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># Image processing</span>
+</span></span><span class=line><span class=cl><span class=nx>image</span> <span class=p>=</span> <span class=p>{</span> <span class=nx>version</span> <span class=p>=</span> <span class=s2>&#34;0.25&#34;</span><span class=p>,</span> <span class=nx>features</span> <span class=p>=</span> <span class=p>[</span><span class=s2>&#34;jpeg&#34;</span><span class=p>,</span> <span class=s2>&#34;png&#34;</span><span class=p>]</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=nx>ndarray</span> <span class=p>=</span> <span class=s2>&#34;0.16&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># Web services (optional)</span>
+</span></span><span class=line><span class=cl><span class=nx>axum</span> <span class=p>=</span> <span class=s2>&#34;0.7&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>tokio</span> <span class=p>=</span> <span class=p>{</span> <span class=nx>version</span> <span class=p>=</span> <span class=s2>&#34;1.0&#34;</span><span class=p>,</span> <span class=nx>features</span> <span class=p>=</span> <span class=p>[</span><span class=s2>&#34;full&#34;</span><span class=p>]</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=nx>serde</span> <span class=p>=</span> <span class=p>{</span> <span class=nx>version</span> <span class=p>=</span> <span class=s2>&#34;1.0&#34;</span><span class=p>,</span> <span class=nx>features</span> <span class=p>=</span> <span class=p>[</span><span class=s2>&#34;derive&#34;</span><span class=p>]</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=nx>serde_json</span> <span class=p>=</span> <span class=s2>&#34;1.0&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># Tools</span>
+</span></span><span class=line><span class=cl><span class=nx>anyhow</span> <span class=p>=</span> <span class=s2>&#34;1.0&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>num_cpus</span> <span class=p>=</span> <span class=s2>&#34;1.0&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>[</span><span class=nx>profile</span><span class=p>.</span><span class=nx>release</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=nx>opt-level</span> <span class=p>=</span> <span class=mi>3</span>
+</span></span><span class=line><span class=cl><span class=nx>lto</span> <span class=p>=</span> <span class=s2>&#34;fat&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>codegen-units</span> <span class=p>=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl><span class=nx>panic</span> <span class=p>=</span> <span class=s2>&#34;abort&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>strip</span> <span class=p>=</span> <span class=s2>&#34;debuginfo&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Running Commands:</strong></p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Development run</span>
+</span></span><span class=line><span class=cl>cargo run
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Release run (best performance)</span>
+</span></span><span class=line><span class=cl>cargo run --release
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Performance profiling</span>
+</span></span><span class=line><span class=cl>cargo flamegraph --bin yolo-rust</span></span></code></pre></td></tr></table></div></div></div></div><h2 id=-deployment-language-selection-summary-2026>🎯 Deployment Language Selection Summary (2026)</h2><table><thead><tr><th>Dimension</th><th>Python</th><th>Golang</th><th>Rust</th></tr></thead><tbody><tr><td><strong>Development Speed</strong></td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td></tr><tr><td><strong>Inference Performance (CPU)</strong></td><td>Baseline</td><td>+80%</td><td>+120%</td></tr><tr><td><strong>Memory Usage</strong></td><td>450MB</td><td>120MB</td><td>80MB</td></tr><tr><td><strong>Startup Time</strong></td><td>3s</td><td>100ms</td><td>50ms</td></tr><tr><td><strong>Concurrency Capability</strong></td><td>Poor (GIL)</td><td>Excellent</td><td>Extreme</td></tr><tr><td><strong>Deployment Difficulty</strong></td><td>High (many dependencies)</td><td>Medium</td><td>Low (single binary)</td></tr><tr><td><strong>Production Stability</strong></td><td>Average</td><td>Good</td><td>Best</td></tr><tr><td><strong>Edge Device Adaptation</strong></td><td>❌</td><td>✅</td><td>✅✅</td></tr></tbody></table><p><strong>Recommendation Decision Tree:</strong></p><ol><li><strong>Rapid Prototyping / Research</strong> → Python</li><li><strong>Backend Services / Microservices</strong> → Golang</li><li><strong>Edge Computing / High Concurrency / Embedded</strong> → <strong>Rust (First Choice)</strong></li><li><strong>YOLO26 + Rust</strong> = 2026 Industrial Deployment Golden Combination</li></ol><blockquote><p>(Note: Some content in this document may be AI-generated)</p></blockquote></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>Part of series:</span>
+<a href=/en/series/yolo-from-zero-to-mastery/>YOLO From Zero to Mastery</a></div><div class=series-nav__links><a href=/en/posts/aihelper/yolo-golang-deployment/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>Previous</span>
+<span class=series-nav__title>YOLO Go Deployment Guide</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/yolo/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+YOLO
+</a><a class=tag-chip href=/en/tags/rust/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Rust
+</a><a class=tag-chip href=/en/tags/onnx-runtime/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+ONNX Runtime
+</a><a class=tag-chip href=/en/tags/model-deployment/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Model Deployment
+</a><a class=tag-chip href=/en/tags/edge-computing/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Edge Computing</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>

@@ -1,0 +1,696 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - YOLO 快速实战：模型加载与推理</title><meta name=description content="YOLOv8/YOLO11/YOLO26 统一 API 的模型加载、图片检测、视频检测、摄像头实时检测完整实战代码，以及各版本代码差异说明。"><meta name=keywords content="YOLO,,model,inference,,object,detection,,Python,,Ultralytics"><link rel=canonical href=/posts/aihelper/yolo-quick-start/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - YOLO 快速实战：模型加载与推理"><meta property="og:description" content="YOLOv8/YOLO11/YOLO26 统一 API 的模型加载、图片检测、视频检测、摄像头实时检测完整实战代码，以及各版本代码差异说明。"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/aihelper/yolo-quick-start/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-08 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-08 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - YOLO 快速实战：模型加载与推理"><meta name=twitter:description content="YOLOv8/YOLO11/YOLO26 统一 API 的模型加载、图片检测、视频检测、摄像头实时检测完整实战代码，以及各版本代码差异说明。"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/aihelper/yolo-quick-start/><link rel=alternate hreflang=en href=/en/posts/aihelper/yolo-quick-start/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/series/>系列</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label=切换语言 aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>中文</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/en/posts/aihelper/yolo-quick-start/ lang=en rel=alternate>English</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#各版本模型加载与推理>各版本模型加载与推理</a><ul><li><ul><li><a href=#ultralytics-统一-apiv81126-通用>Ultralytics 统一 API（v8/11/26 通用）</a></li><li><a href=#图片检测实战>图片检测实战</a></li><li><a href=#视频检测实战>视频检测实战</a></li><li><a href=#摄像头实时检测>摄像头实时检测</a></li><li><a href=#各版本代码差异说明>各版本代码差异说明</a></li></ul></li></ul></li><li><a href=#results-对象-api-详解>Results 对象 API 详解</a><ul><li><a href=#核心属性>核心属性</a></li><li><a href=#按条件过滤检测框>按条件过滤检测框</a></li></ul></li><li><a href=#后处理参数详解>后处理参数详解</a><ul><li><a href=#置信度阈值-conf>置信度阈值 (conf)</a></li><li><a href=#iou-阈值与-nms>IoU 阈值与 NMS</a></li><li><a href=#其他后处理参数>其他后处理参数</a></li></ul></li><li><a href=#批量推理>批量推理</a><ul><li><a href=#多图片同时推理>多图片同时推理</a></li><li><a href=#streamtrue-内存优化>stream=True 内存优化</a></li></ul></li><li><a href=#可视化自定义>可视化自定义</a><ul><li><a href=#参数详解>参数详解</a></li><li><a href=#关闭所有标注只保留原始图片>关闭所有标注，只保留原始图片</a></li></ul></li><li><a href=#不同格式保存结果>不同格式保存结果</a><ul><li><a href=#保存检测目标裁剪>保存检测目标裁剪</a></li><li><a href=#导出-json--csv>导出 JSON / CSV</a></li></ul></li><li><a href=#推理性能优化技巧>推理性能优化技巧</a><ul><li><a href=#半精度推理-fp16>半精度推理 (FP16)</a></li><li><a href=#设备选择>设备选择</a></li><li><a href=#预热推理-warm-up>预热推理 (Warm-up)</a></li><li><a href=#batch-size-调优>Batch Size 调优</a></li><li><a href=#其他优化技巧>其他优化技巧</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-md"><span>yolo</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-sm"><span>开源</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-sm"><span>架构</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-xs"><span>摄像头</span>
+</a><a href=/tags/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/ class="tag-cloud__item tag-size-xs"><span>智能家居</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>YOLO 快速实战：模型加载与推理</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-08T00:00:00+00:00>May 8, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/ai%E5%B7%A5%E5%85%B7/>AI工具</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/yolo/>YOLO</a>, <a href=/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/>计算机视觉</a>, <a href=/tags/python/>Python</a>, <a href=/tags/%E6%8E%A8%E7%90%86/>推理</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/series/yolo-%E4%BB%8E%E9%9B%B6%E5%88%B0%E7%B2%BE%E9%80%9A/>YOLO 从零到精通</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>3185 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>7 分钟阅读</span></span></div></header><div class=Content><h2 id=各版本模型加载与推理>各版本模型加载与推理</h2><h4 id=ultralytics-统一-apiv81126-通用>Ultralytics 统一 API（v8/11/26 通用）</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== YOLOv8 ==========</span>
+</span></span><span class=line><span class=cl><span class=n>model_v8</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolov8n.pt&#34;</span><span class=p>)</span>      <span class=c1>#  nano</span>
+</span></span><span class=line><span class=cl><span class=n>model_v8</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolov8s.pt&#34;</span><span class=p>)</span>      <span class=c1>#  small</span>
+</span></span><span class=line><span class=cl><span class=n>model_v8</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolov8m.pt&#34;</span><span class=p>)</span>      <span class=c1>#  medium</span>
+</span></span><span class=line><span class=cl><span class=n>model_v8</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolov8l.pt&#34;</span><span class=p>)</span>      <span class=c1>#  large</span>
+</span></span><span class=line><span class=cl><span class=n>model_v8</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolov8x.pt&#34;</span><span class=p>)</span>      <span class=c1>#  extra large</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== YOLO11 ==========</span>
+</span></span><span class=line><span class=cl><span class=n>model_11</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo11n.pt&#34;</span><span class=p>)</span>      <span class=c1>#  nano</span>
+</span></span><span class=line><span class=cl><span class=n>model_11</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo11s.pt&#34;</span><span class=p>)</span>      <span class=c1>#  small</span>
+</span></span><span class=line><span class=cl><span class=n>model_11</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo11m.pt&#34;</span><span class=p>)</span>      <span class=c1>#  medium</span>
+</span></span><span class=line><span class=cl><span class=n>model_11</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo11l.pt&#34;</span><span class=p>)</span>      <span class=c1>#  large</span>
+</span></span><span class=line><span class=cl><span class=n>model_11</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo11x.pt&#34;</span><span class=p>)</span>      <span class=c1>#  extra large</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ========== YOLO26 (2026最新) ==========</span>
+</span></span><span class=line><span class=cl><span class=n>model_26</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>      <span class=c1>#  nano  推荐边缘部署</span>
+</span></span><span class=line><span class=cl><span class=n>model_26</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26s.pt&#34;</span><span class=p>)</span>      <span class=c1>#  small</span>
+</span></span><span class=line><span class=cl><span class=n>model_26</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26m.pt&#34;</span><span class=p>)</span>      <span class=c1>#  medium</span>
+</span></span><span class=line><span class=cl><span class=n>model_26</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26l.pt&#34;</span><span class=p>)</span>      <span class=c1>#  large</span>
+</span></span><span class=line><span class=cl><span class=n>model_26</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26x.pt&#34;</span><span class=p>)</span>      <span class=c1>#  extra large</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=图片检测实战>图片检测实战</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 加载模型（以YOLO26为例）</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 单张图片检测</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>,</span> <span class=n>conf</span><span class=o>=</span><span class=mf>0.25</span><span class=p>,</span> <span class=n>iou</span><span class=o>=</span><span class=mf>0.45</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 结果处理</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>result</span> <span class=ow>in</span> <span class=n>results</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>boxes</span> <span class=o>=</span> <span class=n>result</span><span class=o>.</span><span class=n>boxes</span>          <span class=c1># 检测框</span>
+</span></span><span class=line><span class=cl>    <span class=n>masks</span> <span class=o>=</span> <span class=n>result</span><span class=o>.</span><span class=n>masks</span>          <span class=c1># 分割掩码</span>
+</span></span><span class=line><span class=cl>    <span class=n>probs</span> <span class=o>=</span> <span class=n>result</span><span class=o>.</span><span class=n>probs</span>          <span class=c1># 分类概率</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 打印检测结果</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>box</span> <span class=ow>in</span> <span class=n>boxes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;类别: </span><span class=si>{</span><span class=n>result</span><span class=o>.</span><span class=n>names</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>cls</span><span class=p>)]</span><span class=si>}</span><span class=s2>, &#34;</span>
+</span></span><span class=line><span class=cl>              <span class=sa>f</span><span class=s2>&#34;置信度: </span><span class=si>{</span><span class=n>box</span><span class=o>.</span><span class=n>conf</span><span class=o>.</span><span class=n>item</span><span class=p>()</span><span class=si>:</span><span class=s2>.3f</span><span class=si>}</span><span class=s2>, &#34;</span>
+</span></span><span class=line><span class=cl>              <span class=sa>f</span><span class=s2>&#34;坐标: </span><span class=si>{</span><span class=n>box</span><span class=o>.</span><span class=n>xyxy</span><span class=o>.</span><span class=n>tolist</span><span class=p>()[</span><span class=mi>0</span><span class=p>]</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 保存可视化结果</span>
+</span></span><span class=line><span class=cl>    <span class=n>result</span><span class=o>.</span><span class=n>save</span><span class=p>(</span><span class=s2>&#34;result.jpg&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=视频检测实战>视频检测实战</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 视频文件检测</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>predict</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>source</span><span class=o>=</span><span class=s2>&#34;input.mp4&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>save</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>           <span class=c1># 保存结果视频</span>
+</span></span><span class=line><span class=cl>    <span class=n>conf</span><span class=o>=</span><span class=mf>0.3</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>show</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>          <span class=c1># 是否实时显示</span>
+</span></span><span class=line><span class=cl>    <span class=n>stream</span><span class=o>=</span><span class=kc>True</span>          <span class=c1># 流式处理，节省内存</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 逐帧处理</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>result</span> <span class=ow>in</span> <span class=n>results</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 自定义后处理逻辑</span>
+</span></span><span class=line><span class=cl>    <span class=k>pass</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=摄像头实时检测>摄像头实时检测</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 打开摄像头</span>
+</span></span><span class=line><span class=cl><span class=n>cap</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>VideoCapture</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>  <span class=c1># 0为默认摄像头</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>while</span> <span class=n>cap</span><span class=o>.</span><span class=n>isOpened</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>ret</span><span class=p>,</span> <span class=n>frame</span> <span class=o>=</span> <span class=n>cap</span><span class=o>.</span><span class=n>read</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=n>ret</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>break</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 推理</span>
+</span></span><span class=line><span class=cl>    <span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=n>frame</span><span class=p>,</span> <span class=n>verbose</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 绘制结果</span>
+</span></span><span class=line><span class=cl>    <span class=n>annotated_frame</span> <span class=o>=</span> <span class=n>results</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>plot</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 显示</span>
+</span></span><span class=line><span class=cl>    <span class=n>cv2</span><span class=o>.</span><span class=n>imshow</span><span class=p>(</span><span class=s2>&#34;YOLO Real-time&#34;</span><span class=p>,</span> <span class=n>annotated_frame</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>cv2</span><span class=o>.</span><span class=n>waitKey</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xFF</span> <span class=o>==</span> <span class=nb>ord</span><span class=p>(</span><span class=s1>&#39;q&#39;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>break</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>cap</span><span class=o>.</span><span class=n>release</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>cv2</span><span class=o>.</span><span class=n>destroyAllWindows</span><span class=p>()</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=各版本代码差异说明>各版本代码差异说明</h4><table><thead><tr><th>特性</th><th>YOLOv8</th><th>YOLO11</th><th>YOLO26</th><th>YOLOv9</th><th>YOLOv10</th></tr></thead><tbody><tr><td>API 统一</td><td>✅</td><td>✅</td><td>✅</td><td>❌ 独立仓库</td><td>❌ 独立仓库</td></tr><tr><td>无 NMS</td><td>❌</td><td>❌</td><td>✅</td><td>❌</td><td>✅</td></tr><tr><td>DFL 模块</td><td>✅</td><td>✅</td><td>❌ 已移除</td><td>✅</td><td>✅</td></tr><tr><td>MuSGD 优化器</td><td>❌</td><td>❌</td><td>✅</td><td>❌</td><td>❌</td></tr><tr><td>导出兼容性</td><td>良好</td><td>良好</td><td>最佳</td><td>一般</td><td>一般</td></tr></tbody></table><h2 id=results-对象-api-详解>Results 对象 API 详解</h2><p><code>model()</code> 或 <code>model.predict()</code> 返回的是一个 <code>Results</code> 对象列表。每个 <code>Results</code> 对象封装了单张图片的所有推理输出。理解其内部结构是进行后续处理的基础。</p><h3 id=核心属性>核心属性</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>  <span class=c1># 取第一张图的结果</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># === 检测框 (Boxes) ===</span>
+</span></span><span class=line><span class=cl><span class=n>boxes</span> <span class=o>=</span> <span class=n>results</span><span class=o>.</span><span class=n>boxes</span>
+</span></span><span class=line><span class=cl><span class=c1># Boxes 对象属性:</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>boxes</span><span class=o>.</span><span class=n>xyxy</span><span class=p>)</span>    <span class=c1># Tensor[N,4] — 左上右下坐标 (x1,y1,x2,y2)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>boxes</span><span class=o>.</span><span class=n>xywh</span><span class=p>)</span>    <span class=c1># Tensor[N,4] — 中心宽高格式 (cx,cy,w,h)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>boxes</span><span class=o>.</span><span class=n>xyxyn</span><span class=p>)</span>   <span class=c1># Tensor[N,4] — 归一化 xyxy (0~1)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>boxes</span><span class=o>.</span><span class=n>xywhn</span><span class=p>)</span>   <span class=c1># Tensor[N,4] — 归一化 xywh (0~1)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>boxes</span><span class=o>.</span><span class=n>conf</span><span class=p>)</span>    <span class=c1># Tensor[N]   — 每个框的置信度</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>boxes</span><span class=o>.</span><span class=n>cls</span><span class=p>)</span>     <span class=c1># Tensor[N]   — 每个框的类别索引</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>boxes</span><span class=o>.</span><span class=n>id</span><span class=p>)</span>      <span class=c1># Tensor[N]   — 跟踪 ID（仅跟踪场景）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># === 分割掩码 (Masks) ===</span>
+</span></span><span class=line><span class=cl><span class=n>masks</span> <span class=o>=</span> <span class=n>results</span><span class=o>.</span><span class=n>masks</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=n>masks</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>masks</span><span class=o>.</span><span class=n>data</span><span class=p>)</span>     <span class=c1># Tensor[N,H,W] — 原始掩码张量</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>masks</span><span class=o>.</span><span class=n>xy</span><span class=p>)</span>       <span class=c1># list[N] of numpy arrays — 多边形轮廓点</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># === 分类概率 (Probs) ===</span>
+</span></span><span class=line><span class=cl><span class=c1># 仅分类模型（非检测模型）有该属性</span>
+</span></span><span class=line><span class=cl><span class=n>probs</span> <span class=o>=</span> <span class=n>results</span><span class=o>.</span><span class=n>probs</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=n>probs</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>probs</span><span class=o>.</span><span class=n>top1</span><span class=p>)</span>        <span class=c1># 最高概率类别索引</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>probs</span><span class=o>.</span><span class=n>top1conf</span><span class=p>)</span>    <span class=c1># 最高概率置信度</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>probs</span><span class=o>.</span><span class=n>top5</span><span class=p>)</span>        <span class=c1># Top-5 类别索引 (list)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># === 关键点 (Keypoints) ===</span>
+</span></span><span class=line><span class=cl><span class=c1># 姿态估计模型（如 YOLO11-pose）</span>
+</span></span><span class=line><span class=cl><span class=n>keypoints</span> <span class=o>=</span> <span class=n>results</span><span class=o>.</span><span class=n>keypoints</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=n>keypoints</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>keypoints</span><span class=o>.</span><span class=n>data</span><span class=p>)</span>    <span class=c1># Tensor[N,17,3] — (x, y, confidence)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>keypoints</span><span class=o>.</span><span class=n>xy</span><span class=p>)</span>      <span class=c1># Tensor[N,17,2] — 仅坐标</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>keypoints</span><span class=o>.</span><span class=n>conf</span><span class=p>)</span>    <span class=c1># Tensor[N,17]   — 关键点置信度</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># === 原始图像 ===</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>results</span><span class=o>.</span><span class=n>orig_img</span><span class=o>.</span><span class=n>shape</span><span class=p>)</span>   <span class=c1># (H, W, C) — 原始图像 numpy 数组</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>results</span><span class=o>.</span><span class=n>orig_shape</span><span class=p>)</span>       <span class=c1># (H, W) — 原始尺寸</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># === 类别名称映射 ===</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>results</span><span class=o>.</span><span class=n>names</span><span class=p>)</span>            <span class=c1># {0: &#39;person&#39;, 1: &#39;bicycle&#39;, ...}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># === 推理速度 ===</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>results</span><span class=o>.</span><span class=n>speed</span><span class=p>)</span>            <span class=c1># {&#39;preprocess&#39;: 1.2, &#39;inference&#39;: 8.5, &#39;postprocess&#39;: 0.8}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=按条件过滤检测框>按条件过滤检测框</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 只保留置信度 &gt; 0.5 且类别为 person (0) 的检测框</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=n>person_boxes</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=n>box</span> <span class=k>for</span> <span class=n>box</span> <span class=ow>in</span> <span class=n>results</span><span class=o>.</span><span class=n>boxes</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>box</span><span class=o>.</span><span class=n>conf</span><span class=o>.</span><span class=n>item</span><span class=p>()</span> <span class=o>&gt;</span> <span class=mf>0.5</span> <span class=ow>and</span> <span class=nb>int</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>cls</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;检测到 </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>person_boxes</span><span class=p>)</span><span class=si>}</span><span class=s2> 个行人&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=后处理参数详解>后处理参数详解</h2><p><code>model()</code> 和 <code>model.predict()</code> 的核心参数控制着推理结果的质量和数量。</p><h3 id=置信度阈值-conf>置信度阈值 (conf)</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># conf=0.25 表示只保留置信度 ≥ 0.25 的检测框</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>,</span> <span class=n>conf</span><span class=o>=</span><span class=mf>0.25</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><ul><li><strong>默认值</strong>: 0.25</li><li><strong>调高</strong>（如 0.5）: 减少误检，适合精确度要求高的场景（工业生产）</li><li><strong>调低</strong>（如 0.1）: 增加召回率，适合需要不漏检的场景（安防监控）</li></ul><p>置信度是模型对每个检测框的"自信程度"，由分类分支的输出经 Sigmoid 归一化到 0~1。</p><h3 id=iou-阈值与-nms>IoU 阈值与 NMS</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># iou=0.45 控制 NMS 的严格程度</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>,</span> <span class=n>iou</span><span class=o>=</span><span class=mf>0.45</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>NMS (Non-Maximum Suppression, 非极大值抑制)</strong> 是目标检测的后处理核心技术：</p><ol><li>按置信度对所有检测框排序</li><li>选中置信度最高的框</li><li>删除与其 IoU > 阈值的其他框（视为重复检测）</li><li>重复步骤 2-3，直到没有剩余框</li></ol><ul><li><strong>IoU 调高</strong>（如 0.7）: 保留更多重叠框，适合密集场景</li><li><strong>IoU 调低</strong>（如 0.3）: 删除更多重叠框，减少冗余</li></ul><blockquote><p><strong>YOLO26 的特殊性</strong>: YOLO26 采用 SimOTA 标签分配策略，推理时<strong>不需要 NMS</strong>。这意味着无论 <code>iou</code> 参数怎么设置，YOLO26 都不会执行 NMS 步骤——这是其架构设计的关键差异，也是速度优势的来源之一。</p></blockquote><h3 id=其他后处理参数>其他后处理参数</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>predict</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>source</span><span class=o>=</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>conf</span><span class=o>=</span><span class=mf>0.25</span><span class=p>,</span>       <span class=c1># 置信度阈值</span>
+</span></span><span class=line><span class=cl>    <span class=n>iou</span><span class=o>=</span><span class=mf>0.45</span><span class=p>,</span>        <span class=c1># NMS IoU 阈值</span>
+</span></span><span class=line><span class=cl>    <span class=n>max_det</span><span class=o>=</span><span class=mi>300</span><span class=p>,</span>     <span class=c1># 每张图最大检测框数（默认 300）</span>
+</span></span><span class=line><span class=cl>    <span class=n>agnostic_nms</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>  <span class=c1># 是否按类别独立 NMS</span>
+</span></span><span class=line><span class=cl>    <span class=n>half</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>      <span class=c1># 是否使用 FP16</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=批量推理>批量推理</h2><p>处理大量图片时，批量推理能充分利用 GPU 并行计算能力。</p><h3 id=多图片同时推理>多图片同时推理</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 传入图片路径列表 — 自动 batch 推理</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>([</span><span class=s2>&#34;img1.jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;img2.jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;img3.jpg&#34;</span><span class=p>],</span> <span class=n>batch</span><span class=o>=</span><span class=mi>4</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=n>result</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>results</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;图片 </span><span class=si>{</span><span class=n>i</span><span class=o>+</span><span class=mi>1</span><span class=si>}</span><span class=s2>: 检测到 </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>result</span><span class=o>.</span><span class=n>boxes</span><span class=p>)</span><span class=si>}</span><span class=s2> 个目标&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>result</span><span class=o>.</span><span class=n>save</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;result_</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s2>.jpg&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><code>batch</code> 参数控制每次送入 GPU 的图片数量。默认值为 <code>-1</code>（自动选择），实际值受显存限制。</p><h3 id=streamtrue-内存优化>stream=True 内存优化</h3><p>当图片数量极大（数百上千张）时，<code>stream=True</code> 是防止内存溢出的关键：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 普通模式 — 等待所有图片处理完成才返回</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>([</span><span class=s2>&#34;img1.jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;img2.jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;img3.jpg&#34;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl><span class=c1># 此时所有结果都在内存中</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 流式模式 — 处理完一张立即返回一张</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>([</span><span class=s2>&#34;img1.jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;img2.jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;img3.jpg&#34;</span><span class=p>],</span> <span class=n>stream</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1># results 是一个生成器 (generator)，按需产生结果</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>result</span> <span class=ow>in</span> <span class=n>results</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 处理完当前图片后，其内存可被回收</span>
+</span></span><span class=line><span class=cl>    <span class=n>process</span><span class=p>(</span><span class=n>result</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>stream=True 的工作原理</strong>:</p><ol><li><code>model.predict(stream=True)</code> 返回生成器而非列表</li><li>生成器每次 <code>yield</code> 一个 <code>Results</code> 对象</li><li>单个结果处理完毕后，Python 可回收其内存</li><li>适合视频帧序列、大型数据集等场景</li></ol><h2 id=可视化自定义>可视化自定义</h2><p><code>result.plot()</code> 方法提供了丰富的参数来控制可视化输出。</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>result</span> <span class=ow>in</span> <span class=n>results</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 自定义可视化</span>
+</span></span><span class=line><span class=cl>    <span class=n>annotated</span> <span class=o>=</span> <span class=n>result</span><span class=o>.</span><span class=n>plot</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>line_width</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span>        <span class=c1># 框线宽度（默认 3）</span>
+</span></span><span class=line><span class=cl>        <span class=n>font_size</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span>       <span class=c1># 文字大小倍数（默认 1.0）</span>
+</span></span><span class=line><span class=cl>        <span class=n>conf</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>           <span class=c1># 是否在框上显示置信度（默认 True）</span>
+</span></span><span class=line><span class=cl>        <span class=n>labels</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>         <span class=c1># 是否显示类别标签（默认 True）</span>
+</span></span><span class=line><span class=cl>        <span class=n>boxes</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>          <span class=c1># 是否绘制检测框（默认 True）</span>
+</span></span><span class=line><span class=cl>        <span class=n>masks</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>          <span class=c1># 是否绘制分割掩码（默认 True）</span>
+</span></span><span class=line><span class=cl>        <span class=n>probs</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>          <span class=c1># 是否显示分类概率（默认 True）</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 保存自定义可视化结果</span>
+</span></span><span class=line><span class=cl>    <span class=n>cv2</span><span class=o>.</span><span class=n>imwrite</span><span class=p>(</span><span class=s2>&#34;custom_result.jpg&#34;</span><span class=p>,</span> <span class=n>annotated</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=参数详解>参数详解</h3><table><thead><tr><th>参数</th><th>类型</th><th>默认</th><th>说明</th></tr></thead><tbody><tr><td><code>line_width</code></td><td>int</td><td>3</td><td>检测框线宽，调大适合高清大图</td></tr><tr><td><code>font_size</code></td><td>float</td><td>1.0</td><td>标签文字相对大小</td></tr><tr><td><code>conf</code></td><td>bool</td><td>True</td><td>框上显示置信度数值</td></tr><tr><td><code>labels</code></td><td>bool</td><td>True</td><td>显示类别名称</td></tr><tr><td><code>boxes</code></td><td>bool</td><td>True</td><td>绘制边界框矩形</td></tr><tr><td><code>masks</code></td><td>bool</td><td>True</td><td>绘制分割掩码（仅分割模型）</td></tr><tr><td><code>probs</code></td><td>bool</td><td>True</td><td>显示概率（仅分类模型）</td></tr></tbody></table><h3 id=关闭所有标注只保留原始图片>关闭所有标注，只保留原始图片</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>result_clean</span> <span class=o>=</span> <span class=n>result</span><span class=o>.</span><span class=n>plot</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>conf</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>labels</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>boxes</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>masks</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>probs</span><span class=o>=</span><span class=kc>False</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1># 等价于仅返回原始图像</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=不同格式保存结果>不同格式保存结果</h2><h3 id=保存检测目标裁剪>保存检测目标裁剪</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=n>result</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>results</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>boxes</span> <span class=o>=</span> <span class=n>result</span><span class=o>.</span><span class=n>boxes</span>
+</span></span><span class=line><span class=cl>    <span class=n>orig_img</span> <span class=o>=</span> <span class=n>result</span><span class=o>.</span><span class=n>orig_img</span>  <span class=c1># numpy array (H, W, 3)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>os</span><span class=o>.</span><span class=n>makedirs</span><span class=p>(</span><span class=s2>&#34;crops&#34;</span><span class=p>,</span> <span class=n>exist_ok</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>j</span><span class=p>,</span> <span class=n>box</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>boxes</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 获取框坐标 (整数)</span>
+</span></span><span class=line><span class=cl>        <span class=n>x1</span><span class=p>,</span> <span class=n>y1</span><span class=p>,</span> <span class=n>x2</span><span class=p>,</span> <span class=n>y2</span> <span class=o>=</span> <span class=nb>map</span><span class=p>(</span><span class=nb>int</span><span class=p>,</span> <span class=n>box</span><span class=o>.</span><span class=n>xyxy</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>tolist</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 裁剪目标区域</span>
+</span></span><span class=line><span class=cl>        <span class=n>crop</span> <span class=o>=</span> <span class=n>orig_img</span><span class=p>[</span><span class=n>y1</span><span class=p>:</span><span class=n>y2</span><span class=p>,</span> <span class=n>x1</span><span class=p>:</span><span class=n>x2</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 保存裁剪图</span>
+</span></span><span class=line><span class=cl>        <span class=n>cls_name</span> <span class=o>=</span> <span class=n>result</span><span class=o>.</span><span class=n>names</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>cls</span><span class=p>[</span><span class=mi>0</span><span class=p>])]</span>
+</span></span><span class=line><span class=cl>        <span class=n>cv2</span><span class=o>.</span><span class=n>imwrite</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;crops/</span><span class=si>{</span><span class=n>cls_name</span><span class=si>}</span><span class=s2>_</span><span class=si>{</span><span class=n>j</span><span class=si>}</span><span class=s2>.jpg&#34;</span><span class=p>,</span> <span class=n>crop</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=导出-json--csv>导出 JSON / CSV</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>json</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>csv</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># === JSON 导出 ===</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>result</span> <span class=ow>in</span> <span class=n>results</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>box</span> <span class=ow>in</span> <span class=n>result</span><span class=o>.</span><span class=n>boxes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>data</span><span class=o>.</span><span class=n>append</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;class&#34;</span><span class=p>:</span> <span class=n>result</span><span class=o>.</span><span class=n>names</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>cls</span><span class=p>[</span><span class=mi>0</span><span class=p>])],</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;confidence&#34;</span><span class=p>:</span> <span class=nb>round</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>conf</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>item</span><span class=p>(),</span> <span class=mi>3</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;bbox&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;x1&#34;</span><span class=p>:</span> <span class=nb>round</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>xyxy</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>item</span><span class=p>(),</span> <span class=mi>2</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;y1&#34;</span><span class=p>:</span> <span class=nb>round</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>xyxy</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>item</span><span class=p>(),</span> <span class=mi>2</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;x2&#34;</span><span class=p>:</span> <span class=nb>round</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>xyxy</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>2</span><span class=p>]</span><span class=o>.</span><span class=n>item</span><span class=p>(),</span> <span class=mi>2</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;y2&#34;</span><span class=p>:</span> <span class=nb>round</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>xyxy</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>3</span><span class=p>]</span><span class=o>.</span><span class=n>item</span><span class=p>(),</span> <span class=mi>2</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=p>},</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;image_width&#34;</span><span class=p>:</span> <span class=n>result</span><span class=o>.</span><span class=n>orig_shape</span><span class=p>[</span><span class=mi>1</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;image_height&#34;</span><span class=p>:</span> <span class=n>result</span><span class=o>.</span><span class=n>orig_shape</span><span class=p>[</span><span class=mi>0</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>        <span class=p>})</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=s2>&#34;detections.json&#34;</span><span class=p>,</span> <span class=s2>&#34;w&#34;</span><span class=p>,</span> <span class=n>encoding</span><span class=o>=</span><span class=s2>&#34;utf-8&#34;</span><span class=p>)</span> <span class=k>as</span> <span class=n>f</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>json</span><span class=o>.</span><span class=n>dump</span><span class=p>(</span><span class=n>data</span><span class=p>,</span> <span class=n>f</span><span class=p>,</span> <span class=n>indent</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span> <span class=n>ensure_ascii</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># === CSV 导出 ===</span>
+</span></span><span class=line><span class=cl><span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=s2>&#34;detections.csv&#34;</span><span class=p>,</span> <span class=s2>&#34;w&#34;</span><span class=p>,</span> <span class=n>newline</span><span class=o>=</span><span class=s2>&#34;&#34;</span><span class=p>,</span> <span class=n>encoding</span><span class=o>=</span><span class=s2>&#34;utf-8&#34;</span><span class=p>)</span> <span class=k>as</span> <span class=n>f</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>writer</span> <span class=o>=</span> <span class=n>csv</span><span class=o>.</span><span class=n>writer</span><span class=p>(</span><span class=n>f</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>writer</span><span class=o>.</span><span class=n>writerow</span><span class=p>([</span><span class=s2>&#34;class&#34;</span><span class=p>,</span> <span class=s2>&#34;confidence&#34;</span><span class=p>,</span> <span class=s2>&#34;x1&#34;</span><span class=p>,</span> <span class=s2>&#34;y1&#34;</span><span class=p>,</span> <span class=s2>&#34;x2&#34;</span><span class=p>,</span> <span class=s2>&#34;y2&#34;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>result</span> <span class=ow>in</span> <span class=n>results</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>box</span> <span class=ow>in</span> <span class=n>result</span><span class=o>.</span><span class=n>boxes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>writer</span><span class=o>.</span><span class=n>writerow</span><span class=p>([</span>
+</span></span><span class=line><span class=cl>                <span class=n>result</span><span class=o>.</span><span class=n>names</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>cls</span><span class=p>[</span><span class=mi>0</span><span class=p>])],</span>
+</span></span><span class=line><span class=cl>                <span class=nb>round</span><span class=p>(</span><span class=n>box</span><span class=o>.</span><span class=n>conf</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>item</span><span class=p>(),</span> <span class=mi>3</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>                <span class=o>*</span><span class=p>[</span><span class=nb>round</span><span class=p>(</span><span class=n>v</span><span class=o>.</span><span class=n>item</span><span class=p>(),</span> <span class=mi>2</span><span class=p>)</span> <span class=k>for</span> <span class=n>v</span> <span class=ow>in</span> <span class=n>box</span><span class=o>.</span><span class=n>xyxy</span><span class=p>[</span><span class=mi>0</span><span class=p>]],</span>
+</span></span><span class=line><span class=cl>            <span class=p>])</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=推理性能优化技巧>推理性能优化技巧</h2><h3 id=半精度推理-fp16>半精度推理 (FP16)</h3><p>半精度浮点数推理可将显存占用减半，在兼容硬件（NVIDIA Volta/Turing/Ampere 架构及以上）上显著加速：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 方式一：predict 时指定</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>predict</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>,</span> <span class=n>half</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 方式二：先转换模型</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>model</span><span class=o>.</span><span class=n>half</span><span class=p>()</span>  <span class=c1># 全局启用 FP16</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><blockquote><p><strong>注意</strong>: FP16 在某些 CPU 和旧 GPU（如 GTX 10 系列）上不支持，会回退到 FP32。</p></blockquote><h3 id=设备选择>设备选择</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 指定 GPU 设备</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>to</span><span class=p>(</span><span class=s2>&#34;cuda:0&#34;</span><span class=p>)</span>     <span class=c1># 第一块 GPU</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>to</span><span class=p>(</span><span class=s2>&#34;cuda:1&#34;</span><span class=p>)</span>     <span class=c1># 第二块 GPU</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 多 GPU 推理（需较大 batch）</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>predict</span><span class=p>([</span><span class=s2>&#34;img1.jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;img2.jpg&#34;</span><span class=p>],</span> <span class=n>device</span><span class=o>=</span><span class=s2>&#34;0,1&#34;</span><span class=p>)</span>  <span class=c1># 使用 GPU 0 和 1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># CPU 推理（显存不足时）</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>to</span><span class=p>(</span><span class=s2>&#34;cpu&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=预热推理-warm-up>预热推理 (Warm-up)</h3><p>深度模型首次推理时包含 CUDA 内核编译、内存分配等初始化开销。预热可以消除冷启动延迟：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ultralytics</span> <span class=kn>import</span> <span class=n>YOLO</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 预热：用一张空白图跑一次推理</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=n>dummy</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>zeros</span><span class=p>((</span><span class=mi>640</span><span class=p>,</span> <span class=mi>640</span><span class=p>,</span> <span class=mi>3</span><span class=p>),</span> <span class=n>dtype</span><span class=o>=</span><span class=n>np</span><span class=o>.</span><span class=n>uint8</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>_</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=n>dummy</span><span class=p>,</span> <span class=n>verbose</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>  <span class=c1># 触发 CUDA 内核编译</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 正式计时</span>
+</span></span><span class=line><span class=cl><span class=n>start</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=s2>&#34;test.jpg&#34;</span><span class=p>,</span> <span class=n>verbose</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;推理耗时: </span><span class=si>{</span><span class=p>(</span><span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span> <span class=o>-</span> <span class=n>start</span><span class=p>)</span><span class=o>*</span><span class=mi>1000</span><span class=si>:</span><span class=s2>.1f</span><span class=si>}</span><span class=s2>ms&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=batch-size-调优>Batch Size 调优</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 批量推理自动选择最佳 batch size</span>
+</span></span><span class=line><span class=cl><span class=c1># batch=-1 表示自动检测，也可以手动指定</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>predict</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>source</span><span class=o>=</span><span class=p>[</span><span class=s2>&#34;img1.jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;img2.jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;img3.jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;img4.jpg&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=n>batch</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span>           <span class=c1># 手动指定 batch size</span>
+</span></span><span class=line><span class=cl>    <span class=n>half</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>         <span class=c1># 配合 FP16 降低显存</span>
+</span></span><span class=line><span class=cl>    <span class=n>device</span><span class=o>=</span><span class=s2>&#34;cuda:0&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Batch Size 经验值</strong>:</p><table><thead><tr><th>模型</th><th style=text-align:center>FP32 batch=1</th><th style=text-align:center>FP16 batch=1</th><th style=text-align:center>FP32 batch=4</th><th style=text-align:center>FP16 batch=4</th></tr></thead><tbody><tr><td>YOLO26n</td><td style=text-align:center>~1.2 GB</td><td style=text-align:center>~0.7 GB</td><td style=text-align:center>~1.8 GB</td><td style=text-align:center>~1.0 GB</td></tr><tr><td>YOLO26s</td><td style=text-align:center>~2.0 GB</td><td style=text-align:center>~1.1 GB</td><td style=text-align:center>~3.2 GB</td><td style=text-align:center>~1.7 GB</td></tr><tr><td>YOLO26m</td><td style=text-align:center>~3.5 GB</td><td style=text-align:center>~1.9 GB</td><td style=text-align:center>~6.0 GB</td><td style=text-align:center>~3.2 GB</td></tr></tbody></table><blockquote><p>以上为 640×640 输入估算值，实际内存占用会因图片尺寸和检测框数量波动。</p></blockquote><h3 id=其他优化技巧>其他优化技巧</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>predict</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>source</span><span class=o>=</span><span class=s2>&#34;input.mp4&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>stream</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>        <span class=c1># 流式处理防内存溢出</span>
+</span></span><span class=line><span class=cl>    <span class=n>half</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>          <span class=c1># FP16 加速</span>
+</span></span><span class=line><span class=cl>    <span class=n>device</span><span class=o>=</span><span class=s2>&#34;cuda:0&#34;</span><span class=p>,</span>    <span class=c1># 显式指定设备</span>
+</span></span><span class=line><span class=cl>    <span class=n>verbose</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>      <span class=c1># 关闭日志输出，减少 IO</span>
+</span></span><span class=line><span class=cl>    <span class=n>max_det</span><span class=o>=</span><span class=mi>100</span><span class=p>,</span>        <span class=c1># 限制最大检测框数</span>
+</span></span><span class=line><span class=cl>    <span class=n>iou</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>            <span class=c1># 较高 IoU 阈值减少 NMS 保留框数</span>
+</span></span><span class=line><span class=cl>    <span class=n>conf</span><span class=o>=</span><span class=mf>0.3</span><span class=p>,</span>           <span class=c1># 较高置信度阈值减少后处理量</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p>这些参数组合可以针对你的具体场景找到推理速度与精度的最佳平衡点。</p></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>所属系列:</span>
+<a href=/series/yolo-%E4%BB%8E%E9%9B%B6%E5%88%B0%E7%B2%BE%E9%80%9A/>YOLO 从零到精通</a></div><div class=series-nav__links><a href=/posts/aihelper/yolo-getting-started/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>上一篇</span>
+<span class=series-nav__title>YOLO 入门基础：发展历史、版本对比与环境搭建</span>
+</a><a href=/posts/aihelper/yolo-dataset-preparation/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>下一篇</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>YOLO 数据集制作：标注工具与格式转换</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/yolo/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+YOLO
+</a><a class=tag-chip href=/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+计算机视觉
+</a><a class=tag-chip href=/tags/python/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Python
+</a><a class=tag-chip href=/tags/%E6%8E%A8%E7%90%86/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+推理</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>

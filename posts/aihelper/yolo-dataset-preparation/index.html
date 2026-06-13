@@ -1,0 +1,1022 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - YOLO 数据集制作：标注工具与格式转换</title><meta name=description content="YOLO 数据集制作完整指南：LabelImg/LabelMe 标注工具使用、YOLO 标注格式详解、VOC 格式转换、Albumentations 数据增强策略。"><meta name=keywords content="YOLO,,dataset,,annotation,,LabelImg,,data,augmentation"><link rel=canonical href=/posts/aihelper/yolo-dataset-preparation/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - YOLO 数据集制作：标注工具与格式转换"><meta property="og:description" content="YOLO 数据集制作完整指南：LabelImg/LabelMe 标注工具使用、YOLO 标注格式详解、VOC 格式转换、Albumentations 数据增强策略。"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/aihelper/yolo-dataset-preparation/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-11 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-11 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - YOLO 数据集制作：标注工具与格式转换"><meta name=twitter:description content="YOLO 数据集制作完整指南：LabelImg/LabelMe 标注工具使用、YOLO 标注格式详解、VOC 格式转换、Albumentations 数据增强策略。"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/aihelper/yolo-dataset-preparation/><link rel=alternate hreflang=en href=/en/posts/aihelper/yolo-dataset-preparation/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/series/>系列</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label=切换语言 aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>中文</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/en/posts/aihelper/yolo-dataset-preparation/ lang=en rel=alternate>English</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#数据标注工具使用>数据标注工具使用</a><ul><li><a href=#labelimg-安装与使用>LabelImg 安装与使用</a></li><li><a href=#labelme-安装与使用>LabelMe 安装与使用</a></li><li><a href=#cvat-自托管标注平台>CVAT 自托管标注平台</a></li><li><a href=#roboflow-在线标注平台>Roboflow 在线标注平台</a></li><li><a href=#label-studio-多任务标注>Label Studio 多任务标注</a></li></ul></li><li><a href=#数据集标准格式>数据集标准格式</a><ul><li><a href=#yolo-格式目录结构>YOLO 格式目录结构</a></li><li><a href=#yolo-标注格式说明>YOLO 标注格式说明</a></li><li><a href=#datayaml-配置文件>data.yaml 配置文件</a></li></ul></li><li><a href=#格式转换工具>格式转换工具</a><ul><li><a href=#voc--yolo-转换>VOC → YOLO 转换</a></li><li><a href=#coco---yolo-转换>COCO -> YOLO 转换</a></li></ul></li><li><a href=#数据集拆分工具>数据集拆分工具</a></li><li><a href=#类别平衡分析>类别平衡分析</a></li><li><a href=#数据增强策略>数据增强策略</a><ul><li><a href=#内置增强ultralytics>内置增强（Ultralytics）</a></li><li><a href=#自定义增强albumentations>自定义增强（Albumentations）</a></li><li><a href=#mosaic-增强详解>Mosaic 增强详解</a></li><li><a href=#mixup-增强详解>Mixup 增强详解</a></li><li><a href=#copy-paste-增强详解>Copy-Paste 增强详解</a></li></ul></li><li><a href=#数据质量检查清单>数据质量检查清单</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-md"><span>yolo</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-sm"><span>开源</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-sm"><span>架构</span>
+</a><a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class="tag-cloud__item tag-size-xs"><span>摄像头</span>
+</a><a href=/tags/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/ class="tag-cloud__item tag-size-xs"><span>智能家居</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>YOLO 数据集制作：标注工具与格式转换</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-11T00:00:00+00:00>May 11, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/ai%E5%B7%A5%E5%85%B7/>AI工具</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/yolo/>YOLO</a>, <a href=/tags/%E6%95%B0%E6%8D%AE%E9%9B%86/>数据集</a>, <a href=/tags/%E6%95%B0%E6%8D%AE%E6%A0%87%E6%B3%A8/>数据标注</a>, <a href=/tags/%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/>数据增强</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/series/yolo-%E4%BB%8E%E9%9B%B6%E5%88%B0%E7%B2%BE%E9%80%9A/>YOLO 从零到精通</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>4921 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>10 分钟阅读</span></span></div></header><div class=Content><h2 id=数据标注工具使用>数据标注工具使用</h2><h3 id=labelimg-安装与使用>LabelImg 安装与使用</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 安装</span>
+</span></span><span class=line><span class=cl>pip install labelImg
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动</span>
+</span></span><span class=line><span class=cl>labelImg</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>标注流程：</strong></p><ol><li>Open Dir → 选择图片文件夹</li><li>Change Save Dir → 选择标注保存文件夹</li><li>选择 YOLO 格式</li><li>Create RectBox → 框选目标 → 输入类别名</li><li>Save 保存</li></ol><h3 id=labelme-安装与使用>LabelMe 安装与使用</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pip install labelme
+</span></span><span class=line><span class=cl>labelme</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=cvat-自托管标注平台>CVAT 自托管标注平台</h3><p>CVAT（Computer Vision Annotation Tool）是由 Intel 开源的强大标注平台，支持 Docker 自托管部署，适合团队协作和大规模标注项目。</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Docker 部署</span>
+</span></span><span class=line><span class=cl>git clone https://github.com/opencv/cvat
+</span></span><span class=line><span class=cl><span class=nb>cd</span> cvat
+</span></span><span class=line><span class=cl>docker compose up -d</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>标注流程：</strong></p><ol><li>创建项目 → 定义标签列表（person, car, dog&mldr;）</li><li>上传图片或视频帧序列</li><li>创建任务 → 分配标注员</li><li>使用矩形框、多边形、关键点等工具标注</li><li>审核 → 导出为 YOLO 格式</li></ol><p><strong>导出 YOLO 格式：</strong> CVAT 支持导出为 YOLO 1.1 格式，自动生成 <code>data.yaml</code> 配置文件。</p><h3 id=roboflow-在线标注平台>Roboflow 在线标注平台</h3><p>Roboflow 是基于云端的全流程数据集管理平台，无需本地部署，提供从标注到模型部署的完整工具链。</p><p><strong>核心功能：</strong></p><ul><li>在线标注（矩形框、多边形、分割掩码、关键点等）</li><li>数据集版本管理（每次修改生成新版本）</li><li>内置预处理（自动调整尺寸、归一化等）</li><li>内置数据增强（旋转、翻转、噪声、马赛克等）</li><li>一键导出 YOLO、COCO、Pascal VOC 等格式</li></ul><p><strong>导出 YOLO 格式步骤：</strong></p><ol><li>创建项目 → 上传图片</li><li>在线标注或导入已有标注（支持 COCO/VOC/YOLO 格式导入）</li><li>点击 <strong>Generate</strong> → 选择预处理与增强</li><li>Export → 选择 <strong>YOLO v5/v8 PyTorch</strong> 格式</li><li>下载 ZIP 包，直接用于训练</li></ol><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Roboflow API 直接下载数据集到本地</span>
+</span></span><span class=line><span class=cl><span class=c1># pip install roboflow</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>roboflow</span> <span class=kn>import</span> <span class=n>Roboflow</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>rf</span> <span class=o>=</span> <span class=n>Roboflow</span><span class=p>(</span><span class=n>api_key</span><span class=o>=</span><span class=s2>&#34;YOUR_API_KEY&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>project</span> <span class=o>=</span> <span class=n>rf</span><span class=o>.</span><span class=n>workspace</span><span class=p>(</span><span class=s2>&#34;workspace-name&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>project</span><span class=p>(</span><span class=s2>&#34;project-name&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>dataset</span> <span class=o>=</span> <span class=n>project</span><span class=o>.</span><span class=n>version</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span><span class=o>.</span><span class=n>download</span><span class=p>(</span><span class=s2>&#34;yolov8&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=label-studio-多任务标注>Label Studio 多任务标注</h3><p>Label Studio 是一个开源的多任务标注平台，支持图像、文本、音频、时间序列等多种数据类型。</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 安装</span>
+</span></span><span class=line><span class=cl>pip install label-studio
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动</span>
+</span></span><span class=line><span class=cl>label-studio
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Docker 部署（推荐生产使用）</span>
+</span></span><span class=line><span class=cl>docker run -it -p 8080:8080 -v <span class=k>$(</span><span class=nb>pwd</span><span class=k>)</span>/data:/label-studio/data heartexlabs/label-studio:latest</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>YOLO 标注配置：</strong></p><ol><li>创建项目 → 选择 <strong>Object Detection with Bounding Boxes</strong> 模板</li><li>设置标签列表（Labeling Setup → 添加标签名称）</li><li>导入图片 → 开始标注</li><li>标注完成后导出 → 选择 <strong>YOLO</strong> 格式</li></ol><p><strong>高级特性：</strong></p><ul><li>多人协作标注与标注一致性检查</li><li>机器学习辅助标注（ML-assisted labeling）自动预标注</li><li>自定义标注界面与标注模板</li></ul><h2 id=数据集标准格式>数据集标准格式</h2><h3 id=yolo-格式目录结构>YOLO 格式目录结构</h3><div class=code-block-wrapper data-lang=Plain><div class=code-block-header><div class=code-block-meta><span class=code-language>Plain</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Plain data-lang=Plain><span class=line><span class=cl>my_dataset/
+</span></span><span class=line><span class=cl>├── images/
+</span></span><span class=line><span class=cl>│   ├── train/          # 训练集图片
+</span></span><span class=line><span class=cl>│   ├── val/            # 验证集图片
+</span></span><span class=line><span class=cl>│   └── test/           # 测试集图片（可选）
+</span></span><span class=line><span class=cl>├── labels/
+</span></span><span class=line><span class=cl>│   ├── train/          # 训练集标注
+</span></span><span class=line><span class=cl>│   ├── val/            # 验证集标注
+</span></span><span class=line><span class=cl>│   └── test/           # 测试集标注
+</span></span><span class=line><span class=cl>└── data.yaml           # 数据集配置文件</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=yolo-标注格式说明>YOLO 标注格式说明</h3><p>每个 <code>.txt</code> 标注文件格式：</p><div class=code-block-wrapper data-lang=Plain><div class=code-block-header><div class=code-block-meta><span class=code-language>Plain</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Plain data-lang=Plain><span class=line><span class=cl>&lt;class_id&gt; &lt;x_center&gt; &lt;y_center&gt; &lt;width&gt; &lt;height&gt;</span></span></code></pre></td></tr></table></div></div></div></div><ul><li>所有坐标均为<strong>归一化值</strong>（0~1）</li><li>x_center, y_center：框中心点相对于图片宽高</li><li>width, height：框的宽高相对于图片宽高</li></ul><h3 id=datayaml-配置文件>data.yaml 配置文件</h3><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># 数据集根路径（绝对或相对）</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>../datasets/my_dataset</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># 训练/验证/测试集路径（相对于path）</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>train</span><span class=p>:</span><span class=w> </span><span class=l>images/train</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>val</span><span class=p>:</span><span class=w> </span><span class=l>images/val</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>test</span><span class=p>:</span><span class=w> </span><span class=l>images/test </span><span class=w> </span><span class=c># 可选</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># 类别数量</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>nc</span><span class=p>:</span><span class=w> </span><span class=m>3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c># 类别名称</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>names</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>0</span><span class=p>:</span><span class=w> </span><span class=l>person</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>1</span><span class=p>:</span><span class=w> </span><span class=l>car</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>2</span><span class=p>:</span><span class=w> </span><span class=l>dog</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=格式转换工具>格式转换工具</h2><h3 id=voc--yolo-转换>VOC → YOLO 转换</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>xml.etree.ElementTree</span> <span class=k>as</span> <span class=nn>ET</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>voc_to_yolo</span><span class=p>(</span><span class=n>xml_path</span><span class=p>,</span> <span class=n>img_w</span><span class=p>,</span> <span class=n>img_h</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>tree</span> <span class=o>=</span> <span class=n>ET</span><span class=o>.</span><span class=n>parse</span><span class=p>(</span><span class=n>xml_path</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>root</span> <span class=o>=</span> <span class=n>tree</span><span class=o>.</span><span class=n>getroot</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>yolo_lines</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>obj</span> <span class=ow>in</span> <span class=n>root</span><span class=o>.</span><span class=n>iter</span><span class=p>(</span><span class=s1>&#39;object&#39;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>cls</span> <span class=o>=</span> <span class=n>obj</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;name&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>text</span>
+</span></span><span class=line><span class=cl>        <span class=n>xmlbox</span> <span class=o>=</span> <span class=n>obj</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;bndbox&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xmin</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>xmlbox</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;xmin&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>text</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>ymin</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>xmlbox</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;ymin&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>text</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xmax</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>xmlbox</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;xmax&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>text</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>ymax</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>xmlbox</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;ymax&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>text</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 转换为归一化坐标</span>
+</span></span><span class=line><span class=cl>        <span class=n>x_center</span> <span class=o>=</span> <span class=p>(</span><span class=n>xmin</span> <span class=o>+</span> <span class=n>xmax</span><span class=p>)</span> <span class=o>/</span> <span class=mf>2.0</span> <span class=o>/</span> <span class=n>img_w</span>
+</span></span><span class=line><span class=cl>        <span class=n>y_center</span> <span class=o>=</span> <span class=p>(</span><span class=n>ymin</span> <span class=o>+</span> <span class=n>ymax</span><span class=p>)</span> <span class=o>/</span> <span class=mf>2.0</span> <span class=o>/</span> <span class=n>img_h</span>
+</span></span><span class=line><span class=cl>        <span class=n>width</span> <span class=o>=</span> <span class=p>(</span><span class=n>xmax</span> <span class=o>-</span> <span class=n>xmin</span><span class=p>)</span> <span class=o>/</span> <span class=n>img_w</span>
+</span></span><span class=line><span class=cl>        <span class=n>height</span> <span class=o>=</span> <span class=p>(</span><span class=n>ymax</span> <span class=o>-</span> <span class=n>ymin</span><span class=p>)</span> <span class=o>/</span> <span class=n>img_h</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=n>yolo_lines</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;0 </span><span class=si>{</span><span class=n>x_center</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>y_center</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>width</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>height</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>yolo_lines</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=coco---yolo-转换>COCO -> YOLO 转换</h3><p>COCO 格式将所有标注信息存储在一个 JSON 文件中，每张图片可以有多个目标实例和类别。转换为 YOLO 格式需要将 JSON 按图片拆分为单独的 <code>.txt</code> 文件。</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>json</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>coco_to_yolo</span><span class=p>(</span><span class=n>coco_json_path</span><span class=p>,</span> <span class=n>output_dir</span><span class=p>,</span> <span class=n>images_dir</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    将 COCO JSON 标注转换为 YOLO txt 格式
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Args:
+</span></span></span><span class=line><span class=cl><span class=s2>        coco_json_path: COCO 标注 JSON 文件路径
+</span></span></span><span class=line><span class=cl><span class=s2>        output_dir: YOLO labels 输出目录
+</span></span></span><span class=line><span class=cl><span class=s2>        images_dir: 图片目录（用于校验）
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=n>coco_json_path</span><span class=p>,</span> <span class=s1>&#39;r&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>f</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>coco</span> <span class=o>=</span> <span class=n>json</span><span class=o>.</span><span class=n>load</span><span class=p>(</span><span class=n>f</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 构建类别 ID 到连续索引的映射</span>
+</span></span><span class=line><span class=cl>    <span class=c1># COCO 原始类别 ID 不连续（如 1: person, 3: car...）</span>
+</span></span><span class=line><span class=cl>    <span class=n>categories</span> <span class=o>=</span> <span class=p>{</span><span class=n>cat</span><span class=p>[</span><span class=s1>&#39;id&#39;</span><span class=p>]:</span> <span class=n>idx</span> <span class=k>for</span> <span class=n>idx</span><span class=p>,</span> <span class=n>cat</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>coco</span><span class=p>[</span><span class=s1>&#39;categories&#39;</span><span class=p>])}</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;类别映射: </span><span class=si>{</span><span class=n>categories</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 构建图片信息字典</span>
+</span></span><span class=line><span class=cl>    <span class=n>images_info</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>img</span> <span class=ow>in</span> <span class=n>coco</span><span class=p>[</span><span class=s1>&#39;images&#39;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>        <span class=n>images_info</span><span class=p>[</span><span class=n>img</span><span class=p>[</span><span class=s1>&#39;id&#39;</span><span class=p>]]</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;file_name&#39;</span><span class=p>:</span> <span class=n>img</span><span class=p>[</span><span class=s1>&#39;file_name&#39;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;width&#39;</span><span class=p>:</span> <span class=n>img</span><span class=p>[</span><span class=s1>&#39;width&#39;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;height&#39;</span><span class=p>:</span> <span class=n>img</span><span class=p>[</span><span class=s1>&#39;height&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 按 image_id 分组标注</span>
+</span></span><span class=line><span class=cl>    <span class=n>annotations_by_image</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>ann</span> <span class=ow>in</span> <span class=n>coco</span><span class=p>[</span><span class=s1>&#39;annotations&#39;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>        <span class=n>img_id</span> <span class=o>=</span> <span class=n>ann</span><span class=p>[</span><span class=s1>&#39;image_id&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>img_id</span> <span class=ow>not</span> <span class=ow>in</span> <span class=n>annotations_by_image</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>annotations_by_image</span><span class=p>[</span><span class=n>img_id</span><span class=p>]</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=n>annotations_by_image</span><span class=p>[</span><span class=n>img_id</span><span class=p>]</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>ann</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 逐图片转换为 YOLO 格式</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>img_id</span><span class=p>,</span> <span class=n>anns</span> <span class=ow>in</span> <span class=n>annotations_by_image</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=n>img_info</span> <span class=o>=</span> <span class=n>images_info</span><span class=p>[</span><span class=n>img_id</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>img_w</span><span class=p>,</span> <span class=n>img_h</span> <span class=o>=</span> <span class=n>img_info</span><span class=p>[</span><span class=s1>&#39;width&#39;</span><span class=p>],</span> <span class=n>img_info</span><span class=p>[</span><span class=s1>&#39;height&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>base_name</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>splitext</span><span class=p>(</span><span class=n>img_info</span><span class=p>[</span><span class=s1>&#39;file_name&#39;</span><span class=p>])[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>txt_path</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>output_dir</span><span class=p>,</span> <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>base_name</span><span class=si>}</span><span class=s2>.txt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=n>txt_path</span><span class=p>,</span> <span class=s1>&#39;w&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>f</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>ann</span> <span class=ow>in</span> <span class=n>anns</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>cls_id</span> <span class=o>=</span> <span class=n>categories</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>ann</span><span class=p>[</span><span class=s1>&#39;category_id&#39;</span><span class=p>],</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>cls_id</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=k>continue</span>  <span class=c1># 跳过未映射的类别</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=c1># COCO 格式: [x, y, width, height]（左上角 + 宽高）</span>
+</span></span><span class=line><span class=cl>                <span class=n>bbox</span> <span class=o>=</span> <span class=n>ann</span><span class=p>[</span><span class=s1>&#39;bbox&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>                <span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=n>h</span> <span class=o>=</span> <span class=n>bbox</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=c1># 转换为 YOLO 归一化中心点坐标</span>
+</span></span><span class=line><span class=cl>                <span class=n>x_center</span> <span class=o>=</span> <span class=p>(</span><span class=n>x</span> <span class=o>+</span> <span class=n>w</span> <span class=o>/</span> <span class=mi>2</span><span class=p>)</span> <span class=o>/</span> <span class=n>img_w</span>
+</span></span><span class=line><span class=cl>                <span class=n>y_center</span> <span class=o>=</span> <span class=p>(</span><span class=n>y</span> <span class=o>+</span> <span class=n>h</span> <span class=o>/</span> <span class=mi>2</span><span class=p>)</span> <span class=o>/</span> <span class=n>img_h</span>
+</span></span><span class=line><span class=cl>                <span class=n>width</span> <span class=o>=</span> <span class=n>w</span> <span class=o>/</span> <span class=n>img_w</span>
+</span></span><span class=line><span class=cl>                <span class=n>height</span> <span class=o>=</span> <span class=n>h</span> <span class=o>/</span> <span class=n>img_h</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=n>f</span><span class=o>.</span><span class=n>write</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>cls_id</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>x_center</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>y_center</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>width</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=s2> </span><span class=si>{</span><span class=n>height</span><span class=si>:</span><span class=s2>.6f</span><span class=si>}</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;转换完成！共处理 </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>annotations_by_image</span><span class=p>)</span><span class=si>}</span><span class=s2> 张图片&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 使用示例</span>
+</span></span><span class=line><span class=cl><span class=n>coco_to_yolo</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>coco_json_path</span><span class=o>=</span><span class=s2>&#34;annotations/instances_train2017.json&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>output_dir</span><span class=o>=</span><span class=s2>&#34;labels/train&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>images_dir</span><span class=o>=</span><span class=s2>&#34;images/train&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=数据集拆分工具>数据集拆分工具</h2><p>将图片和标注文件按比例随机拆分为训练集、验证集和测试集。</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>random</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>shutil</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.model_selection</span> <span class=kn>import</span> <span class=n>train_test_split</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>split_dataset</span><span class=p>(</span><span class=n>image_dir</span><span class=p>,</span> <span class=n>label_dir</span><span class=p>,</span> <span class=n>output_dir</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                  <span class=n>train_ratio</span><span class=o>=</span><span class=mf>0.7</span><span class=p>,</span> <span class=n>val_ratio</span><span class=o>=</span><span class=mf>0.15</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                  <span class=n>test_ratio</span><span class=o>=</span><span class=mf>0.15</span><span class=p>,</span> <span class=n>random_seed</span><span class=o>=</span><span class=mi>42</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    按比例拆分数据集
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Args:
+</span></span></span><span class=line><span class=cl><span class=s2>        image_dir: 原始图片目录
+</span></span></span><span class=line><span class=cl><span class=s2>        label_dir: 原始标注目录
+</span></span></span><span class=line><span class=cl><span class=s2>        output_dir: 输出根目录
+</span></span></span><span class=line><span class=cl><span class=s2>        train_ratio: 训练集比例
+</span></span></span><span class=line><span class=cl><span class=s2>        val_ratio: 验证集比例
+</span></span></span><span class=line><span class=cl><span class=s2>        test_ratio: 测试集比例
+</span></span></span><span class=line><span class=cl><span class=s2>        random_seed: 随机种子（保证可复现）
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>random</span><span class=o>.</span><span class=n>seed</span><span class=p>(</span><span class=n>random_seed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 获取所有图片文件</span>
+</span></span><span class=line><span class=cl>    <span class=n>images</span> <span class=o>=</span> <span class=p>[</span><span class=n>f</span> <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>os</span><span class=o>.</span><span class=n>listdir</span><span class=p>(</span><span class=n>image_dir</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>              <span class=k>if</span> <span class=n>f</span><span class=o>.</span><span class=n>lower</span><span class=p>()</span><span class=o>.</span><span class=n>endswith</span><span class=p>((</span><span class=s1>&#39;.jpg&#39;</span><span class=p>,</span> <span class=s1>&#39;.jpeg&#39;</span><span class=p>,</span> <span class=s1>&#39;.png&#39;</span><span class=p>))]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>test_ratio</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 先分出测试集，再从剩余中分验证集</span>
+</span></span><span class=line><span class=cl>        <span class=n>train_val</span><span class=p>,</span> <span class=n>test</span> <span class=o>=</span> <span class=n>train_test_split</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>images</span><span class=p>,</span> <span class=n>test_size</span><span class=o>=</span><span class=n>test_ratio</span><span class=p>,</span> <span class=n>random_state</span><span class=o>=</span><span class=n>random_seed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>val_ratio_adj</span> <span class=o>=</span> <span class=n>val_ratio</span> <span class=o>/</span> <span class=p>(</span><span class=n>train_ratio</span> <span class=o>+</span> <span class=n>val_ratio</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>train</span><span class=p>,</span> <span class=n>val</span> <span class=o>=</span> <span class=n>train_test_split</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>train_val</span><span class=p>,</span> <span class=n>test_size</span><span class=o>=</span><span class=n>val_ratio_adj</span><span class=p>,</span> <span class=n>random_state</span><span class=o>=</span><span class=n>random_seed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>train</span><span class=p>,</span> <span class=n>val</span> <span class=o>=</span> <span class=n>train_test_split</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>images</span><span class=p>,</span> <span class=n>test_size</span><span class=o>=</span><span class=n>val_ratio</span><span class=o>/</span><span class=p>(</span><span class=n>train_ratio</span><span class=o>+</span><span class=n>val_ratio</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=n>random_state</span><span class=o>=</span><span class=n>random_seed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>test</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>splits</span> <span class=o>=</span> <span class=p>{</span><span class=s1>&#39;train&#39;</span><span class=p>:</span> <span class=n>train</span><span class=p>,</span> <span class=s1>&#39;val&#39;</span><span class=p>:</span> <span class=n>val</span><span class=p>,</span> <span class=s1>&#39;test&#39;</span><span class=p>:</span> <span class=n>test</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 复制文件到对应目录</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>split_name</span><span class=p>,</span> <span class=n>split_images</span> <span class=ow>in</span> <span class=n>splits</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=n>os</span><span class=o>.</span><span class=n>makedirs</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>output_dir</span><span class=si>}</span><span class=s2>/images/</span><span class=si>{</span><span class=n>split_name</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span> <span class=n>exist_ok</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>os</span><span class=o>.</span><span class=n>makedirs</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>output_dir</span><span class=si>}</span><span class=s2>/labels/</span><span class=si>{</span><span class=n>split_name</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span> <span class=n>exist_ok</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>img_file</span> <span class=ow>in</span> <span class=n>split_images</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 复制图片</span>
+</span></span><span class=line><span class=cl>            <span class=n>shutil</span><span class=o>.</span><span class=n>copy2</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>                <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>image_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>img_file</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>output_dir</span><span class=si>}</span><span class=s2>/images/</span><span class=si>{</span><span class=n>split_name</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>img_file</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 复制对应标注文件</span>
+</span></span><span class=line><span class=cl>            <span class=n>base</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>splitext</span><span class=p>(</span><span class=n>img_file</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>            <span class=n>label_file</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>base</span><span class=si>}</span><span class=s2>.txt&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>exists</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>label_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>label_file</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=n>shutil</span><span class=o>.</span><span class=n>copy2</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>                    <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>label_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>label_file</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                    <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>output_dir</span><span class=si>}</span><span class=s2>/labels/</span><span class=si>{</span><span class=n>split_name</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>label_file</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;数据集拆分完成！&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;   训练集: </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>train</span><span class=p>)</span><span class=si>}</span><span class=s2> 张&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;   验证集: </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>val</span><span class=p>)</span><span class=si>}</span><span class=s2> 张&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;   测试集: </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>test</span><span class=p>)</span><span class=si>}</span><span class=s2> 张&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 使用示例</span>
+</span></span><span class=line><span class=cl><span class=n>split_dataset</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>image_dir</span><span class=o>=</span><span class=s2>&#34;raw_images&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>label_dir</span><span class=o>=</span><span class=s2>&#34;raw_labels&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>output_dir</span><span class=o>=</span><span class=s2>&#34;datasets/my_dataset&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>train_ratio</span><span class=o>=</span><span class=mf>0.7</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>val_ratio</span><span class=o>=</span><span class=mf>0.15</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>test_ratio</span><span class=o>=</span><span class=mf>0.15</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>random_seed</span><span class=o>=</span><span class=mi>42</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>分层抽样（Stratified Split）：</strong>
+当类别分布严重不均衡时，简单随机拆分可能导致某个子集缺少某类样本。使用分层抽样按类别比例拆分：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.model_selection</span> <span class=kn>import</span> <span class=n>StratifiedShuffleSplit</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>stratified_split</span><span class=p>(</span><span class=n>image_dir</span><span class=p>,</span> <span class=n>label_dir</span><span class=p>,</span> <span class=n>output_dir</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                     <span class=n>test_size</span><span class=o>=</span><span class=mf>0.2</span><span class=p>,</span> <span class=n>random_seed</span><span class=o>=</span><span class=mi>42</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;按类别比例分层拆分数据集&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>images</span><span class=p>,</span> <span class=n>labels</span> <span class=o>=</span> <span class=p>[],</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>os</span><span class=o>.</span><span class=n>listdir</span><span class=p>(</span><span class=n>image_dir</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>f</span><span class=o>.</span><span class=n>lower</span><span class=p>()</span><span class=o>.</span><span class=n>endswith</span><span class=p>((</span><span class=s1>&#39;.jpg&#39;</span><span class=p>,</span> <span class=s1>&#39;.jpeg&#39;</span><span class=p>,</span> <span class=s1>&#39;.png&#39;</span><span class=p>)):</span>
+</span></span><span class=line><span class=cl>            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>        <span class=n>base</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>splitext</span><span class=p>(</span><span class=n>f</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>txt_path</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>label_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>base</span><span class=si>}</span><span class=s2>.txt&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>exists</span><span class=p>(</span><span class=n>txt_path</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 读取该图片包含的类别</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=n>txt_path</span><span class=p>)</span> <span class=k>as</span> <span class=n>fh</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>classes</span> <span class=o>=</span> <span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>line</span><span class=o>.</span><span class=n>split</span><span class=p>()[</span><span class=mi>0</span><span class=p>])</span> <span class=k>for</span> <span class=n>line</span> <span class=ow>in</span> <span class=n>fh</span> <span class=k>if</span> <span class=n>line</span><span class=o>.</span><span class=n>strip</span><span class=p>()]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>classes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>images</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>f</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>labels</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>classes</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span>  <span class=c1># 用第一个类别做分层依据</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>sss</span> <span class=o>=</span> <span class=n>StratifiedShuffleSplit</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>n_splits</span><span class=o>=</span><span class=mi>1</span><span class=p>,</span> <span class=n>test_size</span><span class=o>=</span><span class=n>test_size</span><span class=p>,</span> <span class=n>random_state</span><span class=o>=</span><span class=n>random_seed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>train_idx</span><span class=p>,</span> <span class=n>val_idx</span> <span class=o>=</span> <span class=nb>next</span><span class=p>(</span><span class=n>sss</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=n>images</span><span class=p>,</span> <span class=n>labels</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>train</span> <span class=o>=</span> <span class=p>[</span><span class=n>images</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>train_idx</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>val</span> <span class=o>=</span> <span class=p>[</span><span class=n>images</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>val_idx</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 复制文件逻辑（同上 split_dataset）</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;分层拆分完成：训练集 </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>train</span><span class=p>)</span><span class=si>}</span><span class=s2> 张，验证集 </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>val</span><span class=p>)</span><span class=si>}</span><span class=s2> 张&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=类别平衡分析>类别平衡分析</h2><p>分析数据集中各类别的样本分布，检测类不平衡问题并采取解决措施。</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>matplotlib.pyplot</span> <span class=k>as</span> <span class=nn>plt</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>collections</span> <span class=kn>import</span> <span class=n>Counter</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>analyze_class_balance</span><span class=p>(</span><span class=n>label_dir</span><span class=p>,</span> <span class=n>class_names</span><span class=o>=</span><span class=kc>None</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    分析数据集类别分布
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Args:
+</span></span></span><span class=line><span class=cl><span class=s2>        label_dir: 标注文件目录
+</span></span></span><span class=line><span class=cl><span class=s2>        class_names: 类别名称列表（可选）
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Returns:
+</span></span></span><span class=line><span class=cl><span class=s2>        class_counts: 各类别实例数量（Counter 对象）
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>class_counts</span> <span class=o>=</span> <span class=n>Counter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>label_files</span> <span class=o>=</span> <span class=p>[</span><span class=n>f</span> <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>os</span><span class=o>.</span><span class=n>listdir</span><span class=p>(</span><span class=n>label_dir</span><span class=p>)</span> <span class=k>if</span> <span class=n>f</span><span class=o>.</span><span class=n>endswith</span><span class=p>(</span><span class=s1>&#39;.txt&#39;</span><span class=p>)]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>label_files</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>label_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>,</span> <span class=s1>&#39;r&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>fh</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>line</span> <span class=ow>in</span> <span class=n>fh</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>line</span><span class=o>.</span><span class=n>strip</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>                    <span class=n>cls_id</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>line</span><span class=o>.</span><span class=n>split</span><span class=p>()[</span><span class=mi>0</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>                    <span class=n>class_counts</span><span class=p>[</span><span class=n>cls_id</span><span class=p>]</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 可视化分布</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>class_names</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>class_names</span> <span class=o>=</span> <span class=p>[</span><span class=sa>f</span><span class=s2>&#34;class_</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s2>&#34;</span> <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>class_counts</span><span class=p>))]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>names</span> <span class=o>=</span> <span class=p>[</span><span class=n>class_names</span><span class=p>[</span><span class=n>cid</span><span class=p>]</span> <span class=k>for</span> <span class=n>cid</span><span class=p>,</span> <span class=n>_</span> <span class=ow>in</span> <span class=n>class_counts</span><span class=o>.</span><span class=n>most_common</span><span class=p>()]</span>
+</span></span><span class=line><span class=cl>    <span class=n>counts</span> <span class=o>=</span> <span class=p>[</span><span class=n>cnt</span> <span class=k>for</span> <span class=n>_</span><span class=p>,</span> <span class=n>cnt</span> <span class=ow>in</span> <span class=n>class_counts</span><span class=o>.</span><span class=n>most_common</span><span class=p>()]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>figure</span><span class=p>(</span><span class=n>figsize</span><span class=o>=</span><span class=p>(</span><span class=mi>10</span><span class=p>,</span> <span class=mi>5</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>bars</span> <span class=o>=</span> <span class=n>plt</span><span class=o>.</span><span class=n>bar</span><span class=p>(</span><span class=nb>range</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>names</span><span class=p>)),</span> <span class=n>counts</span><span class=p>,</span> <span class=n>color</span><span class=o>=</span><span class=s1>&#39;steelblue&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>xticks</span><span class=p>(</span><span class=nb>range</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>names</span><span class=p>)),</span> <span class=n>names</span><span class=p>,</span> <span class=n>rotation</span><span class=o>=</span><span class=mi>45</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>ylabel</span><span class=p>(</span><span class=s1>&#39;实例数量 (Instance Count)&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>title</span><span class=p>(</span><span class=s1>&#39;数据集类别分布 (Dataset Class Distribution)&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 在柱状图上标注具体数值</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>bar</span><span class=p>,</span> <span class=n>count</span> <span class=ow>in</span> <span class=nb>zip</span><span class=p>(</span><span class=n>bars</span><span class=p>,</span> <span class=n>counts</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>plt</span><span class=o>.</span><span class=n>text</span><span class=p>(</span><span class=n>bar</span><span class=o>.</span><span class=n>get_x</span><span class=p>()</span> <span class=o>+</span> <span class=n>bar</span><span class=o>.</span><span class=n>get_width</span><span class=p>()</span><span class=o>/</span><span class=mi>2</span><span class=p>,</span> <span class=n>bar</span><span class=o>.</span><span class=n>get_height</span><span class=p>()</span> <span class=o>+</span> <span class=nb>max</span><span class=p>(</span><span class=n>counts</span><span class=p>)</span><span class=o>*</span><span class=mf>0.01</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                 <span class=nb>str</span><span class=p>(</span><span class=n>count</span><span class=p>),</span> <span class=n>ha</span><span class=o>=</span><span class=s1>&#39;center&#39;</span><span class=p>,</span> <span class=n>va</span><span class=o>=</span><span class=s1>&#39;bottom&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>tight_layout</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>savefig</span><span class=p>(</span><span class=s1>&#39;class_distribution.png&#39;</span><span class=p>,</span> <span class=n>dpi</span><span class=o>=</span><span class=mi>150</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>plt</span><span class=o>.</span><span class=n>show</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>class_counts</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 使用示例</span>
+</span></span><span class=line><span class=cl><span class=n>class_names</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;person&#39;</span><span class=p>,</span> <span class=s1>&#39;car&#39;</span><span class=p>,</span> <span class=s1>&#39;dog&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=n>counts</span> <span class=o>=</span> <span class=n>analyze_class_balance</span><span class=p>(</span><span class=s1>&#39;labels/train&#39;</span><span class=p>,</span> <span class=n>class_names</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;类别分布: </span><span class=si>{</span><span class=nb>dict</span><span class=p>(</span><span class=n>counts</span><span class=p>)</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>total_instances</span> <span class=o>=</span> <span class=nb>sum</span><span class=p>(</span><span class=n>counts</span><span class=o>.</span><span class=n>values</span><span class=p>())</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;总实例数: </span><span class=si>{</span><span class=n>total_instances</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>处理类别不平衡的方法：</strong></p><table><thead><tr><th>方法</th><th>说明</th><th>适用场景</th></tr></thead><tbody><tr><td><strong>过采样</strong></td><td>复制少数类样本或做轻微数据增强</td><td>多数类样本充足</td></tr><tr><td><strong>欠采样</strong></td><td>随机丢弃多数类样本</td><td>数据集很大且多数类冗余</td></tr><tr><td><strong>类别权重</strong></td><td>在损失函数中给少数类更高权重</td><td>YOLO 中通过 <code>cls_pw</code> 参数设置</td></tr><tr><td><strong>数据增强</strong></td><td>对少数类应用更多增强变换</td><td>通用方法，推荐优先尝试</td></tr></tbody></table><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># YOLO 训练时按类别设置权重</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span><span class=s2>&#34;data.yaml&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>cls_pw</span><span class=o>=</span><span class=p>[</span><span class=mf>1.0</span><span class=p>,</span> <span class=mf>2.0</span><span class=p>,</span> <span class=mf>5.0</span><span class=p>],</span>  <span class=c1># 各类别损失权重（第三类权重最高）</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=数据增强策略>数据增强策略</h2><h3 id=内置增强ultralytics>内置增强（Ultralytics）</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span><span class=s2>&#34;data.yaml&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 基础增强</span>
+</span></span><span class=line><span class=cl>    <span class=n>hsv_h</span><span class=o>=</span><span class=mf>0.015</span><span class=p>,</span>      <span class=c1># 色调增强</span>
+</span></span><span class=line><span class=cl>    <span class=n>hsv_s</span><span class=o>=</span><span class=mf>0.7</span><span class=p>,</span>        <span class=c1># 饱和度增强</span>
+</span></span><span class=line><span class=cl>    <span class=n>hsv_v</span><span class=o>=</span><span class=mf>0.4</span><span class=p>,</span>        <span class=c1># 明度增强</span>
+</span></span><span class=line><span class=cl>    <span class=n>degrees</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>      <span class=c1># 旋转角度</span>
+</span></span><span class=line><span class=cl>    <span class=n>translate</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>    <span class=c1># 平移</span>
+</span></span><span class=line><span class=cl>    <span class=n>scale</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>        <span class=c1># 缩放</span>
+</span></span><span class=line><span class=cl>    <span class=n>shear</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>        <span class=c1># 剪切</span>
+</span></span><span class=line><span class=cl>    <span class=n>perspective</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>  <span class=c1># 透视变换</span>
+</span></span><span class=line><span class=cl>    <span class=n>flipud</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>       <span class=c1># 上下翻转概率</span>
+</span></span><span class=line><span class=cl>    <span class=n>fliplr</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>       <span class=c1># 左右翻转概率</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 高级增强</span>
+</span></span><span class=line><span class=cl>    <span class=n>mosaic</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span>       <span class=c1># Mosaic增强</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixup</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>        <span class=c1># Mixup增强</span>
+</span></span><span class=line><span class=cl>    <span class=n>copy_paste</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span>   <span class=c1># Copy-Paste增强</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=自定义增强albumentations>自定义增强（Albumentations）</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>albumentations</span> <span class=k>as</span> <span class=nn>A</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>transform</span> <span class=o>=</span> <span class=n>A</span><span class=o>.</span><span class=n>Compose</span><span class=p>([</span>
+</span></span><span class=line><span class=cl>    <span class=n>A</span><span class=o>.</span><span class=n>RandomBrightnessContrast</span><span class=p>(</span><span class=n>p</span><span class=o>=</span><span class=mf>0.5</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=n>A</span><span class=o>.</span><span class=n>GaussianBlur</span><span class=p>(</span><span class=n>p</span><span class=o>=</span><span class=mf>0.3</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=n>A</span><span class=o>.</span><span class=n>GaussNoise</span><span class=p>(</span><span class=n>p</span><span class=o>=</span><span class=mf>0.3</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=n>A</span><span class=o>.</span><span class=n>HorizontalFlip</span><span class=p>(</span><span class=n>p</span><span class=o>=</span><span class=mf>0.5</span><span class=p>),</span>
+</span></span><span class=line><span class=cl><span class=p>],</span> <span class=n>bbox_params</span><span class=o>=</span><span class=n>A</span><span class=o>.</span><span class=n>BboxParams</span><span class=p>(</span><span class=nb>format</span><span class=o>=</span><span class=s1>&#39;yolo&#39;</span><span class=p>,</span> <span class=n>label_fields</span><span class=o>=</span><span class=p>[</span><span class=s1>&#39;class_labels&#39;</span><span class=p>]))</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=mosaic-增强详解>Mosaic 增强详解</h3><p>Mosaic 增强是 YOLOv4 引入的关键技术，将 4 张图片拼接为一张大图，大幅提升模型对小目标的检测能力。</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>mosaic_augmentation</span><span class=p>(</span><span class=n>image1</span><span class=p>,</span> <span class=n>image2</span><span class=p>,</span> <span class=n>image3</span><span class=p>,</span> <span class=n>image4</span><span class=p>,</span> <span class=n>img_size</span><span class=o>=</span><span class=mi>640</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;模拟 Mosaic 增强的核心拼接逻辑&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>h</span><span class=p>,</span> <span class=n>w</span> <span class=o>=</span> <span class=n>img_size</span><span class=p>,</span> <span class=n>img_size</span>
+</span></span><span class=line><span class=cl>    <span class=n>mid_x</span> <span class=o>=</span> <span class=n>w</span> <span class=o>//</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl>    <span class=n>mid_y</span> <span class=o>=</span> <span class=n>h</span> <span class=o>//</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 将四张图缩放到相同尺寸</span>
+</span></span><span class=line><span class=cl>    <span class=n>images</span> <span class=o>=</span> <span class=p>[</span><span class=n>image1</span><span class=p>,</span> <span class=n>image2</span><span class=p>,</span> <span class=n>image3</span><span class=p>,</span> <span class=n>image4</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>resized</span> <span class=o>=</span> <span class=p>[</span><span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>img</span><span class=p>,</span> <span class=p>(</span><span class=n>w</span><span class=p>,</span> <span class=n>h</span><span class=p>))</span> <span class=k>for</span> <span class=n>img</span> <span class=ow>in</span> <span class=n>images</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 创建画布</span>
+</span></span><span class=line><span class=cl>    <span class=n>canvas</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>zeros</span><span class=p>((</span><span class=n>h</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=mi>3</span><span class=p>),</span> <span class=n>dtype</span><span class=o>=</span><span class=n>np</span><span class=o>.</span><span class=n>uint8</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 四张图分别放置于左上、右上、左下、右下</span>
+</span></span><span class=line><span class=cl>    <span class=n>canvas</span><span class=p>[:</span><span class=n>mid_y</span><span class=p>,</span> <span class=p>:</span><span class=n>mid_x</span><span class=p>]</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>resized</span><span class=p>[</span><span class=mi>0</span><span class=p>],</span> <span class=p>(</span><span class=n>mid_x</span><span class=p>,</span> <span class=n>mid_y</span><span class=p>))</span>    <span class=c1># 左上</span>
+</span></span><span class=line><span class=cl>    <span class=n>canvas</span><span class=p>[:</span><span class=n>mid_y</span><span class=p>,</span> <span class=n>mid_x</span><span class=p>:]</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>resized</span><span class=p>[</span><span class=mi>1</span><span class=p>],</span> <span class=p>(</span><span class=n>w</span><span class=o>-</span><span class=n>mid_x</span><span class=p>,</span> <span class=n>mid_y</span><span class=p>))</span>  <span class=c1># 右上</span>
+</span></span><span class=line><span class=cl>    <span class=n>canvas</span><span class=p>[</span><span class=n>mid_y</span><span class=p>:,</span> <span class=p>:</span><span class=n>mid_x</span><span class=p>]</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>resized</span><span class=p>[</span><span class=mi>2</span><span class=p>],</span> <span class=p>(</span><span class=n>mid_x</span><span class=p>,</span> <span class=n>h</span><span class=o>-</span><span class=n>mid_y</span><span class=p>))</span>  <span class=c1># 左下</span>
+</span></span><span class=line><span class=cl>    <span class=n>canvas</span><span class=p>[</span><span class=n>mid_y</span><span class=p>:,</span> <span class=n>mid_x</span><span class=p>:]</span> <span class=o>=</span> <span class=n>cv2</span><span class=o>.</span><span class=n>resize</span><span class=p>(</span><span class=n>resized</span><span class=p>[</span><span class=mi>3</span><span class=p>],</span> <span class=p>(</span><span class=n>w</span><span class=o>-</span><span class=n>mid_x</span><span class=p>,</span> <span class=n>h</span><span class=o>-</span><span class=n>mid_y</span><span class=p>))</span>  <span class=c1># 右下</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 实际实现中拼接点是随机选择的，每轮训练不同</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>canvas</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>内部原理：</strong></p><ol><li>每次训练迭代随机选取 4 张图片</li><li>随机选择拼接中心点（而非固定图片中心）</li><li>四张图片按中心点拼接为一张大图</li><li>所有边界框坐标重新计算为相对拼接图的坐标</li><li>超出拼接图边界的框被裁剪或丢弃</li></ol><p><strong>效果：</strong> 每张训练图包含 4 张图的内容，BN 层统计量更丰富，小目标上下文多样性增强。</p><h3 id=mixup-增强详解>Mixup 增强详解</h3><p>Mixup 来自图像分类领域，后被引入目标检测。核心思想是将两张图片按比例混合叠加。</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>mixup_augmentation</span><span class=p>(</span><span class=n>image1</span><span class=p>,</span> <span class=n>image2</span><span class=p>,</span> <span class=n>alpha</span><span class=o>=</span><span class=mf>0.5</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;模拟 Mixup 增强的核心混合逻辑&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Mixup 系数从 Beta 分布采样</span>
+</span></span><span class=line><span class=cl>    <span class=n>lam</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>beta</span><span class=p>(</span><span class=n>alpha</span><span class=p>,</span> <span class=n>alpha</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 两张图按比例叠加</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixed</span> <span class=o>=</span> <span class=n>lam</span> <span class=o>*</span> <span class=n>image1</span> <span class=o>+</span> <span class=p>(</span><span class=mi>1</span> <span class=o>-</span> <span class=n>lam</span><span class=p>)</span> <span class=o>*</span> <span class=n>image2</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 边界框的处理：两张图的框都保留</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 但分别带有权重 lam 和 (1-lam) 的损失贡献</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>mixed</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>uint8</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>内部原理：</strong></p><ol><li>从当前批次中随机选取两张图及其标注</li><li>从 Beta(alpha, alpha) 分布采样混合系数 lam（通常 alpha=0.5~1.0）</li><li>像素级叠加：<code>mixed_img = lam * img1 + (1-lam) * img2</code></li><li>两张图的边界框<strong>都保留</strong>，分别以 lam 和 1-lam 的权重参与损失计算</li><li>标签平滑效果：模型看到的是混合图像，隐式正则化防止过拟合</li></ol><p><strong>注意：</strong> Mixup 会略微降低训练速度（需处理双倍框），但能有效减少过拟合。</p><h3 id=copy-paste-增强详解>Copy-Paste 增强详解</h3><p>Copy-Paste 增强将一张图片中的目标对象直接复制粘贴到另一张图片上，可显著增加目标实例数量和背景多样性。</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>cv2</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>copy_paste_augmentation</span><span class=p>(</span><span class=n>source_img</span><span class=p>,</span> <span class=n>target_img</span><span class=p>,</span> <span class=n>source_bbox</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;模拟 Copy-Paste 增强的核心粘贴逻辑&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>x1</span><span class=p>,</span> <span class=n>y1</span><span class=p>,</span> <span class=n>x2</span><span class=p>,</span> <span class=n>y2</span> <span class=o>=</span> <span class=nb>map</span><span class=p>(</span><span class=nb>int</span><span class=p>,</span> <span class=n>source_bbox</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>obj</span> <span class=o>=</span> <span class=n>source_img</span><span class=p>[</span><span class=n>y1</span><span class=p>:</span><span class=n>y2</span><span class=p>,</span> <span class=n>x1</span><span class=p>:</span><span class=n>x2</span><span class=p>]</span><span class=o>.</span><span class=n>copy</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 随机选择粘贴位置</span>
+</span></span><span class=line><span class=cl>    <span class=n>h</span><span class=p>,</span> <span class=n>w</span> <span class=o>=</span> <span class=n>target_img</span><span class=o>.</span><span class=n>shape</span><span class=p>[:</span><span class=mi>2</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>obj_h</span><span class=p>,</span> <span class=n>obj_w</span> <span class=o>=</span> <span class=n>obj</span><span class=o>.</span><span class=n>shape</span><span class=p>[:</span><span class=mi>2</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>paste_x</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>randint</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>w</span> <span class=o>-</span> <span class=n>obj_w</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>paste_y</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>randint</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>h</span> <span class=o>-</span> <span class=n>obj_h</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 叠加到目标图</span>
+</span></span><span class=line><span class=cl>    <span class=n>target_img</span><span class=p>[</span><span class=n>paste_y</span><span class=p>:</span><span class=n>paste_y</span><span class=o>+</span><span class=n>obj_h</span><span class=p>,</span> <span class=n>paste_x</span><span class=p>:</span><span class=n>paste_x</span><span class=o>+</span><span class=n>obj_w</span><span class=p>]</span> <span class=o>=</span> <span class=n>obj</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 新边界框</span>
+</span></span><span class=line><span class=cl>    <span class=n>new_bbox</span> <span class=o>=</span> <span class=p>[</span><span class=n>paste_x</span><span class=p>,</span> <span class=n>paste_y</span><span class=p>,</span> <span class=n>paste_x</span><span class=o>+</span><span class=n>obj_w</span><span class=p>,</span> <span class=n>paste_y</span><span class=o>+</span><span class=n>obj_h</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>target_img</span><span class=p>,</span> <span class=n>new_bbox</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>内部原理：</strong></p><ol><li>从数据集中随机选取两张图：源图（提供目标）和目标图</li><li>从源图中随机选择一个目标实例</li><li>有分割掩码则用掩码提取精确轮廓；否则用矩形框裁剪</li><li>对目标做小幅缩放和旋转变换</li><li>粘贴到目标图上，可能随机缩放/翻转后再粘贴</li><li>若粘贴位置与其他框重叠，可选择跳过或用透明度混合</li></ol><p><strong>适用场景：</strong> 小目标检测、罕见类别增强。注意不要过度使用以免背景信息丢失。</p><p><strong>增强参数配置参考：</strong></p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Mosaic 参数</span>
+</span></span><span class=line><span class=cl>    <span class=n>mosaic</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span>           <span class=c1># 1.0 = 每张训练图都做 Mosaic</span>
+</span></span><span class=line><span class=cl>    <span class=n>mosaic_center</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>    <span class=c1># 拼接中心点随机范围</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Mixup 参数</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixup</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>            <span class=c1># Mixup 应用概率</span>
+</span></span><span class=line><span class=cl>    <span class=n>mixup_alpha</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>      <span class=c1># Beta 分布 alpha 参数</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Copy-Paste 参数</span>
+</span></span><span class=line><span class=cl>    <span class=n>copy_paste</span><span class=o>=</span><span class=mf>0.1</span><span class=p>,</span>       <span class=c1># Copy-Paste 应用概率</span>
+</span></span><span class=line><span class=cl>    <span class=n>paste_in</span><span class=o>=</span><span class=mf>0.15</span><span class=p>,</span>        <span class=c1># 将目标粘贴到背景上的概率</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=数据质量检查清单>数据质量检查清单</h2><p>在训练前仔细检查数据集质量，避免浪费训练时间。</p><p><strong>1. 标注一致性</strong></p><ul><li>同类目标的框大小和比例是否一致？</li><li>是否所有目标都标注了（没有遗漏）？</li><li>类别名称拼写和大小写是否一致？</li></ul><p><strong>2. 标注边界检查</strong></p><ul><li>坐标是否在 0~1 范围内（YOLO 归一化格式）？</li><li>是否有宽度或高度为 0 的无效框？</li><li>框是否超出图片边界？少量超出可接受，过多则说明标注有误</li></ul><p><strong>3. 图片质量</strong></p><ul><li>是否存在破损或无法打开的图片文件？</li><li>图片通道数是否一致（全部 RGB）？</li><li>图片分辨率差异是否过大？建议长边不超过 1920</li></ul><p><strong>4. 类别检查</strong></p><ul><li><code>data.yaml</code> 中的类别数量 <code>nc</code> 是否与实际标注文件匹配？</li><li>所有 <code>.txt</code> 文件中的 class_id 是否在 <code>0 ~ nc-1</code> 范围？</li><li>是否存在空标注文件（对应背景图）？是否合理？</li></ul><p><strong>5. 数据集平衡</strong></p><ul><li>各类别实例数量是否严重不均衡？</li><li>训练/验证/测试集的类别分布是否一致？</li></ul><p><strong>6. 自动化检查脚本</strong></p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>validate_dataset</span><span class=p>(</span><span class=n>image_dir</span><span class=p>,</span> <span class=n>label_dir</span><span class=p>,</span> <span class=n>num_classes</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;数据集质量自动检查&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>issues</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>os</span><span class=o>.</span><span class=n>listdir</span><span class=p>(</span><span class=n>label_dir</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>f</span><span class=o>.</span><span class=n>endswith</span><span class=p>(</span><span class=s1>&#39;.txt&#39;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>filepath</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>label_dir</span><span class=p>,</span> <span class=n>f</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=n>filepath</span><span class=p>,</span> <span class=s1>&#39;r&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>fh</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>line_num</span><span class=p>,</span> <span class=n>line</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>fh</span><span class=p>,</span> <span class=mi>1</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=n>parts</span> <span class=o>=</span> <span class=n>line</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span><span class=o>.</span><span class=n>split</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>parts</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>5</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>issues</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>line_num</span><span class=si>}</span><span class=s2> 格式错误——需要 5 个字段，实际 </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>parts</span><span class=p>)</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=k>continue</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=n>cls_id</span><span class=p>,</span> <span class=n>xc</span><span class=p>,</span> <span class=n>yc</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=n>h</span> <span class=o>=</span> <span class=n>parts</span>
+</span></span><span class=line><span class=cl>                <span class=n>cls_id</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>cls_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=n>xc</span><span class=p>,</span> <span class=n>yc</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=n>h</span> <span class=o>=</span> <span class=nb>map</span><span class=p>(</span><span class=nb>float</span><span class=p>,</span> <span class=p>[</span><span class=n>xc</span><span class=p>,</span> <span class=n>yc</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=n>h</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>cls_id</span> <span class=o>&lt;</span> <span class=mi>0</span> <span class=ow>or</span> <span class=n>cls_id</span> <span class=o>&gt;=</span> <span class=n>num_classes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>issues</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>line_num</span><span class=si>}</span><span class=s2> class_id </span><span class=si>{</span><span class=n>cls_id</span><span class=si>}</span><span class=s2> 超出范围 0~</span><span class=si>{</span><span class=n>num_classes</span><span class=o>-</span><span class=mi>1</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>w</span> <span class=o>&lt;=</span> <span class=mi>0</span> <span class=ow>or</span> <span class=n>h</span> <span class=o>&lt;=</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>issues</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>line_num</span><span class=si>}</span><span class=s2> 框尺寸无效: w=</span><span class=si>{</span><span class=n>w</span><span class=si>}</span><span class=s2>, h=</span><span class=si>{</span><span class=n>h</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>xc</span> <span class=o>&lt;</span> <span class=mi>0</span> <span class=ow>or</span> <span class=n>xc</span> <span class=o>&gt;</span> <span class=mi>1</span> <span class=ow>or</span> <span class=n>yc</span> <span class=o>&lt;</span> <span class=mi>0</span> <span class=ow>or</span> <span class=n>yc</span> <span class=o>&gt;</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>issues</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=n>line_num</span><span class=si>}</span><span class=s2> 中心坐标越界: xc=</span><span class=si>{</span><span class=n>xc</span><span class=si>}</span><span class=s2>, yc=</span><span class=si>{</span><span class=n>yc</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 检查对应的图片是否存在</span>
+</span></span><span class=line><span class=cl>        <span class=n>base</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>splitext</span><span class=p>(</span><span class=n>f</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>img_exists</span> <span class=o>=</span> <span class=nb>any</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>exists</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>image_dir</span><span class=si>}</span><span class=s2>/</span><span class=si>{</span><span class=n>base</span><span class=si>}{</span><span class=n>ext</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>for</span> <span class=n>ext</span> <span class=ow>in</span> <span class=p>[</span><span class=s1>&#39;.jpg&#39;</span><span class=p>,</span> <span class=s1>&#39;.jpeg&#39;</span><span class=p>,</span> <span class=s1>&#39;.png&#39;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>img_exists</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>issues</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>f</span><span class=si>}</span><span class=s2> 对应的图片不存在&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>issues</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;发现以下问题：&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>issue</span> <span class=ow>in</span> <span class=n>issues</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;  - </span><span class=si>{</span><span class=n>issue</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;数据集检查通过！&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>len</span><span class=p>(</span><span class=n>issues</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 使用示例</span>
+</span></span><span class=line><span class=cl><span class=n>validate_dataset</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>image_dir</span><span class=o>=</span><span class=s1>&#39;datasets/my_dataset/images/train&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>label_dir</span><span class=o>=</span><span class=s1>&#39;datasets/my_dataset/labels/train&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>num_classes</span><span class=o>=</span><span class=mi>3</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>所属系列:</span>
+<a href=/series/yolo-%E4%BB%8E%E9%9B%B6%E5%88%B0%E7%B2%BE%E9%80%9A/>YOLO 从零到精通</a></div><div class=series-nav__links><a href=/posts/aihelper/yolo-quick-start/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>上一篇</span>
+<span class=series-nav__title>YOLO 快速实战：模型加载与推理</span>
+</a><a href=/posts/aihelper/yolo-model-training/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>下一篇</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>YOLO 模型训练：自定义数据集完整流程</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/yolo/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+YOLO
+</a><a class=tag-chip href=/tags/%E6%95%B0%E6%8D%AE%E9%9B%86/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+数据集
+</a><a class=tag-chip href=/tags/%E6%95%B0%E6%8D%AE%E6%A0%87%E6%B3%A8/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+数据标注
+</a><a class=tag-chip href=/tags/%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%BC%BA/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+数据增强</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>

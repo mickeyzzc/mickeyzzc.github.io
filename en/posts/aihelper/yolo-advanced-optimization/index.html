@@ -1,0 +1,721 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - YOLO Advanced Optimization: Lightweight, Quantization and Accuracy</title><meta name=description content="Advanced YOLO optimization techniques: model size selection, knowledge distillation, INT8/TensorRT quantization, multi-scale training, class imbalance handling, and version optimization comparison."><meta name=keywords content="YOLO,,optimization,,knowledge,distillation,,quantization,,TensorRT,,model,pruning"><link rel=canonical href=/en/posts/aihelper/yolo-advanced-optimization/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - YOLO Advanced Optimization: Lightweight, Quantization and Accuracy"><meta property="og:description" content="Advanced YOLO optimization techniques: model size selection, knowledge distillation, INT8/TensorRT quantization, multi-scale training, class imbalance handling, and version optimization comparison."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/posts/aihelper/yolo-advanced-optimization/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-17 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-05-17 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - YOLO Advanced Optimization: Lightweight, Quantization and Accuracy"><meta name=twitter:description content="Advanced YOLO optimization techniques: model size selection, knowledge distillation, INT8/TensorRT quantization, multi-scale training, class imbalance handling, and version optimization comparison."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/aihelper/yolo-advanced-optimization/><link rel=alternate hreflang=en href=/en/posts/aihelper/yolo-advanced-optimization/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/series/>Series</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/posts/aihelper/yolo-advanced-optimization/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#model-lightweighting-strategies>Model Lightweighting Strategies</a><ul><li><a href=#model-size-selection>Model Size Selection</a></li><li><a href=#knowledge-distillation>Knowledge Distillation</a></li><li><a href=#model-pruning>Model Pruning</a><ul><li><a href=#structured-vs-unstructured-pruning>Structured vs Unstructured Pruning</a></li><li><a href=#torch-prune-channel-pruning-example>Torch Prune Channel Pruning Example</a></li><li><a href=#pruning-ratio-guidelines>Pruning Ratio Guidelines</a></li></ul></li></ul></li><li><a href=#model-pruning-and-quantization>Model Pruning and Quantization</a><ul><li><a href=#export-time-quantization>Export Time Quantization</a></li><li><a href=#tensorrt-int8-calibration-step-by-step>TensorRT INT8 Calibration Step-by-Step</a><ul><li><a href=#calibration-dataset-preparation>Calibration Dataset Preparation</a></li><li><a href=#int8-vs-fp16-vs-fp32-comparison>INT8 vs FP16 vs FP32 Comparison</a></li><li><a href=#calibration-algorithm-selection>Calibration Algorithm Selection</a></li><li><a href=#latency-vs-accuracy-tradeoff>Latency vs Accuracy Tradeoff</a></li></ul></li><li><a href=#onnx-quantization-detailed-guide>ONNX Quantization Detailed Guide</a><ul><li><a href=#dynamic-vs-static-quantization>Dynamic vs Static Quantization</a></li><li><a href=#qdq-quantize-dequantize-nodes>QDQ (Quantize-Dequantize) Nodes</a></li><li><a href=#onnx-runtime-quantization-tools>ONNX Runtime Quantization Tools</a></li><li><a href=#per-tensor-vs-per-channel-quantization>Per-Tensor vs Per-Channel Quantization</a></li></ul></li><li><a href=#ncnn-mobile-optimization>NCNN Mobile Optimization</a><ul><li><a href=#what-is-ncnn>What is NCNN</a></li><li><a href=#vulkan-gpu-acceleration>Vulkan GPU Acceleration</a></li><li><a href=#fp16-storage>FP16 Storage</a></li><li><a href=#operator-fusion-in-ncnn>Operator Fusion in NCNN</a></li><li><a href=#arm-cpu-optimization-assembly-kernels>ARM CPU Optimization (Assembly Kernels)</a></li></ul></li></ul></li><li><a href=#accuracy-improvement-techniques>Accuracy Improvement Techniques</a><ul><li><a href=#multi-scale-training-and-testing>Multi-scale Training and Testing</a></li><li><a href=#class-imbalance-handling>Class Imbalance Handling</a><ul><li><a href=#method-1-loss-weight-adjustment>Method 1: Loss Weight Adjustment</a></li><li><a href=#method-2-focal-loss-integration>Method 2: Focal Loss Integration</a></li><li><a href=#method-3-automated-class-weight-computation>Method 3: Automated Class Weight Computation</a></li><li><a href=#method-4-resampling-strategy>Method 4: Resampling Strategy</a></li><li><a href=#method-comparison>Method Comparison</a></li></ul></li></ul></li><li><a href=#ablation-study-methodology>Ablation Study Methodology</a><ul><li><a href=#what-is-an-ablation-study>What is an Ablation Study</a></li><li><a href=#ablation-study-design-principles>Ablation Study Design Principles</a></li><li><a href=#yolo-optimization-ablation-results>YOLO Optimization Ablation Results</a></li><li><a href=#how-to-interpret-ablation-results>How to Interpret Ablation Results</a></li></ul></li><li><a href=#profiling-and-benchmarking>Profiling and Benchmarking</a><ul><li><a href=#key-performance-metrics>Key Performance Metrics</a></li><li><a href=#latency-measurement-warmup--multiple-runs>Latency Measurement: Warmup + Multiple Runs</a></li><li><a href=#throughput-measurement>Throughput Measurement</a></li><li><a href=#using-torch-profiler>Using Torch Profiler</a></li><li><a href=#onnx-runtime-profiling>ONNX Runtime Profiling</a></li><li><a href=#nvidia-nsight-systems-analysis>NVIDIA Nsight Systems Analysis</a></li><li><a href=#deployment-benchmark-comparison>Deployment Benchmark Comparison</a></li></ul></li><li><a href=#version-optimization-strategy-comparison>Version Optimization Strategy Comparison</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-md"><span>yolo</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-sm"><span>architecture</span>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/camera/ class="tag-cloud__item tag-size-xs"><span>camera</span>
+</a><a href=/en/tags/smart-home/ class="tag-cloud__item tag-size-xs"><span>smart home</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>YOLO Advanced Optimization: Lightweight, Quantization and Accuracy</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-17T00:00:00+00:00>May 17, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/ai-tools/>AI Tools</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/yolo/>YOLO</a>, <a href=/en/tags/model-optimization/>Model Optimization</a>, <a href=/en/tags/knowledge-distillation/>Knowledge Distillation</a>, <a href=/en/tags/model-quantization/>Model Quantization</a>, <a href=/en/tags/edge-deployment/>Edge Deployment</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/en/series/yolo-from-zero-to-mastery/>YOLO From Zero to Mastery</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2335 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>11 min read</span></span></div></header><div class=Content><h2 id=model-lightweighting-strategies>Model Lightweighting Strategies</h2><h3 id=model-size-selection>Model Size Selection</h3><table><thead><tr><th>Model</th><th>Parameters (M)</th><th>mAP</th><th>CPU Inference</th><th>Use Cases</th></tr></thead><tbody><tr><td>YOLO26n</td><td>2.8</td><td>38.9</td><td><strong>Fastest</strong></td><td>Edge devices, Embedded</td></tr><tr><td>YOLO26s</td><td>9.4</td><td>48.2</td><td>Very fast</td><td>Mobile, Web</td></tr><tr><td>YOLO26m</td><td>21.8</td><td>53.1</td><td>Medium</td><td>Server, High performance</td></tr><tr><td>YOLO11n</td><td>2.6</td><td>39.6</td><td>Fast</td><td>Lightweight deployment</td></tr><tr><td>YOLOv8n</td><td>3.2</td><td>37.3</td><td>Baseline</td><td>General purpose</td></tr></tbody></table><h3 id=knowledge-distillation>Knowledge Distillation</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Large model as teacher, small model as student</span>
+</span></span><span class=line><span class=cl><span class=n>teacher</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26x.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>student</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.yaml&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Distillation training (Ultralytics built-in support)</span>
+</span></span><span class=line><span class=cl><span class=n>student</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span><span class=s2>&#34;data.yaml&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>distill</span><span class=o>=</span><span class=s2>&#34;yolo26x.pt&#34;</span><span class=p>,</span>  <span class=c1># Teacher model</span>
+</span></span><span class=line><span class=cl>    <span class=n>distill_ratio</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>     <span class=c1># Distillation loss ratio</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=model-pruning>Model Pruning</h3><h4 id=structured-vs-unstructured-pruning>Structured vs Unstructured Pruning</h4><table><thead><tr><th>Type</th><th>Method</th><th>Sparsity Pattern</th><th>Hardware Acceleration</th><th>Compression Ratio</th></tr></thead><tbody><tr><td>Unstructured</td><td>Weight pruning</td><td>Random sparse</td><td>Difficult (special HW needed)</td><td>High</td></tr><tr><td>Structured</td><td>Channel pruning</td><td>Regular sparse</td><td>Native acceleration</td><td>Medium</td></tr></tbody></table><h4 id=torch-prune-channel-pruning-example>Torch Prune Channel Pruning Example</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>torch</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>torch.nn.utils.prune</span> <span class=k>as</span> <span class=nn>prune</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># L1 unstructured pruning on conv layers</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>name</span><span class=p>,</span> <span class=n>module</span> <span class=ow>in</span> <span class=n>model</span><span class=o>.</span><span class=n>model</span><span class=o>.</span><span class=n>named_modules</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>module</span><span class=p>,</span> <span class=n>torch</span><span class=o>.</span><span class=n>nn</span><span class=o>.</span><span class=n>Conv2d</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>prune</span><span class=o>.</span><span class=n>l1_unstructured</span><span class=p>(</span><span class=n>module</span><span class=p>,</span> <span class=n>name</span><span class=o>=</span><span class=s2>&#34;weight&#34;</span><span class=p>,</span> <span class=n>amount</span><span class=o>=</span><span class=mf>0.3</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>prune</span><span class=o>.</span><span class=n>remove</span><span class=p>(</span><span class=n>module</span><span class=p>,</span> <span class=s2>&#34;weight&#34;</span><span class=p>)</span>  <span class=c1># Make pruning permanent</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Channel pruning with torch-pruning library</span>
+</span></span><span class=line><span class=cl><span class=c1># pip install torch-pruning</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>torch_pruning</span> <span class=k>as</span> <span class=nn>tp</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>model</span>
+</span></span><span class=line><span class=cl><span class=n>DG</span> <span class=o>=</span> <span class=n>tp</span><span class=o>.</span><span class=n>DependencyGraph</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>DG</span><span class=o>.</span><span class=n>build_dependency</span><span class=p>(</span><span class=n>model</span><span class=p>,</span> <span class=n>example_inputs</span><span class=o>=</span><span class=n>torch</span><span class=o>.</span><span class=n>randn</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>3</span><span class=p>,</span> <span class=mi>640</span><span class=p>,</span> <span class=mi>640</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Prune 20% channels by L1 norm</span>
+</span></span><span class=line><span class=cl><span class=n>pruning_plan</span> <span class=o>=</span> <span class=n>DG</span><span class=o>.</span><span class=n>get_pruning_plan</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>model</span><span class=o>.</span><span class=n>model</span><span class=p>[</span><span class=mi>4</span><span class=p>],</span> <span class=n>tp</span><span class=o>.</span><span class=n>prune_conv</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>pruning_dim</span><span class=o>=</span><span class=mi>0</span><span class=p>,</span>  <span class=c1># Output channel dimension</span>
+</span></span><span class=line><span class=cl>    <span class=n>idxs</span><span class=o>=</span><span class=nb>list</span><span class=p>(</span><span class=nb>range</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>64</span><span class=p>,</span> <span class=mi>5</span><span class=p>))</span>  <span class=c1># Keep every 5th channel</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>pruning_plan</span><span class=o>.</span><span class=n>exec</span><span class=p>()</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=pruning-ratio-guidelines>Pruning Ratio Guidelines</h4><table><thead><tr><th>Model</th><th>Safe Ratio</th><th>Aggressive Ratio</th><th>mAP Drop</th></tr></thead><tbody><tr><td>YOLO26n</td><td>≤20%</td><td>20-40%</td><td>&lt;1% / 2-5%</td></tr><tr><td>YOLO26s</td><td>≤30%</td><td>30-50%</td><td>&lt;1% / 3-6%</td></tr><tr><td>YOLO26m</td><td>≤40%</td><td>40-60%</td><td>&lt;1% / 3-8%</td></tr><tr><td>YOLOv8n</td><td>≤20%</td><td>20-35%</td><td>&lt;1% / 2-4%</td></tr></tbody></table><h2 id=model-pruning-and-quantization>Model Pruning and Quantization</h2><h3 id=export-time-quantization>Export Time Quantization</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>YOLO</span><span class=p>(</span><span class=s2>&#34;yolo26n.pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># INT8 quantization (requires calibration data)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=nb>format</span><span class=o>=</span><span class=s2>&#34;engine&#34;</span><span class=p>,</span>      <span class=c1># TensorRT</span>
+</span></span><span class=line><span class=cl>    <span class=n>int8</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span><span class=s2>&#34;data.yaml&#34;</span><span class=p>,</span>     <span class=c1># Calibration dataset</span>
+</span></span><span class=line><span class=cl>    <span class=n>batch</span><span class=o>=</span><span class=mi>8</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ONNX dynamic quantization</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>export</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=nb>format</span><span class=o>=</span><span class=s2>&#34;onnx&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>dynamic</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>simplify</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=tensorrt-int8-calibration-step-by-step>TensorRT INT8 Calibration Step-by-Step</h3><h4 id=calibration-dataset-preparation>Calibration Dataset Preparation</h4><p>INT8 quantization requires representative calibration data to determine activation value ranges:</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>tensorrt</span> <span class=k>as</span> <span class=nn>trt</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>ctypes</span> <span class=kn>import</span> <span class=n>c_size_t</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>YOLOCalibrator</span><span class=p>(</span><span class=n>trt</span><span class=o>.</span><span class=n>IInt8EntropyCalibrator2</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data_loader</span><span class=p>,</span> <span class=n>cache_file</span><span class=o>=</span><span class=s2>&#34;calibration.cache&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>trt</span><span class=o>.</span><span class=n>IInt8EntropyCalibrator2</span><span class=o>.</span><span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>data_loader</span> <span class=o>=</span> <span class=n>data_loader</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>cache_file</span> <span class=o>=</span> <span class=n>cache_file</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>buffer_size</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_batch_size</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=mi>8</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_batch</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>names</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>batch</span> <span class=o>=</span> <span class=nb>next</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>data_loader</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>batch</span> <span class=o>=</span> <span class=n>batch</span><span class=o>.</span><span class=n>cpu</span><span class=p>()</span><span class=o>.</span><span class=n>numpy</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=p>[</span><span class=n>batch</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>float32</span><span class=p>)</span><span class=o>.</span><span class=n>ctypes</span><span class=o>.</span><span class=n>data_as</span><span class=p>(</span><span class=n>c_size_t</span><span class=p>)]</span>
+</span></span><span class=line><span class=cl>        <span class=k>except</span> <span class=ne>StopIteration</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>None</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=int8-vs-fp16-vs-fp32-comparison>INT8 vs FP16 vs FP32 Comparison</h4><table><thead><tr><th>Precision</th><th>Storage Size</th><th>Inference Speed (GPU)</th><th>mAP Loss</th><th>Use Cases</th></tr></thead><tbody><tr><td>FP32</td><td>100% (baseline)</td><td>1×</td><td>0%</td><td>Training, accuracy-first</td></tr><tr><td>FP16</td><td>50%</td><td>1.5-2×</td><td>&lt;0.5%</td><td>General inference</td></tr><tr><td>INT8</td><td>25%</td><td>2-4×</td><td>1-3%</td><td>Edge deployment, real-time</td></tr></tbody></table><h4 id=calibration-algorithm-selection>Calibration Algorithm Selection</h4><p>TensorRT provides two calibration algorithms:</p><ul><li><strong>Entropy (IInt8EntropyCalibrator2)</strong>: Based on KL divergence, minimizes information loss before and after quantization. Recommended for most vision models including YOLO.</li><li><strong>Min-Max (IInt8MinMaxCalibrator)</strong>: Based on absolute value range, simple and fast but sensitive to outliers. Suitable for models with symmetric weight distribution.</li></ul><p>Best practice: Use Entropy calibrator + 500-1000 calibration images, batch size=8-16, covering various scenarios.</p><h4 id=latency-vs-accuracy-tradeoff>Latency vs Accuracy Tradeoff</h4><table><thead><tr><th>Calibration Set Size</th><th>INT8 mAP</th><th>FP16 mAP</th><th>Latency (ms)</th><th>Speedup</th></tr></thead><tbody><tr><td>100 images</td><td>51.2</td><td>52.8</td><td>3.2</td><td>3.1×</td></tr><tr><td>500 images</td><td>52.1</td><td>52.8</td><td>3.2</td><td>3.1×</td></tr><tr><td>1000 images</td><td>52.5</td><td>52.8</td><td>3.2</td><td>3.1×</td></tr><tr><td>2000 images</td><td>52.7</td><td>52.8</td><td>3.2</td><td>3.1×</td></tr></tbody></table><h3 id=onnx-quantization-detailed-guide>ONNX Quantization Detailed Guide</h3><h4 id=dynamic-vs-static-quantization>Dynamic vs Static Quantization</h4><table><thead><tr><th>Method</th><th>Calibration Data</th><th>Weight Precision</th><th>Activation Precision</th><th>Speedup</th><th>Use Cases</th></tr></thead><tbody><tr><td>Dynamic</td><td>Not required</td><td>INT8</td><td>FP32 (dynamic compute)</td><td>1.5-2×</td><td>CPU, NLP models</td></tr><tr><td>Static</td><td>Required</td><td>INT8</td><td>INT8</td><td>2-3×</td><td>CPU, Vision models</td></tr></tbody></table><h4 id=qdq-quantize-dequantize-nodes>QDQ (Quantize-Dequantize) Nodes</h4><p>ONNX static quantization inserts QDQ nodes in the computation graph to simulate quantization effects:</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Input → QuantizeLinear → Conv → DequantizeLinear → ... → Output
+</span></span><span class=line><span class=cl>          scale, zp                scale, zp</span></span></code></pre></td></tr></table></div></div></div></div><p>ONNX Runtime automatically fuses QDQ nodes into efficient INT8 kernels during inference.</p><h4 id=onnx-runtime-quantization-tools>ONNX Runtime Quantization Tools</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>onnxruntime.quantization</span> <span class=kn>import</span> <span class=n>quantize_dynamic</span><span class=p>,</span> <span class=n>quantize_static</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>onnxruntime.quantization</span> <span class=kn>import</span> <span class=n>CalibrationMethod</span><span class=p>,</span> <span class=n>QuantType</span><span class=p>,</span> <span class=n>QuantFormat</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Dynamic quantization (no calibration data needed)</span>
+</span></span><span class=line><span class=cl><span class=n>quantize_dynamic</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;yolo26n.onnx&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;yolo26n_dynamic.onnx&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>weight_type</span><span class=o>=</span><span class=n>QuantType</span><span class=o>.</span><span class=n>QInt8</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Static quantization (requires calibration data)</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>YOLOCalibDataReader</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>image_paths</span><span class=p>,</span> <span class=n>batch_size</span><span class=o>=</span><span class=mi>8</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>images</span> <span class=o>=</span> <span class=p>[</span><span class=bp>self</span><span class=o>.</span><span class=n>preprocess</span><span class=p>(</span><span class=n>img</span><span class=p>)</span> <span class=k>for</span> <span class=n>img</span> <span class=ow>in</span> <span class=n>image_paths</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>batch_size</span> <span class=o>=</span> <span class=n>batch_size</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>index</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_next</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>index</span> <span class=o>&gt;=</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>        <span class=n>batch</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=p>[</span><span class=bp>self</span><span class=o>.</span><span class=n>index</span><span class=p>:</span><span class=bp>self</span><span class=o>.</span><span class=n>index</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>batch_size</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>index</span> <span class=o>+=</span> <span class=bp>self</span><span class=o>.</span><span class=n>batch_size</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>{</span><span class=s2>&#34;images&#34;</span><span class=p>:</span> <span class=n>np</span><span class=o>.</span><span class=n>stack</span><span class=p>(</span><span class=n>batch</span><span class=p>)}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>quantize_static</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;yolo26n.onnx&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;yolo26n_static.onnx&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>calibration_data_reader</span><span class=o>=</span><span class=n>YOLOCalibDataReader</span><span class=p>(</span><span class=n>calibration_images</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=n>quant_format</span><span class=o>=</span><span class=n>QuantFormat</span><span class=o>.</span><span class=n>QDQ</span><span class=p>,</span>  <span class=c1># QDQ format, supports more optimizations</span>
+</span></span><span class=line><span class=cl>    <span class=n>per_channel</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>              <span class=c1># Per-channel gives higher accuracy</span>
+</span></span><span class=line><span class=cl>    <span class=n>activation_type</span><span class=o>=</span><span class=n>QuantType</span><span class=o>.</span><span class=n>QInt8</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>weight_type</span><span class=o>=</span><span class=n>QuantType</span><span class=o>.</span><span class=n>QInt8</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>calibrate_method</span><span class=o>=</span><span class=n>CalibrationMethod</span><span class=o>.</span><span class=n>Entropy</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=per-tensor-vs-per-channel-quantization>Per-Tensor vs Per-Channel Quantization</h4><table><thead><tr><th>Method</th><th>Granularity</th><th>Accuracy</th><th>Compute Overhead</th><th>Recommended For</th></tr></thead><tbody><tr><td>Per-Tensor</td><td>One scale per weight tensor</td><td>Lower</td><td>None</td><td>Small models, quick deployment</td></tr><tr><td>Per-Channel</td><td>One scale per output channel</td><td>Higher</td><td>Slight</td><td>Accuracy-sensitive, YOLO detection models</td></tr></tbody></table><p>For YOLO models, <strong>per-channel quantization is strongly recommended</strong> due to high channel variability in the detection head.</p><h3 id=ncnn-mobile-optimization>NCNN Mobile Optimization</h3><h4 id=what-is-ncnn>What is NCNN</h4><p>NCNN is Tencent&rsquo;s mobile neural network inference framework, optimized for mobile CPU/Vulkan. Compared to TensorRT (NVIDIA GPU only) and ONNX Runtime (cross-platform), NCNN has significant performance advantages on ARM CPUs and Adreno GPUs.</p><h4 id=vulkan-gpu-acceleration>Vulkan GPU Acceleration</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Convert ONNX to NCNN format</span>
+</span></span><span class=line><span class=cl>onnx2ncnn yolo26n.onnx yolo26n.param yolo26n.bin
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Use Vulkan GPU for accelerated inference</span>
+</span></span><span class=line><span class=cl>ncnnoptimize yolo26n.param yolo26n.bin yolo26n_opt.param yolo26n_opt.bin <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=c1># Last parameter: 0=CPU, 1=Vulkan</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=fp16-storage>FP16 Storage</h4><p>NCNN uses FP16 weight storage by default, reducing model size by 50%:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># FP16 storage mode</span>
+</span></span><span class=line><span class=cl>ncnn2table --param<span class=o>=</span>yolo26n.param --bin<span class=o>=</span>yolo26n.bin <span class=se>\
+</span></span></span><span class=line><span class=cl>    --input<span class=o>=</span>calibration_images --output<span class=o>=</span>table.bfp32 <span class=se>\
+</span></span></span><span class=line><span class=cl>    --mean<span class=o>=</span>0,0,0 --norm<span class=o>=</span>255,255,255 --size<span class=o>=</span>640,640
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>ncnn2int8 yolo26n.param yolo26n.bin yolo26n_int8.param <span class=se>\
+</span></span></span><span class=line><span class=cl>    yolo26n_int8.bin table.bfp32</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=operator-fusion-in-ncnn>Operator Fusion in NCNN</h4><p>NCNN automatically performs the following operator fusion optimizations:</p><ul><li>Conv + BN + ReLU → ConvReLU</li><li>Conv + BN → Conv</li><li>Conv + ReLU → ConvReLU</li><li>Adjacent 1×1 Conv merging</li></ul><p>No manual intervention needed — <code>ncnnoptimize</code> handles it automatically.</p><h4 id=arm-cpu-optimization-assembly-kernels>ARM CPU Optimization (Assembly Kernels)</h4><p>NCNN provides deeply optimized assembly kernels for ARM CPUs:</p><table><thead><tr><th>CPU Architecture</th><th>Instruction Set</th><th>Speedup</th><th>Target Devices</th></tr></thead><tbody><tr><td>ARMv7</td><td>NEON</td><td>2-3×</td><td>Older phones</td></tr><tr><td>ARMv8</td><td>NEON</td><td>3-4×</td><td>Mainstream Android</td></tr><tr><td>ARMv8.2</td><td>SVE</td><td>4-6×</td><td>Flagship phones, Apple M series</td></tr><tr><td>ARMv9</td><td>SVE2</td><td>5-8×</td><td>Latest flagships</td></tr></tbody></table><div class=code-block-wrapper data-lang=cpp><div class=code-block-header><div class=code-block-meta><span class=code-language>cpp</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=c1>// C++ integration example
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;net.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>ncnn</span><span class=o>::</span><span class=n>Net</span> <span class=n>yolo</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>yolo</span><span class=p>.</span><span class=n>load_param</span><span class=p>(</span><span class=s>&#34;yolo26n_opt.param&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=n>yolo</span><span class=p>.</span><span class=n>load_model</span><span class=p>(</span><span class=s>&#34;yolo26n_opt.bin&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>ncnn</span><span class=o>::</span><span class=n>Mat</span> <span class=n>in</span> <span class=o>=</span> <span class=n>ncnn</span><span class=o>::</span><span class=n>Mat</span><span class=o>::</span><span class=n>from_pixels_resize</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>image_data</span><span class=p>,</span> <span class=n>ncnn</span><span class=o>::</span><span class=n>Mat</span><span class=o>::</span><span class=n>PIXEL_BGR</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>    <span class=n>w</span><span class=p>,</span> <span class=n>h</span><span class=p>,</span> <span class=mi>640</span><span class=p>,</span> <span class=mi>640</span>
+</span></span><span class=line><span class=cl><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>ncnn</span><span class=o>::</span><span class=n>Extractor</span> <span class=n>ex</span> <span class=o>=</span> <span class=n>yolo</span><span class=p>.</span><span class=n>create_extractor</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=n>ex</span><span class=p>.</span><span class=n>input</span><span class=p>(</span><span class=s>&#34;images&#34;</span><span class=p>,</span> <span class=n>in</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=n>ncnn</span><span class=o>::</span><span class=n>Mat</span> <span class=n>out</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>ex</span><span class=p>.</span><span class=n>extract</span><span class=p>(</span><span class=s>&#34;output&#34;</span><span class=p>,</span> <span class=n>out</span><span class=p>);</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=accuracy-improvement-techniques>Accuracy Improvement Techniques</h2><h3 id=multi-scale-training-and-testing>Multi-scale Training and Testing</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Multi-scale during training</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>imgsz</span><span class=o>=</span><span class=mi>640</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>multi_scale</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>  <span class=c1># Auto vary ±50% range</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Multi-scale enhancement during inference</span>
+</span></span><span class=line><span class=cl><span class=n>results</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;test.jpg&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>imgsz</span><span class=o>=</span><span class=p>[</span><span class=mi>640</span><span class=p>,</span> <span class=mi>800</span><span class=p>,</span> <span class=mi>1024</span><span class=p>],</span>  <span class=c1># Multi-scale fusion</span>
+</span></span><span class=line><span class=cl>    <span class=n>augment</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>            <span class=c1># TTA augmentation during testing</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=class-imbalance-handling>Class Imbalance Handling</h3><h4 id=method-1-loss-weight-adjustment>Method 1: Loss Weight Adjustment</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>box</span><span class=o>=</span><span class=mf>7.5</span><span class=p>,</span>    <span class=c1># Box regression weight</span>
+</span></span><span class=line><span class=cl>    <span class=bp>cls</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span>    <span class=c1># Classification weight (reduce for minority classes)</span>
+</span></span><span class=line><span class=cl>    <span class=n>dfl</span><span class=o>=</span><span class=mf>1.5</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=method-2-focal-loss-integration>Method 2: Focal Loss Integration</h4><p>YOLO uses BCE loss by default. For extreme class imbalance, replace it with Focal Loss:</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>torch.nn.functional</span> <span class=k>as</span> <span class=nn>F</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>FocalLoss</span><span class=p>(</span><span class=n>torch</span><span class=o>.</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>alpha</span><span class=o>=</span><span class=mf>0.25</span><span class=p>,</span> <span class=n>gamma</span><span class=o>=</span><span class=mf>2.0</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>alpha</span> <span class=o>=</span> <span class=n>alpha</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>gamma</span> <span class=o>=</span> <span class=n>gamma</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>pred</span><span class=p>,</span> <span class=n>target</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>ce_loss</span> <span class=o>=</span> <span class=n>F</span><span class=o>.</span><span class=n>binary_cross_entropy_with_logits</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>pred</span><span class=p>,</span> <span class=n>target</span><span class=p>,</span> <span class=n>reduction</span><span class=o>=</span><span class=s2>&#34;none&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>pt</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span><span class=o>-</span><span class=n>ce_loss</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>focal_loss</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>alpha</span> <span class=o>*</span> <span class=p>(</span><span class=mi>1</span> <span class=o>-</span> <span class=n>pt</span><span class=p>)</span> <span class=o>**</span> <span class=bp>self</span><span class=o>.</span><span class=n>gamma</span> <span class=o>*</span> <span class=n>ce_loss</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>focal_loss</span><span class=o>.</span><span class=n>mean</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Replace loss function in training callback</span>
+</span></span><span class=line><span class=cl><span class=c1># Ultralytics custom loss: inherit DetectionLoss and override bcecls</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=method-3-automated-class-weight-computation>Method 3: Automated Class Weight Computation</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>compute_class_weights</span><span class=p>(</span><span class=n>labels_path</span><span class=p>,</span> <span class=n>num_classes</span><span class=o>=</span><span class=mi>80</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;Compute class weights based on annotation frequency&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>class_counts</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>zeros</span><span class=p>(</span><span class=n>num_classes</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Count bounding boxes per class</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>label_file</span> <span class=ow>in</span> <span class=n>labels_path</span><span class=o>.</span><span class=n>glob</span><span class=p>(</span><span class=s2>&#34;*.txt&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>boxes</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>loadtxt</span><span class=p>(</span><span class=n>label_file</span><span class=p>)</span>  <span class=c1># [class_id, x, y, w, h]</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>boxes</span><span class=o>.</span><span class=n>ndim</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>boxes</span> <span class=o>=</span> <span class=n>boxes</span><span class=o>.</span><span class=n>reshape</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>classes</span> <span class=o>=</span> <span class=n>boxes</span><span class=p>[:,</span> <span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=nb>int</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>c</span> <span class=ow>in</span> <span class=n>classes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>class_counts</span><span class=p>[</span><span class=n>c</span><span class=p>]</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Median Frequency Balancing</span>
+</span></span><span class=line><span class=cl>    <span class=n>median_freq</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>median</span><span class=p>(</span><span class=n>class_counts</span><span class=p>[</span><span class=n>class_counts</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=n>class_weights</span> <span class=o>=</span> <span class=n>median_freq</span> <span class=o>/</span> <span class=p>(</span><span class=n>class_counts</span> <span class=o>+</span> <span class=mf>1e-6</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>class_weights</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>clip</span><span class=p>(</span><span class=n>class_weights</span><span class=p>,</span> <span class=mf>0.1</span><span class=p>,</span> <span class=mf>10.0</span><span class=p>)</span>  <span class=c1># Clamp range</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>class_weights</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># weights = compute_class_weights(&#34;datasets/coco/labels/train/&#34;)</span>
+</span></span><span class=line><span class=cl><span class=c1># Pass weights into loss function</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=method-4-resampling-strategy>Method 4: Resampling Strategy</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Resampling: set sampling weights in data.yaml</span>
+</span></span><span class=line><span class=cl><span class=c1># Or use torch&#39;s WeightedRandomSampler</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>torch.utils.data</span> <span class=kn>import</span> <span class=n>WeightedRandomSampler</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>collections</span> <span class=kn>import</span> <span class=n>Counter</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>create_balanced_sampler</span><span class=p>(</span><span class=n>labels_path</span><span class=p>,</span> <span class=n>num_classes</span><span class=o>=</span><span class=mi>80</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>class_counts</span> <span class=o>=</span> <span class=n>Counter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>label_file</span> <span class=ow>in</span> <span class=n>labels_path</span><span class=o>.</span><span class=n>glob</span><span class=p>(</span><span class=s2>&#34;*.txt&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>boxes</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>loadtxt</span><span class=p>(</span><span class=n>label_file</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>boxes</span><span class=o>.</span><span class=n>ndim</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>boxes</span> <span class=o>=</span> <span class=n>boxes</span><span class=o>.</span><span class=n>reshape</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>c</span> <span class=ow>in</span> <span class=n>boxes</span><span class=p>[:,</span> <span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>astype</span><span class=p>(</span><span class=nb>int</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>class_counts</span><span class=p>[</span><span class=n>c</span><span class=p>]</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Sample weight = 1 / class frequency</span>
+</span></span><span class=line><span class=cl>    <span class=n>weights</span> <span class=o>=</span> <span class=p>[</span><span class=mf>1.0</span> <span class=o>/</span> <span class=n>class_counts</span><span class=p>[</span><span class=n>c</span><span class=p>]</span> <span class=k>for</span> <span class=n>c</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>num_classes</span><span class=p>)]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Per-image weight = average weight of all its annotation classes</span>
+</span></span><span class=line><span class=cl>    <span class=n>sample_weights</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>label_file</span> <span class=ow>in</span> <span class=n>labels_path</span><span class=o>.</span><span class=n>glob</span><span class=p>(</span><span class=s2>&#34;*.txt&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>boxes</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>loadtxt</span><span class=p>(</span><span class=n>label_file</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>boxes</span><span class=o>.</span><span class=n>ndim</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>sample_weights</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=mf>1.0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>elif</span> <span class=n>boxes</span><span class=o>.</span><span class=n>ndim</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>sample_weights</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>weights</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>boxes</span><span class=p>[</span><span class=mi>0</span><span class=p>])])</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>sample_weights</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>                <span class=p>[</span><span class=n>weights</span><span class=p>[</span><span class=nb>int</span><span class=p>(</span><span class=n>c</span><span class=p>)]</span> <span class=k>for</span> <span class=n>c</span> <span class=ow>in</span> <span class=n>boxes</span><span class=p>[:,</span> <span class=mi>0</span><span class=p>]]</span>
+</span></span><span class=line><span class=cl>            <span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>WeightedRandomSampler</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>sample_weights</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>sample_weights</span><span class=p>),</span> <span class=n>replacement</span><span class=o>=</span><span class=kc>True</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=method-comparison>Method Comparison</h4><table><thead><tr><th>Method</th><th>Implementation Difficulty</th><th>Training Stability</th><th>Effect</th><th>Recommended Scenario</th></tr></thead><tbody><tr><td>Loss Weight Adjustment</td><td>★☆☆☆☆</td><td>Stable</td><td>Fair</td><td>Mild imbalance</td></tr><tr><td>Focal Loss</td><td>★★★☆☆</td><td>Needs tuning</td><td>Excellent</td><td>Extreme imbalance</td></tr><tr><td>Class Weighting</td><td>★★☆☆☆</td><td>Relatively stable</td><td>Good</td><td>Long-tail distribution</td></tr><tr><td>Resampling</td><td>★★☆☆☆</td><td>Risk of overfitting</td><td>Good</td><td>Abundant data</td></tr></tbody></table><h2 id=ablation-study-methodology>Ablation Study Methodology</h2><h3 id=what-is-an-ablation-study>What is an Ablation Study</h3><p>An ablation study systematically removes a component or feature from the model to observe its impact on final performance. In YOLO optimization, ablation studies help answer:</p><ul><li>Is a particular optimization module truly effective?</li><li>Do different optimizations have positive/negative interactions?</li><li>What is the marginal gain of each module?</li></ul><h3 id=ablation-study-design-principles>Ablation Study Design Principles</h3><ol><li><strong>Single-variable principle</strong>: Remove only one optimization at a time, keep everything else constant</li><li><strong>Reproducible baseline</strong>: All experiments start from the same baseline model</li><li><strong>Controlled variables</strong>: Keep training hyperparameters, data augmentation, and seeds consistent</li><li><strong>Quantified metrics</strong>: Report at least mAP, latency, and model size dimensions</li></ol><h3 id=yolo-optimization-ablation-results>YOLO Optimization Ablation Results</h3><table><thead><tr><th>Optimization Combo</th><th>mAP@50</th><th>mAP@50:95</th><th>Params (M)</th><th>Latency (ms)</th><th>Model Size (MB)</th></tr></thead><tbody><tr><td>Baseline</td><td>52.8</td><td>38.9</td><td>2.8</td><td>4.2</td><td>5.6</td></tr><tr><td>+ KD</td><td>54.1 (+1.3)</td><td>40.5 (+1.6)</td><td>2.8</td><td>4.2</td><td>5.6</td></tr><tr><td>+ INT8</td><td>52.5 (-0.3)</td><td>38.2 (-0.7)</td><td>2.8</td><td><strong>1.5</strong> (2.8×)</td><td><strong>1.6</strong></td></tr><tr><td>+ Multi-scale</td><td>53.4 (+0.6)</td><td>39.8 (+0.9)</td><td>2.8</td><td>4.3</td><td>5.6</td></tr><tr><td>+ TTA</td><td>54.6 (+1.8)</td><td>41.2 (+2.3)</td><td>2.8</td><td>12.6 (3×)</td><td>5.6</td></tr><tr><td>+ Pruning</td><td>52.2 (-0.6)</td><td>38.0 (-0.9)</td><td><strong>1.9</strong></td><td>3.4 (1.2×)</td><td>4.0</td></tr><tr><td><strong>All Combined</strong></td><td><strong>56.3 (+3.5)</strong></td><td><strong>42.8 (+3.9)</strong></td><td><strong>1.9</strong></td><td><strong>1.5</strong> (2.8×)</td><td><strong>1.6</strong></td></tr></tbody></table><h3 id=how-to-interpret-ablation-results>How to Interpret Ablation Results</h3><ol><li><strong>Positive-gain components</strong>: Knowledge distillation (+1.3 mAP) and multi-scale training (+0.6 mAP) are clear accuracy boosters</li><li><strong>Acceleration components</strong>: INT8 quantization has a slight mAP drop (-0.3) but reduces latency by 2.8×, making it essential for deployment</li><li><strong>Tradeoff components</strong>: TTA gives the biggest improvement (+1.8 mAP) but increases latency 3×, suitable for accuracy-first scenarios</li><li><strong>Combination effects</strong>: All combined gives +3.5 mAP (more than the sum of individual components), indicating positive interaction between KD, quantization, and multi-scale</li><li><strong>Diminishing returns</strong>: After stacking 4+ optimizations, each new component&rsquo;s marginal gain decreases</li></ol><h2 id=profiling-and-benchmarking>Profiling and Benchmarking</h2><h3 id=key-performance-metrics>Key Performance Metrics</h3><table><thead><tr><th>Metric</th><th>Unit</th><th>Description</th><th>Measurement Method</th></tr></thead><tbody><tr><td>Latency</td><td>ms</td><td>Single image inference time</td><td>Warmup + average 100 runs</td></tr><tr><td>Throughput</td><td>FPS</td><td>Images processed per second</td><td>Batch inference</td></tr><tr><td>Memory Usage</td><td>MB</td><td>GPU/CPU peak memory</td><td>nvidia-smi / psutil</td></tr><tr><td>Compute</td><td>GFLOPs</td><td>Floating point operations</td><td>thop / ptflops</td></tr><tr><td>Model Size</td><td>MB</td><td>Disk storage usage</td><td>os.path.getsize</td></tr></tbody></table><h3 id=latency-measurement-warmup--multiple-runs>Latency Measurement: Warmup + Multiple Runs</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>torch</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>benchmark_latency</span><span class=p>(</span><span class=n>model</span><span class=p>,</span> <span class=n>input_tensor</span><span class=p>,</span> <span class=n>num_warmup</span><span class=o>=</span><span class=mi>50</span><span class=p>,</span> <span class=n>num_runs</span><span class=o>=</span><span class=mi>200</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Warmup</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>num_warmup</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>_</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=n>input_tensor</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Formal measurement</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>torch</span><span class=o>.</span><span class=n>cuda</span><span class=o>.</span><span class=n>is_available</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=n>torch</span><span class=o>.</span><span class=n>cuda</span><span class=o>.</span><span class=n>synchronize</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>timings</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>num_runs</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>start</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>_</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=n>input_tensor</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>torch</span><span class=o>.</span><span class=n>cuda</span><span class=o>.</span><span class=n>is_available</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>            <span class=n>torch</span><span class=o>.</span><span class=n>cuda</span><span class=o>.</span><span class=n>synchronize</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>timings</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span> <span class=o>-</span> <span class=n>start</span><span class=p>)</span> <span class=o>*</span> <span class=mi>1000</span><span class=p>)</span>  <span class=c1># ms</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;mean&#34;</span><span class=p>:</span> <span class=n>np</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=n>timings</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;std&#34;</span><span class=p>:</span> <span class=n>np</span><span class=o>.</span><span class=n>std</span><span class=p>(</span><span class=n>timings</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;p50&#34;</span><span class=p>:</span> <span class=n>np</span><span class=o>.</span><span class=n>percentile</span><span class=p>(</span><span class=n>timings</span><span class=p>,</span> <span class=mi>50</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;p95&#34;</span><span class=p>:</span> <span class=n>np</span><span class=o>.</span><span class=n>percentile</span><span class=p>(</span><span class=n>timings</span><span class=p>,</span> <span class=mi>95</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;p99&#34;</span><span class=p>:</span> <span class=n>np</span><span class=o>.</span><span class=n>percentile</span><span class=p>(</span><span class=n>timings</span><span class=p>,</span> <span class=mi>99</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=throughput-measurement>Throughput Measurement</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>benchmark_throughput</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>model</span><span class=p>,</span> <span class=n>batch_size</span><span class=o>=</span><span class=mi>32</span><span class=p>,</span> <span class=n>input_size</span><span class=o>=</span><span class=p>(</span><span class=mi>3</span><span class=p>,</span> <span class=mi>640</span><span class=p>,</span> <span class=mi>640</span><span class=p>),</span> <span class=n>num_batches</span><span class=o>=</span><span class=mi>100</span>
+</span></span><span class=line><span class=cl><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>dummy_input</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>randn</span><span class=p>(</span><span class=n>batch_size</span><span class=p>,</span> <span class=o>*</span><span class=n>input_size</span><span class=p>)</span><span class=o>.</span><span class=n>cuda</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Warmup</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>10</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>_</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=n>dummy_input</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>torch</span><span class=o>.</span><span class=n>cuda</span><span class=o>.</span><span class=n>synchronize</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>start</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>num_batches</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>_</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=n>dummy_input</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>torch</span><span class=o>.</span><span class=n>cuda</span><span class=o>.</span><span class=n>synchronize</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>total_time</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>perf_counter</span><span class=p>()</span> <span class=o>-</span> <span class=n>start</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>total_images</span> <span class=o>=</span> <span class=n>batch_size</span> <span class=o>*</span> <span class=n>num_batches</span>
+</span></span><span class=line><span class=cl>    <span class=n>throughput</span> <span class=o>=</span> <span class=n>total_images</span> <span class=o>/</span> <span class=n>total_time</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;throughput&#34;</span><span class=p>:</span> <span class=n>throughput</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;total_time&#34;</span><span class=p>:</span> <span class=n>total_time</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;batch_size&#34;</span><span class=p>:</span> <span class=n>batch_size</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=using-torch-profiler>Using Torch Profiler</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>torch.profiler</span> <span class=kn>import</span> <span class=n>profile</span><span class=p>,</span> <span class=n>record_function</span><span class=p>,</span> <span class=n>ProfilerActivity</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>with</span> <span class=n>profile</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>activities</span><span class=o>=</span><span class=p>[</span><span class=n>ProfilerActivity</span><span class=o>.</span><span class=n>CPU</span><span class=p>,</span> <span class=n>ProfilerActivity</span><span class=o>.</span><span class=n>CUDA</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=n>record_shapes</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>profile_memory</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>with_stack</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>)</span> <span class=k>as</span> <span class=n>prof</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=n>record_function</span><span class=p>(</span><span class=s2>&#34;model_inference&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>output</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=n>input_tensor</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Print time ranking</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>prof</span><span class=o>.</span><span class=n>key_averages</span><span class=p>()</span><span class=o>.</span><span class=n>table</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>sort_by</span><span class=o>=</span><span class=s2>&#34;cuda_time_total&#34;</span><span class=p>,</span> <span class=n>row_limit</span><span class=o>=</span><span class=mi>20</span>
+</span></span><span class=line><span class=cl><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Export for Chrome Trace visualization</span>
+</span></span><span class=line><span class=cl><span class=n>prof</span><span class=o>.</span><span class=n>export_chrome_trace</span><span class=p>(</span><span class=s2>&#34;trace.json&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1># View in chrome://tracing/</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=onnx-runtime-profiling>ONNX Runtime Profiling</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>onnxruntime</span> <span class=k>as</span> <span class=nn>ort</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Enable session profiling</span>
+</span></span><span class=line><span class=cl><span class=n>sess_options</span> <span class=o>=</span> <span class=n>ort</span><span class=o>.</span><span class=n>SessionOptions</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>sess_options</span><span class=o>.</span><span class=n>enable_profiling</span> <span class=o>=</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl><span class=n>sess</span> <span class=o>=</span> <span class=n>ort</span><span class=o>.</span><span class=n>InferenceSession</span><span class=p>(</span><span class=s2>&#34;yolo26n.onnx&#34;</span><span class=p>,</span> <span class=n>sess_options</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Run inference</span>
+</span></span><span class=line><span class=cl><span class=n>outputs</span> <span class=o>=</span> <span class=n>sess</span><span class=o>.</span><span class=n>run</span><span class=p>(</span><span class=kc>None</span><span class=p>,</span> <span class=p>{</span><span class=s2>&#34;images&#34;</span><span class=p>:</span> <span class=n>np_input</span><span class=p>})</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Get profiling data</span>
+</span></span><span class=line><span class=cl><span class=n>prof_file</span> <span class=o>=</span> <span class=n>sess</span><span class=o>.</span><span class=n>end_profiling</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=c1># Outputs profiling_*.json file, viewable in chrome://tracing/</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=nvidia-nsight-systems-analysis>NVIDIA Nsight Systems Analysis</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Install: https://developer.nvidia.com/nsight-systems</span>
+</span></span><span class=line><span class=cl><span class=c1># Command-line profiling</span>
+</span></span><span class=line><span class=cl>nsys profile -o yolo_profile -t cuda,nvtx python inference.py
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Visualize results</span>
+</span></span><span class=line><span class=cl><span class=c1># Open yolo_profile.qdrep in Nsight Systems GUI</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=deployment-benchmark-comparison>Deployment Benchmark Comparison</h3><table><thead><tr><th>Solution</th><th>Latency (ms)</th><th>Throughput (FPS)</th><th>Memory (MB)</th><th>Model Size (MB)</th><th>Setup Difficulty</th></tr></thead><tbody><tr><td>PyTorch (FP32)</td><td>4.2</td><td>238</td><td>850</td><td>5.6</td><td>Easiest</td></tr><tr><td>ONNX (FP32)</td><td>3.1</td><td>322</td><td>620</td><td>5.5</td><td>Easy</td></tr><tr><td>ONNX (INT8)</td><td>2.0</td><td>500</td><td>480</td><td>1.5</td><td>Medium</td></tr><tr><td>TensorRT (FP16)</td><td>2.5</td><td>400</td><td>420</td><td>2.8</td><td>Medium</td></tr><tr><td>TensorRT (INT8)</td><td>1.5</td><td>666</td><td>380</td><td>1.6</td><td>Harder</td></tr><tr><td>NCNN (FP16)</td><td>8.5 (CPU)</td><td>117</td><td>320</td><td>2.8</td><td>Medium</td></tr><tr><td>NCNN (INT8)</td><td>6.0 (CPU)</td><td>166</td><td>280</td><td>1.0</td><td>Harder</td></tr></tbody></table><h2 id=version-optimization-strategy-comparison>Version Optimization Strategy Comparison</h2><table><thead><tr><th>Optimization Direction</th><th>YOLOv8</th><th>YOLO11</th><th>YOLO26</th></tr></thead><tbody><tr><td>Architecture Optimization</td><td>C2f</td><td>C2f optimized</td><td>Brand new simplified architecture</td></tr><tr><td>Training Optimization</td><td>SGD</td><td>SGD</td><td><strong>MuSGD</strong></td></tr><tr><td>Loss Function</td><td>DFL+CIoU</td><td>DFL+CIoU</td><td><strong>ProgLoss+STAL</strong></td></tr><tr><td>Deployment Friendliness</td><td>Good</td><td>Good</td><td><strong>Best (no NMS)</strong></td></tr><tr><td>CPU Optimization</td><td>Baseline</td><td>+25%</td><td><strong>+43%</strong></td></tr></tbody></table></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>Part of series:</span>
+<a href=/en/series/yolo-from-zero-to-mastery/>YOLO From Zero to Mastery</a></div><div class=series-nav__links><a href=/en/posts/aihelper/yolo-model-training/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>Previous</span>
+<span class=series-nav__title>YOLO Model Training: Complete Custom Dataset Workflow</span>
+</a><a href=/en/posts/aihelper/yolo-deployment/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>Next</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>YOLO Deployment: Model Export and Multi-Platform Deployment</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/yolo/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+YOLO
+</a><a class=tag-chip href=/en/tags/model-optimization/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Model Optimization
+</a><a class=tag-chip href=/en/tags/knowledge-distillation/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Knowledge Distillation
+</a><a class=tag-chip href=/en/tags/model-quantization/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Model Quantization
+</a><a class=tag-chip href=/en/tags/edge-deployment/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Edge Deployment</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>
