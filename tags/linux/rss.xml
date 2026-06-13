@@ -1,4 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linux on Mi&amp;Bee Blog</title><link>/tags/linux/</link><description>Recent content in Linux on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Sat, 13 Jun 2026 00:00:00 +0000</lastBuildDate><atom:link href="/tags/linux/rss.xml" rel="self" type="application/rss+xml"/><item><title>eBPF 可观测性入门：从 OOM Killer 监控开始</title><link>/posts/telemetry/ebpf-oom-intro/</link><pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate><guid>/posts/telemetry/ebpf-oom-intro/</guid><description>&lt;p&gt;eBPF（Extended Berkeley Packet Filter）最初是网络包过滤工具，经过近十年发展，已经成为 Linux 内核最强大的可观测性框架。它允许你在不修改内核源码、不加载内核模块的前提下，安全地注入并执行自定义程序。&lt;/p&gt;</description></item><item><title>用 eBPF + Go 构建 OOM Killer 事件追踪器</title><link>/posts/telemetry/ebpf-oom-tracer-cgo/</link><pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate><guid>/posts/telemetry/ebpf-oom-tracer-cgo/</guid><description>&lt;p&gt;bpftrace 适合快速探查和临时调试，但如果要构建持续运行的生产级监控工具，就需要完整的 eBPF 程序了。典型的架构分两层：&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linux on Mi&amp;Bee Blog</title><link>/tags/linux/</link><description>Recent content in Linux on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Sat, 13 Jun 2026 00:00:00 +0000</lastBuildDate><atom:link href="/tags/linux/rss.xml" rel="self" type="application/rss+xml"/><item><title>eBPF 可观测性入门：从 OOM Killer 监控开始</title><link>/posts/telemetry/ebpf-oom-intro/</link><pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate><guid>/posts/telemetry/ebpf-oom-intro/</guid><description>&lt;p&gt;eBPF（Extended Berkeley Packet Filter）最初是网络包过滤工具，经过近十年发展，已经成为 Linux 内核最强大的可观测性框架。它允许你在不修改内核源码、不加载内核模块的前提下，安全地注入并执行自定义程序。&lt;/p&gt;</description></item><item><title>监控采集点点记录</title><link>/posts/telemetry/monitor-experience/</link><pubDate>Mon, 20 Feb 2017 00:00:00 +0000</pubDate><guid>/posts/telemetry/monitor-experience/</guid><description>&lt;h2 id="mysql的监控"&gt;MYSQL的监控&lt;/h2&gt;
+&lt;h3 id="mysql权限经验原则"&gt;MySQL权限经验原则&lt;/h3&gt;
+&lt;p&gt;权限控制主要是出于安全因素，因此需要遵循一下几个经验原则：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;只授予能满足需要的最小权限，防止用户干坏事。比如用户只是需要查询，那就只给select权限就可以了，不要给用户赋予update、insert或者delete权限。&lt;/li&gt;
+&lt;li&gt;创建用户的时候限制用户的登录主机，一般是限制成指定IP或者内网IP段。&lt;/li&gt;
+&lt;li&gt;初始化数据库的时候删除没有密码的用户。安装完数据库的时候会自动创建一些用户，这些用户默认没有密码。&lt;/li&gt;
+&lt;li&gt;为每个用户设置满足密码复杂度的密码。&lt;/li&gt;
+&lt;li&gt;定期清理不需要的用户。回收权限或者删除用户。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;eg:&lt;/p&gt;</description></item><item><title>用 eBPF + Go 构建 OOM Killer 事件追踪器</title><link>/posts/telemetry/ebpf-oom-tracer-cgo/</link><pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate><guid>/posts/telemetry/ebpf-oom-tracer-cgo/</guid><description>&lt;p&gt;bpftrace 适合快速探查和临时调试，但如果要构建持续运行的生产级监控工具，就需要完整的 eBPF 程序了。典型的架构分两层：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;内核态&lt;/strong&gt;：用 C 编写 eBPF 程序，挂载到 hook 点，采集事件数据&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;用户态&lt;/strong&gt;：用 Go（或 Rust / libbpf C）编写 loader，加载 eBPF 程序并读取事件&lt;/li&gt;
@@ -13,14 +23,4 @@
 我们日常工作用到的Linux系统 内核也采用了时分系统的思想,主要体现在以下几个方面:&lt;/p&gt;</description></item><item><title>Linux高可用与负载均衡实战——从Keepalived到性能调优</title><link>/archives/04-keepalived-and-haproxy/</link><pubDate>Tue, 19 Jun 2018 00:00:00 +0000</pubDate><guid>/archives/04-keepalived-and-haproxy/</guid><description>&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
 &lt;p&gt;在现代企业级应用架构中，高可用性和负载均衡是确保系统稳定运行的关键技术。本文将详细介绍如何通过Keepalived实现双机热备，使用HAProxy构建内网服务负载均衡，以及解决网络性能问题中的网卡软中断优化。通过实际案例和详细配置说明，帮助读者理解这些技术的核心原理和实战应用。&lt;/p&gt;</description></item><item><title>Bash高级编程技巧——用生产者消费者模式处理消息队列积压</title><link>/archives/08-bash-dev-query/</link><pubDate>Wed, 05 Jul 2017 00:00:00 +0000</pubDate><guid>/archives/08-bash-dev-query/</guid><description>&lt;h2 id="前言"&gt;前言&lt;/h2&gt;
 &lt;p&gt;在消息系统运维中，队列积压是一个常见且棘手的问题。特别是在遭遇恶意攻击或系统异常时，投递队列可能会出现大量消息积压，严重影响系统的正常运转。传统的单进程处理方式不仅效率低下，还可能因为处理不及时导致问题进一步恶化。&lt;/p&gt;</description></item><item><title>ARM的点点滴滴记录</title><link>/archives/arm-board-note/</link><pubDate>Mon, 27 Feb 2017 00:00:00 +0000</pubDate><guid>/archives/arm-board-note/</guid><description>&lt;h2 id="raspberry-pi"&gt;Raspberry Pi&lt;/h2&gt;
-&lt;p&gt;当初为了搭个docker集群环境折腾了树莓派，主要是看它价格便宜又省电。买了3个树莓派2代，大概花了600多块，当时ARM能跑Docker还是很新鲜的玩意。&lt;/p&gt;</description></item><item><title>监控采集点点记录</title><link>/posts/telemetry/monitor-experience/</link><pubDate>Mon, 20 Feb 2017 00:00:00 +0000</pubDate><guid>/posts/telemetry/monitor-experience/</guid><description>&lt;h2 id="mysql的监控"&gt;MYSQL的监控&lt;/h2&gt;
-&lt;h3 id="mysql权限经验原则"&gt;MySQL权限经验原则&lt;/h3&gt;
-&lt;p&gt;权限控制主要是出于安全因素，因此需要遵循一下几个经验原则：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;只授予能满足需要的最小权限，防止用户干坏事。比如用户只是需要查询，那就只给select权限就可以了，不要给用户赋予update、insert或者delete权限。&lt;/li&gt;
-&lt;li&gt;创建用户的时候限制用户的登录主机，一般是限制成指定IP或者内网IP段。&lt;/li&gt;
-&lt;li&gt;初始化数据库的时候删除没有密码的用户。安装完数据库的时候会自动创建一些用户，这些用户默认没有密码。&lt;/li&gt;
-&lt;li&gt;为每个用户设置满足密码复杂度的密码。&lt;/li&gt;
-&lt;li&gt;定期清理不需要的用户。回收权限或者删除用户。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;eg:&lt;/p&gt;</description></item><item><title>提升开发效率——Linux开发环境搭建指南</title><link>/archives/09-zsh-tmux-vim-git/</link><pubDate>Wed, 07 Dec 2016 00:00:00 +0000</pubDate><guid>/archives/09-zsh-tmux-vim-git/</guid><description>&lt;p&gt;在现代软件开发中，拥有一个高效、便捷的开发环境可以显著提升工作效率。本文将详细介绍如何在 Linux 环境下搭建一套完整的开发工作环境，包括终端复用器 tmux、代码编辑器 vim、增强型 shell zsh 以及版本控制器 git 的配置和使用方法。&lt;/p&gt;</description></item></channel></rss>
+&lt;p&gt;当初为了搭个docker集群环境折腾了树莓派，主要是看它价格便宜又省电。买了3个树莓派2代，大概花了600多块，当时ARM能跑Docker还是很新鲜的玩意。&lt;/p&gt;</description></item><item><title>提升开发效率——Linux开发环境搭建指南</title><link>/archives/09-zsh-tmux-vim-git/</link><pubDate>Wed, 07 Dec 2016 00:00:00 +0000</pubDate><guid>/archives/09-zsh-tmux-vim-git/</guid><description>&lt;p&gt;在现代软件开发中，拥有一个高效、便捷的开发环境可以显著提升工作效率。本文将详细介绍如何在 Linux 环境下搭建一套完整的开发工作环境，包括终端复用器 tmux、代码编辑器 vim、增强型 shell zsh 以及版本控制器 git 的配置和使用方法。&lt;/p&gt;</description></item></channel></rss>
