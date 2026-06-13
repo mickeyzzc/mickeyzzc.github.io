@@ -15,7 +15,7 @@
 </a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
 </a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
 <button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#architecture>Architecture</a></li><li><a href=#ebpf-kernel-program-c>eBPF Kernel Program (C)</a></li><li><a href=#go-user-space-program>Go User-Space Program</a></li><li><a href=#build-and-run>Build and Run</a></li><li><a href=#extension-ideas>Extension Ideas</a><ul><li><a href=#add-more-hook-points>Add More Hook Points</a></li><li><a href=#user-side-enhancements>User-Side Enhancements</a></li></ul></li><li><a href=#summary>Summary</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#architecture>Architecture</a></li><li><a href=#ebpf-kernel-program-c>eBPF Kernel Program (C)</a><ul><li><a href=#key-concepts>Key Concepts</a></li></ul></li><li><a href=#go-user-space-program>Go User-Space Program</a></li><li><a href=#build-and-run>Build and Run</a><ul><li><a href=#expected-output>Expected Output</a></li></ul></li><li><a href=#extension-ideas>Extension Ideas</a><ul><li><a href=#add-more-hook-points>Add More Hook Points</a></li><li><a href=#user-side-enhancements>User-Side Enhancements</a></li></ul></li><li><a href=#summary>Summary</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
 </a><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
 </a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
@@ -30,9 +30,9 @@
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/ebpf/>EBPF</a>, <a href=/en/tags/go/>Go</a>, <a href=/en/tags/cilium/>Cilium</a>, <a href=/en/tags/linux/>Linux</a>, <a href=/en/tags/oom/>OOM</a>, <a href=/en/tags/memory-management/>Memory Management</a></span><span class="post-meta-item post-meta-item--series">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/en/series/ebpf-observability-series/>EBPF Observability Series</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>903 words</span>
+<span>1091 words</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-<span>5 min read</span></span></div></header><div class=Content><p>bpftrace is great for quick probing and ad-hoc debugging. For production-grade monitoring tools, you need full eBPF programs. The architecture splits into two layers:</p><ul><li><strong>Kernel side</strong>: eBPF program written in C, attached to hook points, collecting event data</li><li><strong>User side</strong>: loader written in Go (or Rust / libbpf C), loading the eBPF program and reading events</li></ul><h2 id=architecture>Architecture</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+<span>6 min read</span></span></div></header><div class=Content><p>bpftrace is great for quick probing and ad-hoc debugging. For production-grade monitoring tools, you need full eBPF programs. The architecture splits into two layers:</p><ul><li><strong>Kernel side</strong>: eBPF program written in C, attached to hook points, collecting event data</li><li><strong>User side</strong>: loader written in Go (or Rust / libbpf C), loading the eBPF program and reading events</li></ul><h2 id=architecture>Architecture</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
     classDef kern fill:#E3F2FD,stroke:#1565C0,color:#1565C0
     classDef user fill:#FFF3E0,stroke:#E65100,color:#BF360C
     classDef data fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
@@ -156,7 +156,7 @@
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>    <span class=nf>bpf_ringbuf_submit</span><span class=p>(</span><span class=n>event</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
 </span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
-</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=go-user-space-program>Go User-Space Program</h2><p>Use the <code>bpf2go</code> code generator from the cilium/ebpf library:</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=key-concepts>Key Concepts</h3><ul><li><code>BPF_KPROBE</code> macro handles kprobe argument extraction automatically — no manual <code>struct pt_regs</code> unpacking needed</li><li><code>BPF_CORE_READ</code> accesses kernel data structures via BTF info, no hardcoded offsets — this is CO-RE in action</li><li><code>bpf_ringbuf_reserve</code> + <code>bpf_ringbuf_submit</code> is a lock-free producer-consumer pattern; events are readable by user-space immediately after submission</li><li><code>vmlinux.h</code> is generated by <code>bpftool btf dump</code> and contains definitions for all kernel data structures</li></ul><h2 id=go-user-space-program>Go User-Space Program</h2><p>Use the <code>bpf2go</code> code generator from the cilium/ebpf library:</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
@@ -348,6 +348,10 @@
 </span><span class=lnt> 9
 </span><span class=lnt>10
 </span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Generate bpf2go Go code</span>
 </span></span><span class=line><span class=cl>go generate ./...
 </span></span><span class=line><span class=cl>
@@ -357,8 +361,31 @@
 </span></span><span class=line><span class=cl><span class=c1># Run (requires root)</span>
 </span></span><span class=line><span class=cl>sudo ./oom-monitor
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1># Trigger OOM in another terminal</span>
-</span></span><span class=line><span class=cl>sudo stress-ng --vm <span class=m>1</span> --vm-bytes 80% -t 30s</span></span></code></pre></td></tr></table></div></div></div></div><p>The compiled binary is self-contained — BPF bytecode is embedded into the Go binary via <code>go:embed</code>.</p><h2 id=extension-ideas>Extension Ideas</h2><h3 id=add-more-hook-points>Add More Hook Points</h3><p>Correlating data from multiple kernel hook points gives a more complete picture:</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+</span></span><span class=line><span class=cl><span class=c1># Trigger OOM in another terminal（will consume significant memory — avoid on production systems）</span>
+</span></span><span class=line><span class=cl>sudo stress-ng --vm <span class=m>1</span> --vm-bytes 80% -t 30s
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Safer alternative: use Docker with memory limit（requires Docker）</span>
+</span></span><span class=line><span class=cl><span class=c1># docker run --rm -m 64m ubuntu:22.04 bash -c &#34;apt-get update -qq &amp;&amp; apt-get install -y -qq stress-ng &amp;&amp; stress-ng --vm 1 --vm-bytes 50m -t 10s&#34;</span>
+</span></span><span class=line><span class=cl>sudo stress-ng --vm <span class=m>1</span> --vm-bytes 80% -t 30s</span></span></code></pre></td></tr></table></div></div></div></div><p>The compiled binary is self-contained — BPF bytecode is embedded into the Go binary via <code>go:embed</code>.</p><h3 id=expected-output>Expected Output</h3><p>When an OOM is triggered, the monitor should output something like:</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>[14:30:25] OOM KILL DETECTED
+</span></span><span class=line><span class=cl>  Killed:  PID=12345 COMM=stress-ng
+</span></span><span class=line><span class=cl>  Trigger: PID=9876 COMM=oom-monitor
+</span></span><span class=line><span class=cl>  Pages:   262144 (1024.00 MB)
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>[14:30:26] OOM KILL DETECTED
+</span></span><span class=line><span class=cl>  Killed:  PID=12346 COMM=stress-ng
+</span></span><span class=line><span class=cl>  Trigger: PID=9876 COMM=oom-monitor
+</span></span><span class=line><span class=cl>  Pages:   131072 (512.00 MB)</span></span></code></pre></td></tr></table></div></div></div></div><p>If nothing appears, the kernel didn&rsquo;t trigger OOM — increase stress-ng&rsquo;s memory ratio or free up some memory first.</p><h2 id=extension-ideas>Extension Ideas</h2><h3 id=add-more-hook-points>Add More Hook Points</h3><p>Correlating data from multiple kernel hook points gives a more complete picture:</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
 <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
 <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
