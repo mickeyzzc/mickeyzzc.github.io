@@ -1,0 +1,775 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - 提示工程：学会和 AI 对话是第一课</title><meta name=description content="提示工程的核心概念、关键技术和入门实践——从角色设定到思维链，从少样本到自一致性"><meta name=keywords content="Prompt,Engineering,,Chain-of-Thought,,Few-shot,,Self-Consistency,,LLM,,AI对话"><link rel=canonical href=/posts/aihelper/prompt-engineering-basics/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - 提示工程：学会和 AI 对话是第一课"><meta property="og:description" content="提示工程的核心概念、关键技术和入门实践——从角色设定到思维链，从少样本到自一致性"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/aihelper/prompt-engineering-basics/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2023-11-20 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2023-11-20 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - 提示工程：学会和 AI 对话是第一课"><meta name=twitter:description content="提示工程的核心概念、关键技术和入门实践——从角色设定到思维链，从少样本到自一致性"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/aihelper/prompt-engineering-basics/><link rel=alternate hreflang=en href=/en/posts/aihelper/prompt-engineering-basics/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/series/>系列</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label=切换语言 aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>中文</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/en/posts/aihelper/prompt-engineering-basics/ lang=en rel=alternate>English</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#什么是提示工程>什么是提示工程？</a><ul><li><a href=#核心假设>核心假设</a></li><li><a href=#为什么提示工程如此重要>为什么提示工程如此重要？</a></li></ul></li><li><a href=#起源与发展>起源与发展</a><ul><li><a href=#前提示工程时代2022年前>前提示工程时代（2022年前）</a></li><li><a href=#提示工程诞生2022年>提示工程诞生（2022年）</a></li><li><a href=#技术爆发2023年>技术爆发（2023年）</a></li></ul></li><li><a href=#核心技术>核心技术</a><ul><li><a href=#基础技巧>基础技巧</a><ul><li><a href=#角色提示role-prompting>角色提示（Role Prompting）</a></li><li><a href=#指令清晰化>指令清晰化</a></li><li><a href=#格式化输出>格式化输出</a></li></ul></li></ul></li><li><a href=#性能分析>性能分析</a><ul><li><a href=#时间复杂度>时间复杂度</a></li><li><a href=#空间复杂度>空间复杂度</a></li><li><a href=#优化建议>优化建议</a></li><li><a href=#优化后的代码>优化后的代码</a><ul><li><a href=#少样本学习few-shot-learning>少样本学习（Few-shot Learning）</a></li><li><a href=#树思维tree-of-thought-tot>树思维（Tree-of-Thought, ToT）</a></li><li><a href=#自一致性self-consistency>自一致性（Self-Consistency）</a></li></ul></li><li><a href=#优化方法>优化方法</a><ul><li><a href=#温度调节temperature-tuning>温度调节（Temperature Tuning）</a></li><li><a href=#迭代优化>迭代优化</a></li><li><a href=#ab-测试>A/B 测试</a></li><li><a href=#提示工程评估框架ape>提示工程评估框架（APE）</a></li></ul></li></ul></li><li><a href=#动手练习>动手练习</a><ul><li><a href=#第一步定义需求>第一步：定义需求</a></li><li><a href=#第二步创建基础提示>第二步：创建基础提示</a></li><li><a href=#5-总结建议>5. 总结建议</a></li><li><a href=#2-知识时效性问题>2. 知识时效性问题</a></li><li><a href=#3-无外部知识访问>3. 无外部知识访问</a></li><li><a href=#4-工具使用限制>4. 工具使用限制</a></li><li><a href=#5-单次交互局限>5. 单次交互局限</a></li></ul></li><li><a href=#小结提示工程的价值>小结：提示工程的价值</a><ul><li><a href=#基础地位>基础地位</a></li><li><a href=#持久价值>持久价值</a></li><li><a href=#过渡的桥梁>过渡的桥梁</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/ai%E5%B7%A5%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai工程</span>
+</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-sm"><span>yolo</span>
+</a><a href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>范式演进</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-xs"><span>开源</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-xs"><span>架构</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>提示工程：学会和 AI 对话是第一课</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2023-11-20T00:00:00+00:00>November 20, 2023</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/ai%E5%B7%A5%E5%85%B7/>AI工具</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/ai%E5%B7%A5%E7%A8%8B/>AI工程</a>, <a href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/>范式演进</a>, <a href=/tags/%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B/>提示工程</a>, <a href=/tags/llm/>LLM</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/series/ai-%E5%B7%A5%E7%A8%8B%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/>AI 工程范式演进</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>5751 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>12 分钟阅读</span></span></div></header><div class=Content><h2 id=什么是提示工程>什么是提示工程？</h2><p>提示工程（Prompt Engineering）的核心定义是：<strong>设计自然语言输入来引导大语言模型输出特定结果</strong>。</p><p>这个概念看似简单，但背后隐藏着一个深刻的假设：<strong>同一个模型，不同的提示 → 完全不同的输出结果</strong>。</p><p>想象一下你有一个非常聪明但完全没有任何背景知识的助手。这个助手能够完美地理解和执行任何指令，但它缺乏先验知识，也没有记忆能力。提示工程就是学习如何与这样的助手对话的艺术。</p><h3 id=核心假设>核心假设</h3><p>提示工程建立在几个关键假设之上：</p><ol><li><strong>模型能力固定</strong>：LLM 的核心能力是相对固定的，不会因为提示而改变其根本能力</li><li><strong>提示决定输出</strong>：输出的质量很大程度上取决于提示的设计质量</li><li><strong>迭代优化</strong>：没有完美的提示，只有更适合当前任务的提示</li><li><strong>上下文敏感</strong>：同样的提示在不同的对话上下文中可能产生不同结果</li></ol><h3 id=为什么提示工程如此重要>为什么提示工程如此重要？</h3><p>在 AI 工程的早期阶段，提示工程几乎是唯一可控的因素。模型的选择、训练数据、参数设置都是固定的，只有提示是可以自由调整的变量。</p><p>就像一个优秀的厨师必须了解如何使用调味品一样，AI 工程师必须掌握提示工程。这是与 AI 系统对话的基础，也是后续所有高级技术的前提。</p><h2 id=起源与发展>起源与发展</h2><p>提示工程的发展轨迹反映了整个 AI 领域的进步：</p><h3 id=前提示工程时代2022年前>前提示工程时代（2022年前）</h3><ul><li><strong>2017年</strong>：Transformer 架构的提出，奠定了现代 LLM 的基础</li><li><strong>2020年</strong>：GPT-3 的发布，展示了大规模语言模型的潜力</li><li><strong>OpenAI Playground</strong>（约2020年）：提供了早期的模型交互和提示实验平台</li></ul><h3 id=提示工程诞生2022年>提示工程诞生（2022年）</h3><ul><li><strong>2022年1月</strong>：ChatGPT 发布，让提示工程进入大众视野</li><li><strong>2022年3月</strong>：InstructGPT 论文，首次系统化地研究了指令跟随</li><li><strong>2022年10月</strong>：LangChain 框架发布，提供了结构化提示模板</li></ul><h3 id=技术爆发2023年>技术爆发（2023年）</h3><ul><li><strong>2023年1月</strong>：DSPy v1 发布，提出了程序化提示设计</li><li><strong>2023年3月</strong>：Chain-of-Thought 思维链技术成为主流</li><li><strong>2023年6月</strong>：自我一致性方法（Self-Consistency）被提出</li><li><strong>2023年8月</strong>：Tree-of-Thought 树思维扩展了推理能力</li></ul><p>这个时间线展示了提示工程从无到有、从简单到复杂的演进过程。</p><h2 id=核心技术>核心技术</h2><h3 id=基础技巧>基础技巧</h3><h4 id=角色提示role-prompting>角色提示（Role Prompting）</h4><p>角色提示是最基础也是最重要的技术。通过给 AI 设定一个角色，可以显著影响其回答风格和内容深度。</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 基础角色提示</span>
+</span></span><span class=line><span class=cl><span class=n>prompt</span> <span class=o>=</span> <span class=s2>&#34;你是一位经验丰富的 Python 开发工程师，请解释什么是装饰器...&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 具体化的角色提示</span>
+</span></span><span class=line><span class=cl><span class=n>prompt</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>你是一位有10年工作经验的Python后端工程师，曾在Google和Facebook工作。
+</span></span></span><span class=line><span class=cl><span class=s2>你的专长包括：
+</span></span></span><span class=line><span class=cl><span class=s2>- 高性能Web架构设计
+</span></span></span><span class=line><span class=cl><span class=s2>- 分布式系统优化
+</span></span></span><span class=line><span class=cl><span class=s2>- 代码重构和性能调优
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>现在请向初学者解释Python装饰器的概念，要求：
+</span></span></span><span class=line><span class=cl><span class=s2>1. 使用生活化比喻
+</span></span></span><span class=line><span class=cl><span class=s2>2. 给出3个实际应用场景
+</span></span></span><span class=line><span class=cl><span class=s2>3. 包含代码示例和性能对比
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>为什么角色提示有效</strong>：</p><ul><li>提供回答的框架和边界</li><li>激活模型相关的知识网络</li><li>确保回答的专业性和一致性</li></ul><h4 id=指令清晰化>指令清晰化</h4><p>清晰、具体的指令是获得高质量回答的关键。</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 差的提示</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;写一个关于狗的文章&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 好的提示</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>请写一篇800字的关于边境牧羊犬的科普文章。要求包含：
+</span></span></span><span class=line><span class=cl><span class=s2>1. 原产地和历史背景
+</span></span></span><span class=line><span class=cl><span class=s2>2. 外貌特征和性格特点
+</span></span></span><span class=line><span class=cl><span class=s2>3. 训练难度和饲养建议
+</span></span></span><span class=line><span class=cl><span class=s2>4. 适合的家庭类型
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>语言风格：科学严谨但通俗易懂
+</span></span></span><span class=line><span class=cl><span class=s2>读者群体：考虑养狗的潜在狗主人
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 极致的清晰提示</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>角色：宠物犬行为训练专家
+</span></span></span><span class=line><span class=cl><span class=s2>读者水平：有基本养狗知识的普通人
+</span></span></span><span class=line><span class=cl><span class=s2>任务：对比边境牧羊犬和贵宾犬的饲养要求
+</span></span></span><span class=line><span class=cl><span class=s2>结构：
+</span></span></span><span class=line><span class=cl><span class=s2>- 开头：引言，为什么选择这两种犬类
+</span></span></span><span class=line><span class=cl><span class=s2>- 中间：
+</span></span></span><span class=line><span class=cl><span class=s2>  * 生活空间需求对比
+</span></span></span><span class=line><span class=cl><span class=s2>  * 运动量要求对比  
+</span></span></span><span class=line><span class=cl><span class=s2>  * 智力训练方法对比
+</span></span></span><span class=line><span class=cl><span class=s2>  * 常见行为问题及解决方案
+</span></span></span><span class=line><span class=cl><span class=s2>- 结尾：总结，根据不同家庭给出选择建议
+</span></span></span><span class=line><span class=cl><span class=s2>字数：1000字左右
+</span></span></span><span class=line><span class=cl><span class=s2>语气：专业但友好，避免过于学术化
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=格式化输出>格式化输出</h4><p>指定输出格式可以显著提升实用性：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>prompt</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>请分析以下代码的性能问题：
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>```python
+</span></span></span><span class=line><span class=cl><span class=s2>def process_data(data):
+</span></span></span><span class=line><span class=cl><span class=s2>    result = []
+</span></span></span><span class=line><span class=cl><span class=s2>    for item in data:
+</span></span></span><span class=line><span class=cl><span class=s2>        if item &gt; 10:
+</span></span></span><span class=line><span class=cl><span class=s2>            result.append(item * 2)
+</span></span></span><span class=line><span class=cl><span class=s2>    return result</span></span></span></code></pre></td></tr></table></div></div></div></div><p>请按照以下格式输出分析结果：</p><h2 id=性能分析>性能分析</h2><h3 id=时间复杂度>时间复杂度</h3><ul><li>分析：&mldr;</li><li>大O表示法：O(??)</li></ul><h3 id=空间复杂度>空间复杂度</h3><ul><li>分析：&mldr;</li><li>大O表示法：O(??)</li></ul><h3 id=优化建议>优化建议</h3><ol><li>建议1：&mldr;
+理由：&mldr;</li><li>建议2：&mldr;
+理由：&mldr;</li></ol><h3 id=优化后的代码>优化后的代码</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 优化后的代码</span></span></span></code></pre></td></tr></table></div></div></div></div><p>"""</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>### 高级推理技术
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>#### 思维链（Chain-of-Thought, CoT）
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>思维链技术由 Google 在 2022 年 NeurIPS 会议上提出，彻底改变了 LLM 的推理能力。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>```python
+</span></span><span class=line><span class=cl># 传统提示
+</span></span><span class=line><span class=cl>&#34;计算：234 + 567 + 891 = ?&#34;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 思维链提示
+</span></span><span class=line><span class=cl>&#34;&#34;&#34;
+</span></span><span class=line><span class=cl>让我们一步步计算这个加法问题：
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>第一步：234 + 567
+</span></span><span class=line><span class=cl>- 200 + 500 = 700
+</span></span><span class=line><span class=cl>- 30 + 60 = 90  
+</span></span><span class=line><span class=cl>- 4 + 7 = 11
+</span></span><span class=line><span class=cl>- 总和：700 + 90 + 11 = 801
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>第二步：801 + 891
+</span></span><span class=line><span class=cl>- 800 + 800 = 1600
+</span></span><span class=line><span class=cl>- 1 + 900 = 901
+</span></span><span class=line><span class=cl>- 总和：1600 + 901 = 2501
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>所以：234 + 567 + 891 = 2501
+</span></span><span class=line><span class=cl>&#34;&#34;&#34;</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>思维链的核心思想</strong>：让模型像人类一样分步推理，而不是直接给出答案。</p><h4 id=少样本学习few-shot-learning>少样本学习（Few-shot Learning）</h4><p>少样本学习通过提供几个示例来指导模型理解任务模式：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 少样本提示</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>请完成以下情感分析任务，判断句子的情感倾向为积极、消极或中性。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>示例：
+</span></span></span><span class=line><span class=cl><span class=s2>- 这部电影太精彩了，我反复看了三遍。 积极
+</span></span></span><span class=line><span class=cl><span class=s2>- 手机电池续航太差，半天就没电了。 消极  
+</span></span></span><span class=line><span class=cl><span class=s2>- 今天天气不错，阳光明媚。 中性
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>现在请分析：
+</span></span></span><span class=line><span class=cl><span class=s2>- 这款软件界面设计简洁，功能也很实用。
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>最佳实践</strong>：</p><ul><li>示例要多样化，覆盖各种可能情况</li><li>示例格式要一致</li><li>提供足够的上下文信息</li></ul><h4 id=树思维tree-of-thought-tot>树思维（Tree-of-Thought, ToT）</h4><p>树思维扩展了思维链，允许模型探索多个推理路径：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 树思维提示示例</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>你需要解决一个数学问题，但可能有多种解决方法。
+</span></span></span><span class=line><span class=cl><span class=s2>对于每个方法，请评估其可行性，并选择最优路径。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>问题：如何找到 1 到 100 之间的所有质数？
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>解决路径1：试除法
+</span></span></span><span class=line><span class=cl><span class=s2>- 步骤：检查每个数是否能被2到sqrt(n)之间的数整除
+</span></span></span><span class=line><span class=cl><span class=s2>- 优点：简单易懂
+</span></span></span><span class=line><span class=cl><span class=s2>- 缺点：对于大数效率较低
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>解决路径2：埃拉托斯特尼筛法
+</span></span></span><span class=line><span class=cl><span class=s2>- 步骤：创建一个布尔数组，逐步标记非质数
+</span></span></span><span class=line><span class=cl><span class=s2>- 优点：时间复杂度O(n log log n)，效率高
+</span></span></span><span class=line><span class=cl><span class=s2>- 缺点：需要额外空间存储筛子
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>解决路径3：概率性算法
+</span></span></span><span class=line><span class=cl><span class=s2>- 步骤：使用概率性测试方法
+</span></span></span><span class=line><span class=cl><span class=s2>- 优点：对于极大数更有效
+</span></span></span><span class=line><span class=cl><span class=s2>- 缺点：可能有误判
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>请选择最优方法并给出具体实现。
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=自一致性self-consistency>自一致性（Self-Consistency）</h4><p>自一致性方法通过生成多个推理路径并选择最一致的结果：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 自一致性提示</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>请解决以下数学问题：一个笼子里有鸡和兔共35只，脚共94只，问鸡兔各多少只？
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>请提供至少3种不同的解决方法，并验证结果的一致性。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>方法1：
+</span></span></span><span class=line><span class=cl><span class=s2>方程法...
+</span></span></span><span class=line><span class=cl><span class=s2>验证结果：鸡23只，兔12只
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>方法2：
+</span></span></span><span class=line><span class=cl><span class=s2>假设法...
+</span></span></span><span class=line><span class=cl><span class=s2>验证结果：鸡23只，兔12只
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>方法3：
+</span></span></span><span class=line><span class=cl><span class=s2>枚举法...  
+</span></span></span><span class=line><span class=cl><span class=s2>验证结果：鸡23只，兔12只
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>综合分析：三种方法都得到相同结果，确认答案正确。
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=优化方法>优化方法</h3><h4 id=温度调节temperature-tuning>温度调节（Temperature Tuning）</h4><p>温度是控制 LLM 输出随机性的参数：</p><ul><li><strong>低温度（0.1-0.3）</strong>：输出更确定、更保守</li><li><strong>中等温度（0.5-0.7）</strong>：平衡确定性和创造性</li><li><strong>高温度（0.8-1.0）</strong>：输出更多样化、更有创造性</li></ul><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 温度调节示例</span>
+</span></span><span class=line><span class=cl><span class=n>creative_prompt</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>想象一个未来城市的景象，包含以下元素：
+</span></span></span><span class=line><span class=cl><span class=s2>- 空中交通系统
+</span></span></span><span class=line><span class=cl><span class=s2>- 生态建筑
+</span></span></span><span class=line><span class=cl><span class=s2>- AI服务助手
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>用充满想象力的语言描述这座城市的日常生活。
+</span></span></span><span class=line><span class=cl><span class=s2>temperature=0.8
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>technical_prompt</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>分析未来城市可能面临的10个主要挑战，每个挑战包含：
+</span></span></span><span class=line><span class=cl><span class=s2>1. 问题描述
+</span></span></span><span class=line><span class=cl><span class=s2>2. 影响程度评估
+</span></span></span><span class=line><span class=cl><span class=s2>3. 可能的解决方案
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>要求：基于现有技术发展趋势进行合理推测。
+</span></span></span><span class=line><span class=cl><span class=s2>temperature=0.3
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=迭代优化>迭代优化</h4><p>提示工程是一个迭代过程：</p><ol><li><strong>初始提示</strong>：基于需求创建基础提示</li><li><strong>测试反馈</strong>：运行模型，观察输出结果</li><li><strong>问题识别</strong>：找出输出中的不足之处</li><li><strong>提示调整</strong>：针对性地修改提示</li><li><strong>效果验证</strong>：再次测试，验证改进效果</li></ol><h4 id=ab-测试>A/B 测试</h4><p>通过对比不同提示的效果来优化：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 对比实验</span>
+</span></span><span class=line><span class=cl><span class=n>prompt_A</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>作为数据科学家，请解释机器学习中的过拟合现象。
+</span></span></span><span class=line><span class=cl><span class=s2>要求包含定义、原因、检测方法和解决方案。
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>prompt_B</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>你需要向非技术人员解释什么是过拟合。请使用：
+</span></span></span><span class=line><span class=cl><span class=s2>1. 生活化的比喻（比如穿鞋）
+</span></span></span><span class=line><span class=cl><span class=s2>2. 具体的代码示例
+</span></span></span><span class=line><span class=cl><span class=s2>3. 直观的图表描述
+</span></span></span><span class=line><span class=cl><span class=s2>4. 避免专业术语，用简单语言
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 比较两种提示的：</span>
+</span></span><span class=line><span class=cl><span class=c1># - 回答的准确性</span>
+</span></span><span class=line><span class=cl><span class=c1># - 可读性</span>
+</span></span><span class=line><span class=cl><span class=c1># - 用户满意度</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=提示工程评估框架ape>提示工程评估框架（APE）</h4><p>Zhou 等人在 2022 年提出了 APE (Automatic Prompt Evaluation) 框架，用于系统化评估提示质量：</p><ol><li><strong>相关性</strong>：回答是否与问题相关</li><li><strong>准确性</strong>：信息是否正确</li><li><strong>完整性</strong>：是否涵盖了所有重要方面</li><li><strong>一致性</strong>：回答内部是否逻辑一致</li><li><strong>安全性</strong>：是否包含有害或偏见内容</li></ol><h2 id=动手练习>动手练习</h2><p>让我们通过一个实际练习来掌握提示工程。目标是创建一个能够自动分析代码质量的助手。</p><h3 id=第一步定义需求>第一步：定义需求</h3><p>我们需要一个能够：</p><ol><li>分析代码的可读性</li><li>检查性能问题</li><li>提供改进建议</li><li>生成优化后的代码</li></ol><h3 id=第二步创建基础提示>第二步：创建基础提示</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>basic_prompt</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>请分析以下Python代码：
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>```python
+</span></span></span><span class=line><span class=cl><span class=s2>def factorial(n):
+</span></span></span><span class=line><span class=cl><span class=s2>    if n == 0:
+</span></span></span><span class=line><span class=cl><span class=s2>        return 1
+</span></span></span><span class=line><span class=cl><span class=s2>    else:
+</span></span></span><span class=line><span class=cl><span class=s2>        return n * factorial(n-1)
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>print(factorial(5))</span></span></span></code></pre></td></tr></table></div></div></div></div><p>请分析代码质量并提供改进建议。
+"""</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>### 第三步：迭代优化
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>让我们一步步优化这个提示：
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>```python
+</span></span><span class=line><span class=cl># 第一轮改进：增加具体要求
+</span></span><span class=line><span class=cl>improved_prompt = &#34;&#34;&#34;
+</span></span><span class=line><span class=cl>请分析以下Python代码，重点关注以下几个方面：
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. **代码可读性**
+</span></span><span class=line><span class=cl>   - 变量命名是否清晰
+</span></span><span class=line><span class=cl>   - 代码结构是否清晰
+</span></span><span class=line><span class=cl>   - 注释是否充分
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2. **性能分析**
+</span></span><span class=line><span class=cl>   - 时间复杂度分析
+</span></span><span class=line><span class=cl>   - 空间复杂度分析
+</span></span><span class=line><span class=cl>   - 潜在的性能瓶颈
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3. **代码质量**
+</span></span><span class=line><span class=cl>   - 是否符合Python最佳实践
+</span></span><span class=line><span class=cl>   - 是否有边界情况处理
+</span></span><span class=line><span class=cl>   - 错误处理是否完善
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>4. **改进建议**
+</span></span><span class=line><span class=cl>   - 具体的改进措施
+</span></span><span class=line><span class=cl>   - 优化后的代码示例
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>代码：
+</span></span><span class=line><span class=cl>```python
+</span></span><span class=line><span class=cl>def factorial(n):
+</span></span><span class=line><span class=cl>    if n == 0:
+</span></span><span class=line><span class=cl>        return 1
+</span></span><span class=line><span class=cl>    else:
+</span></span><span class=line><span class=cl>        return n * factorial(n-1)
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>print(factorial(5))</span></span></code></pre></td></tr></table></div></div></div></div><p>请按照以上结构提供详细分析。
+"""</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>```python
+</span></span><span class=line><span class=cl># 第二轮改进：增加格式要求
+</span></span><span class=line><span class=cl>final_prompt = &#34;&#34;&#34;
+</span></span><span class=line><span class=cl>请按照以下格式分析以下Python代码：
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>## 代码分析报告
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>### 1. 可读性分析
+</span></span><span class=line><span class=cl>- 变量命名评估：
+</span></span><span class=line><span class=cl>  - 现状分析...
+</span></span><span class=line><span class=cl>  - 改进建议...
+</span></span><span class=line><span class=cl>- 代码结构评估：
+</span></span><span class=line><span class=cl>  - 现状分析...
+</span></span><span class=line><span class=cl>  - 改进建议...
+</span></span><span class=line><span class=cl>- 注释质量评估：
+</span></span><span class=line><span class=cl>  - 现状分析...
+</span></span><span class=line><span class=cl>  - 改进建议...
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>### 2. 性能分析
+</span></span><span class=line><span class=cl>- 时间复杂度：
+</span></span><span class=line><span class=cl>  - 分析：递归调用导致O(n)时间复杂度
+</span></span><span class=line><span class=cl>  - 评估：对于小规模输入可以接受，大规模输入可能栈溢出
+</span></span><span class=line><span class=cl>- 空间复杂度：
+</span></span><span class=line><span class=cl>  - 分析：O(n)由于递归调用栈
+</span></span><span class=line><span class=cl>  - 评估：需要额外的栈空间存储调用信息
+</span></span><span class=line><span class=cl>- 性能优化建议：
+</span></span><span class=line><span class=cl>  1. 使用迭代而非递归，避免栈溢出
+</span></span><span class=line><span class=cl>  2. 添加输入验证，处理负数输入
+</span></span><span class=line><span class=cl>  3. 考虑记忆化，避免重复计算
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>### 3. 代码质量评估
+</span></span><span class=line><span class=cl>- 遵循PEP8规范：基本符合，建议改进
+</span></span><span class=line><span class=cl>- 边界情况处理：缺少输入验证
+</span></span><span class=line><span class=cl>- 错误处理：缺乏异常处理机制
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>### 4. 改进后的代码
+</span></span><span class=line><span class=cl>```python
+</span></span><span class=line><span class=cl>def factorial(n):
+</span></span><span class=line><span class=cl>    &#34;&#34;&#34;
+</span></span><span class=line><span class=cl>    计算n的阶乘
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    Args:
+</span></span><span class=line><span class=cl>        n: 非负整数
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>    Returns:
+</span></span><span class=line><span class=cl>        n的阶乘结果
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>    Raises:
+</span></span><span class=line><span class=cl>        ValueError: 如果n为负数
+</span></span><span class=line><span class=cl>    &#34;&#34;&#34;
+</span></span><span class=line><span class=cl>    if not isinstance(n, int) or n &lt; 0:
+</span></span><span class=line><span class=cl>        raise ValueError(&#34;输入必须是非负整数&#34;)
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    result = 1
+</span></span><span class=line><span class=cl>    for i in range(1, n + 1):
+</span></span><span class=line><span class=cl>        result *= i
+</span></span><span class=line><span class=cl>    return result
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 测试代码
+</span></span><span class=line><span class=cl>if __name__ == &#34;__main__&#34;:
+</span></span><span class=line><span class=cl>    try:
+</span></span><span class=line><span class=cl>        print(factorial(5))
+</span></span><span class=line><span class=cl>        print(factorial(0))  # 应该输出1
+</span></span><span class=line><span class=cl>        print(factorial(3))  # 应该输出6
+</span></span><span class=line><span class=cl>        # print(factorial(-1))  # 应该抛出异常
+</span></span><span class=line><span class=cl>    except ValueError as e:
+</span></span><span class=line><span class=cl>        print(f&#34;错误：{e}&#34;)</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=5-总结建议>5. 总结建议</h3><ul><li>主要改进点：输入验证、异常处理、迭代实现</li><li>预期效果：提高代码健壮性和性能</li><li>适用场景：需要稳定可靠的阶乘计算功能</li></ul><p>代码：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>factorial</span><span class=p>(</span><span class=n>n</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>n</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>n</span> <span class=o>*</span> <span class=n>factorial</span><span class=p>(</span><span class=n>n</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>factorial</span><span class=p>(</span><span class=mi>5</span><span class=p>))</span></span></span></code></pre></td></tr></table></div></div></div></div><p>"""</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>### 第四步：测试和验证
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>运行不同版本的提示，比较输出质量：
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. **基础版本**：简单的分析
+</span></span><span class=line><span class=cl>2. **改进版本**：结构化分析，但不够详细
+</span></span><span class=line><span class=cl>3. **最终版本**：完整详细的分析报告
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>通过这个过程，你可以看到提示优化的显著效果。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>## 为什么提示工程不够？
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>虽然提示工程是重要的基础，但它存在几个根本性的限制：
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>### 1. 无记忆能力
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>每次对话都是独立的，AI 无法记住之前的交互内容：
+</span></span><span class=line><span class=cl>```python
+</span></span><span class=line><span class=cl># 第一轮对话
+</span></span><span class=line><span class=cl>user: &#34;我是一个Python开发者&#34;
+</span></span><span class=line><span class=cl>assistant: &#34;很好，Python是一种强大的编程语言...&#34;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 第二轮对话（AI不记得&#34;我是Python开发者&#34;）
+</span></span><span class=line><span class=cl>user: &#34;我应该学习哪些Python框架？&#34;
+</span></span><span class=line><span class=cl>assistant: &#34;作为Python开发者，你可以学习...&#34;</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=2-知识时效性问题>2. 知识时效性问题</h3><p>AI 的知识有截止日期，无法获取最新信息：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># AI不知道最新版本的信息</span>
+</span></span><span class=line><span class=cl><span class=n>user</span><span class=p>:</span> <span class=s2>&#34;Python 3.13有什么新特性？&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>assistant</span><span class=p>:</span> <span class=s2>&#34;Python 3.13在2024年发布，包含以下新特性...&#34;</span>  <span class=c1># 可能给出错误信息</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=3-无外部知识访问>3. 无外部知识访问</h3><p>AI 无法访问私有文档、数据库或最新网络信息：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>user</span><span class=p>:</span> <span class=s2>&#34;根据我们公司的API文档，如何实现用户认证？&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>assistant</span><span class=p>:</span> <span class=s2>&#34;对不起，我无法访问您公司的私有文档...&#34;</span>  <span class=c1># 无法提供具体帮助</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=4-工具使用限制>4. 工具使用限制</h3><p>AI 无法直接调用外部工具或执行代码：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>user</span><span class=p>:</span> <span class=s2>&#34;请帮我运行数据分析脚本并生成图表&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>assistant</span><span class=p>:</span> <span class=s2>&#34;我无法直接运行您的代码，但可以为您提供代码建议...&#34;</span>  <span class=c1># 无法实际执行</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=5-单次交互局限>5. 单次交互局限</h3><p>每次对话都是独立的，无法构建复杂的工作流：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>user</span><span class=p>:</span> <span class=s2>&#34;帮我分析销售数据&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>assistant</span><span class=p>:</span> <span class=s2>&#34;我可以帮您分析，但需要您提供数据...&#34;</span>  <span class=c1># 无法自动获取数据</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>user</span><span class=p>:</span> <span class=s2>&#34;这是销售数据文件...&#34;</span>  <span class=c1># 需要用户重复提供信息</span>
+</span></span><span class=line><span class=cl><span class=n>assistant</span><span class=p>:</span> <span class=s2>&#34;现在我收到数据了，让我分析...&#34;</span>  <span class=c1># AI不记得之前的要求</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=小结提示工程的价值>小结：提示工程的价值</h2><h3 id=基础地位>基础地位</h3><p>提示工程是 AI 工程的基石，就像编程中的基础语法一样。无论技术如何发展，与 AI 的有效沟通始终是必要的。</p><h3 id=持久价值>持久价值</h3><p>在以下场景中，提示工程仍然是最优选择：</p><ol><li><strong>快速原型验证</strong>：不需要复杂系统，只需要快速获取答案</li><li><strong>创意激发</strong>：头脑风暴和创意生成</li><li><strong>学习辅助</strong>：概念解释和知识梳理</li><li><strong>内容创作</strong>：文章、代码、诗歌等各种内容生成</li></ol><h3 id=过渡的桥梁>过渡的桥梁</h3><p>提示工程的价值不在于它能解决什么问题，而在于它帮助我们理解 AI 的能力和局限性。通过提示工程，我们学会了：</p><ol><li><strong>如何清晰地表达需求</strong></li><li><strong>如何引导 AI 产生高质量的输出</strong></li><li><strong>识别 AI 的知识边界</strong></li><li><strong>理解 prompt 的局限性</strong></li></ol><p>就像从汇编语言到高级语言的演进，提示工程代表了 AI 交互的第一步。真正的突破在于认识到：<strong>问题不在于如何说得更清楚，而在于如何让 AI 获得更多的信息和能力</strong>。</p><p>这自然引导我们进入下一阶段：上下文工程（Context Engineering）。</p><p>在接下来的文章中，我们将探讨如何突破提示的局限，通过提供外部信息来大幅提升 AI 的能力。</p></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>所属系列:</span>
+<a href=/series/ai-%E5%B7%A5%E7%A8%8B%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/>AI 工程范式演进</a></div><div class=series-nav__links><a href=/posts/aihelper/ai-engineering-paradigms-overview/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>上一篇</span>
+<span class=series-nav__title>AI 工程范式演进：从提示工程到循环工程的四次跃迁</span>
+</a><a href=/posts/aihelper/from-prompt-to-context/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>下一篇</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>从提示到上下文：为什么只说清楚远远不够</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/ai%E5%B7%A5%E7%A8%8B/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+AI工程
+</a><a class=tag-chip href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+范式演进
+</a><a class=tag-chip href=/tags/%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+提示工程
+</a><a class=tag-chip href=/tags/llm/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+LLM</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>

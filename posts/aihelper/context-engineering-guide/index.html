@@ -1,0 +1,724 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - 上下文工程：让 AI 拥有正确的知识</title><meta name=description content="上下文工程的四大支柱、RAG 原理、上下文窗口管理，以及从提示工程到上下文工程的能力跃迁"><meta name=keywords content="AI工程,,上下文工程,,RAG,,提示工程"><link rel=canonical href=/posts/aihelper/context-engineering-guide/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - 上下文工程：让 AI 拥有正确的知识"><meta property="og:description" content="上下文工程的四大支柱、RAG 原理、上下文窗口管理，以及从提示工程到上下文工程的能力跃迁"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/aihelper/context-engineering-guide/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2024-11-10 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2024-11-10 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - 上下文工程：让 AI 拥有正确的知识"><meta name=twitter:description content="上下文工程的四大支柱、RAG 原理、上下文窗口管理，以及从提示工程到上下文工程的能力跃迁"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/aihelper/context-engineering-guide/><link rel=alternate hreflang=en href=/en/posts/aihelper/context-engineering-guide/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/series/>系列</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label=切换语言 aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>中文</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/en/posts/aihelper/context-engineering-guide/ lang=en rel=alternate>English</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#什么是上下文工程>什么是上下文工程？</a></li><li><a href=#起源与发展>起源与发展</a><ul><li><a href=#bill-schilit-的先驱工作>Bill Schilit 的先驱工作</a></li><li><a href=#rag-的出现>RAG 的出现</a></li><li><a href=#上下文工程的正式提出>上下文工程的正式提出</a></li></ul></li><li><a href=#四大支柱>四大支柱</a><ul><li><a href=#1-知识层what-the-model-knows>1. 知识层（What the model knows）</a></li><li><a href=#2-记忆层what-the-model-remembers>2. 记忆层（What the model remembers）</a></li><li><a href=#3-检索层what-the-model-retrieves>3. 检索层（What the model retrieves）</a><ul><li><a href=#向量化embedding>向量化（Embedding）</a></li><li><a href=#分块策略chunking>分块策略（Chunking）</a></li><li><a href=#向量数据库>向量数据库</a></li><li><a href=#重排序reranking>重排序（Reranking）</a></li></ul></li><li><a href=#4-生成层what-the-model-generates>4. 生成层（What the model generates）</a></li></ul></li><li><a href=#上下文管理的核心挑战>上下文管理的核心挑战</a><ul><li><a href=#token-预算分配>Token 预算分配</a></li><li><a href=#上下文窗口的进化>上下文窗口的进化</a></li><li><a href=#prompt-caching-技术>Prompt Caching 技术</a></li><li><a href=#混合策略rag--长上下文>混合策略：RAG + 长上下文</a></li></ul></li><li><a href=#动手入门构建文档问答机器人>动手入门：构建文档问答机器人</a><ul><li><a href=#第-1-步环境准备>第 1 步：环境准备</a></li><li><a href=#第-2-步文档处理>第 2 步：文档处理</a></li><li><a href=#第-3-步检索系统>第 3 步：检索系统</a></li><li><a href=#第-4-步问答系统>第 4 步：问答系统</a></li><li><a href=#第-5-步系统集成>第 5 步：系统集成</a></li></ul></li><li><a href=#局限与未来>局限与未来</a><ul><li><a href=#当前局限>当前局限</a></li><li><a href=#未来发展方向>未来发展方向</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/ai%E5%B7%A5%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai工程</span>
+</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-sm"><span>yolo</span>
+</a><a href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>范式演进</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-xs"><span>开源</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-xs"><span>架构</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>上下文工程：让 AI 拥有正确的知识</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2024-11-10T00:00:00+00:00>November 10, 2024</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/ai%E5%B7%A5%E5%85%B7/>AI工具</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/ai%E5%B7%A5%E7%A8%8B/>AI工程</a>, <a href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/>范式演进</a>, <a href=/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B/>上下文工程</a>, <a href=/tags/rag/>RAG</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/series/ai-%E5%B7%A5%E7%A8%8B%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/>AI 工程范式演进</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>3952 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>8 分钟阅读</span></span></div></header><div class=Content><h2 id=什么是上下文工程>什么是上下文工程？</h2><p>2025 年 6 月，Andrej Karpathy 在 OpenAI 工程博客上给出了上下文工程的定义：<strong>&ldquo;the delicate art and science of filling the context window with just the right information for the model to take the next step.&rdquo;</strong></p><p>这一定义非常精辟。与提示工程（Prompt Engineering）的核心区别在于：</p><ul><li><strong>提示工程</strong>：优化"你说什么"（what you say）——关注输入指令的表达方式</li><li><strong>上下文工程</strong>：优化"模型知道什么"（what the model knows）——关注模型能获得的信息</li></ul><p>想象一下：</p><ul><li>提示工程就像调整给厨师下达的菜单指令</li><li>上下文工程就像为厨师准备完整的食材仓库</li></ul><p>从 ChatGPT-3 到现在的 GPT-4o、DeepSeek-V2，模型的上下文窗口从 4K 爆炸式增长到 1M。这种变化让我们的关注点从"如何精简提示"转向了"如何有效利用巨大的上下文空间"。</p><h2 id=起源与发展>起源与发展</h2><h3 id=bill-schilit-的先驱工作>Bill Schilit 的先驱工作</h3><p>上下文工程的概念可以追溯到 1995 年 Bill Schilit 的博士论文《A System Architecture for Context-Aware Computing》（注意：是 1995 年，不是 1994 年）。这篇论文提出了<strong>上下文感知计算</strong>（Context-Aware Computing）的概念：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    A[用户行为] --&gt; B[上下文收集]
+    B --&gt; C[上下文分析]
+    C --&gt; D[智能响应]</code></pre></div></div><p>Schilit 定义了三类上下文：</p><ol><li><strong>计算上下文</strong>：设备状态、网络条件</li><li><strong>用户上下文</strong>：位置、时间、身份</li><li><strong>物理上下文</strong>：环境、传感器数据</li></ol><p>虽然当时针对的是移动计算，但这些思想直接影响了后来 AI 中的上下文管理。</p><h3 id=rag-的出现>RAG 的出现</h3><p>2020 年，Lewis 等人在 NeurIPS 会议上发表了《Retrieval-Augmented Generation over Pre-trained Language Models》，正式提出了 RAG（Retrieval-Augmented Generation）概念：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    A[用户查询] --&gt; B[检索模块]
+    B --&gt; C[向量数据库]
+    C --&gt; D[相关文档]
+    D --&gt; E[大模型]
+    E --&gt; F[增强回答]</code></pre></div></div><p>RAG 的核心创新在于：将外部知识库与大模型结合，解决了模型知识更新和幻觉问题。</p><h3 id=上下文工程的正式提出>上下文工程的正式提出</h3><p>2025 年 9 月，Anthropic 正式提出"Context Engineering"概念，将其作为独立的工程学科。同年 6 月，Karpathy 在 X（Twitter）上大力推崇这个概念，让它在 AI 工程社区迅速传播。</p><h2 id=四大支柱>四大支柱</h2><h3 id=1-知识层what-the-model-knows>1. 知识层（What the model knows）</h3><p>这是上下文工程的基础层，决定了模型的基本认知框架。</p><p><strong>核心组件</strong>：</p><ul><li><strong>系统提示</strong>：定义模型的基本行为准则</li><li><strong>工具定义</strong>：模型可调用工具的规范</li><li><strong>预训练知识</strong>：模型自带的基础能力</li></ul><p><strong>设计原则</strong>：</p><div class=code-block-wrapper data-lang=yaml><div class=code-block-header><div class=code-block-meta><span class=code-language>yaml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>知识层设计原则</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=l>最小化：避免不必要的冗余信息</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=l>结构化：使用明确的格式便于解析</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=l>层次化：核心知识优先，专业知识按需加载</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>实践示例</strong>：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 优秀的系统提示设计</span>
+</span></span><span class=line><span class=cl><span class=n>system_prompt</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>你是一个专业的软件开发助手，专注于：
+</span></span></span><span class=line><span class=cl><span class=s2>1. 代码质量：可读性、可维护性、性能
+</span></span></span><span class=line><span class=cl><span class=s2>2. 最佳实践：设计模式、架构原则、编码规范  
+</span></span></span><span class=line><span class=cl><span class=s2>3. 安全考虑：输入验证、错误处理、权限控制
+</span></span></span><span class=line><span class=cl><span class=s2>请使用中文回复，专业术语保留英文。
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=2-记忆层what-the-model-remembers>2. 记忆层（What the model remembers）</h3><p>管理模型在对话过程中的信息存储和记忆管理。</p><p><strong>记忆类型</strong>：</p><ul><li><strong>短期记忆</strong>：当前对话历史</li><li><strong>长期记忆</strong>：向量数据库中的持久化记忆</li><li><strong>工作记忆</strong>：当前任务的状态信息</li></ul><p><strong>KV Cache 基础</strong>：
+现代大模型使用 KV Cache 来缓存注意力计算结果：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Token 1 → Key1, Value1
+</span></span><span class=line><span class=cl>Token 2 → Key2, Value2  
+</span></span><span class=line><span class=cl>Token 3 → Key3, Value3
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>Token N → KeyN, ValueN</span></span></code></pre></td></tr></table></div></div></div></div><p><strong>优化策略</strong>：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 智能记忆压缩</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>compress_memory</span><span class=p>(</span><span class=n>memory_chunks</span><span class=p>,</span> <span class=n>max_tokens</span><span class=o>=</span><span class=mi>4000</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    对记忆进行重要性排序和压缩
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 1. 按重要性排序</span>
+</span></span><span class=line><span class=cl>    <span class=n>ranked_chunks</span> <span class=o>=</span> <span class=n>rank_by_importance</span><span class=p>(</span><span class=n>memory_chunks</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 2. 渐进式压缩</span>
+</span></span><span class=line><span class=cl>    <span class=n>compressed</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=n>current_tokens</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>chunk</span> <span class=ow>in</span> <span class=n>ranked_chunks</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>current_tokens</span> <span class=o>+</span> <span class=n>chunk</span><span class=p>[</span><span class=s1>&#39;tokens&#39;</span><span class=p>]</span> <span class=o>&lt;=</span> <span class=n>max_tokens</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>compressed</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>chunk</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>current_tokens</span> <span class=o>+=</span> <span class=n>chunk</span><span class=p>[</span><span class=s1>&#39;tokens&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>break</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>compressed</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=3-检索层what-the-model-retrieves>3. 检索层（What the model retrieves）</h3><p>这是上下文工程中最复杂但也最关键的环节，负责从海量信息中找到最相关的内容。</p><p><strong>RAG 深入解析</strong>：</p><h4 id=向量化embedding>向量化（Embedding）</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sentence_transformers</span> <span class=kn>import</span> <span class=n>SentenceTransformer</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 加载预训练模型</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>SentenceTransformer</span><span class=p>(</span><span class=s1>&#39;all-MiniLM-L6-v2&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 文档向量化</span>
+</span></span><span class=line><span class=cl><span class=n>documents</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;Python 是一种解释型编程语言&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;机器学习是人工智能的分支&#34;</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;深度学习使用神经网络架构&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>embeddings</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=n>documents</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=分块策略chunking>分块策略（Chunking）</h4><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>smart_chunking</span><span class=p>(</span><span class=n>text</span><span class=p>,</span> <span class=n>max_length</span><span class=o>=</span><span class=mi>512</span><span class=p>,</span> <span class=n>overlap</span><span class=o>=</span><span class=mi>50</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    智能分块算法：
+</span></span></span><span class=line><span class=cl><span class=s2>    1. 按段落自然分割
+</span></span></span><span class=line><span class=cl><span class=s2>    2. 保持语义完整性
+</span></span></span><span class=line><span class=cl><span class=s2>    3. 添加必要的上下文标记
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>chunks</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=n>paragraphs</span> <span class=o>=</span> <span class=n>text</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s1>&#39;</span><span class=se>\n\n</span><span class=s1>&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>para</span> <span class=ow>in</span> <span class=n>paragraphs</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>para</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=n>max_length</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>chunks</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>para</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 按句子进一步分割</span>
+</span></span><span class=line><span class=cl>            <span class=n>sentences</span> <span class=o>=</span> <span class=n>split_into_sentences</span><span class=p>(</span><span class=n>para</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>current_chunk</span> <span class=o>=</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>sentence</span> <span class=ow>in</span> <span class=n>sentences</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>current_chunk</span><span class=p>)</span> <span class=o>+</span> <span class=nb>len</span><span class=p>(</span><span class=n>sentence</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=n>max_length</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>current_chunk</span> <span class=o>+=</span> <span class=n>sentence</span> <span class=o>+</span> <span class=s2>&#34; &#34;</span>
+</span></span><span class=line><span class=cl>                <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>chunks</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>current_chunk</span><span class=o>.</span><span class=n>strip</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>                    <span class=n>current_chunk</span> <span class=o>=</span> <span class=n>sentence</span> <span class=o>+</span> <span class=s2>&#34; &#34;</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>current_chunk</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>chunks</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>current_chunk</span><span class=o>.</span><span class=n>strip</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>chunks</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=向量数据库>向量数据库</h4><p>主要向量数据库对比：</p><table><thead><tr><th>数据库</th><th>发布时间</th><th>特色</th><th>适用场景</th></tr></thead><tbody><tr><td>Pinecone</td><td>2021.08</td><td>云原生、易用性强</td><td>生产环境快速部署</td></tr><tr><td>Chroma</td><td>2022.10</td><td>开源、轻量级</td><td>开发测试、本地部署</td></tr><tr><td>FAISS</td><td>2017.03</td><td>Facebook开源、高性能</td><td>大规模向量计算</td></tr><tr><td>Milvus</td><td>2019.04</td><td>分布式、可扩展</td><td>超大规模数据处理</td></tr></tbody></table><h4 id=重排序reranking>重排序（Reranking）</h4><p>检索结果的相关性排序问题。最著名的发现是 <strong>&ldquo;Lost in the Middle&rdquo; 问题</strong>：</p><blockquote><p>2023 年，Liu 等人（不是 Gao）发现：在长文档中，最相关的信息往往出现在开头或结尾，中间部分的信息容易被忽略。</p></blockquote><p><strong>解决方案</strong>：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>rank_bm25</span> <span class=kn>import</span> <span class=n>BM25Okapi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>lost_in_middle_fix</span><span class=p>(</span><span class=n>documents</span><span class=p>,</span> <span class=n>query</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    解决&#34;Lost in the Middle&#34;问题的重排序算法
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 1. BM25 初步排序</span>
+</span></span><span class=line><span class=cl>    <span class=n>tokenized_docs</span> <span class=o>=</span> <span class=p>[</span><span class=n>doc</span><span class=o>.</span><span class=n>split</span><span class=p>()</span> <span class=k>for</span> <span class=n>doc</span> <span class=ow>in</span> <span class=n>documents</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>bm25</span> <span class=o>=</span> <span class=n>BM25Okapi</span><span class=p>(</span><span class=n>tokenized_docs</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 2. 位置权重调整</span>
+</span></span><span class=line><span class=cl>    <span class=n>doc_scores</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=n>doc</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>documents</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 给开头和结尾更高的权重</span>
+</span></span><span class=line><span class=cl>        <span class=n>position_weight</span> <span class=o>=</span> <span class=mf>1.0</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=nb>len</span><span class=p>(</span><span class=n>documents</span><span class=p>)</span> <span class=o>*</span> <span class=mf>0.2</span> <span class=ow>or</span> <span class=n>i</span> <span class=o>&gt;</span> <span class=nb>len</span><span class=p>(</span><span class=n>documents</span><span class=p>)</span> <span class=o>*</span> <span class=mf>0.8</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>position_weight</span> <span class=o>=</span> <span class=mf>1.5</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=n>score</span> <span class=o>=</span> <span class=n>bm25</span><span class=o>.</span><span class=n>get_scores</span><span class=p>(</span><span class=n>doc</span><span class=o>.</span><span class=n>split</span><span class=p>(),</span> <span class=n>query</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span> <span class=o>*</span> <span class=n>position_weight</span>
+</span></span><span class=line><span class=cl>        <span class=n>doc_scores</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>i</span><span class=p>,</span> <span class=n>score</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 3. 重新排序</span>
+</span></span><span class=line><span class=cl>    <span class=n>doc_scores</span><span class=o>.</span><span class=n>sort</span><span class=p>(</span><span class=n>key</span><span class=o>=</span><span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=n>x</span><span class=p>[</span><span class=mi>1</span><span class=p>],</span> <span class=n>reverse</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>[</span><span class=n>documents</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=n>_</span> <span class=ow>in</span> <span class=n>doc_scores</span><span class=p>]</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=4-生成层what-the-model-generates>4. 生成层（What the model generates）</h3><p>确保模型输出的内容符合要求，结构合理。</p><p><strong>核心控制机制</strong>：</p><ul><li><strong>输出约束</strong>：JSON 格式、字数限制</li><li><strong>思维链引导</strong>（Chain of Thought）：逐步推理</li><li><strong>格式控制</strong>：Markdown 表格、代码块等</li></ul><p><strong>实践示例</strong>：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>structured_generation</span><span class=p>(</span><span class=n>prompt</span><span class=p>,</span> <span class=n>schema</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    结构化生成控制器
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 1. 添加格式约束</span>
+</span></span><span class=line><span class=cl>    <span class=n>constrained_prompt</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>请严格按照以下格式回答：
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=si>{</span><span class=n>schema</span><span class=p>[</span><span class=s1>&#39;format&#39;</span><span class=p>]</span><span class=si>}</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>用户问题：</span><span class=si>{</span><span class=n>prompt</span><span class=si>}</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>请确保：
+</span></span></span><span class=line><span class=cl><span class=s2>- 使用指定的格式
+</span></span></span><span class=line><span class=cl><span class=s2>- 内容准确完整
+</span></span></span><span class=line><span class=cl><span class=s2>- 语言清晰易懂
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 2. 调用模型</span>
+</span></span><span class=line><span class=cl>    <span class=n>response</span> <span class=o>=</span> <span class=n>call_llm</span><span class=p>(</span><span class=n>constrained_prompt</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 3. 格式验证和修正</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>validate_format</span><span class=p>(</span><span class=n>response</span><span class=p>,</span> <span class=n>schema</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>response</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>fix_format</span><span class=p>(</span><span class=n>response</span><span class=p>,</span> <span class=n>schema</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=上下文管理的核心挑战>上下文管理的核心挑战</h2><h3 id=token-预算分配>Token 预算分配</h3><p>不同信息的价值密度差异巨大：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>value_based_allocation</span><span class=p>(</span><span class=n>context_tokens</span><span class=p>,</span> <span class=n>total_budget</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    基于价值的预算分配策略
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>priorities</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;system_prompt&#39;</span><span class=p>:</span> <span class=mf>0.15</span><span class=p>,</span>      <span class=c1># 系统指令 15%</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;core_context&#39;</span><span class=p>:</span> <span class=mf>0.25</span><span class=p>,</span>       <span class=c1># 核心上下文 25%</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;recent_history&#39;</span><span class=p>:</span> <span class=mf>0.20</span><span class=p>,</span>     <span class=c1># 近期历史 20%</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;tool_definitions&#39;</span><span class=p>:</span> <span class=mf>0.15</span><span class=p>,</span>   <span class=c1># 工具定义 15%</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;retrieved_docs&#39;</span><span class=p>:</span> <span class=mf>0.25</span>      <span class=c1># 检索文档 25%</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>allocated</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=n>remaining</span> <span class=o>=</span> <span class=n>total_budget</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>component</span><span class=p>,</span> <span class=n>ratio</span> <span class=ow>in</span> <span class=n>priorities</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=n>component_budget</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>total_budget</span> <span class=o>*</span> <span class=n>ratio</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>allocated</span><span class=p>[</span><span class=n>component</span><span class=p>]</span> <span class=o>=</span> <span class=nb>min</span><span class=p>(</span><span class=n>component_budget</span><span class=p>,</span> <span class=n>remaining</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>remaining</span> <span class=o>-=</span> <span class=n>allocated</span><span class=p>[</span><span class=n>component</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>allocated</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=上下文窗口的进化>上下文窗口的进化</h3><table><thead><tr><th>模型</th><th>发布时间</th><th>上下文</th><th>特点</th></tr></thead><tbody><tr><td>GPT-3</td><td>2020.06</td><td>4K</td><td>奠基之作</td></tr><tr><td>GPT-3.5</td><td>2022.03</td><td>16K</td><td>首次突破限制</td></tr><tr><td>GPT-4</td><td>2023.03</td><td>32K</td><td>商业可用</td></tr><tr><td>Claude 2</td><td>2023.07</td><td>100K</td><td>长文本专家</td></tr><tr><td>GPT-4 Turbo</td><td>2023.11</td><td>128K</td><td>实用化长上下文</td></tr><tr><td>DeepSeek-V2</td><td>2024.09</td><td>1M</td><td>开源长上下文标杆</td></tr><tr><td>Gemini 1.5</td><td>2024.02</td><td>1M</td><td>多模态长上下文</td></tr></tbody></table><h3 id=prompt-caching-技术>Prompt Caching 技术</h3><p>Anthropic 的 Prompt Caching 可以节省 50-90% 的成本：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>PromptCache</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>cache</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_cached_prompt</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>prompt_hash</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>cache</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>prompt_hash</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>cache_prompt</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>prompt_hash</span><span class=p>,</span> <span class=n>prompt_data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>cache</span><span class=p>[</span><span class=n>prompt_hash</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;data&#39;</span><span class=p>:</span> <span class=n>prompt_data</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;timestamp&#39;</span><span class=p>:</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;usage_count&#39;</span><span class=p>:</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=混合策略rag--长上下文>混合策略：RAG + 长上下文</h3><p>现代系统通常结合多种策略：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>hybrid_context_strategy</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;short_term&#39;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;memory_type&#39;</span><span class=p>:</span> <span class=s1>&#39;working_memory&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;max_tokens&#39;</span><span class=p>:</span> <span class=mi>2000</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;refresh_rate&#39;</span><span class=p>:</span> <span class=s1>&#39;turn_by_turn&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;long_term&#39;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;memory_type&#39;</span><span class=p>:</span> <span class=s1>&#39;vector_db&#39;</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;max_tokens&#39;</span><span class=p>:</span> <span class=mi>8000</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;refresh_rate&#39;</span><span class=p>:</span> <span class=s1>&#39;hourly&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;retrieval&#39;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;method&#39;</span><span class=p>:</span> <span class=s1>&#39;semantic_search&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;top_k&#39;</span><span class=p>:</span> <span class=mi>5</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;reranking&#39;</span><span class=p>:</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=动手入门构建文档问答机器人>动手入门：构建文档问答机器人</h2><p>让我们构建一个完整的 RAG 系统，这是一个理解上下文工程的最佳实践。</p><h3 id=第-1-步环境准备>第 1 步：环境准备</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># requirements.txt</span>
+</span></span><span class=line><span class=cl><span class=n>sentence</span><span class=o>-</span><span class=n>transformers</span><span class=o>==</span><span class=mf>2.2.2</span>
+</span></span><span class=line><span class=cl><span class=n>chromadb</span><span class=o>==</span><span class=mf>0.4.18</span>
+</span></span><span class=line><span class=cl><span class=n>langchain</span><span class=o>==</span><span class=mf>0.1.0</span>
+</span></span><span class=line><span class=cl><span class=n>openai</span><span class=o>==</span><span class=mf>1.3.7</span>
+</span></span><span class=line><span class=cl><span class=n>numpy</span><span class=o>==</span><span class=mf>1.24.3</span>
+</span></span><span class=line><span class=cl><span class=n>pandas</span><span class=o>==</span><span class=mf>2.0.3</span></span></span></code></pre></td></tr></table></div></div></div></div><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pip install -r requirements.txt</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=第-2-步文档处理>第 2 步：文档处理</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>document_processor</span> <span class=kn>import</span> <span class=n>DocumentProcessor</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 初始化处理器</span>
+</span></span><span class=line><span class=cl><span class=n>processor</span> <span class=o>=</span> <span class=n>DocumentProcessor</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>chunk_size</span><span class=o>=</span><span class=mi>512</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>chunk_overlap</span><span class=o>=</span><span class=mi>50</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>embedding_model</span><span class=o>=</span><span class=s1>&#39;all-MiniLM-L6-v2&#39;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 加载文档</span>
+</span></span><span class=line><span class=cl><span class=n>documents</span> <span class=o>=</span> <span class=n>processor</span><span class=o>.</span><span class=n>load_documents</span><span class=p>([</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;data/company_handbook.pdf&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;data/tech_specs.md&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;data/policies.txt&#39;</span>
+</span></span><span class=line><span class=cl><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 处理文档</span>
+</span></span><span class=line><span class=cl><span class=n>processed_chunks</span> <span class=o>=</span> <span class=n>processor</span><span class=o>.</span><span class=n>process_documents</span><span class=p>(</span><span class=n>documents</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 创建向量数据库</span>
+</span></span><span class=line><span class=cl><span class=n>vector_db</span> <span class=o>=</span> <span class=n>processor</span><span class=o>.</span><span class=n>create_vector_db</span><span class=p>(</span><span class=n>processed_chunks</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=第-3-步检索系统>第 3 步：检索系统</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>DocumentRetriever</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>vector_db</span><span class=p>,</span> <span class=n>reranker</span><span class=o>=</span><span class=kc>True</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>vector_db</span> <span class=o>=</span> <span class=n>vector_db</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>reranker</span> <span class=o>=</span> <span class=n>reranker</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>bm25</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>reranker</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>initialize_bm25</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>initialize_bm25</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;初始化 BM25 重排序器&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=kn>from</span> <span class=nn>rank_bm25</span> <span class=kn>import</span> <span class=n>BM25Okapi</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 准备 BM25 索引</span>
+</span></span><span class=line><span class=cl>        <span class=n>all_chunks</span> <span class=o>=</span> <span class=p>[</span><span class=n>chunk</span><span class=p>[</span><span class=s1>&#39;text&#39;</span><span class=p>]</span> <span class=k>for</span> <span class=n>chunk</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>vector_db</span><span class=o>.</span><span class=n>get_all_chunks</span><span class=p>()]</span>
+</span></span><span class=line><span class=cl>        <span class=n>tokenized_chunks</span> <span class=o>=</span> <span class=p>[</span><span class=n>doc</span><span class=o>.</span><span class=n>split</span><span class=p>()</span> <span class=k>for</span> <span class=n>doc</span> <span class=ow>in</span> <span class=n>all_chunks</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>bm25</span> <span class=o>=</span> <span class=n>BM25Okapi</span><span class=p>(</span><span class=n>tokenized_chunks</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>retrieve</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>query</span><span class=p>,</span> <span class=n>top_k</span><span class=o>=</span><span class=mi>5</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;两阶段检索：向量搜索 + 重排序&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 第一阶段：向量搜索</span>
+</span></span><span class=line><span class=cl>        <span class=n>vector_results</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>vector_db</span><span class=o>.</span><span class=n>search</span><span class=p>(</span><span class=n>query</span><span class=p>,</span> <span class=n>top_k</span> <span class=o>*</span> <span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 第二阶段：重排序</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>reranker</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>bm25</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>reranked</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>rerank_results</span><span class=p>(</span><span class=n>query</span><span class=p>,</span> <span class=n>vector_results</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>reranked</span><span class=p>[:</span><span class=n>top_k</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>vector_results</span><span class=p>[:</span><span class=n>top_k</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>rerank_results</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>query</span><span class=p>,</span> <span class=n>results</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;处理 Lost in the Middle 问题&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>texts</span> <span class=o>=</span> <span class=p>[</span><span class=n>r</span><span class=p>[</span><span class=s1>&#39;text&#39;</span><span class=p>]</span> <span class=k>for</span> <span class=n>r</span> <span class=ow>in</span> <span class=n>results</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>scores</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>bm25</span><span class=o>.</span><span class=n>get_scores</span><span class=p>(</span><span class=n>query</span><span class=o>.</span><span class=n>split</span><span class=p>(),</span> <span class=n>texts</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 添加位置权重</span>
+</span></span><span class=line><span class=cl>        <span class=n>final_scores</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=p>(</span><span class=n>result</span><span class=p>,</span> <span class=n>score</span><span class=p>)</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=nb>zip</span><span class=p>(</span><span class=n>results</span><span class=p>,</span> <span class=n>scores</span><span class=p>)):</span>
+</span></span><span class=line><span class=cl>            <span class=n>position_weight</span> <span class=o>=</span> <span class=mf>1.0</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=nb>len</span><span class=p>(</span><span class=n>results</span><span class=p>)</span> <span class=o>*</span> <span class=mf>0.2</span> <span class=ow>or</span> <span class=n>i</span> <span class=o>&gt;</span> <span class=nb>len</span><span class=p>(</span><span class=n>results</span><span class=p>)</span> <span class=o>*</span> <span class=mf>0.8</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>position_weight</span> <span class=o>=</span> <span class=mf>1.3</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=n>final_scores</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>result</span><span class=p>,</span> <span class=n>score</span> <span class=o>*</span> <span class=n>position_weight</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 重新排序</span>
+</span></span><span class=line><span class=cl>        <span class=n>final_scores</span><span class=o>.</span><span class=n>sort</span><span class=p>(</span><span class=n>key</span><span class=o>=</span><span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=n>x</span><span class=p>[</span><span class=mi>1</span><span class=p>],</span> <span class=n>reverse</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>[</span><span class=n>result</span> <span class=k>for</span> <span class=n>result</span><span class=p>,</span> <span class=n>_</span> <span class=ow>in</span> <span class=n>final_scores</span><span class=p>]</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=第-4-步问答系统>第 4 步：问答系统</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>RAGSystem</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>retriever</span><span class=p>,</span> <span class=n>llm_client</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>retriever</span> <span class=o>=</span> <span class=n>retriever</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>llm_client</span> <span class=o>=</span> <span class=n>llm_client</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>generate_response</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>query</span><span class=p>,</span> <span class=n>context_window</span><span class=o>=</span><span class=mi>4000</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;生成回答&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 1. 检索相关文档</span>
+</span></span><span class=line><span class=cl>        <span class=n>relevant_docs</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>retriever</span><span class=o>.</span><span class=n>retrieve</span><span class=p>(</span><span class=n>query</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 2. 上下文构建</span>
+</span></span><span class=line><span class=cl>        <span class=n>context</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>build_context</span><span class=p>(</span><span class=n>relevant_docs</span><span class=p>,</span> <span class=n>context_window</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 3. 生成回答</span>
+</span></span><span class=line><span class=cl>        <span class=n>prompt</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>create_prompt</span><span class=p>(</span><span class=n>query</span><span class=p>,</span> <span class=n>context</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>response</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>llm_client</span><span class=o>.</span><span class=n>generate</span><span class=p>(</span><span class=n>prompt</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>response</span><span class=p>,</span> <span class=n>relevant_docs</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>build_context</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>docs</span><span class=p>,</span> <span class=n>max_tokens</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;智能上下文构建&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>context_parts</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=n>used_tokens</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 按重要性排序文档</span>
+</span></span><span class=line><span class=cl>        <span class=n>sorted_docs</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>rank_documents_by_importance</span><span class=p>(</span><span class=n>docs</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>doc</span> <span class=ow>in</span> <span class=n>sorted_docs</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>used_tokens</span> <span class=o>+</span> <span class=n>doc</span><span class=p>[</span><span class=s1>&#39;tokens&#39;</span><span class=p>]</span> <span class=o>&lt;=</span> <span class=n>max_tokens</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>context_parts</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>doc</span><span class=p>[</span><span class=s1>&#39;content&#39;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>                <span class=n>used_tokens</span> <span class=o>+=</span> <span class=n>doc</span><span class=p>[</span><span class=s1>&#39;tokens&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>            <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>break</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=s2>&#34;</span><span class=se>\n\n</span><span class=s2>&#34;</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>context_parts</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>rank_documents_by_importance</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>docs</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;基于重要性排序文档&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 简单实现：按相关性分数排序</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>sorted</span><span class=p>(</span><span class=n>docs</span><span class=p>,</span> <span class=n>key</span><span class=o>=</span><span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=n>x</span><span class=p>[</span><span class=s1>&#39;score&#39;</span><span class=p>],</span> <span class=n>reverse</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=第-5-步系统集成>第 5 步：系统集成</h3><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>main</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;主程序&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 初始化组件</span>
+</span></span><span class=line><span class=cl>    <span class=n>processor</span> <span class=o>=</span> <span class=n>DocumentProcessor</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>retriever</span> <span class=o>=</span> <span class=n>DocumentRetriever</span><span class=p>(</span><span class=n>processor</span><span class=o>.</span><span class=n>vector_db</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>llm_client</span> <span class=o>=</span> <span class=n>OpenAIClient</span><span class=p>(</span><span class=n>api_key</span><span class=o>=</span><span class=s2>&#34;your-api-key&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 创建 RAG 系统</span>
+</span></span><span class=line><span class=cl>    <span class=n>rag_system</span> <span class=o>=</span> <span class=n>RAGSystem</span><span class=p>(</span><span class=n>retriever</span><span class=p>,</span> <span class=n>llm_client</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 测试问答</span>
+</span></span><span class=line><span class=cl>    <span class=n>query</span> <span class=o>=</span> <span class=s2>&#34;公司的加班政策是什么？&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>response</span><span class=p>,</span> <span class=n>sources</span> <span class=o>=</span> <span class=n>rag_system</span><span class=o>.</span><span class=n>generate_response</span><span class=p>(</span><span class=n>query</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;回答：&#34;</span><span class=p>,</span> <span class=n>response</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;来源：&#34;</span><span class=p>,</span> <span class=n>sources</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>main</span><span class=p>()</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=局限与未来>局限与未来</h2><h3 id=当前局限>当前局限</h3><ol><li><strong>被动信息供给</strong>：上下文工程主要优化的是"给什么信息"，但无法主动决定"应该给什么信息"</li><li><strong>执行控制缺失</strong>：知道正确信息 ≠ 能正确执行</li><li><strong>反馈循环不足</strong>：缺乏执行效果的验证和修正机制</li><li><strong>长周期自主性</strong>：无法处理需要多步决策的复杂任务</li></ol><h3 id=未来发展方向>未来发展方向</h3><ol><li><strong>主动上下文选择</strong>：AI 自主决定需要哪些信息</li><li><strong>执行安全控制</strong>：在执行过程中的实时约束</li><li><strong>多轮反馈机制</strong>：基于执行结果动态调整上下文</li><li><strong>自主决策能力</strong>：从"会回答"到"会行动"的跃迁</li></ol><p>上下文工程是 AI 工程化进程中的重要里程碑。它让我们从"如何让 AI 说对"进化到了"如何让 AI 知道正确信息"，这为下一阶段的 AI 驾驭工程奠定了基础。</p></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>所属系列:</span>
+<a href=/series/ai-%E5%B7%A5%E7%A8%8B%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/>AI 工程范式演进</a></div><div class=series-nav__links><a href=/posts/aihelper/from-prompt-to-context/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>上一篇</span>
+<span class=series-nav__title>从提示到上下文：为什么只说清楚远远不够</span>
+</a><a href=/posts/aihelper/from-context-to-harness/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>下一篇</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>从上下文到驾驭：信息到位了，但 AI 还是不可控</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/ai%E5%B7%A5%E7%A8%8B/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+AI工程
+</a><a class=tag-chip href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+范式演进
+</a><a class=tag-chip href=/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+上下文工程
+</a><a class=tag-chip href=/tags/rag/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+RAG</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>

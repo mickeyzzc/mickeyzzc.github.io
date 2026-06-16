@@ -1,0 +1,838 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - 驾驭工程：给 AI 装上缰绳和刹车</title><meta name=description content="驾驭工程的核心概念、四大子系统，以及如何让 AI Agent 从'会聊'到'能上岗'"><meta name=keywords content="AI工程,,驾驭工程,,Agent,,安全控制"><link rel=canonical href=/posts/aihelper/harness-engineering-guide/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - 驾驭工程：给 AI 装上缰绳和刹车"><meta property="og:description" content="驾驭工程的核心概念、四大子系统，以及如何让 AI Agent 从'会聊'到'能上岗'"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/aihelper/harness-engineering-guide/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-02-15 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-02-15 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - 驾驭工程：给 AI 装上缰绳和刹车"><meta name=twitter:description content="驾驭工程的核心概念、四大子系统，以及如何让 AI Agent 从'会聊'到'能上岗'"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/aihelper/harness-engineering-guide/><link rel=alternate hreflang=en href=/en/posts/aihelper/harness-engineering-guide/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/series/>系列</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label=切换语言 aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>中文</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/en/posts/aihelper/harness-engineering-guide/ lang=en rel=alternate>English</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#什么是驾驭工程>什么是驾驭工程？</a></li><li><a href=#起源与发展>起源与发展</a><ul><li><a href=#mitchell-hashimoto-的开创性贡献>Mitchell Hashimoto 的开创性贡献</a></li><li><a href=#openai-的技术推动>OpenAI 的技术推动</a></li><li><a href=#王欣的理论贡献>王欣的理论贡献</a></li><li><a href=#驾驭工程的公式>驾驭工程的公式</a></li></ul></li><li><a href=#四大核心子系统>四大核心子系统</a><ul><li><a href=#1-工具注入系统tool-injection>1. 工具注入系统（Tool Injection）</a></li><li><a href=#2-状态管理系统state-management>2. 状态管理系统（State Management）</a></li><li><a href=#3-验证循环系统verification-loop>3. 验证循环系统（Verification Loop）</a></li><li><a href=#4-约束分层系统guardrails>4. 约束分层系统（Guardrails）</a></li></ul></li><li><a href=#设计原则>设计原则</a><ul><li><a href=#前馈控制feedforward-control>前馈控制（Feedforward Control）</a></li><li><a href=#反馈修正feedback-correction>反馈修正（Feedback Correction）</a></li><li><a href=#渐进式自动化>渐进式自动化</a></li><li><a href=#可观测性observability>可观测性（Observability）</a></li></ul></li><li><a href=#局限与挑战>局限与挑战</a><ul><li><a href=#当前局限>当前局限</a></li><li><a href=#动力与未来>动力与未来</a></li></ul></li><li><a href=#小结驾驭的价值>小结：驾驭的价值</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/ai%E5%B7%A5%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai工程</span>
+</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-sm"><span>yolo</span>
+</a><a href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>范式演进</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-xs"><span>开源</span>
+</a><a href=/tags/%E6%9E%B6%E6%9E%84/ class="tag-cloud__item tag-size-xs"><span>架构</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>驾驭工程：给 AI 装上缰绳和刹车</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-02-15T00:00:00+00:00>February 15, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/ai%E5%B7%A5%E5%85%B7/>AI工具</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/ai%E5%B7%A5%E7%A8%8B/>AI工程</a>, <a href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/>范式演进</a>, <a href=/tags/%E9%A9%BE%E9%A9%AD%E5%B7%A5%E7%A8%8B/>驾驭工程</a>, <a href=/tags/agent/>Agent</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/series/ai-%E5%B7%A5%E7%A8%8B%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/>AI 工程范式演进</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>3971 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>8 分钟阅读</span></span></div></header><div class=Content><h2 id=什么是驾驭工程>什么是驾驭工程？</h2><p>定义：<strong>驾驭工程是围绕 AI Agent 设计约束、反馈循环、工具系统和验证机制的工程学科。</strong></p><p>这个定义听起来很学术，让我们用一个生动的比喻来理解：</p><blockquote><p><strong>驾驭一匹千里马</strong>：千里马（AI Agent）拥有强大的奔跑能力，但如果没有人驾驭，它可能会随意奔跑、撞伤路人、甚至冲悬崖。驾驭工程就是为这匹千里马配备缰绳（约束）、刹车（安全控制）、马鞭（激励机制）和骑手（监控），让它在正确的道路上安全前行。</p></blockquote><p><strong>核心理念</strong>：Human Steer, Agent Execute</p><ul><li><strong>Human Steer</strong>：人类设定目标、监控过程、最终决策</li><li><strong>Agent Execute</strong>：AI 在约束框架内自主执行</li></ul><p>这个理念解决了 Context Engineering 无法解决的根本问题：<strong>AI 有了知识，但没有行为的约束和验证</strong>。</p><h2 id=起源与发展>起源与发展</h2><h3 id=mitchell-hashimoto-的开创性贡献>Mitchell Hashimoto 的开创性贡献</h3><p>2026 年 2 月 5 日，HashiCorp 联合创始人 Mitchell Hashimoto 正式提出了"驾驭工程"这个概念。需要特别注意的是：是 Mitchell Hashimoto（HashiCorp 联合创始人），而不是 CTO。</p><p>Mitchell 在其博客中写道：</p><blockquote><p>&ldquo;驾驭工程不是限制 AI 的能力，而是确保 AI 的能力得到负责任的发挥。就像给赛车手配备安全装备，不是限制他跑得快，而是确保他能安全地快跑。&rdquo;</p></blockquote><h3 id=openai-的技术推动>OpenAI 的技术推动</h3><p>2026 年 2 月 11 日，OpenAI 发表了《Harness engineering: leveraging Codex》，从技术角度阐述了驾驭工程的重要性：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># OpenAI 的驾驭工程示例</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>CodexHarness</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>codex_model</span><span class=p>,</span> <span class=n>safety_constraints</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>model</span> <span class=o>=</span> <span class=n>codex_model</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>constraints</span> <span class=o>=</span> <span class=n>safety_constraints</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>execution_monitor</span> <span class=o>=</span> <span class=n>ExecutionMonitor</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>safe_execute</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 1. 任务安全性验证</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>validate_task</span><span class=p>(</span><span class=n>task</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=s2>&#34;Task violates safety constraints&#34;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 2. 执行过程监控</span>
+</span></span><span class=line><span class=cl>        <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>execution_monitor</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>model</span><span class=o>.</span><span class=n>execute</span><span class=p>(</span><span class=n>task</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 3. 结果验证</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>validate_result</span><span class=p>(</span><span class=n>result</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=s2>&#34;Execution result validation failed&#34;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>result</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=王欣的理论贡献>王欣的理论贡献</h3><p>技术专家王欣在其个人网站 wangxin.io 上发表了多篇关于驾驭工程的文章，从理论层面完善了这个概念。他提出：</p><blockquote><p>&ldquo;驾驭工程的核心是&rsquo;可控性&rsquo;。AI Agent 再强大，如果不能被人类控制和验证，就不能被用于生产环境。&rdquo;</p></blockquote><h3 id=驾驭工程的公式>驾驭工程的公式</h3><p>Mitchell Hashimoto 提出了一个简洁的公式：</p><p><strong>Agent = LLM + Harness</strong></p><p>这个公式揭示了现代 AI Agent 的本质：</p><ul><li><strong>LLM</strong>：提供认知能力和执行能力</li><li><strong>Harness</strong>：提供安全控制和约束框架</li></ul><h2 id=四大核心子系统>四大核心子系统</h2><p>驾驭工程包含四个相互关联的核心子系统，它们共同构成了 AI Agent 的安全框架。</p><h3 id=1-工具注入系统tool-injection>1. 工具注入系统（Tool Injection）</h3><p>负责管理 AI Agent 可以调用的工具，确保工具调用的安全性和可控性。</p><p><strong>核心组件</strong>：</p><ul><li><strong>函数调用协议</strong>：标准化的工具调用接口</li><li><strong>工具注册表</strong>：可调用工具的元数据管理</li><li><strong>权限控制</strong>：基于角色的工具访问控制</li><li><strong>沙箱隔离</strong>：工具执行的隔离环境</li></ul><p><strong>技术实现</strong>：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>ToolInjectionSystem</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>tool_registry</span> <span class=o>=</span> <span class=n>ToolRegistry</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>permission_manager</span> <span class=o>=</span> <span class=n>PermissionManager</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>sandbox</span> <span class=o>=</span> <span class=n>ExecutionSandbox</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>inject_tools</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>agent</span><span class=p>,</span> <span class=n>required_tools</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;安全地注入工具到 Agent&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 1. 工具权限验证</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>tool</span> <span class=ow>in</span> <span class=n>required_tools</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>permission_manager</span><span class=o>.</span><span class=n>can_use</span><span class=p>(</span><span class=n>agent</span><span class=p>,</span> <span class=n>tool</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=k>raise</span> <span class=ne>PermissionError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Agent </span><span class=si>{</span><span class=n>agent</span><span class=si>}</span><span class=s2> cannot use tool </span><span class=si>{</span><span class=n>tool</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 2. 工具注册和验证</span>
+</span></span><span class=line><span class=cl>        <span class=n>validated_tools</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>tool</span> <span class=ow>in</span> <span class=n>required_tools</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>tool_info</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>tool_registry</span><span class=o>.</span><span class=n>get_tool</span><span class=p>(</span><span class=n>tool</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>validate_tool</span><span class=p>(</span><span class=n>tool_info</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=n>validated_tools</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>tool_info</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 3. 沙箱环境配置</span>
+</span></span><span class=line><span class=cl>        <span class=n>sandbox_config</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>sandbox</span><span class=o>.</span><span class=n>create_config</span><span class=p>(</span><span class=n>validated_tools</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;tools&#39;</span><span class=p>:</span> <span class=n>validated_tools</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;sandbox&#39;</span><span class=p>:</span> <span class=n>sandbox_config</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;permissions&#39;</span><span class=p>:</span> <span class=bp>self</span><span class=o>.</span><span class=n>permission_manager</span><span class=o>.</span><span class=n>get_permissions</span><span class=p>(</span><span class=n>agent</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Claude Code 实践案例</strong>：
+Claude Code（2025年9月发布）是工具注入系统的优秀实践：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># Claude Code 的工具注入机制</span>
+</span></span><span class=line><span class=cl><span class=n>claude_code_config</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;allowed_tools&#39;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;file_read&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;file_write&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;bash_execute&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;web_search&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;git_operations&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;restricted_directories&#39;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;/system&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;/private&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;/config&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;execution_timeout&#39;</span><span class=p>:</span> <span class=mi>30</span><span class=p>,</span>  <span class=c1># 秒</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;max_file_size&#39;</span><span class=p>:</span> <span class=s1>&#39;10MB&#39;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=2-状态管理系统state-management>2. 状态管理系统（State Management）</h3><p>负责跟踪和管理 AI Agent 的执行状态，确保任务的可追溯性和可恢复性。</p><p><strong>核心组件</strong>：</p><ul><li><strong>任务进度跟踪</strong>：实时监控任务执行状态</li><li><strong>状态持久化</strong>：将中间状态保存到数据库</li><li><strong>中断恢复</strong>：从中断点继续执行</li><li><strong>并发隔离</strong>：防止多个任务相互干扰</li></ul><p><strong>技术实现</strong>：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>StateManager</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>storage_backend</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>storage</span> <span class=o>=</span> <span class=n>storage_backend</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>state_cache</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>create_task_state</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task_id</span><span class=p>,</span> <span class=n>initial_state</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;创建任务状态&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>state</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;task_id&#39;</span><span class=p>:</span> <span class=n>task_id</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;status&#39;</span><span class=p>:</span> <span class=s1>&#39;initialized&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;progress&#39;</span><span class=p>:</span> <span class=mf>0.0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;subtasks&#39;</span><span class=p>:</span> <span class=p>[],</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;created_at&#39;</span><span class=p>:</span> <span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;last_updated&#39;</span><span class=p>:</span> <span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;data&#39;</span><span class=p>:</span> <span class=n>initial_state</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>storage</span><span class=o>.</span><span class=n>save_state</span><span class=p>(</span><span class=n>task_id</span><span class=p>,</span> <span class=n>state</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>state</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>update_progress</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task_id</span><span class=p>,</span> <span class=n>progress</span><span class=p>,</span> <span class=n>subtask</span><span class=o>=</span><span class=kc>None</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;更新任务进度&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>state</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>storage</span><span class=o>.</span><span class=n>get_state</span><span class=p>(</span><span class=n>task_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>state</span><span class=p>[</span><span class=s1>&#39;progress&#39;</span><span class=p>]</span> <span class=o>=</span> <span class=n>progress</span>
+</span></span><span class=line><span class=cl>        <span class=n>state</span><span class=p>[</span><span class=s1>&#39;last_updated&#39;</span><span class=p>]</span> <span class=o>=</span> <span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>subtask</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>state</span><span class=p>[</span><span class=s1>&#39;subtasks&#39;</span><span class=p>]</span><span class=o>.</span><span class=n>append</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>                <span class=s1>&#39;name&#39;</span><span class=p>:</span> <span class=n>subtask</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                <span class=s1>&#39;completed_at&#39;</span><span class=p>:</span> <span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>            <span class=p>})</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>storage</span><span class=o>.</span><span class=n>save_state</span><span class=p>(</span><span class=n>task_id</span><span class=p>,</span> <span class=n>state</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>state</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>save_checkpoint</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task_id</span><span class=p>,</span> <span class=n>checkpoint_data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;保存检查点&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>state</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>storage</span><span class=o>.</span><span class=n>get_state</span><span class=p>(</span><span class=n>task_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>state</span><span class=p>[</span><span class=s1>&#39;checkpoint&#39;</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;data&#39;</span><span class=p>:</span> <span class=n>checkpoint_data</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;saved_at&#39;</span><span class=p>:</span> <span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>storage</span><span class=o>.</span><span class=n>save_state</span><span class=p>(</span><span class=n>task_id</span><span class=p>,</span> <span class=n>state</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>restore_from_checkpoint</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task_id</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;从检查点恢复&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>state</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>storage</span><span class=o>.</span><span class=n>get_state</span><span class=p>(</span><span class=n>task_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=s1>&#39;checkpoint&#39;</span> <span class=ow>in</span> <span class=n>state</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>state</span><span class=p>[</span><span class=s1>&#39;checkpoint&#39;</span><span class=p>][</span><span class=s1>&#39;data&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>None</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>并发控制策略</strong>：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>ConcurrencyManager</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>max_concurrent_tasks</span><span class=o>=</span><span class=mi>5</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>max_concurrent</span> <span class=o>=</span> <span class=n>max_concurrent_tasks</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>active_tasks</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>task_locks</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>execute_task</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;执行任务，处理并发&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 1. 检查并发限制</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>active_tasks</span><span class=p>)</span> <span class=o>&gt;=</span> <span class=bp>self</span><span class=o>.</span><span class=n>max_concurrent</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=n>ConcurrencyError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Maximum </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>max_concurrent</span><span class=si>}</span><span class=s2> tasks allowed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 2. 创建任务锁</span>
+</span></span><span class=line><span class=cl>        <span class=n>task_lock</span> <span class=o>=</span> <span class=n>asyncio</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>task_locks</span><span class=p>[</span><span class=n>task</span><span class=o>.</span><span class=n>id</span><span class=p>]</span> <span class=o>=</span> <span class=n>task_lock</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 3. 执行任务</span>
+</span></span><span class=line><span class=cl>            <span class=k>async</span> <span class=k>with</span> <span class=n>task_lock</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>result</span> <span class=o>=</span> <span class=k>await</span> <span class=n>task</span><span class=o>.</span><span class=n>execute</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>                <span class=bp>self</span><span class=o>.</span><span class=n>active_tasks</span><span class=p>[</span><span class=n>task</span><span class=o>.</span><span class=n>id</span><span class=p>]</span> <span class=o>=</span> <span class=n>result</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>result</span>
+</span></span><span class=line><span class=cl>        <span class=k>finally</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 4. 清理资源</span>
+</span></span><span class=line><span class=cl>            <span class=k>del</span> <span class=bp>self</span><span class=o>.</span><span class=n>task_locks</span><span class=p>[</span><span class=n>task</span><span class=o>.</span><span class=n>id</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>task</span><span class=o>.</span><span class=n>id</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>active_tasks</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>del</span> <span class=bp>self</span><span class=o>.</span><span class=n>active_tasks</span><span class=p>[</span><span class=n>task</span><span class=o>.</span><span class=n>id</span><span class=p>]</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=3-验证循环系统verification-loop>3. 验证循环系统（Verification Loop）</h3><p>负责验证 AI Agent 的执行结果，确保输出的质量和安全性。</p><p><strong>核心组件</strong>：</p><ul><li><strong>输出质量检查</strong>：验证生成内容的质量</li><li><strong>错误检测</strong>：识别执行中的异常</li><li><strong>自动修正</strong>：对错误进行自动修正</li><li><strong>人工审核触发</strong>：复杂情况下的人工介入</li></ul><p><strong>技术实现</strong>：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>VerificationLoop</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>checkers</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>            <span class=n>QualityChecker</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=n>SafetyChecker</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=n>FormatChecker</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=n>CompletenessChecker</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>error_handlers</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>            <span class=n>AutoFixHandler</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=n>HumanReviewHandler</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=n>LogHandler</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>async</span> <span class=k>def</span> <span class=nf>verify_execution</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task</span><span class=p>,</span> <span class=n>result</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;验证执行结果&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>verification_results</span> <span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 1. 执行所有检查</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>checker</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>checkers</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>check_result</span> <span class=o>=</span> <span class=k>await</span> <span class=n>checker</span><span class=o>.</span><span class=n>check</span><span class=p>(</span><span class=n>result</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=n>verification_results</span><span class=p>[</span><span class=n>checker</span><span class=o>.</span><span class=n>name</span><span class=p>]</span> <span class=o>=</span> <span class=n>check_result</span>
+</span></span><span class=line><span class=cl>            <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>verification_results</span><span class=p>[</span><span class=n>checker</span><span class=o>.</span><span class=n>name</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=s1>&#39;passed&#39;</span><span class=p>:</span> <span class=kc>False</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                    <span class=s1>&#39;error&#39;</span><span class=p>:</span> <span class=nb>str</span><span class=p>(</span><span class=n>e</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 2. 处理检查结果</span>
+</span></span><span class=line><span class=cl>        <span class=n>overall_passed</span> <span class=o>=</span> <span class=nb>all</span><span class=p>(</span><span class=n>r</span><span class=p>[</span><span class=s1>&#39;passed&#39;</span><span class=p>]</span> <span class=k>for</span> <span class=n>r</span> <span class=ow>in</span> <span class=n>verification_results</span><span class=o>.</span><span class=n>values</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>overall_passed</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 3. 错误处理</span>
+</span></span><span class=line><span class=cl>            <span class=n>error_summary</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>summarize_errors</span><span class=p>(</span><span class=n>verification_results</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>corrected_result</span> <span class=o>=</span> <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>handle_errors</span><span class=p>(</span><span class=n>task</span><span class=p>,</span> <span class=n>result</span><span class=p>,</span> <span class=n>error_summary</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>corrected_result</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>result</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>summarize_errors</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>verification_results</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;总结错误信息&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>errors</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>checker_name</span><span class=p>,</span> <span class=n>result</span> <span class=ow>in</span> <span class=n>verification_results</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=ow>not</span> <span class=n>result</span><span class=p>[</span><span class=s1>&#39;passed&#39;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>                <span class=n>errors</span><span class=o>.</span><span class=n>append</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>                    <span class=s1>&#39;checker&#39;</span><span class=p>:</span> <span class=n>checker_name</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                    <span class=s1>&#39;issue&#39;</span><span class=p>:</span> <span class=n>result</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;issue&#39;</span><span class=p>,</span> <span class=s1>&#39;Unknown issue&#39;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>                    <span class=s1>&#39;severity&#39;</span><span class=p>:</span> <span class=n>result</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;severity&#39;</span><span class=p>,</span> <span class=s1>&#39;medium&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=p>})</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>errors</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>async</span> <span class=k>def</span> <span class=nf>handle_errors</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task</span><span class=p>,</span> <span class=n>result</span><span class=p>,</span> <span class=n>errors</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;处理错误&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>error</span> <span class=ow>in</span> <span class=n>errors</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 按严重程度处理</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>error</span><span class=p>[</span><span class=s1>&#39;severity&#39;</span><span class=p>]</span> <span class=o>==</span> <span class=s1>&#39;critical&#39;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=c1># 触发人工审核</span>
+</span></span><span class=line><span class=cl>                <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>trigger_human_review</span><span class=p>(</span><span class=n>task</span><span class=p>,</span> <span class=n>result</span><span class=p>,</span> <span class=n>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>elif</span> <span class=n>error</span><span class=p>[</span><span class=s1>&#39;severity&#39;</span><span class=p>]</span> <span class=o>==</span> <span class=s1>&#39;high&#39;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=c1># 自动修正</span>
+</span></span><span class=line><span class=cl>                <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>auto_fix</span><span class=p>(</span><span class=n>task</span><span class=p>,</span> <span class=n>result</span><span class=p>,</span> <span class=n>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=c1># 记录日志</span>
+</span></span><span class=line><span class=cl>                <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>log_error</span><span class=p>(</span><span class=n>task</span><span class=p>,</span> <span class=n>result</span><span class=p>,</span> <span class=n>error</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>result</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>LangGraph 工作流编排</strong>：
+LangGraph（2024年1月发布）为验证循环提供了强大的工作流编排能力：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># LangGraph 验证循环示例</span>
+</span></span><span class=line><span class=cl><span class=n>verification_workflow</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;nodes&#39;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;id&#39;</span><span class=p>:</span> <span class=s1>&#39;input&#39;</span><span class=p>,</span> <span class=s1>&#39;type&#39;</span><span class=p>:</span> <span class=s1>&#39;input&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;id&#39;</span><span class=p>:</span> <span class=s1>&#39;quality_check&#39;</span><span class=p>,</span> <span class=s1>&#39;type&#39;</span><span class=p>:</span> <span class=s1>&#39;quality_check&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;id&#39;</span><span class=p>:</span> <span class=s1>&#39;safety_check&#39;</span><span class=p>,</span> <span class=s1>&#39;type&#39;</span><span class=p>:</span> <span class=s1>&#39;safety_check&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;id&#39;</span><span class=p>:</span> <span class=s1>&#39;format_check&#39;</span><span class=p>,</span> <span class=s1>&#39;type&#39;</span><span class=p>:</span> <span class=s1>&#39;format_check&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;id&#39;</span><span class=p>:</span> <span class=s1>&#39;auto_fix&#39;</span><span class=p>,</span> <span class=s1>&#39;type&#39;</span><span class=p>:</span> <span class=s1>&#39;auto_fix&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;id&#39;</span><span class=p>:</span> <span class=s1>&#39;human_review&#39;</span><span class=p>,</span> <span class=s1>&#39;type&#39;</span><span class=p>:</span> <span class=s1>&#39;human_review&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;id&#39;</span><span class=p>:</span> <span class=s1>&#39;output&#39;</span><span class=p>,</span> <span class=s1>&#39;type&#39;</span><span class=p>:</span> <span class=s1>&#39;output&#39;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;edges&#39;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;from&#39;</span><span class=p>:</span> <span class=s1>&#39;input&#39;</span><span class=p>,</span> <span class=s1>&#39;to&#39;</span><span class=p>:</span> <span class=s1>&#39;quality_check&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;from&#39;</span><span class=p>:</span> <span class=s1>&#39;quality_check&#39;</span><span class=p>,</span> <span class=s1>&#39;to&#39;</span><span class=p>:</span> <span class=s1>&#39;safety_check&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;from&#39;</span><span class=p>:</span> <span class=s1>&#39;safety_check&#39;</span><span class=p>,</span> <span class=s1>&#39;to&#39;</span><span class=p>:</span> <span class=s1>&#39;format_check&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;from&#39;</span><span class=p>:</span> <span class=s1>&#39;format_check&#39;</span><span class=p>,</span> <span class=s1>&#39;to&#39;</span><span class=p>:</span> <span class=s1>&#39;auto_fix&#39;</span><span class=p>,</span> <span class=s1>&#39;condition&#39;</span><span class=p>:</span> <span class=s1>&#39;needs_fix&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;from&#39;</span><span class=p>:</span> <span class=s1>&#39;format_check&#39;</span><span class=p>,</span> <span class=s1>&#39;to&#39;</span><span class=p>:</span> <span class=s1>&#39;human_review&#39;</span><span class=p>,</span> <span class=s1>&#39;condition&#39;</span><span class=p>:</span> <span class=s1>&#39;needs_review&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;from&#39;</span><span class=p>:</span> <span class=s1>&#39;auto_fix&#39;</span><span class=p>,</span> <span class=s1>&#39;to&#39;</span><span class=p>:</span> <span class=s1>&#39;output&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s1>&#39;from&#39;</span><span class=p>:</span> <span class=s1>&#39;human_review&#39;</span><span class=p>,</span> <span class=s1>&#39;to&#39;</span><span class=p>:</span> <span class=s1>&#39;output&#39;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=4-约束分层系统guardrails>4. 约束分层系统（Guardrails）</h3><p>负责为 AI Agent 设置多层次的约束，确保行为的合规性和安全性。</p><p><strong>核心组件</strong>：</p><ul><li><strong>规则引擎</strong>：可配置的业务规则</li><li><strong>格式强制</strong>：输出格式的要求</li><li><strong>安全策略</strong>：安全行为的约束</li><li><strong>合规审计</strong>：合规性的检查和记录</li></ul><p><strong>技术实现</strong>：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>GuardrailSystem</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>rule_engine</span> <span class=o>=</span> <span class=n>RuleEngine</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>format_enforcer</span> <span class=o>=</span> <span class=n>FormatEnforcer</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>security_policy</span> <span class=o>=</span> <span class=n>SecurityPolicy</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>compliance_auditor</span> <span class=o>=</span> <span class=n>ComplianceAuditor</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>apply_constraints</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task</span><span class=p>,</span> <span class=n>input_data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;应用约束系统&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 1. 规则检查</span>
+</span></span><span class=line><span class=cl>        <span class=n>rule_violations</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>rule_engine</span><span class=o>.</span><span class=n>check_rules</span><span class=p>(</span><span class=n>task</span><span class=p>,</span> <span class=n>input_data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>rule_violations</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=n>RuleViolationError</span><span class=p>(</span><span class=n>rule_violations</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 2. 格式强制</span>
+</span></span><span class=line><span class=cl>        <span class=n>formatted_input</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>format_enforcer</span><span class=o>.</span><span class=n>enforce_format</span><span class=p>(</span><span class=n>input_data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 3. 安全策略检查</span>
+</span></span><span class=line><span class=cl>        <span class=n>security_check</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>security_policy</span><span class=o>.</span><span class=n>check_security</span><span class=p>(</span><span class=n>task</span><span class=p>,</span> <span class=n>formatted_input</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>security_check</span><span class=p>[</span><span class=s1>&#39;passed&#39;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=n>SecurityError</span><span class=p>(</span><span class=n>security_check</span><span class=p>[</span><span class=s1>&#39;issues&#39;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 4. 合规审计</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>compliance_auditor</span><span class=o>.</span><span class=n>log_audit_event</span><span class=p>(</span><span class=n>task</span><span class=p>,</span> <span class=n>formatted_input</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>formatted_input</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>create_rule_set</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>domain</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;创建特定领域的规则集&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>rule_sets</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;finance&#39;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>                <span class=p>{</span><span class=s1>&#39;rule&#39;</span><span class=p>:</span> <span class=s1>&#39;no_financial_data_leakage&#39;</span><span class=p>,</span> <span class=s1>&#39;severity&#39;</span><span class=p>:</span> <span class=s1>&#39;critical&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>                <span class=p>{</span><span class=s1>&#39;rule&#39;</span><span class=p>:</span> <span class=s1>&#39;require_approval_for_large_transactions&#39;</span><span class=p>,</span> <span class=s1>&#39;severity&#39;</span><span class=p>:</span> <span class=s1>&#39;high&#39;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;healthcare&#39;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>                <span class=p>{</span><span class=s1>&#39;rule&#39;</span><span class=p>:</span> <span class=s1>&#39;hipaa_compliance&#39;</span><span class=p>,</span> <span class=s1>&#39;severity&#39;</span><span class=p>:</span> <span class=s1>&#39;critical&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>                <span class=p>{</span><span class=s1>&#39;rule&#39;</span><span class=p>:</span> <span class=s1>&#39;patient_data_anonymization&#39;</span><span class=p>,</span> <span class=s1>&#39;severity&#39;</span><span class=p>:</span> <span class=s1>&#39;high&#39;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=p>],</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;general&#39;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>                <span class=p>{</span><span class=s1>&#39;rule&#39;</span><span class=p>:</span> <span class=s1>&#39;no_harmful_content&#39;</span><span class=p>,</span> <span class=s1>&#39;severity&#39;</span><span class=p>:</span> <span class=s1>&#39;high&#39;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>                <span class=p>{</span><span class=s1>&#39;rule&#39;</span><span class=p>:</span> <span class=s1>&#39;respect_privacy&#39;</span><span class=p>,</span> <span class=s1>&#39;severity&#39;</span><span class=p>:</span> <span class=s1>&#39;medium&#39;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>rule_sets</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>domain</span><span class=p>,</span> <span class=n>rule_sets</span><span class=p>[</span><span class=s1>&#39;general&#39;</span><span class=p>])</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=设计原则>设计原则</h2><h3 id=前馈控制feedforward-control>前馈控制（Feedforward Control）</h3><p>在执行前设置约束和预期，防患于未然：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>FeedforwardController</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>constraints</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>expectations</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>setup_constraints</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;设置前馈约束&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 1. 权限预检</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>validate_permissions</span><span class=p>(</span><span class=n>task</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 2. 资源预分配</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>allocate_resources</span><span class=p>(</span><span class=n>task</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 3. 风险评估</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>assess_risks</span><span class=p>(</span><span class=n>task</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=c1># 4. 预期设定</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>set_expectations</span><span class=p>(</span><span class=n>task</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>validate_permissions</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;权限验证&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>required_perms</span> <span class=o>=</span> <span class=n>task</span><span class=o>.</span><span class=n>get_required_permissions</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>perm</span> <span class=ow>in</span> <span class=n>required_perms</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>check_permission</span><span class=p>(</span><span class=n>perm</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=k>raise</span> <span class=ne>PermissionError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Missing permission: </span><span class=si>{</span><span class=n>perm</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>allocate_resources</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;资源分配&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>resources</span> <span class=o>=</span> <span class=n>task</span><span class=o>.</span><span class=n>get_required_resources</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>resource</span><span class=p>,</span> <span class=n>amount</span> <span class=ow>in</span> <span class=n>resources</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>allocate</span><span class=p>(</span><span class=n>resource</span><span class=p>,</span> <span class=n>amount</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=k>raise</span> <span class=n>ResourceError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Cannot allocate </span><span class=si>{</span><span class=n>resource</span><span class=si>}</span><span class=s2>: </span><span class=si>{</span><span class=n>amount</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=反馈修正feedback-correction>反馈修正（Feedback Correction）</h3><p>在执行后进行验证和修正，持续改进：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>FeedbackController</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>validators</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>correctors</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>correct_execution</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task</span><span class=p>,</span> <span class=n>result</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;执行修正&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 1. 结果验证</span>
+</span></span><span class=line><span class=cl>        <span class=n>validation_result</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>validate_result</span><span class=p>(</span><span class=n>result</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>validation_result</span><span class=p>[</span><span class=s1>&#39;passed&#39;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 2. 自动修正</span>
+</span></span><span class=line><span class=cl>            <span class=n>corrected_result</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>auto_correct</span><span class=p>(</span><span class=n>result</span><span class=p>,</span> <span class=n>validation_result</span><span class=p>[</span><span class=s1>&#39;issues&#39;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=c1># 3. 重新验证</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>validate_result</span><span class=p>(</span><span class=n>corrected_result</span><span class=p>)[</span><span class=s1>&#39;passed&#39;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>                <span class=c1># 4. 人工介入</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>human_intervention</span><span class=p>(</span><span class=n>task</span><span class=p>,</span> <span class=n>corrected_result</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>corrected_result</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>result</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=渐进式自动化>渐进式自动化</h3><p>从人工监督到完全自动化的渐进过程：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>ProgressiveAutomation</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>automation_levels</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;level_1&#39;</span><span class=p>:</span> <span class=s1>&#39;human_supervised&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;level_2&#39;</span><span class=p>:</span> <span class=s1>&#39;human_in_the_loop&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;level_3&#39;</span><span class=p>:</span> <span class=s1>&#39;autonomous_with_monitoring&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;level_4&#39;</span><span class=p>:</span> <span class=s1>&#39;fully_autonomous&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_automation_level</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task_complexity</span><span class=p>,</span> <span class=n>risk_level</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;根据任务复杂度和风险等级确定自动化级别&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>risk_level</span> <span class=o>==</span> <span class=s1>&#39;critical&#39;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=s1>&#39;level_1&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=k>elif</span> <span class=n>task_complexity</span> <span class=o>==</span> <span class=s1>&#39;simple&#39;</span> <span class=ow>and</span> <span class=n>risk_level</span> <span class=o>==</span> <span class=s1>&#39;low&#39;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=s1>&#39;level_4&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=s1>&#39;level_2&#39;</span>  <span class=c1># 默认有人类在环路中</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=可观测性observability>可观测性（Observability）</h3><p>确保系统的透明度和可监控性：</p><div class=code-block-wrapper data-lang=python><div class=code-block-header><div class=code-block-meta><span class=code-language>python</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>ObservabilitySystem</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span> <span class=o>=</span> <span class=n>Logger</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>metrics</span> <span class=o>=</span> <span class=n>Metrics</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>tracer</span> <span class=o>=</span> <span class=n>Tracer</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>log_execution</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task</span><span class=p>,</span> <span class=n>agent</span><span class=p>,</span> <span class=n>result</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;记录执行日志&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>log_entry</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;timestamp&#39;</span><span class=p>:</span> <span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;task&#39;</span><span class=p>:</span> <span class=n>task</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;agent&#39;</span><span class=p>:</span> <span class=n>agent</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;result&#39;</span><span class=p>:</span> <span class=n>result</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;duration&#39;</span><span class=p>:</span> <span class=n>result</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;duration&#39;</span><span class=p>,</span> <span class=mi>0</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;status&#39;</span><span class=p>:</span> <span class=n>result</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;status&#39;</span><span class=p>,</span> <span class=s1>&#39;unknown&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=n>log_entry</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>metrics</span><span class=o>.</span><span class=n>record_task_completion</span><span class=p>(</span><span class=n>task</span><span class=p>,</span> <span class=n>result</span><span class=p>[</span><span class=s1>&#39;status&#39;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>trace_execution</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>task_id</span><span class=p>,</span> <span class=n>steps</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;追踪执行步骤&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=n>trace</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;task_id&#39;</span><span class=p>:</span> <span class=n>task_id</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;steps&#39;</span><span class=p>:</span> <span class=n>steps</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;start_time&#39;</span><span class=p>:</span> <span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;end_time&#39;</span><span class=p>:</span> <span class=kc>None</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s1>&#39;errors&#39;</span><span class=p>:</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>trace</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=局限与挑战>局限与挑战</h2><h3 id=当前局限>当前局限</h3><p>尽管驾驭工程提供了强大的安全控制，但仍存在一些局限：</p><ol><li><strong>任务初始化的人类依赖</strong>：仍需要人类来启动任务和设定目标</li><li><strong>任务间的自主性缺失</strong>：无法在多个任务之间自主切换和协调</li><li><strong>固定循环结构</strong>：预设的循环结构无法动态适应新情况</li><li><strong>适应性不足</strong>：对意外情况的处理能力有限</li></ol><h3 id=动力与未来>动力与未来</h3><p>这些局限正是推动下一阶段工程演进的动力：</p><ol><li><strong>任务间的自主协调</strong>：AI 可以自主在多个任务之间切换</li><li><strong>动态循环结构</strong>：循环结构可以根据需要动态调整</li><li><strong>自适应决策</strong>：基于执行结果动态调整策略</li><li><strong>完全自主</strong>：从"需要人类启动"到"自主任务管理"</li></ol><p>这些发展将推动 AI 工程进入下一个阶段：<strong>Loop Engineering</strong>（循环工程）。</p><h2 id=小结驾驭的价值>小结：驾驭的价值</h2><p>驾驭工程的价值在于：<strong>让 AI 从 demo 变为可部署的生产系统</strong>。</p><table><thead><tr><th>特性</th><th>简单 demo</th><th>驾驭工程系统</th></tr></thead><tbody><tr><td>安全性</td><td>无安全保障</td><td>多层约束保护</td></tr><tr><td>可靠性</td><td>结果不可控</td><td>执行可验证</td></tr><tr><td>可维护性</td><td>难以维护</td><td>状态可追踪</td></tr><tr><td>可扩展性</td><td>难以扩展</td><td>模块化设计</td></tr></tbody></table><p>驾驭工程是 AI 工程化的关键一步。它让我们不仅拥有了能回答问题的 AI，更拥有了能安全可靠地执行任务的 AI。这标志着 AI 技术从实验室走向实际应用的重要里程碑。</p></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>所属系列:</span>
+<a href=/series/ai-%E5%B7%A5%E7%A8%8B%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/>AI 工程范式演进</a></div><div class=series-nav__links><a href=/posts/aihelper/from-context-to-harness/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>上一篇</span>
+<span class=series-nav__title>从上下文到驾驭：信息到位了，但 AI 还是不可控</span>
+</a><a href=/posts/aihelper/from-harness-to-loop/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>下一篇</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>从驾驭到循环：每次都要人启动，算不上自主</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/ai%E5%B7%A5%E7%A8%8B/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+AI工程
+</a><a class=tag-chip href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+范式演进
+</a><a class=tag-chip href=/tags/%E9%A9%BE%E9%A9%AD%E5%B7%A5%E7%A8%8B/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+驾驭工程
+</a><a class=tag-chip href=/tags/agent/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Agent</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>
