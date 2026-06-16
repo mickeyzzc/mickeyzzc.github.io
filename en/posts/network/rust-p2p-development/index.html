@@ -1,0 +1,559 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - Rust P2P Development: From Ping to Gossipsub</title><meta name=description content="P2P network development in Rust: environment setup, minimal ping node (with run instructions), custom NetworkBehaviour for protocol composition, complete Kademlia DHT implementation with Put/Get operations, full Gossipsub pub/sub example, and NAT traversal (DCUtR)."><meta name=keywords content="Rust,,libp2p,,P2P,,Kademlia,,Gossipsub,,NAT,traversal,,DCUtR"><link rel=canonical href=/en/posts/network/rust-p2p-development/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - Rust P2P Development: From Ping to Gossipsub"><meta property="og:description" content="P2P network development in Rust: environment setup, minimal ping node (with run instructions), custom NetworkBehaviour for protocol composition, complete Kademlia DHT implementation with Put/Get operations, full Gossipsub pub/sub example, and NAT traversal (DCUtR)."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/posts/network/rust-p2p-development/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2022-08-22 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2022-08-22 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - Rust P2P Development: From Ping to Gossipsub"><meta name=twitter:description content="P2P network development in Rust: environment setup, minimal ping node (with run instructions), custom NetworkBehaviour for protocol composition, complete Kademlia DHT implementation with Put/Get operations, full Gossipsub pub/sub example, and NAT traversal (DCUtR)."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/network/rust-p2p-development/><link rel=alternate hreflang=en href=/en/posts/network/rust-p2p-development/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/series/>Series</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/posts/network/rust-p2p-development/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#environment-setup>Environment Setup</a></li><li><a href=#building-a-p2p-node>Building a P2P Node</a><ul><li><a href=#minimal-ping-node>Minimal Ping Node</a></li><li><a href=#protocol-composition>Protocol Composition</a></li></ul></li><li><a href=#complete-kademlia-dht-implementation>Complete Kademlia DHT Implementation</a></li><li><a href=#gossipsub-publishsubscribe>Gossipsub Publish/Subscribe</a></li><li><a href=#nat-traversal-dcutr>NAT Traversal (DCUtR)</a></li><li><a href=#node-lifecycle>Node Lifecycle</a><ul><li><a href=#common-compilation-issues>Common Compilation Issues</a></li><li><a href=#references>References</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/ai-engineering/ class="tag-cloud__item tag-size-md"><span>ai engineering</span>
+</a><a href=/en/tags/paradigm-evolution/ class="tag-cloud__item tag-size-sm"><span>paradigm evolution</span>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-sm"><span>yolo</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-sm"><span>architecture</span>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-xs"><span>open source</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Rust P2P Development: From Ping to Gossipsub</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2022-08-22T00:00:00+00:00>August 22, 2022</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/network/>Network</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/p2p/>P2P</a>, <a href=/en/tags/rust/>Rust</a>, <a href=/en/tags/libp2p/>Libp2p</a>, <a href=/en/tags/kademlia/>Kademlia</a>, <a href=/en/tags/gossipsub/>Gossipsub</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/en/series/network-development/>Network Development</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>1226 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>6 min read</span></span></div></header><div class=Content><p>Rust&rsquo;s ownership model and zero-cost abstractions make it an ideal language for implementing P2P network protocols. The Rust implementation of libp2p (rust-libp2p) provides a complete protocol stack from transport to application layer.</p><h2 id=environment-setup>Environment Setup</h2><p>Configure dependencies in <code>Cargo.toml</code>:</p><div class=code-block-wrapper data-lang=toml><div class=code-block-header><div class=code-block-meta><span class=code-language>toml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-toml data-lang=toml><span class=line><span class=cl><span class=p>[</span><span class=nx>dependencies</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=nx>libp2p</span> <span class=p>=</span> <span class=p>{</span> <span class=nx>version</span> <span class=p>=</span> <span class=s2>&#34;0.53&#34;</span><span class=p>,</span> <span class=nx>features</span> <span class=p>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;tokio&#34;</span><span class=p>,</span> <span class=s2>&#34;tcp&#34;</span><span class=p>,</span> <span class=s2>&#34;quic&#34;</span><span class=p>,</span> <span class=s2>&#34;noise&#34;</span><span class=p>,</span> <span class=s2>&#34;yamux&#34;</span><span class=p>,</span> <span class=s2>&#34;mplex&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;ping&#34;</span><span class=p>,</span> <span class=s2>&#34;identify&#34;</span><span class=p>,</span> <span class=s2>&#34;kad&#34;</span><span class=p>,</span> <span class=s2>&#34;gossipsub&#34;</span><span class=p>,</span> <span class=s2>&#34;relay&#34;</span><span class=p>,</span> <span class=s2>&#34;dcutr&#34;</span><span class=p>,</span> <span class=s2>&#34;macros&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>]</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=nx>tokio</span> <span class=p>=</span> <span class=p>{</span> <span class=nx>version</span> <span class=p>=</span> <span class=s2>&#34;1.0&#34;</span><span class=p>,</span> <span class=nx>features</span> <span class=p>=</span> <span class=p>[</span><span class=s2>&#34;full&#34;</span><span class=p>]</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=nx>tokio-stream</span> <span class=p>=</span> <span class=s2>&#34;0.1&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>futures</span> <span class=p>=</span> <span class=s2>&#34;0.3&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>anyhow</span> <span class=p>=</span> <span class=s2>&#34;1.0&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Create the project:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cargo new p2p-tutorial
+</span></span><span class=line><span class=cl><span class=nb>cd</span> p2p-tutorial
+</span></span><span class=line><span class=cl><span class=c1># Paste the dependencies into Cargo.toml</span>
+</span></span><span class=line><span class=cl>cargo build  <span class=c1># First build takes minutes to compile dependencies</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=building-a-p2p-node>Building a P2P Node</h2><h3 id=minimal-ping-node>Minimal Ping Node</h3><p>Ping is libp2p&rsquo;s &ldquo;Hello World&rdquo; — it demonstrates the basic node lifecycle:</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>libp2p</span>::<span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>identity</span><span class=p>,</span><span class=w> </span><span class=n>ping</span>::<span class=p>{</span><span class=n>Behaviour</span><span class=p>,</span><span class=w> </span><span class=n>Config</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=n>PingConfig</span><span class=p>,</span><span class=w> </span><span class=n>Event</span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>swarm</span>::<span class=p>{</span><span class=n>SwarmBuilder</span><span class=p>,</span><span class=w> </span><span class=n>SwarmEvent</span><span class=p>},</span><span class=w> </span><span class=n>Multiaddr</span><span class=p>,</span><span class=w> </span><span class=n>PeerId</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>tokio</span>::<span class=n>io</span>::<span class=p>{</span><span class=n>AsyncBufReadExt</span><span class=p>,</span><span class=w> </span><span class=n>BufReader</span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cp>#[tokio::main]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>async</span><span class=w> </span><span class=k>fn</span> <span class=nf>main</span><span class=p>()</span><span class=w> </span>-&gt; <span class=nc>anyhow</span>::<span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 1. Generate node identity
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>id_keys</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>identity</span>::<span class=n>Keypair</span>::<span class=n>generate_ed25519</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>peer_id</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>PeerId</span>::<span class=n>from</span><span class=p>(</span><span class=n>id_keys</span><span class=p>.</span><span class=n>public</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Local Peer ID: </span><span class=si>{peer_id}</span><span class=s>&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 2. Build transport + security + multiplexing
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>transport</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>libp2p</span>::<span class=n>tokio_development_transport</span><span class=p>(</span><span class=n>id_keys</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 3. Define network behaviour
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>behaviour</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Behaviour</span>::<span class=n>new</span><span class=p>(</span><span class=n>PingConfig</span>::<span class=n>default</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 4. Create Swarm (network event loop)
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>swarm</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>SwarmBuilder</span>::<span class=n>with_tokio_executor</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>transport</span><span class=p>,</span><span class=w> </span><span class=n>behaviour</span><span class=p>,</span><span class=w> </span><span class=n>peer_id</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>).</span><span class=n>build</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 5. Start listening
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>swarm</span><span class=p>.</span><span class=n>listen_on</span><span class=p>(</span><span class=s>&#34;/ip4/0.0.0.0/tcp/0&#34;</span><span class=p>.</span><span class=n>parse</span><span class=p>()</span><span class=o>?</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 6. Interactive: enter peer address to connect
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>stdin</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>BufReader</span>::<span class=n>new</span><span class=p>(</span><span class=n>tokio</span>::<span class=n>io</span>::<span class=n>stdin</span><span class=p>()).</span><span class=n>lines</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Enter peer multiaddr to dial (or &#39;quit&#39; to exit):&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>loop</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>tokio</span>::<span class=fm>select!</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>event</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>swarm</span><span class=p>.</span><span class=n>select_next_some</span><span class=p>()</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=k>match</span><span class=w> </span><span class=n>event</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>SwarmEvent</span>::<span class=n>NewListenAddr</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=n>address</span><span class=p>,</span><span class=w> </span><span class=o>..</span><span class=w> </span><span class=p>}</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Listening on </span><span class=si>{address}</span><span class=s>&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>SwarmEvent</span>::<span class=n>Behaviour</span><span class=p>(</span><span class=n>Event</span>::<span class=n>Ping</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=n>peer</span><span class=p>,</span><span class=w> </span><span class=n>result</span><span class=w> </span><span class=p>})</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Ping to </span><span class=si>{peer}</span><span class=s>: </span><span class=si>{result:?}</span><span class=s>&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>_</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>line</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>stdin</span><span class=p>.</span><span class=n>next_line</span><span class=p>()</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>line</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>line</span><span class=o>?</span><span class=p>.</span><span class=n>expect</span><span class=p>(</span><span class=s>&#34;stdin closed&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=k>if</span><span class=w> </span><span class=n>line</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=s>&#34;quit&#34;</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=k>break</span><span class=p>;</span><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=k>if</span><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=nb>Ok</span><span class=p>(</span><span class=n>addr</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>line</span><span class=p>.</span><span class=n>parse</span>::<span class=o>&lt;</span><span class=n>Multiaddr</span><span class=o>&gt;</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=n>swarm</span><span class=p>.</span><span class=n>dial</span><span class=p>(</span><span class=n>addr</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Dialing </span><span class=si>{addr}</span><span class=s>&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nb>Ok</span><span class=p>(())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Running and testing:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Terminal 1: Start first node</span>
+</span></span><span class=line><span class=cl>cargo run
+</span></span><span class=line><span class=cl><span class=c1># Output: Local Peer ID: 12D3Koo...</span>
+</span></span><span class=line><span class=cl><span class=c1># Output: Listening on /ip4/127.0.0.1/tcp/12345</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Terminal 2: Start second node</span>
+</span></span><span class=line><span class=cl>cargo run
+</span></span><span class=line><span class=cl><span class=c1># Output: Local Peer ID: 12D3Koo...</span>
+</span></span><span class=line><span class=cl><span class=c1># Output: Listening on /ip4/127.0.0.1/tcp/54321</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># In Terminal 2, enter Terminal 1&#39;s listening address:</span>
+</span></span><span class=line><span class=cl><span class=c1># /ip4/127.0.0.1/tcp/12345/p2p/12D3Koo... (replace with actual Peer ID)</span>
+</span></span><span class=line><span class=cl><span class=c1># Both nodes start pinging each other</span></span></span></code></pre></td></tr></table></div></div></div></div><p>This example demonstrates four core components: <strong>identity generation</strong>, <strong>transport construction</strong>, <strong>behaviour definition</strong>, and <strong>event loop</strong>. <code>tokio::select!</code> simultaneously listens for network events and user input, enabling interactive node management.</p><h3 id=protocol-composition>Protocol Composition</h3><p>Real P2P applications typically need multiple protocols running simultaneously. libp2p&rsquo;s <code>NetworkBehaviour</code> derive macro composes multiple protocols into one:</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=cp>#[derive(NetworkBehaviour)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cp>#[behaviour(out_event = </span><span class=s>&#34;MyBehaviourEvent&#34;</span><span class=cp>)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>struct</span> <span class=nc>MyBehaviour</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>ping</span>: <span class=nc>ping</span>::<span class=n>Behaviour</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>identify</span>: <span class=nc>identify</span>::<span class=n>Behaviour</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>kademlia</span>: <span class=nc>kad</span>::<span class=n>Behaviour</span><span class=o>&lt;</span><span class=n>kad</span>::<span class=n>store</span>::<span class=n>MemoryStore</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>gossipsub</span>: <span class=nc>gossipsub</span>::<span class=n>Behaviour</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Events from each sub-protocol are converted into a unified event type via the <code>From</code> trait, centralizing event handling in a single <code>match</code> block.</p><h2 id=complete-kademlia-dht-implementation>Complete Kademlia DHT Implementation</h2><p>Here&rsquo;s a complete DHT node with <strong>Put/Get operations</strong>:</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>libp2p</span>::<span class=p>{</span><span class=n>identity</span><span class=p>,</span><span class=w> </span><span class=n>kad</span><span class=p>,</span><span class=w> </span><span class=n>swarm</span>::<span class=p>{</span><span class=n>SwarmBuilder</span><span class=p>,</span><span class=w> </span><span class=n>SwarmEvent</span><span class=p>},</span><span class=w> </span><span class=n>PeerId</span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>std</span>::<span class=n>time</span>::<span class=n>Duration</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>async</span><span class=w> </span><span class=k>fn</span> <span class=nf>run_dht_node</span><span class=p>()</span><span class=w> </span>-&gt; <span class=nc>anyhow</span>::<span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>id_keys</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>identity</span>::<span class=n>Keypair</span>::<span class=n>generate_ed25519</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>peer_id</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>PeerId</span>::<span class=n>from</span><span class=p>(</span><span class=n>id_keys</span><span class=p>.</span><span class=n>public</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>transport</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>libp2p</span>::<span class=n>tokio_development_transport</span><span class=p>(</span><span class=n>id_keys</span><span class=p>.</span><span class=n>clone</span><span class=p>())</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>store</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>kad</span>::<span class=n>store</span>::<span class=n>MemoryStore</span>::<span class=n>new</span><span class=p>(</span><span class=n>peer_id</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>kademlia</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>kad</span>::<span class=n>Behaviour</span>::<span class=n>with_config</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>peer_id</span><span class=p>,</span><span class=w> </span><span class=n>store</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>kad</span>::<span class=n>Config</span>::<span class=n>default</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>.</span><span class=n>set_query_timeout</span><span class=p>(</span><span class=n>Duration</span>::<span class=n>from_secs</span><span class=p>(</span><span class=mi>30</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>.</span><span class=n>set_replication_interval</span><span class=p>(</span><span class=nb>Some</span><span class=p>(</span><span class=n>Duration</span>::<span class=n>from_secs</span><span class=p>(</span><span class=mi>3600</span><span class=p>))),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Add IPFS bootstrap nodes
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>bootstrap</span>: <span class=nb>Vec</span><span class=o>&lt;</span><span class=p>(</span><span class=n>PeerId</span><span class=p>,</span><span class=w> </span><span class=n>libp2p</span>::<span class=n>Multiaddr</span><span class=p>)</span><span class=o>&gt;</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=fm>vec!</span><span class=p>[</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>(</span><span class=s>&#34;QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN&#34;</span><span class=p>.</span><span class=n>parse</span><span class=p>()</span><span class=o>?</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=s>&#34;/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN&#34;</span><span class=p>.</span><span class=n>parse</span><span class=p>()</span><span class=o>?</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>];</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=p>(</span><span class=n>peer</span><span class=p>,</span><span class=w> </span><span class=n>addr</span><span class=p>)</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>bootstrap</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>kademlia</span><span class=p>.</span><span class=n>add_address</span><span class=p>(</span><span class=o>&amp;</span><span class=n>peer</span><span class=p>,</span><span class=w> </span><span class=n>addr</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>kademlia</span><span class=p>.</span><span class=n>bootstrap</span><span class=p>()</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>swarm</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>SwarmBuilder</span>::<span class=n>with_tokio_executor</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>transport</span><span class=p>,</span><span class=w> </span><span class=n>kademlia</span><span class=p>,</span><span class=w> </span><span class=n>peer_id</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>).</span><span class=n>build</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>swarm</span><span class=p>.</span><span class=n>listen_on</span><span class=p>(</span><span class=s>&#34;/ip4/0.0.0.0/tcp/4001&#34;</span><span class=p>.</span><span class=n>parse</span><span class=p>()</span><span class=o>?</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Wait for bootstrap
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>tokio</span>::<span class=n>time</span>::<span class=n>sleep</span><span class=p>(</span><span class=n>Duration</span>::<span class=n>from_secs</span><span class=p>(</span><span class=mi>5</span><span class=p>)).</span><span class=k>await</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ===== Put: store data =====
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>key</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=s>&#34;my-app/greeting&#34;</span><span class=p>.</span><span class=n>as_bytes</span><span class=p>().</span><span class=n>to_vec</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>value</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=sa>b</span><span class=s>&#34;Hello from Rust DHT!&#34;</span><span class=p>.</span><span class=n>to_vec</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>swarm</span><span class=p>.</span><span class=n>behaviour_mut</span><span class=p>().</span><span class=n>put_record</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>kad</span>::<span class=n>Record</span>::<span class=n>new</span><span class=p>(</span><span class=n>key</span><span class=p>.</span><span class=n>clone</span><span class=p>(),</span><span class=w> </span><span class=n>value</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>kad</span>::<span class=n>Quorum</span>::<span class=n>Majority</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Put: stored key &#39;my-app/greeting&#39;&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>tokio</span>::<span class=n>time</span>::<span class=n>sleep</span><span class=p>(</span><span class=n>Duration</span>::<span class=n>from_secs</span><span class=p>(</span><span class=mi>2</span><span class=p>)).</span><span class=k>await</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ===== Get: retrieve data =====
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>swarm</span><span class=p>.</span><span class=n>behaviour_mut</span><span class=p>().</span><span class=n>get_record</span><span class=p>(</span><span class=o>&amp;</span><span class=n>key</span><span class=p>.</span><span class=n>into</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Get: requesting key &#39;my-app/greeting&#39;&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>loop</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>match</span><span class=w> </span><span class=n>swarm</span><span class=p>.</span><span class=n>select_next_some</span><span class=p>().</span><span class=k>await</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>SwarmEvent</span>::<span class=n>Behaviour</span><span class=p>(</span><span class=n>kad</span>::<span class=n>Event</span>::<span class=n>OutboundQueryProgressed</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>result</span>: <span class=nc>kad</span>::<span class=n>QueryResult</span>::<span class=n>GetRecord</span><span class=p>(</span><span class=nb>Ok</span><span class=p>(</span><span class=n>ok</span><span class=p>)),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=o>..</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>})</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=k>for</span><span class=w> </span><span class=n>record</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>ok</span><span class=p>.</span><span class=n>records</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Got value: </span><span class=si>{}</span><span class=s>&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                        </span><span class=nb>String</span>::<span class=n>from_utf8_lossy</span><span class=p>(</span><span class=o>&amp;</span><span class=n>record</span><span class=p>.</span><span class=n>record</span><span class=p>.</span><span class=n>value</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=k>break</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>SwarmEvent</span>::<span class=n>Behaviour</span><span class=p>(</span><span class=n>kad</span>::<span class=n>Event</span>::<span class=n>OutboundQueryProgressed</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>result</span>: <span class=nc>kad</span>::<span class=n>QueryResult</span>::<span class=n>PutRecord</span><span class=p>(</span><span class=n>_</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=o>..</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>})</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Put succeeded&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>_</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nb>Ok</span><span class=p>(())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Key API notes:</p><ul><li><code>put_record()</code>: Stores key-value pair on the K closest nodes to the key</li><li><code>get_record()</code>: Retrieves the value for a key from DHT</li><li><code>Quorum::Majority</code>: Requires majority of nodes to confirm write</li><li><code>OutboundQueryProgressed</code>: DHT query progress event with success/failure results</li></ul><h2 id=gossipsub-publishsubscribe>Gossipsub Publish/Subscribe</h2><p>Gossipsub is ideal for broadcast messaging. Here&rsquo;s a <strong>complete publish and subscribe example</strong>:</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>libp2p</span>::<span class=n>gossipsub</span>::<span class=p>{</span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>MessageAuthenticity</span><span class=p>,</span><span class=w> </span><span class=n>MessageId</span><span class=p>,</span><span class=w> </span><span class=n>Sha256Topic</span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>sha2</span>::<span class=p>{</span><span class=n>Digest</span><span class=p>,</span><span class=w> </span><span class=n>Sha256</span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>fn</span> <span class=nf>create_gossipsub</span><span class=p>(</span><span class=n>id_keys</span>: <span class=kp>&amp;</span><span class=nc>identity</span>::<span class=n>Keypair</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>anyhow</span>::<span class=nb>Result</span><span class=o>&lt;</span><span class=n>gossipsub</span>::<span class=n>Behaviour</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>message_id_fn</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>|</span><span class=n>message</span>: <span class=kp>&amp;</span><span class=nc>gossipsub</span>::<span class=n>Message</span><span class=o>|</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>hasher</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Sha256</span>::<span class=n>new</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>hasher</span><span class=p>.</span><span class=n>update</span><span class=p>(</span><span class=o>&amp;</span><span class=n>message</span><span class=p>.</span><span class=n>data</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>MessageId</span>::<span class=n>from</span><span class=p>(</span><span class=n>hasher</span><span class=p>.</span><span class=n>finalize</span><span class=p>().</span><span class=n>as_slice</span><span class=p>())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>config</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>gossipsub</span>::<span class=n>ConfigBuilder</span>::<span class=n>default</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>heartbeat_interval</span><span class=p>(</span><span class=n>Duration</span>::<span class=n>from_secs</span><span class=p>(</span><span class=mi>1</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>validation_mode</span><span class=p>(</span><span class=n>gossipsub</span>::<span class=n>ValidationMode</span>::<span class=n>Strict</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>message_id_fn</span><span class=p>(</span><span class=n>message_id_fn</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>build</span><span class=p>()</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nb>Ok</span><span class=p>(</span><span class=n>gossipsub</span>::<span class=n>Behaviour</span>::<span class=n>new</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>MessageAuthenticity</span>::<span class=n>Signed</span><span class=p>(</span><span class=n>id_keys</span><span class=p>.</span><span class=n>clone</span><span class=p>()),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>config</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>)</span><span class=o>?</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// Complete publish + subscribe usage
+</span></span></span><span class=line><span class=cl><span class=k>async</span><span class=w> </span><span class=k>fn</span> <span class=nf>pubsub_example</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>swarm</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>Swarm</span><span class=o>&lt;</span><span class=n>MyBehaviour</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>anyhow</span>::<span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>topic</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Sha256Topic</span>::<span class=n>new</span><span class=p>(</span><span class=s>&#34;p2p-tutorial/chat&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Subscribe to topic
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>swarm</span><span class=p>.</span><span class=n>behaviour_mut</span><span class=p>().</span><span class=n>gossipsub</span><span class=p>.</span><span class=n>subscribe</span><span class=p>(</span><span class=o>&amp;</span><span class=n>topic</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Subscribed to topic: p2p-tutorial/chat&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Publish message
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>swarm</span><span class=p>.</span><span class=n>behaviour_mut</span><span class=p>().</span><span class=n>gossipsub</span><span class=p>.</span><span class=n>publish</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>topic</span><span class=p>.</span><span class=n>clone</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=sa>b</span><span class=s>&#34;Hello P2P World!&#34;</span><span class=p>.</span><span class=n>to_vec</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;Published: Hello P2P World!&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Handle received messages in main event loop:
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// match event {
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//     SwarmEvent::Behaviour(MyBehaviourEvent::Gossipsub(
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//         gossipsub::Event::Message {
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//             propagation_source,
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//             message_id,
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//             message,
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//         }
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//     )) =&gt; {
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//         println!(&#34;Received: {} from {}&#34;,
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//             String::from_utf8_lossy(&amp;message.data),
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//             propagation_source);
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>//     }
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// }
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nb>Ok</span><span class=p>(())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=nat-traversal-dcutr>NAT Traversal (DCUtR)</h2><p>When a node is behind NAT, relay and hole punching are needed:</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=cp>#[derive(NetworkBehaviour)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>struct</span> <span class=nc>HolePunchBehaviour</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>relay_client</span>: <span class=nc>relay</span>::<span class=n>client</span>::<span class=n>Behaviour</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>dcutr</span>: <span class=nc>dcutr</span>::<span class=n>Behaviour</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>async</span><span class=w> </span><span class=k>fn</span> <span class=nf>setup_hole_punching</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>swarm</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>Swarm</span><span class=o>&lt;</span><span class=n>HolePunchBehaviour</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>relay_peer_id</span>: <span class=nc>PeerId</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>relay_addr</span>: <span class=nc>Multiaddr</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>anyhow</span>::<span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>relay_addr</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>relay_addr</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>with</span><span class=p>(</span><span class=n>libp2p</span>::<span class=n>multiaddr</span>::<span class=n>Protocol</span>::<span class=n>P2p</span><span class=p>(</span><span class=n>relay_peer_id</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>.</span><span class=n>with</span><span class=p>(</span><span class=n>libp2p</span>::<span class=n>multiaddr</span>::<span class=n>Protocol</span>::<span class=n>P2pCircuit</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>swarm</span><span class=p>.</span><span class=n>listen_on</span><span class=p>(</span><span class=n>relay_addr</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Other nodes can now connect through the relay
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// DCUtR automatically attempts direct hole punching,
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// upgrading to direct connection on success
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nb>Ok</span><span class=p>(())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=node-lifecycle>Node Lifecycle</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[&#34;Generate Keypair&lt;br/&gt;identity::Keypair::generate_ed25519()&#34;] --&gt; B[&#34;Create Transport&lt;br/&gt;Transport &#43; Security &#43; Mux&#34;]
+    B --&gt; C[&#34;Define Behaviour&lt;br/&gt;Compose protocols&#34;]
+    C --&gt; D[&#34;Build Swarm&lt;br/&gt;Event loop core&#34;]
+    D --&gt; E[&#34;Start Listening&lt;br/&gt;listen_on()&#34;]
+    E --&gt; F{&#34;Event Loop&lt;br/&gt;tokio::select!&#34;}
+    F --&gt;|&#34;New Connection&#34;| G[&#34;Process SwarmEvent&lt;br/&gt;Protocol dispatch&#34;]
+    F --&gt;|&#34;User Input&#34;| H[&#34;dial / publish&lt;br/&gt;Initiate connection&#34;]
+    G --&gt; F
+    H --&gt; F</code></pre></div></div><h3 id=common-compilation-issues>Common Compilation Issues</h3><table><thead><tr><th>Issue</th><th>Solution</th></tr></thead><tbody><tr><td><code>feature not found</code></td><td>Check <code>Cargo.toml</code> features list, ensure required protocols are enabled</td></tr><tr><td><code>unresolved import</code></td><td>Confirm libp2p version ≥ 0.53, APIs change between versions</td></tr><tr><td><code>trait bound not satisfied</code></td><td>Ensure <code>NetworkBehaviour</code>&rsquo;s <code>out_event</code> and all <code>From</code> impls are complete</td></tr></tbody></table><h3 id=references>References</h3><ul><li>rust-libp2p. <a href=https://github.com/libp2p/rust-libp2p>https://github.com/libp2p/rust-libp2p</a></li><li>libp2p Specification. <a href=https://docs.libp2p.io/>https://docs.libp2p.io/</a></li><li>STUN Protocol (RFC 5389). <a href=https://datatracker.ietf.org/doc/rfc5389/>https://datatracker.ietf.org/doc/rfc5389/</a></li><li>rust-libp2p examples. <a href=https://github.com/libp2p/rust-libp2p/tree/master/examples>https://github.com/libp2p/rust-libp2p/tree/master/examples</a></li></ul></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>Part of series:</span>
+<a href=/en/series/network-development/>Network Development</a></div><div class=series-nav__links><a href=/en/posts/network/libp2p-bittorrent-protocol/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>Previous</span>
+<span class=series-nav__title>libp2p Protocol Stack & BitTorrent Protocol Deep Dive</span>
+</a><a href=/en/posts/network/golang-p2p-development/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>Next</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>Go P2P Development: From Basics to PubSub</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/p2p/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+P2P
+</a><a class=tag-chip href=/en/tags/rust/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Rust
+</a><a class=tag-chip href=/en/tags/libp2p/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Libp2p
+</a><a class=tag-chip href=/en/tags/kademlia/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Kademlia
+</a><a class=tag-chip href=/en/tags/gossipsub/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Gossipsub</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>

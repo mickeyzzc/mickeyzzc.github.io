@@ -1,0 +1,166 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - libp2p 协议栈与 BitTorrent 协议深度解析</title><meta name=description content="深入解析两种主流的 P2P 协议：libp2p 模块化协议栈（传输层、多路复用原理、安全层、Identify、Gossipsub 参数详解）和 BitTorrent 的 .torrent 文件结构、分块下载与 Tit-for-Tat 激励机制。"><meta name=keywords content="libp2p,,BitTorrent,,Gossipsub,,多路复用,,Noise协议,,文件分发,,torrent文件"><link rel=canonical href=/posts/network/libp2p-bittorrent-protocol/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - libp2p 协议栈与 BitTorrent 协议深度解析"><meta property="og:description" content="深入解析两种主流的 P2P 协议：libp2p 模块化协议栈（传输层、多路复用原理、安全层、Identify、Gossipsub 参数详解）和 BitTorrent 的 .torrent 文件结构、分块下载与 Tit-for-Tat 激励机制。"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/network/libp2p-bittorrent-protocol/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2021-11-08 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2021-11-08 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - libp2p 协议栈与 BitTorrent 协议深度解析"><meta name=twitter:description content="深入解析两种主流的 P2P 协议：libp2p 模块化协议栈（传输层、多路复用原理、安全层、Identify、Gossipsub 参数详解）和 BitTorrent 的 .torrent 文件结构、分块下载与 Tit-for-Tat 激励机制。"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/network/libp2p-bittorrent-protocol/><link rel=alternate hreflang=en href=/en/posts/network/libp2p-bittorrent-protocol/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/series/>系列</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label=切换语言 aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>中文</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/en/posts/network/libp2p-bittorrent-protocol/ lang=en rel=alternate>English</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#libp2p-模块化架构>libp2p 模块化架构</a><ul><li><a href=#协议栈分层>协议栈分层</a></li><li><a href=#为什么需要多路复用>为什么需要多路复用？</a></li><li><a href=#核心协议>核心协议</a></li></ul></li><li><a href=#bittorrent-协议>BitTorrent 协议</a><ul><li><a href=#torrent-文件结构>.torrent 文件结构</a></li><li><a href=#分块下载>分块下载</a></li><li><a href=#tit-for-tat-激励机制>Tit-for-Tat 激励机制</a></li><li><a href=#协议消息>协议消息</a></li><li><a href=#参考资料>参考资料</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/ai%E5%B7%A5%E7%A8%8B/ class="tag-cloud__item tag-size-md"><span>ai工程</span>
+</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-sm"><span>yolo</span>
+</a><a href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-sm"><span>范式演进</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/tags/p2p/ class="tag-cloud__item tag-size-xs"><span>p2p</span>
+</a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-xs"><span>开源</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>libp2p 协议栈与 BitTorrent 协议深度解析</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2021-11-08T00:00:00+00:00>November 8, 2021</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/%E7%BD%91%E7%BB%9C%E6%8A%80%E6%9C%AF/>网络技术</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/p2p/>P2P</a>, <a href=/tags/libp2p/>Libp2p</a>, <a href=/tags/bittorrent/>BitTorrent</a>, <a href=/tags/gossipsub/>Gossipsub</a>, <a href=/tags/%E5%8D%8F%E8%AE%AE%E6%A0%88/>协议栈</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/series/%E7%BD%91%E7%BB%9C%E5%BC%80%E5%8F%91%E5%AE%9E%E6%88%98/>网络开发实战</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2580 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>6 分钟阅读</span></span></div></header><div class=Content><p>在理解了 P2P 核心原理和 Kademlia DHT 之后，我们来深入分析两个在生产环境中广泛使用的 P2P 协议——libp2p 协议栈和 BitTorrent 协议。它们分别代表了通用 P2P 框架和专用文件分发协议两种不同的设计哲学。</p><h2 id=libp2p-模块化架构>libp2p 模块化架构</h2><p>libp2p 是 IPFS 和 Filecoin 背后的网络层，提供了一套模块化的 P2P 网络构建工具。它的设计理念是"为 P2P 应用提供可插拔的网络协议栈"——开发者可以像搭积木一样组合传输层、安全层、多路复用层和应用层协议。</p><h3 id=协议栈分层>协议栈分层</h3><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph 应用层
+        Ping[&#34;Ping&lt;br/&gt;/ipfs/ping/1.0.0&#34;]
+        Identify[&#34;Identify&lt;br/&gt;/ipfs/id/1.0.0&#34;]
+        GossipSub[&#34;Gossipsub&lt;br/&gt;/meshsub/1.1.0&#34;]
+        KadDHT[&#34;Kad-DHT&lt;br/&gt;/ipfs/kad/1.0.0&#34;]
+    end
+
+    subgraph 多路复用
+        Yamux[&#34;Yamux&#34;]
+        MPLEX[&#34;MPLEX&#34;]
+    end
+
+    subgraph 安全加密
+        Noise[&#34;Noise&#34;]
+        TLS[&#34;TLS 1.3&#34;]
+        SECIO[&#34;SECIO&#34;]
+    end
+
+    subgraph 传输层
+        TCP[&#34;TCP&#34;]
+        QUIC[&#34;QUIC&#34;]
+        WebRTC[&#34;WebRTC&#34;]
+        WebSocket[&#34;WebSocket&#34;]
+    end
+
+    TCP --&gt; Noise
+    QUIC --&gt; Noise
+    Noise --&gt; Yamux
+    Yamux --&gt; Ping
+    Yamux --&gt; Identify
+    Yamux --&gt; GossipSub
+    Yamux --&gt; KadDHT</code></pre></div></div><p>libp2p 的设计特点在于每一层都可以按需组合。一个节点可以选择 TCP 或 QUIC 作为传输层，Noise 或 TLS 作为安全层，Yamux 或 MPLEX 作为流多路复用层，然后在其上运行一组应用层协议。</p><h3 id=为什么需要多路复用>为什么需要多路复用？</h3><p>在传统网络编程中，一个 TCP 连接只能服务于一个请求。但在 P2P 网络中，两个节点之间可能同时进行 DHT 查询、Ping 心跳、PubSub 消息和文件传输。如果每种协议都建立一个独立连接，连接数会爆炸增长。</p><p>多路复用层（Yamux / MPLEX）解决了这个问题：<strong>在一条物理连接上创建多条逻辑流（Stream）</strong>，每条流用唯一的 Stream ID 标识。不同协议的数据帧在同一个 TCP 连接上交替传输，接收端根据 Stream ID 将数据分发到对应的处理器。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph 一条TCP连接
+        S1[&#34;Stream 1&lt;br/&gt;DHT 查询&#34;]
+        S2[&#34;Stream 2&lt;br/&gt;Ping 心跳&#34;]
+        S3[&#34;Stream 3&lt;br/&gt;PubSub 消息&#34;]
+        S4[&#34;Stream 4&lt;br/&gt;文件传输&#34;]
+    end
+
+    MUX[&#34;Yamux 多路复用器&lt;br/&gt;按 Stream ID 分帧&#34;] --&gt; S1
+    MUX --&gt; S2
+    MUX --&gt; S3
+    MUX --&gt; S4
+
+    style MUX fill:#4CAF50,color:#fff</code></pre></div></div><h3 id=核心协议>核心协议</h3><p><strong>Identify 协议</strong>（<code>/ipfs/id/1.0.0</code>）在连接建立后自动交换节点信息，包括 Peer ID、监听地址列表、支持的协议列表和公钥。这使得节点间可以实现零配置的协议协商——连接建立后，双方自动知道对方支持哪些协议，无需手动配置。</p><p><strong>Ping 协议</strong>（<code>/ipfs/ping/1.0.0</code>）用于测量往返延迟和检测连接活性，是连接健康检查的基础。</p><p><strong>Gossipsub 协议</strong>（<code>/meshsub/1.1.0</code>）是 libp2p 的发布/订阅消息系统，采用混合网状拓扑：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    subgraph Gossipsub Mesh
+        A((A))
+        B((B))
+        C((C))
+        D((D))
+        E((E))
+        F((F))
+    end
+
+    A --- B
+    A --- C
+    B --- D
+    B --- E
+    C --- F
+    D --- E
+    E --- F
+
+    G((G)) -.-&gt;|MetaData Only| A
+    H((H)) -.-&gt;|MetaData Only| B
+    I((I)) -.-&gt;|MetaData Only| C
+
+    style A fill:#4CAF50,color:#fff
+    style B fill:#4CAF50,color:#fff
+    style C fill:#4CAF50,color:#fff
+    style D fill:#4CAF50,color:#fff
+    style E fill:#4CAF50,color:#fff
+    style F fill:#4CAF50,color:#fff
+    style G fill:#FFC107
+    style H fill:#FFC107
+    style I fill:#FFC107</code></pre></div></div><ul><li><strong>全消息节点</strong>（实线连接，绿色）：组成网状拓扑（mesh），直接转发所有消息。每个全消息节点维护 D 个邻居连接。</li><li><strong>元数据节点</strong>（虚线连接，黄色）：只接收消息的 IHAVE/IWANT 元数据，按需获取完整消息。这些节点不在 mesh 中，但通过 Gossip 协议保持感知。</li><li><strong>关键参数的含义</strong>：<ul><li><strong>D = 6</strong>（Mesh 度数）：每个全消息节点在 mesh 中维护 6 条连接。太高则消息冗余严重，太低则覆盖不足。</li><li><strong>D_high = 12</strong>：当 mesh 中节点数超过 12 时，触发修剪（Prune），随机断开部分连接，防止 mesh 膨胀。</li><li><strong>D_low = 4</strong>：当 mesh 中节点数低于 4 时，触发嫁接（Graft），主动连接更多节点，防止 mesh 缩小到无法可靠传播消息。</li></ul></li></ul><p>这种设计在保证消息可靠传播的同时，通过分层机制减少了网络开销。</p><h2 id=bittorrent-协议>BitTorrent 协议</h2><p>BitTorrent 是 P2P 文件分发领域的事实标准，其协议设计深刻影响了后续的所有 P2P 系统。</p><h3 id=torrent-文件结构>.torrent 文件结构</h3><p>一切始于一个 .torrent 文件（元数据文件）。它是一个 bencode 编码的字典，包含了下载所需的全部信息：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    TF[&#34;.torrent 文件&#34;] --&gt; ANN[&#34;announce&lt;br/&gt;Tracker 服务器 URL&#34;]
+    TF --&gt; INFO[&#34;info 字典&lt;br/&gt;（文件元数据）&#34;]
+    INFO --&gt; NAME[&#34;name&lt;br/&gt;文件/目录名&#34;]
+    INFO --&gt; PL[&#34;piece length&lt;br/&gt;分块大小（通常 256KB）&#34;]
+    INFO --&gt; PH[&#34;pieces&lt;br/&gt;每个 Piece 的 SHA-1 哈希&lt;br/&gt;（20字节 × N个Piece）&#34;]
+    INFO --&gt; LEN[&#34;length&lt;br/&gt;文件总大小（单文件时）&#34;]
+    INFO --&gt; FILES[&#34;files&lt;br/&gt;文件列表（多文件时）&#34;]
+
+    style TF fill:#2196F3,color:#fff
+    style INFO fill:#4CAF50,color:#fff</code></pre></div></div><p>客户端下载 .torrent 文件后，通过其中的 <code>pieces</code> 字段（一连串 20 字节的 SHA-1 哈希）校验每个 Piece 的完整性。这是 BitTorrent 数据完整性的基础——任何损坏或篡改的数据都会在哈希校验时被发现。</p><h3 id=分块下载>分块下载</h3><p>文件被分割为固定大小的 Piece（通常 256KB - 4MB），每个 Piece 计算 SHA-1 哈希用于校验。Piece 进一步分割为 16KB 的 Block 进行传输。这种两级分片机制实现了：</p><ul><li><strong>并行下载</strong>：同一个文件可以从多个节点同时下载不同 Piece</li><li><strong>增量校验</strong>：每个 Piece 独立校验，损坏时只需重传该 Piece</li><li><strong>断点续传</strong>：下载进度按 Piece 跟踪，中断后可继续</li></ul><p>为什么需要两级分片？Piece 是校验单位（太大不适合作为传输单位），Block 是传输单位（16KB 适合在 TCP 上高效传输）。一个 256KB 的 Piece 包含 16 个 Block，下载完所有 Block 后才能组装并校验该 Piece。</p><h3 id=tit-for-tat-激励机制>Tit-for-Tat 激励机制</h3><p>BitTorrent 通过 Tit-for-Tat（以牙还牙）机制解决 P2P 网络中经典的"搭便车"问题（只下载不上传）：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    Start[&#34;每 10 秒评估一次&#34;] --&gt; Eval[&#34;计算各节点上传/下载比率&#34;]
+    Eval --&gt; Sort[&#34;按上传量排序&#34;]
+    Sort --&gt; Unchoke4[&#34;对上传最多的 4 个节点保持 unchoke&#34;]
+    Sort --&gt; Optimistic[&#34;保留 1 个 optimistic unchoke 槽位&#34;]
+    Optimistic --&gt; Rotate[&#34;每 30 秒轮换 optimistic 节点&#34;]
+    Unchoke4 --&gt; Send[&#34;向 unchoke 节点发送数据&#34;]
+
+    Send --&gt;|&#34;某一节点上传量降低&#34;| Eval
+
+    style Start fill:#2196F3,color:#fff
+    style Sort fill:#4CAF50,color:#fff</code></pre></div></div><p>核心策略：</p><ol><li>每 10 秒评估各节点的上传/下载比率</li><li>对上传最多的 4 个节点保持 unchoke（解除阻塞）</li><li>保留 1 个 optimistic unchoke 槽位（随机选择，用于发现新节点）</li><li>每 30 秒轮换一次 optimistic unchoke 节点</li></ol><p>这种机制确保了"贡献越多，获得越多"的良性循环，有效抑制了搭便车行为。新加入的节点虽然暂时没有数据可上传，但可以通过 optimistic unchoke 获得初始的下载机会，逐步积累数据后再向其他节点上传。</p><h3 id=协议消息>协议消息</h3><p>BitTorrent 定义了简洁的 9 种消息类型：</p><table><thead><tr><th>消息 ID</th><th>名称</th><th>描述</th></tr></thead><tbody><tr><td>0</td><td>choke</td><td>阻塞，停止发送数据</td></tr><tr><td>1</td><td>unchoke</td><td>解除阻塞，允许发送数据</td></tr><tr><td>2</td><td>interested</td><td>对对方资源感兴趣</td></tr><tr><td>3</td><td>not interested</td><td>不感兴趣</td></tr><tr><td>4</td><td>have</td><td>通知拥有某个 Piece</td></tr><tr><td>5</td><td>bitfield</td><td>位图，标记拥有的所有 Piece</td></tr><tr><td>6</td><td>request</td><td>请求某个 Block</td></tr><tr><td>7</td><td>piece</td><td>发送 Block 数据</td></tr><tr><td>8</td><td>cancel</td><td>取消请求</td></tr></tbody></table><p>连接建立后，双方首先交换 <code>bitfield</code> 消息（告知对方自己有哪些 Piece），然后通过 <code>interested</code>/<code>unchoke</code> 协商开始数据传输。实际的 Piece 请求和传输通过 <code>request</code>/<code>piece</code> 消息完成。</p><h3 id=参考资料>参考资料</h3><ul><li>libp2p Specification. <a href=https://docs.libp2p.io/>https://docs.libp2p.io/</a></li><li>Cohen, B. (2003). Incentives build robustness in BitTorrent. <em>Workshop on Economics of Peer-to-Peer Systems</em>.</li><li>The BitTorrent Protocol Specification. <a href=https://www.bittorrent.org/beps/bep_0003.html>https://www.bittorrent.org/beps/bep_0003.html</a></li><li>Yang, Y., et al. (2021). Gossipsub: Attack-resilient message propagation in the Filecoin and IPFS networks. <em>arXiv preprint</em>.</li><li>Yi, H., et al. (2018). Yamux: Yet another multiplexer. libp2p Enhancement Proposal.</li></ul></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>所属系列:</span>
+<a href=/series/%E7%BD%91%E7%BB%9C%E5%BC%80%E5%8F%91%E5%AE%9E%E6%88%98/>网络开发实战</a></div><div class=series-nav__links><a href=/posts/network/kademlia-dht-protocol/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>上一篇</span>
+<span class=series-nav__title>Kademlia DHT 协议深度解析</span>
+</a><a href=/posts/network/rust-p2p-development/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>下一篇</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>Rust P2P 开发实战：从 Ping 到 Gossipsub</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/p2p/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+P2P
+</a><a class=tag-chip href=/tags/libp2p/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Libp2p
+</a><a class=tag-chip href=/tags/bittorrent/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+BitTorrent
+</a><a class=tag-chip href=/tags/gossipsub/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Gossipsub
+</a><a class=tag-chip href=/tags/%E5%8D%8F%E8%AE%AE%E6%A0%88/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+协议栈</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>

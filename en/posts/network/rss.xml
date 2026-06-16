@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Network on Mi&amp;Bee Blog</title><link>/en/posts/network/</link><description>Recent content in Network on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Sun, 10 May 2026 00:00:00 +0000</lastBuildDate><atom:link href="/en/posts/network/rss.xml" rel="self" type="application/rss+xml"/><item><title>P2P Network Core Principles</title><link>/en/posts/network/p2p-core-principles/</link><pubDate>Sun, 15 Mar 2020 00:00:00 +0000</pubDate><guid>/en/posts/network/p2p-core-principles/</guid><description>&lt;p&gt;Peer-to-Peer (P2P) networking is a decentralized architecture where every node acts as both a provider (Server) and consumer (Client). This architecture is widely used in file distribution (BitTorrent), cryptocurrency (Bitcoin), decentralized storage (IPFS), and many other domains.&lt;/p&gt;
+&lt;h2 id="p2p-vs-client-server-architecture"&gt;P2P vs Client-Server Architecture&lt;/h2&gt;
+&lt;p&gt;Before diving into P2P principles, let&amp;rsquo;s understand the fundamental differences through comparison:&lt;/p&gt;
+&lt;table&gt;
+	&lt;thead&gt;
+			&lt;tr&gt;
+					&lt;th&gt;Feature&lt;/th&gt;
+					&lt;th&gt;Client-Server&lt;/th&gt;
+					&lt;th&gt;P2P Network&lt;/th&gt;
+			&lt;/tr&gt;
+	&lt;/thead&gt;
+	&lt;tbody&gt;
+			&lt;tr&gt;
+					&lt;td&gt;Centralization&lt;/td&gt;
+					&lt;td&gt;Highly centralized&lt;/td&gt;
+					&lt;td&gt;Decentralized / Hybrid&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;Single Point of Failure&lt;/td&gt;
+					&lt;td&gt;Exists&lt;/td&gt;
+					&lt;td&gt;Does not exist&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;Scalability&lt;/td&gt;
+					&lt;td&gt;Limited by server&lt;/td&gt;
+					&lt;td&gt;Linear with node count&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;Bandwidth Cost&lt;/td&gt;
+					&lt;td&gt;Borne by server&lt;/td&gt;
+					&lt;td&gt;Shared by nodes&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;Fault Tolerance&lt;/td&gt;
+					&lt;td&gt;Low&lt;/td&gt;
+					&lt;td&gt;High&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;Lookup Complexity&lt;/td&gt;
+					&lt;td&gt;O(1)&lt;/td&gt;
+					&lt;td&gt;O(log N)&lt;/td&gt;
+			&lt;/tr&gt;
+	&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The core advantage of P2P lies in eliminating single points of bottleneck and failure, at the cost of introducing more complex node discovery and data routing mechanisms.&lt;/p&gt;</description></item><item><title>Kademlia DHT Protocol Deep Dive</title><link>/en/posts/network/kademlia-dht-protocol/</link><pubDate>Wed, 20 Jan 2021 00:00:00 +0000</pubDate><guid>/en/posts/network/kademlia-dht-protocol/</guid><description>&lt;p&gt;Kademlia is one of the most influential DHT (Distributed Hash Table) protocols, proposed by Petar Maymounkov and David Mazières in 2002. It is widely used in IPFS, BitTorrent, Ethereum, and many other systems. Kademlia&amp;rsquo;s revolutionary innovation lies in using XOR (exclusive or) as its distance metric, offering elegant mathematical properties and efficient routing algorithms.&lt;/p&gt;
+&lt;h2 id="xor-distance-metric"&gt;XOR Distance Metric&lt;/h2&gt;
+&lt;p&gt;Kademlia maps nodes and resources to the same 160-bit identifier space and defines the XOR distance function:&lt;/p&gt;</description></item><item><title>libp2p Protocol Stack &amp; BitTorrent Protocol Deep Dive</title><link>/en/posts/network/libp2p-bittorrent-protocol/</link><pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate><guid>/en/posts/network/libp2p-bittorrent-protocol/</guid><description>&lt;p&gt;Building on our understanding of P2P core principles and Kademlia DHT, we now dive into two production-proven P2P protocols — the libp2p protocol stack and BitTorrent. They represent two different design philosophies: a general-purpose P2P framework versus a specialized file distribution protocol.&lt;/p&gt;
+&lt;h2 id="libp2p-modular-architecture"&gt;libp2p Modular Architecture&lt;/h2&gt;
+&lt;p&gt;libp2p is the networking layer behind IPFS and Filecoin, providing a modular toolkit for building P2P applications. Its design philosophy is &amp;ldquo;pluggable network protocol stack for P2P applications&amp;rdquo; — developers compose transport, security, multiplexing, and application layers like building blocks.&lt;/p&gt;</description></item><item><title>Rust P2P Development: From Ping to Gossipsub</title><link>/en/posts/network/rust-p2p-development/</link><pubDate>Mon, 22 Aug 2022 00:00:00 +0000</pubDate><guid>/en/posts/network/rust-p2p-development/</guid><description>&lt;p&gt;Rust&amp;rsquo;s ownership model and zero-cost abstractions make it an ideal language for implementing P2P network protocols. The Rust implementation of libp2p (rust-libp2p) provides a complete protocol stack from transport to application layer.&lt;/p&gt;
+&lt;h2 id="environment-setup"&gt;Environment Setup&lt;/h2&gt;
+&lt;p&gt;Configure dependencies in &lt;code&gt;Cargo.toml&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="code-block-wrapper" data-lang="toml"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;&lt;span class="code-language"&gt;toml&lt;/span&gt;&lt;/div&gt;
+ 
+ &lt;button class="copy-button" aria-label="Copy code"&gt;
+ &lt;svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;rect x="9" y="9" width="13" height="13" rx="2" ry="2"/&gt;&lt;path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/&gt;&lt;/svg&gt;
+ &lt;svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt;
+ &lt;/button&gt;
+ 
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;span class="lnt"&gt;7
+&lt;/span&gt;&lt;span class="lnt"&gt;8
+&lt;/span&gt;&lt;span class="lnt"&gt;9
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-toml" data-lang="toml"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;dependencies&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;libp2p&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;version&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;0.53&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;features&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;tokio&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;tcp&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;quic&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;noise&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;yamux&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;mplex&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;ping&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;identify&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;kad&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;gossipsub&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;relay&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;dcutr&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;macros&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;tokio&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;version&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;1.0&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;features&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;full&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;tokio-stream&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;0.1&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;futures&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;0.3&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;anyhow&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;1.0&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Create the project:&lt;/p&gt;</description></item><item><title>Go P2P Development: From Basics to PubSub</title><link>/en/posts/network/golang-p2p-development/</link><pubDate>Mon, 05 Jun 2023 00:00:00 +0000</pubDate><guid>/en/posts/network/golang-p2p-development/</guid><description>&lt;p&gt;Go&amp;rsquo;s simple concurrency model and fast compilation make it a popular choice for P2P network development. go-libp2p is one of the most complete libp2p implementations and is widely used in large projects like IPFS (Kubo).&lt;/p&gt;
+&lt;h2 id="environment-setup"&gt;Environment Setup&lt;/h2&gt;
+&lt;div class="code-block-wrapper" data-lang="bash"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;&lt;span class="code-language"&gt;bash&lt;/span&gt;&lt;/div&gt;
+ 
+ &lt;button class="copy-button" aria-label="Copy code"&gt;
+ &lt;svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;rect x="9" y="9" width="13" height="13" rx="2" ry="2"/&gt;&lt;path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/&gt;&lt;/svg&gt;
+ &lt;svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt;
+ &lt;/button&gt;
+ 
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go get github.com/libp2p/go-libp2p
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go get github.com/libp2p/go-libp2p-kad-dht
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go get github.com/libp2p/go-libp2p-pubsub&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;code&gt;go.mod&lt;/code&gt; configuration:&lt;/p&gt;</description></item><item><title>Hands-On: Building a Distributed File Sharing System</title><link>/en/posts/network/p2p-file-sharing-system/</link><pubDate>Mon, 18 Mar 2024 00:00:00 +0000</pubDate><guid>/en/posts/network/p2p-file-sharing-system/</guid><description>&lt;p&gt;Combining theory with practice, we&amp;rsquo;ll build a real distributed file sharing system. This system will leverage technologies introduced in previous articles — Kademlia DHT for node discovery and metadata distribution, Gossipsub for broadcasting, and a custom file transfer protocol.&lt;/p&gt;
+&lt;h2 id="system-architecture"&gt;System Architecture&lt;/h2&gt;
+&lt;div class="code-block-wrapper" data-lang="mermaid"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;
+ &lt;span class="code-language"&gt;mermaid&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;
+ &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
+ subgraph Application
+ CLI[&amp;#34;CLI Interface&amp;#34;]
+ API[&amp;#34;REST API&amp;#34;]
+ end
+
+ subgraph Business Logic
+ Index[&amp;#34;File Index Manager&amp;#34;]
+ Scheduler[&amp;#34;Piece Download Scheduler&amp;#34;]
+ Verify[&amp;#34;Verify &amp;amp; Reassemble&amp;#34;]
+ end
+
+ subgraph P2P Network
+ Discovery[&amp;#34;Kad-DHT&amp;lt;br/&amp;gt;Peer Discovery &amp;#43; Metadata&amp;#34;]
+ Broadcast[&amp;#34;GossipSub&amp;lt;br/&amp;gt;Message Broadcast&amp;#34;]
+ Transfer[&amp;#34;Custom Protocol&amp;lt;br/&amp;gt;File Transfer&amp;#34;]
+ end
+
+ CLI --&amp;gt; Index
+ API --&amp;gt; Index
+ Index --&amp;gt; Scheduler
+ Scheduler --&amp;gt; Verify
+ Index --&amp;gt; Discovery
+ Scheduler --&amp;gt; Transfer
+ Broadcast --&amp;gt;|&amp;#34;New Peer Notification&amp;#34;| Index&lt;/code&gt;&lt;/pre&gt;
+ &lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Core design principles:&lt;/p&gt;</description></item><item><title>P2P Production Best Practices</title><link>/en/posts/network/p2p-production-best-practices/</link><pubDate>Sun, 01 Dec 2024 00:00:00 +0000</pubDate><guid>/en/posts/network/p2p-production-best-practices/</guid><description>&lt;p&gt;Moving a P2P system from prototype to production involves engineering challenges across connection management, security, observability, and deployment. This article covers six critical areas with reusable code snippets and actionable guidance.&lt;/p&gt;
+&lt;h2 id="connection-management-and-resource-limits"&gt;Connection Management and Resource Limits&lt;/h2&gt;
+&lt;p&gt;P2P nodes must maintain a large number of simultaneous connections. Without resource caps, a node can suffer OOM crashes or file descriptor exhaustion. Production environments require strict control over three dimensions.&lt;/p&gt;
+&lt;h3 id="three-layer-resource-control-model"&gt;Three-Layer Resource Control Model&lt;/h3&gt;
+&lt;div class="code-block-wrapper" data-lang="mermaid"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;
+ &lt;span class="code-language"&gt;mermaid&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;
+ &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart LR
+ subgraph Transport Layer
+ A1[&amp;#34;Max Inbound&amp;lt;br/&amp;gt;Connections: 1024&amp;#34;] --&amp;gt; B1[&amp;#34;Connection Queue&amp;#34;]
+ A2[&amp;#34;Max Outbound&amp;lt;br/&amp;gt;Connections: 512&amp;#34;] --&amp;gt; B1
+ end
+
+ subgraph Stream Layer
+ C1[&amp;#34;Inbound Concurrent&amp;lt;br/&amp;gt;Streams: 128&amp;#34;] --&amp;gt; D1[&amp;#34;Stream Scheduler&amp;#34;]
+ C2[&amp;#34;Outbound Concurrent&amp;lt;br/&amp;gt;Streams: 256&amp;#34;] --&amp;gt; D1
+ end
+
+ subgraph Idle Management
+ E1[&amp;#34;Connection Idle&amp;lt;br/&amp;gt;Timeout: 30s&amp;#34;] --&amp;gt; F1{&amp;#34;Health Check&amp;#34;}
+ E2[&amp;#34;Stream Idle&amp;lt;br/&amp;gt;Timeout: 60s&amp;#34;] --&amp;gt; F1
+ F1 --&amp;gt;|&amp;#34;Pass&amp;#34;| G1[&amp;#34;Update Active Timestamp&amp;#34;]
+ F1 --&amp;gt;|&amp;#34;Fail&amp;#34;| G2[&amp;#34;Close Stream/Conn&amp;lt;br/&amp;gt;Release FD &amp;amp; Memory&amp;#34;]
+ end
+
+ B1 --&amp;gt; C1
+ B1 --&amp;gt; C2
+ D1 --&amp;gt; E1
+ D1 --&amp;gt; E2
+
+ style A1 fill:#4CAF50,color:#fff
+ style A2 fill:#4CAF50,color:#fff
+ style C1 fill:#2196F3,color:#fff
+ style C2 fill:#2196F3,color:#fff
+ style E1 fill:#FF9800,color:#fff
+ style E2 fill:#FF9800,color:#fff&lt;/code&gt;&lt;/pre&gt;
+ &lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="rust-connection-management"&gt;Rust Connection Management&lt;/h3&gt;
+&lt;p&gt;Rust&amp;rsquo;s &lt;code&gt;SwarmBuilder&lt;/code&gt; provides a fluent API for connection configuration:&lt;/p&gt;</description></item><item><title>TCP Congestion Control Evolution: From Reno to BBR</title><link>/en/posts/network/tcp-congestion-control-evolution/</link><pubDate>Fri, 15 Aug 2025 00:00:00 +0000</pubDate><guid>/en/posts/network/tcp-congestion-control-evolution/</guid><description>&lt;p&gt;The previous articles in this series focused on the architecture and implementation of P2P networks, but the performance bottleneck of P2P applications often lies not in the protocol layer itself, but in the underlying transport protocol — TCP congestion control. A single BitTorrent node may maintain hundreds of concurrent TCP connections, each independently performing congestion control. Choosing the wrong congestion control algorithm can severely degrade bandwidth utilization, especially on high-latency links or links with random packet loss. Understanding the evolution of congestion control not only helps P2P developers optimize transport performance but is also essential for gaining a deep understanding of how the internet transport layer operates.&lt;/p&gt;</description></item><item><title>BBR Congestion Control Algorithm Deep Dive</title><link>/en/posts/network/bbr-algorithm-deep-dive/</link><pubDate>Sun, 10 May 2026 00:00:00 +0000</pubDate><guid>/en/posts/network/bbr-algorithm-deep-dive/</guid><description>&lt;p&gt;BBR (Bottleneck Bandwidth and Round-trip propagation time), developed by Neal Cardwell, Yuchung Cheng, and others at Google, is one of the most advanced model-based congestion control algorithms available today. Unlike traditional loss-based algorithms (Reno, CUBIC), BBR explicitly models the network path by directly measuring bottleneck bandwidth and propagation delay, sending data at the BDP (Bandwidth-Delay Product) rate at the bottleneck point.&lt;/p&gt;
+&lt;p&gt;BBR&amp;rsquo;s core insight is that &lt;strong&gt;packet loss does not equal congestion&lt;/strong&gt;. On deep-buffered (Bufferbloat) or wireless links, packet loss can be caused by channel noise or excessive buffer queuing rather than genuine link saturation. BBR actively measures bandwidth and latency to precisely control the sending rate, rather than passively waiting for loss signals.&lt;/p&gt;</description></item></channel></rss>

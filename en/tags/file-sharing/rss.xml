@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>File Sharing on Mi&amp;Bee Blog</title><link>/en/tags/file-sharing/</link><description>Recent content in File Sharing on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Mon, 18 Mar 2024 00:00:00 +0000</lastBuildDate><atom:link href="/en/tags/file-sharing/rss.xml" rel="self" type="application/rss+xml"/><item><title>Hands-On: Building a Distributed File Sharing System</title><link>/en/posts/network/p2p-file-sharing-system/</link><pubDate>Mon, 18 Mar 2024 00:00:00 +0000</pubDate><guid>/en/posts/network/p2p-file-sharing-system/</guid><description>&lt;p&gt;Combining theory with practice, we&amp;rsquo;ll build a real distributed file sharing system. This system will leverage technologies introduced in previous articles — Kademlia DHT for node discovery and metadata distribution, Gossipsub for broadcasting, and a custom file transfer protocol.&lt;/p&gt;
+&lt;h2 id="system-architecture"&gt;System Architecture&lt;/h2&gt;
+&lt;div class="code-block-wrapper" data-lang="mermaid"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;
+ &lt;span class="code-language"&gt;mermaid&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;
+ &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
+ subgraph Application
+ CLI[&amp;#34;CLI Interface&amp;#34;]
+ API[&amp;#34;REST API&amp;#34;]
+ end
+
+ subgraph Business Logic
+ Index[&amp;#34;File Index Manager&amp;#34;]
+ Scheduler[&amp;#34;Piece Download Scheduler&amp;#34;]
+ Verify[&amp;#34;Verify &amp;amp; Reassemble&amp;#34;]
+ end
+
+ subgraph P2P Network
+ Discovery[&amp;#34;Kad-DHT&amp;lt;br/&amp;gt;Peer Discovery &amp;#43; Metadata&amp;#34;]
+ Broadcast[&amp;#34;GossipSub&amp;lt;br/&amp;gt;Message Broadcast&amp;#34;]
+ Transfer[&amp;#34;Custom Protocol&amp;lt;br/&amp;gt;File Transfer&amp;#34;]
+ end
+
+ CLI --&amp;gt; Index
+ API --&amp;gt; Index
+ Index --&amp;gt; Scheduler
+ Scheduler --&amp;gt; Verify
+ Index --&amp;gt; Discovery
+ Scheduler --&amp;gt; Transfer
+ Broadcast --&amp;gt;|&amp;#34;New Peer Notification&amp;#34;| Index&lt;/code&gt;&lt;/pre&gt;
+ &lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Core design principles:&lt;/p&gt;</description></item></channel></rss>
