@@ -1,0 +1,336 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - eBPF 开发语言之争：C、Rust 与 Zig 全链路对比</title><meta name=description content="前面几篇 eBPF 实战代码清一色是 C 写的，但 eBPF 的语言生态早已不止 C。本文从全链路视角对比 C(libbpf)、Rust(Aya)、Zig(zbpf) 三套开发体系：内核态 BPF 程序如何编译、用户态加载器如何工作，并以 CO-RE 的实现差异为技术分水岭，给出诚实的成熟度判定与选型建议。"><meta name=keywords content="eBPF,,Zig,,Rust,,Aya,,libbpf,,CO-RE,,BTF,,zbpf,,eBPF开发语言,,内核可观测性"><link rel=canonical href=/posts/telemetry/ebpf-zig-lang-dev/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - eBPF 开发语言之争：C、Rust 与 Zig 全链路对比"><meta property="og:description" content="前面几篇 eBPF 实战代码清一色是 C 写的，但 eBPF 的语言生态早已不止 C。本文从全链路视角对比 C(libbpf)、Rust(Aya)、Zig(zbpf) 三套开发体系：内核态 BPF 程序如何编译、用户态加载器如何工作，并以 CO-RE 的实现差异为技术分水岭，给出诚实的成熟度判定与选型建议。"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/telemetry/ebpf-zig-lang-dev/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-06-26 00:00:00 +0000 UTC"><meta property="article:modified_time" content="2026-06-26 00:00:00 +0000 UTC"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - eBPF 开发语言之争：C、Rust 与 Zig 全链路对比"><meta name=twitter:description content="前面几篇 eBPF 实战代码清一色是 C 写的，但 eBPF 的语言生态早已不止 C。本文从全链路视角对比 C(libbpf)、Rust(Aya)、Zig(zbpf) 三套开发体系：内核态 BPF 程序如何编译、用户态加载器如何工作，并以 CO-RE 的实现差异为技术分水岭，给出诚实的成熟度判定与选型建议。"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/telemetry/ebpf-zig-lang-dev/><link rel=alternate hreflang=en href=/en/posts/telemetry/ebpf-zig-lang-dev/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/series/>系列</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label=切换语言 aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>中文</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/en/posts/telemetry/ebpf-zig-lang-dev/ lang=en rel=alternate>English</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#ebpf-全链路开发模型>eBPF 全链路开发模型</a></li><li><a href=#c--libbpf不可动摇的基准线>C + libbpf：不可动摇的基准线</a></li><li><a href=#rust--aya内存安全的最强挑战者>Rust + Aya：内存安全的最强挑战者</a></li><li><a href=#zig--zbpf潜力与局限并存的探索者>Zig + zbpf：潜力与局限并存的探索者</a></li><li><a href=#co-re三种语言的技术分水岭>CO-RE：三种语言的技术分水岭</a></li><li><a href=#全链路对比>全链路对比</a></li><li><a href=#成熟度判定与现实选型>成熟度判定与现实选型</a></li><li><a href=#小结>小结</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-md"><span>ebpf</span>
+</a><a href=/tags/rust/ class="tag-cloud__item tag-size-sm"><span>rust</span>
+</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-sm"><span>yolo</span>
+</a><a href=/tags/ai%E5%B7%A5%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai工程</span>
+</a><a href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-xs"><span>范式演进</span>
+</a><a href=/tags/p2p/ class="tag-cloud__item tag-size-xs"><span>p2p</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>eBPF 开发语言之争：C、Rust 与 Zig 全链路对比</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-06-26T00:00:00+00:00>June 26, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/>可观测性</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/ebpf/>EBPF</a>, <a href=/tags/zig/>Zig</a>, <a href=/tags/rust/>Rust</a>, <a href=/tags/aya/>Aya</a>, <a href=/tags/libbpf/>Libbpf</a>, <a href=/tags/co-re/>CO-RE</a>, <a href=/tags/bpf/>BPF</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/series/ebpf-%E5%BC%80%E5%8F%91%E7%B3%BB%E5%88%97/>EBPF 开发系列</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>4369 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>9 分钟阅读</span></span></div></header><div class=Content><p>前面几篇讲 OOM 追踪时，所有 eBPF 内核态程序都是用 C 写的。这很自然——C 是 eBPF 的"母语"，verifier、CO-RE、libbpf 整个工具链都是围绕 C 设计的。但如果你关注过 eBPF 生态，会发现一个明显的趋势：<strong>越来越多的人开始用 C 以外的语言写 eBPF</strong>。Rust 的 Aya 框架已经被 Solana 验证器、Kubernetes Gateway API 用在生产环境；而 Zig 也在尝试用 <code>comptime</code>、显式分配和一流的 C 互操作带来新的开发体验。</p><p>这篇文章换一个视角：不再聚焦某个具体场景，而是做一次<strong>全链路对比</strong>——同样一个 eBPF 程序，用 C、Rust、Zig 分别怎么写？内核态怎么编译？用户态加载器怎么实现？三者真正的技术分水岭在哪里？</p><blockquote><p><strong>时效性说明</strong>：本文基于 2026 年 6 月的工具链现状。Zig 的 BPF CO-RE 支持仍是 Post-1.0 目标，Aya 的编译器级 CO-RE 重定位也在进行中——这些都在快速演进，部分结论可能随版本变化。</p></blockquote><h2 id=ebpf-全链路开发模型>eBPF 全链路开发模型</h2><p>无论用什么语言，一个完整的 eBPF 工具都由两部分组成：跑在内核态的 BPF 程序，和跑在用户态的控制程序。理解这个模型，是对比三种语言的前提。</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart LR
+    subgraph 用户态[&#34;用户态 User Space&#34;]
+        LD[&#34;Loader&lt;br/&gt;打开 .o、加载、attach&#34;]
+        POLL[&#34;控制循环&lt;br/&gt;读 maps / ringbuf&#34;]
+    end
+    subgraph 内核态[&#34;内核态 Kernel&#34;]
+        HOOK[&#34;Hook 点&lt;br/&gt;kprobe / tracepoint / xdp&#34;]
+        BPF[&#34;BPF 程序&lt;br/&gt;verifier 校验后运行&#34;]
+        MAP[&#34;Maps / RingBuf&lt;br/&gt;内核 ↔ 用户数据通道&#34;]
+    end
+    LD -- &#34;bpf 系统调用&#34; --&gt; BPF
+    BPF -- &#34;挂载到&#34; --&gt; HOOK
+    HOOK -- &#34;事件触发执行&#34; --&gt; BPF
+    BPF -- &#34;读写&#34; --&gt; MAP
+    MAP -- &#34;用户态读取&#34; --&gt; POLL
+    classDef user fill:#3b82f6,color:#fff
+    classDef kern fill:#f59e0b,color:#fff
+    class LD,POLL user
+    class HOOK,BPF,MAP kern</code></pre></div></div><p>两段代码、两个目标、一个 ELF 文件把它们粘起来：</p><ul><li><strong>内核态程序</strong>编译成一个 BPF ELF 对象（<code>.o</code>），里面包含字节码、map 定义、BTF 信息。它必须通过 verifier 的校验才能运行。</li><li><strong>用户态加载器</strong>负责把这个 <code>.o</code> 加载进内核、处理 CO-RE 重定位、attach 到具体的 hook 点，然后读 map / ringbuf 把数据取出来。</li></ul><p>三种语言的差异，本质就是<strong>这两段代码分别用什么写、用什么工具链粘合</strong>。</p><h2 id=c--libbpf不可动摇的基准线>C + libbpf：不可动摇的基准线</h2><p>C 是 eBPF 的事实标准。内核文档、Cilium、bcc、Tetragon、所有主流发行版的 BPF 工具——清一色 C + libbpf。后来者都以它为参照系。</p><p>典型开发范式是 <code>libbpf-bootstrap</code>：用 Clang 编译内核态程序，通过 <code>BPF_CORE_READ</code> 宏访问内核结构体（这就是 CO-RE），再用 <code>bpftool gen skeleton</code> 生成类型安全的加载器骨架。</p><p>内核态程序（C + libbpf）：</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;vmlinux.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;bpf/bpf_helpers.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;bpf/bpf_tracing.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__uint</span><span class=p>(</span><span class=n>type</span><span class=p>,</span> <span class=n>BPF_MAP_TYPE_ARRAY</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__uint</span><span class=p>(</span><span class=n>max_entries</span><span class=p>,</span> <span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__type</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>u32</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__type</span><span class=p>(</span><span class=n>value</span><span class=p>,</span> <span class=n>u64</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=n>counter</span> <span class=nf>SEC</span><span class=p>(</span><span class=s>&#34;.maps&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nf>SEC</span><span class=p>(</span><span class=s>&#34;kprobe/do_sys_openat2&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>count_open</span><span class=p>(</span><span class=k>struct</span> <span class=n>pt_regs</span> <span class=o>*</span><span class=n>ctx</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>u32</span> <span class=n>key</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>u64</span> <span class=o>*</span><span class=n>val</span> <span class=o>=</span> <span class=nf>bpf_map_lookup_elem</span><span class=p>(</span><span class=o>&amp;</span><span class=n>counter</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>key</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>val</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nf>__sync_fetch_and_add</span><span class=p>(</span><span class=n>val</span><span class=p>,</span> <span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>用户态加载器（libbpf skeleton）：</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;probe.skel.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=n>probe_bpf</span> <span class=o>*</span><span class=n>skel</span> <span class=o>=</span> <span class=nf>probe_bpf__open_and_load</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>probe_bpf__attach</span><span class=p>(</span><span class=n>skel</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>u32</span> <span class=n>key</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>u64</span> <span class=n>val</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=nf>bpf_map_lookup_elem</span><span class=p>(</span><span class=nf>bpf_map__fd</span><span class=p>(</span><span class=n>skel</span><span class=o>-&gt;</span><span class=n>maps</span><span class=p>.</span><span class=n>counter</span><span class=p>),</span> <span class=o>&amp;</span><span class=n>key</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>val</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;open count: %llu</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>val</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><code>vmlinux.h</code> 是 <code>bpftool btf dump</code> 从目标内核生成的所有内核结构体定义，配合 <code>BPF_CORE_READ</code>，一个程序能在不同内核版本上运行而不需重新编译——这就是 <strong>CO-RE（Compile Once, Run Everywhere）</strong>。C 路径的 CO-RE 是编译器内建的、最完整的，这也是它至今不可动摇的根本原因。</p><h2 id=rust--aya内存安全的最强挑战者>Rust + Aya：内存安全的最强挑战者</h2><p>Aya 是 Rust 生态的 eBPF 框架，<a href=https://github.com/aya-rs/aya>aya-rs/aya</a> 截至 2026 年 6 月已有 4.6k stars，最新版本 v0.14.0。它最大的卖点是<strong>纯 Rust、无 C 工具链依赖</strong>：内核态用 <code>aya-ebpf</code>（<code>#![no_std]</code>）编译成 BPF 字节码，用户态用 <code>aya</code> 加载，全程不需要 Clang、libbpf、kernel headers。</p><p>内核态程序（Aya，<code>#![no_std]</code>）：</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=cp>#![no_std]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cp>#![no_main]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>aya_ebpf</span>::<span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>helpers</span>::<span class=n>bpf_get_current_pid_tgid</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>macros</span>::<span class=p>{</span><span class=n>kprobe</span><span class=p>,</span><span class=w> </span><span class=n>map</span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>maps</span>::<span class=n>Array</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>programs</span>::<span class=n>ProbeContext</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cp>#[map]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>static</span><span class=w> </span><span class=no>COUNTER</span>: <span class=nc>Array</span><span class=o>&lt;</span><span class=kt>u64</span><span class=o>&gt;</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Array</span>::<span class=n>pinned</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cp>#[kprobe]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>count_open</span><span class=p>(</span><span class=n>ctx</span>: <span class=nc>ProbeContext</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>u32</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>_pid</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>bpf_get_current_pid_tgid</span><span class=p>()</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=nb>Some</span><span class=p>(</span><span class=n>val</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=no>COUNTER</span><span class=p>.</span><span class=n>get</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>_</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=no>COUNTER</span><span class=p>.</span><span class=n>set</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=n>val</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=mi>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cp>#[cfg(not(test))]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cp>#[panic_handler]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>fn</span> <span class=nf>panic</span><span class=p>(</span><span class=n>_info</span>: <span class=kp>&amp;</span><span class=nc>core</span>::<span class=n>panic</span>::<span class=n>PanicInfo</span><span class=p>)</span><span class=w> </span>-&gt; <span class=o>!</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>loop</span><span class=w> </span><span class=p>{}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>用户态加载器（Aya）：</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>aya</span>::<span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>include_bytes_aligned</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>maps</span>::<span class=n>Array</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>programs</span>::<span class=n>KProbe</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Ebpf</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>fn</span> <span class=nf>main</span><span class=p>()</span><span class=w> </span>-&gt; <span class=nc>anyhow</span>::<span class=nb>Result</span><span class=o>&lt;</span><span class=p>()</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>ebpf</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Ebpf</span>::<span class=n>load</span><span class=p>(</span><span class=fm>include_bytes_aligned!</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=fm>concat!</span><span class=p>(</span><span class=fm>env!</span><span class=p>(</span><span class=s>&#34;OUT_DIR&#34;</span><span class=p>),</span><span class=w> </span><span class=s>&#34;/probe&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>))</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>prog</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>KProbe</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>ebpf</span><span class=p>.</span><span class=n>program_mut</span><span class=p>(</span><span class=s>&#34;count_open&#34;</span><span class=p>)</span><span class=o>?</span><span class=p>.</span><span class=n>try_into</span><span class=p>()</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>prog</span><span class=p>.</span><span class=n>load</span><span class=p>()</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>prog</span><span class=p>.</span><span class=n>attach</span><span class=p>(</span><span class=s>&#34;do_sys_openat2&#34;</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>)</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>counter</span>: <span class=nc>Array</span><span class=o>&lt;</span><span class=n>_</span><span class=p>,</span><span class=w> </span><span class=kt>u64</span><span class=o>&gt;</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Array</span>::<span class=n>try_from</span><span class=p>(</span><span class=n>ebpf</span><span class=p>.</span><span class=n>map</span><span class=p>(</span><span class=s>&#34;COUNTER&#34;</span><span class=p>).</span><span class=n>unwrap</span><span class=p>())</span><span class=o>?</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>loop</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;open count: </span><span class=si>{}</span><span class=s>&#34;</span><span class=p>,</span><span class=w> </span><span class=n>counter</span><span class=p>.</span><span class=n>get</span><span class=p>(</span><span class=o>&amp;</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>)</span><span class=o>?</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>std</span>::<span class=n>thread</span>::<span class=n>sleep</span><span class=p>(</span><span class=n>std</span>::<span class=n>thread</span>::<span class=n>Duration</span>::<span class=n>from_secs</span><span class=p>(</span><span class=mi>1</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Aya 真正的生产实力不在代码本身，而在它的用户名单：Solana 验证器的 XDP 快速包重传（<a href=https://github.com/anza-xyz/agave/tree/master/xdp>agave-xdp</a>）、Kubernetes SIGs 的 L4 负载均衡器 <a href=https://github.com/kubernetes-sigs/blixt>blixt</a>、Red Hat 的 <a href=https://github.com/bpfman/bpfman>bpfman</a>、Deepfence 的 <a href=https://github.com/deepfence/ebpfguard>ebpfguard</a>。这是目前非 C 阵营里<strong>唯一被大规模生产验证</strong>的方案。</p><p>Aya 还带来了 C 路径没有的东西：类型安全的 map 访问、tokio 原生异步（<code>AsyncFd</code> 直接对接 ringbuf）、所有权系统在编译期挡掉一类错误。</p><h2 id=zig--zbpf潜力与局限并存的探索者>Zig + zbpf：潜力与局限并存的探索者</h2><p>Zig 是三者中最年轻的尝试。Zig 工具链本身支持 BPF 目标——<code>zig cc -target bpfel</code> 能编译出 BPF ELF 对象，Zig 源码 <code>src/target.zig</code> 把 <code>bpfel</code>/<code>bpfeb</code> 明确列为 LLVM 支持的目标架构。但官方平台支持页把 BPF 列为 &ldquo;Additional Platforms&rdquo;，<strong>不在 Tier 评级体系内</strong>，意味着可用但不保证正确性。</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 把 C 代码编译成 BPF 对象（zig cc 当 Clang 用）</span>
+</span></span><span class=line><span class=cl>zig cc -target bpfel -O2 -c probe.bpf.c -o probe.o
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 或直接编译 Zig 源码到 BPF（freestanding，无 std）</span>
+</span></span><span class=line><span class=cl>zig build-exe -target bpfel-freestanding probe.zig</span></span></code></pre></td></tr></table></div></div></div></div><p>社区里最成熟的是 <a href=https://github.com/tw4452852/zbpf>tw4452852/zbpf</a>（275 stars）。它不走 <code>@cImport(libbpf)</code> 的老路，而是实现了一套<strong>纯 Zig 的用户态加载器</strong>：自带 ELF 解析、BTF 解析、CO-RE 重定位、skeleton 代码生成，零外部依赖（不需要 libelf、libbpf、libz）。</p><p>内核态程序（Zig + zbpf，示意）：</p><div class=code-block-wrapper data-lang=zig><div class=code-block-header><div class=code-block-meta><span class=code-language>zig</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-zig data-lang=zig><span class=line><span class=cl><span class=c1>// 参考 zbpf samples 的 API 风格，具体接口随版本变化</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kr>const</span><span class=w> </span><span class=n>bpf</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>@import</span><span class=p>(</span><span class=s>&#34;zbpf&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kr>pub</span><span class=w> </span><span class=kr>var</span><span class=w> </span><span class=n>counter</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>bpf</span><span class=p>.</span><span class=nf>ArrayMap</span><span class=p>(</span><span class=kt>u64</span><span class=p>).</span><span class=nf>init</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// zbpf 用 comptime 保证类型安全：访问不存在的字段会在编译期报错</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kr>export</span><span class=w> </span><span class=k>fn</span><span class=w> </span><span class=nf>count_open</span><span class=p>()</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kr>const</span><span class=w> </span><span class=n>val</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>counter</span><span class=p>.</span><span class=nf>get</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=w> </span><span class=k>orelse</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>counter</span><span class=p>.</span><span class=nf>update</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=n>val</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mi>1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>用户态加载器（Zig + zbpf）：</p><div class=code-block-wrapper data-lang=zig><div class=code-block-header><div class=code-block-meta><span class=code-language>zig</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-zig data-lang=zig><span class=line><span class=cl><span class=kr>const</span><span class=w> </span><span class=n>std</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>@import</span><span class=p>(</span><span class=s>&#34;std&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kr>const</span><span class=w> </span><span class=n>zbpf</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>@import</span><span class=p>(</span><span class=s>&#34;zbpf&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kr>pub</span><span class=w> </span><span class=k>fn</span><span class=w> </span><span class=nf>main</span><span class=p>()</span><span class=w> </span><span class=o>!</span><span class=kt>void</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kr>var</span><span class=w> </span><span class=n>gpa</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>std</span><span class=p>.</span><span class=n>heap</span><span class=p>.</span><span class=nf>GeneralPurposeAllocator</span><span class=p>(.{}){};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>defer</span><span class=w> </span><span class=n>_</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>gpa</span><span class=p>.</span><span class=nf>deinit</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kr>const</span><span class=w> </span><span class=n>allocator</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>gpa</span><span class=p>.</span><span class=nf>allocator</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 纯 Zig loader：解析 ELF、加载 BTF、做 CO-RE 重定位、过 verifier</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kr>var</span><span class=w> </span><span class=n>obj</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>try</span><span class=w> </span><span class=n>zbpf</span><span class=p>.</span><span class=n>BpfObject</span><span class=p>.</span><span class=nf>open</span><span class=p>(</span><span class=n>allocator</span><span class=p>,</span><span class=w> </span><span class=nb>@embedFile</span><span class=p>(</span><span class=s>&#34;probe.o&#34;</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>defer</span><span class=w> </span><span class=n>obj</span><span class=p>.</span><span class=nf>close</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>try</span><span class=w> </span><span class=n>obj</span><span class=p>.</span><span class=nf>load</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kr>const</span><span class=w> </span><span class=n>prog</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>obj</span><span class=p>.</span><span class=nf>findProgram</span><span class=p>(</span><span class=s>&#34;count_open&#34;</span><span class=p>)</span><span class=w> </span><span class=k>orelse</span><span class=w> </span><span class=k>return</span><span class=w> </span><span class=k>error</span><span class=p>.</span><span class=n>NotFound</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>try</span><span class=w> </span><span class=n>prog</span><span class=p>.</span><span class=nf>attachKprobe</span><span class=p>(</span><span class=s>&#34;do_sys_openat2&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kr>const</span><span class=w> </span><span class=n>map</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>obj</span><span class=p>.</span><span class=nf>findMap</span><span class=p>(</span><span class=s>&#34;counter&#34;</span><span class=p>)</span><span class=w> </span><span class=k>orelse</span><span class=w> </span><span class=k>return</span><span class=w> </span><span class=k>error</span><span class=p>.</span><span class=n>NotFound</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>while</span><span class=w> </span><span class=p>(</span><span class=kc>true</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>std</span><span class=p>.</span><span class=n>debug</span><span class=p>.</span><span class=nf>print</span><span class=p>(</span><span class=s>&#34;open count: {d}</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span><span class=w> </span><span class=p>.{</span><span class=n>map</span><span class=p>.</span><span class=nf>get</span><span class=p>(</span><span class=kt>u64</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>)</span><span class=w> </span><span class=k>orelse</span><span class=w> </span><span class=mi>0</span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>std</span><span class=p>.</span><span class=n>time</span><span class=p>.</span><span class=nf>sleep</span><span class=p>(</span><span class=n>std</span><span class=p>.</span><span class=n>time</span><span class=p>.</span><span class=n>ns_per_s</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Zig 的吸引力在于语言特性：<code>comptime</code> 能在编译期做类型检查、显式分配器让内存来源一目了然、<code>@cImport</code> 让 C 互操作几乎无成本。构建一条命令 <code>zig build zbpf -Dbpf=probe.zig -Dmain=main.zig</code> 就把内核态和用户态打成一个二进制，交叉编译也是零配置。</p><p>但 Zig 写 eBPF 有一个绕不开的硬伤。</p><h2 id=co-re三种语言的技术分水岭>CO-RE：三种语言的技术分水岭</h2><p>这是整篇文章最关键的部分。<strong>CO-RE 不是"有没有"的二选一，而是"在哪一层实现"的三档</strong>，它决定了你的程序能不能跨内核版本运行。</p><p>CO-RE 的本质是：BPF 程序访问内核结构体字段时不硬编码偏移量，而是编码成 BTF 重定位记录，加载时由用户态 loader 根据目标内核的真实布局重写指令。要做到这点，编译器必须发射一种特殊的 LLVM intrinsic（<code>llvm.preserve.struct.access.index</code> 等）。</p><table><thead><tr><th>语言</th><th>CO-RE 实现层级</th><th>机制</th><th>成熟度</th></tr></thead><tbody><tr><td><strong>C (libbpf)</strong></td><td>编译器内建</td><td>Clang 发射 BTF 重定位 intrinsics，<code>BPF_CORE_READ</code> 宏</td><td>生产级</td></tr><tr><td><strong>Rust (Aya)</strong></td><td>用户态重定位</td><td><code>aya-obj</code> 解析 ELF 做重定位；Rust 编译器侧的 BTF relo 尚未完成</td><td>可用</td></tr><tr><td><strong>Zig (zbpf)</strong></td><td>用户态 workaround</td><td>zbpf 在 ELF 层实现全部 16 种重定位；Zig 编译器不发射 intrinsics</td><td>实验性</td></tr></tbody></table><p><strong>C 的优势是原生</strong>：Clang 直接认识 CO-RE，<code>BPF_CORE_READ</code> 是一等公民，跨内核运行是编译器保证的。</p><p><strong>Aya 处于过渡期</strong>：根据 2026 年 FOSDEM 演讲，Rust 已经能为所有类型产生正确的 BTF，但<strong>编译器侧的 BTF 重定位 intrinsics 尚未完成</strong>。目前 Aya 在用户态（<code>aya-obj</code>）做重定位来补偿，所以能用，但还不是编译器原生保证。这条路线官方正在推进。</p><p><strong>Zig 卡在最难的一步</strong>：Codeberg issue <a href=https://codeberg.org/ziglang/zig/issues/35324>#35324</a> 明确指出，Zig 编译器不会发射 CO-RE 所需的 intrinsics，所以"无法现实地用于编写 eBPF 程序"。zmitchell 正在 <code>Air.zig</code> 里实现这些 intrinsic，但 <strong>Andrew Kelley 把它标记为 Post-1.0 里程碑</strong>——也就是 1.0 之后才会考虑，目前没有时间表。zbpf 的 CO-RE 是在 ELF 层手动实现的 workaround，能用但不是编译器保证的等价物，访问复杂嵌套结构体时仍可能受限。</p><p>这一层差异，是 Zig 暂时无法和 C、Aya 平起平坐的根本原因。</p><h2 id=全链路对比>全链路对比</h2><table><thead><tr><th>维度</th><th>C (libbpf)</th><th>Rust (Aya)</th><th>Zig (zbpf)</th></tr></thead><tbody><tr><td>内核态语言</td><td>C</td><td>Rust（#![no_std]）</td><td>Zig（freestanding）</td></tr><tr><td>用户态语言</td><td>C / Go</td><td>Rust</td><td>Zig</td></tr><tr><td>CO-RE / BTF</td><td>编译器内建，完整</td><td>BTF 完整，编译器 relo 进行中</td><td>ELF 层 workaround，编译器无内建</td></tr><tr><td>C 工具链依赖</td><td>需要 Clang</td><td>不需要</td><td>编译 BPF 时仍需 Clang 后端</td></tr><tr><td>内存安全</td><td>无保证</td><td>所有权系统编译期保证</td><td>显式分配，运行时部分检查</td></tr><tr><td>异步运行时</td><td>手动 epoll</td><td>tokio / async-std 原生</td><td>无原生 async</td></tr><tr><td>生态规模</td><td>最大（Cilium、bcc、Tetragon）</td><td>大（4.6k stars，7+ 生产用户）</td><td>小（275 stars，1 主维护者）</td></tr><tr><td>生产案例</td><td>行业标准</td><td>Solana、K8s、Red Hat、Deepfence</td><td>无公开生产案例</td></tr><tr><td>Skeleton 生成</td><td>bpftool gen skeleton</td><td>aya-tool / xtask</td><td>zbpf gen-skeleton</td></tr><tr><td>内核版本兼容</td><td>≥ 4.18（CO-RE）</td><td>≥ 5.8（ringbuf）</td><td>取决于特性</td></tr><tr><td>编译速度</td><td>慢（Clang + kernel headers）</td><td>快（纯 Rust）</td><td>快（Zig 工具链）</td></tr><tr><td>学习曲线</td><td>中（C + libbpf 复杂）</td><td>中（Rust + Aya 概念）</td><td>中（Zig 简单但生态薄）</td></tr></tbody></table><h2 id=成熟度判定与现实选型>成熟度判定与现实选型</h2><p>诚实地说：</p><ul><li><strong>C + libbpf</strong>：生产就绪，行业标准。CO-RE 最完整、生态最厚、文档最多。新项目没有特殊理由，它仍是默认选择。代价是要忍受 C 的内存不安全和较重的工具链。</li><li><strong>Rust + Aya</strong>：生产可用，是<strong>今天唯一能替代 C 写生产 eBPF 的非 C 方案</strong>。如果你的团队已经用 Rust，或者需要内存安全 + 异步，Aya 是明确的选择。唯一要注意的是编译器级 CO-RE 还在路上，复杂场景需要测试。</li><li><strong>Zig + zbpf</strong>：实验性。技术探索很有想象力（纯 Zig loader、零依赖、comptime 类型安全），但编译器级 CO-RE 缺失意味着跨内核运行没有保证，生态也太小（单一维护者）。<strong>适合学习、做技术预研、给社区贡献，但不建议上生产。</strong></li></ul><p>一个务实的判断：如果你今天要选一个非 C 语言写 eBPF，答案只有一个——Rust + Aya。Zig 的故事很性感，但它的关键拼图（CO-RE）还在 Post-1.0 的 roadmap 上，至少短期内不是生产选项。不过 zbpf 的纯 Zig loader 实现值得每个 eBPF 爱好者读一遍——它用一门语言重新实现了 libbpf 的核心，本身就是对 eBPF 工具链最好的深度学习。</p><h2 id=小结>小结</h2><p>这篇文章从语言生态的视角梳理了 eBPF 的三种开发路径：</p><ul><li>C + libbpf 仍是基准线，CO-RE 编译器内建是它的护城河</li><li>Rust + Aya 是唯一生产可用的非 C 方案，内存安全 + 异步是真实价值</li><li>Zig + zbpf 是有潜力的探索者，但卡在编译器级 CO-RE，目前只适合实验</li></ul><p>三种语言的真正分水岭不是语法，而是 <strong>CO-RE 在哪一层实现</strong>——编译器内建、用户态重定位、还是 ELF 层 workaround。理解了这一点，就能看懂每个项目的成熟度天花板。</p><p>eBPF 的语言之争才刚开始。后面会继续往这个方向探索——可能会动手用 zbpf 真正写一个工具，也可能去拆解 Aya 的 CO-RE 重定位实现。这个系列还会继续往下走。</p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/ebpf/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+EBPF
+</a><a class=tag-chip href=/tags/zig/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Zig
+</a><a class=tag-chip href=/tags/rust/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Rust
+</a><a class=tag-chip href=/tags/aya/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Aya
+</a><a class=tag-chip href=/tags/libbpf/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Libbpf
+</a><a class=tag-chip href=/tags/co-re/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+CO-RE
+</a><a class=tag-chip href=/tags/bpf/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+BPF</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>
