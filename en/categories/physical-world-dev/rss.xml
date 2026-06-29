@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Physical World Dev on Mi&amp;Bee Blog</title><link>/en/categories/physical-world-dev/</link><description>Recent content in Physical World Dev on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Mon, 25 May 2026 10:00:00 +0800</lastBuildDate><atom:link href="/en/categories/physical-world-dev/rss.xml" rel="self" type="application/rss+xml"/><item><title>IMU Fundamentals: Accelerometer and Gyroscope</title><link>/en/posts/physical-world/imu-accelerometer-gyroscope/</link><pubDate>Fri, 15 May 2026 10:00:00 +0800</pubDate><guid>/en/posts/physical-world/imu-accelerometer-gyroscope/</guid><description>&lt;p&gt;Opening post of the Motion Sensing series. Sensors are the window through which embedded systems perceive the physical world, and the IMU (Inertial Measurement Unit) is the most common type. This article skips heavy theory — just how MEMS sensors work, how to wire them, how to read data, and what the numbers actually look like.&lt;/p&gt;
+&lt;h2 id="imu-coordinate-system"&gt;IMU Coordinate System&lt;/h2&gt;
+&lt;p&gt;The diagram below defines the three axes of the IMU — all formulas and discussions that follow are based on this coordinate system:&lt;/p&gt;</description></item><item><title>Image Basics &amp; Getting Started with OpenCV</title><link>/en/posts/physical-world/image-basics-opencv/</link><pubDate>Fri, 08 May 2026 10:00:00 +0800</pubDate><guid>/en/posts/physical-world/image-basics-opencv/</guid><description>&lt;h2 id="what-is-a-digital-image"&gt;What Is a Digital Image&lt;/h2&gt;
+&lt;p&gt;Computer vision operates on digital images. At its core, a digital image is just a 2D array of pixels.&lt;/p&gt;
+&lt;h3 id="pixels-and-grayscale-images"&gt;Pixels and Grayscale Images&lt;/h3&gt;
+&lt;p&gt;A grayscale image is the simplest form—each pixel stores a single brightness value from 0 (pure black) to 255 (pure white). In Python, a grayscale image of width W and height H is a 2D array with shape &lt;code&gt;(H, W)&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="code-block-wrapper" data-lang="python"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;&lt;span class="code-language"&gt;python&lt;/span&gt;&lt;/div&gt;
+ 
+ &lt;button class="copy-button" aria-label="Copy code"&gt;
+ &lt;svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;rect x="9" y="9" width="13" height="13" rx="2" ry="2"/&gt;&lt;path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/&gt;&lt;/svg&gt;
+ &lt;svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt;
+ &lt;/button&gt;
+ 
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-python" data-lang="python"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# Create a 100x100 gray square (brightness 128)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;gray_img&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;full&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="mi"&gt;128&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;dtype&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;uint8&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;code&gt;uint8&lt;/code&gt; ranges from 0 to 255 because 8 bits can represent 2^8 = 256 unique values. If a pixel value exceeds its range, &lt;strong&gt;wrap around&lt;/strong&gt; occurs: 255 + 1 becomes 0, not 256 (like an odometer rolling over). Use &lt;code&gt;cv2.add()&lt;/code&gt; (saturating arithmetic) or &lt;code&gt;np.clip()&lt;/code&gt; to prevent wrap around.&lt;/p&gt;</description></item><item><title>Acoustic Waves &amp; Digital Signal Processing Basics</title><link>/en/posts/physical-world/acoustics-dsp-basics/</link><pubDate>Mon, 04 May 2026 10:00:00 +0800</pubDate><guid>/en/posts/physical-world/acoustics-dsp-basics/</guid><description>&lt;h2 id="destructive-interference"&gt;Destructive Interference&lt;/h2&gt;
+&lt;p&gt;Active noise cancellation (ANC) builds on a simple physical principle: destructive interference. Two sound waves of the same frequency and opposite phase cancel each other out.&lt;/p&gt;
+&lt;p&gt;The original noise signal:&lt;/p&gt;
+&lt;p&gt;$$
+p_n(t) = A \cos(2\pi ft + \phi)
+$$&lt;/p&gt;
+&lt;p&gt;The anti-noise generated by the ANC system:&lt;/p&gt;
+&lt;p&gt;$$
+p_c(t) = -A \cos(2\pi ft + \phi) = A \cos(2\pi ft + \phi + \pi)
+$$&lt;/p&gt;
+&lt;p&gt;Superposition:&lt;/p&gt;
+&lt;p&gt;$$
+p_{\text{total}} = p_n(t) + p_c(t) = 0
+$$&lt;/p&gt;</description></item><item><title>ANC Tuning &amp; Performance Optimization</title><link>/en/posts/physical-world/anc-tuning-debugging/</link><pubDate>Mon, 25 May 2026 10:00:00 +0800</pubDate><guid>/en/posts/physical-world/anc-tuning-debugging/</guid><description>&lt;p&gt;In engineering practice, the most time-consuming and experience-dependent part of an active noise control system is not algorithm selection, but parameter tuning and stability debugging. Filter order, step size, sampling rate — each parameter interacts with the others in ways that are not always obvious. This article draws from hands-on experience to cover the key parameter selection logic and common troubleshooting approaches in ANC tuning.&lt;/p&gt;
+&lt;h2 id="filter-order-selection"&gt;Filter Order Selection&lt;/h2&gt;
+&lt;p&gt;The FIR filter order $N$ directly determines two core metrics: frequency resolution and computational complexity. Getting this choice wrong reveals itself early in debugging — poor noise reduction, slow convergence, or outright divergence.&lt;/p&gt;</description></item></channel></rss>

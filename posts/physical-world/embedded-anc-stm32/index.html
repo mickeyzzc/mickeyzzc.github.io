@@ -1,0 +1,349 @@
+<!doctype html><html lang=zh-CN dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - 嵌入式 ANC：STM32 实战</title><meta name=description content="在 STM32 平台上使用 CMSIS-DSP 实现实时 ANC 的硬件选型、外设配置和代码框架。"><meta name=keywords content><link rel=canonical href=/posts/physical-world/embedded-anc-stm32/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - 嵌入式 ANC：STM32 实战"><meta property="og:description" content="在 STM32 平台上使用 CMSIS-DSP 实现实时 ANC 的硬件选型、外设配置和代码框架。"><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/posts/physical-world/embedded-anc-stm32/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="zh-CN"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-18 10:00:00 +0800 +0800"><meta property="article:modified_time" content="2026-05-18 10:00:00 +0800 +0800"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - 嵌入式 ANC：STM32 实战"><meta name=twitter:description content="在 STM32 平台上使用 CMSIS-DSP 实现实时 ANC 的硬件选型、外设配置和代码框架。"><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/physical-world/embedded-anc-stm32/><link rel=alternate hreflang=en href=/en/posts/physical-world/embedded-anc-stm32/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label=切换导航 aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/>首页</a></li><li><a href=/about.html>关于</a></li><li><a href=/series/>系列</a></li><li><a href=/archives/>归档</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=搜索>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label=切换主题>
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label=切换语言 aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>中文</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/en/posts/physical-world/embedded-anc-stm32/ lang=en rel=alternate>English</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
+<button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#硬件架构>硬件架构</a></li><li><a href=#mems-麦克风接口>MEMS 麦克风接口</a><ul><li><a href=#dfsdm-配置>DFSDM 配置</a></li></ul></li><li><a href=#cmsis-dsp-fxlms-实现>CMSIS-DSP FXLMS 实现</a><ul><li><a href=#数据结构定义>数据结构定义</a></li><li><a href=#初始化与处理>初始化与处理</a></li></ul></li><li><a href=#freertos-实时任务框架>FreeRTOS 实时任务框架</a></li><li><a href=#实时性优化>实时性优化</a><ul><li><a href=#定点优化>定点优化</a></li><li><a href=#延迟计算>延迟计算</a></li><li><a href=#dma-双缓冲>DMA 双缓冲</a></li></ul></li><li><a href=#异构架构esp32--stm32>异构架构（ESP32 + STM32）</a><ul><li><a href=#自定义通信帧格式>自定义通信帧格式</a></li></ul></li><li><a href=#mermaidstm32-anc-数据流>Mermaid：STM32 ANC 数据流</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-md"><span>ebpf</span>
+</a><a href=/tags/rust/ class="tag-cloud__item tag-size-sm"><span>rust</span>
+</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-sm"><span>yolo</span>
+</a><a href=/tags/ai%E5%B7%A5%E7%A8%8B/ class="tag-cloud__item tag-size-sm"><span>ai工程</span>
+</a><a href=/tags/%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B/ class="tag-cloud__item tag-size-xs"><span>范式演进</span>
+</a><a href=/tags/p2p/ class="tag-cloud__item tag-size-xs"><span>p2p</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>嵌入式 ANC：STM32 实战</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-18T10:00:00+08:00>May 18, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/categories/%E7%89%A9%E7%90%86%E4%B8%96%E7%95%8C%E5%BC%80%E5%8F%91/>物理世界开发</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/stm32/>STM32</a>, <a href=/tags/cmsis-dsp/>CMSIS-DSP</a>, <a href=/tags/dfsdm/>DFSDM</a>, <a href=/tags/mems/>MEMS</a>, <a href=/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/>嵌入式</a>, <a href=/tags/anc/>ANC</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/series/%E5%A3%B0%E5%AD%A6%E4%B8%8E%E6%95%B0%E5%AD%97%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86%E7%B3%BB%E5%88%97/>声学与数字信号处理系列</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>4044 字</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>9 分钟阅读</span></span></div></header><div class=Content><h2 id=硬件架构>硬件架构</h2><p>实现实时 ANC 首先要选择合适的硬件平台。控制器需要在微秒级完成自适应滤波运算，同时管理多路音频数据流。</p><table><thead><tr><th>模块</th><th>功能</th><th>典型选型</th></tr></thead><tbody><tr><td>主控制器</td><td>执行自适应算法</td><td>STM32F4/F7, ESP32-S3, nRF5340</td></tr><tr><td>参考麦克风</td><td>采集环境噪声</td><td>Knowles SPH0645, Infineon IM69D130</td></tr><tr><td>误差麦克风</td><td>采集残余噪声</td><td>Knowles SPH0645, TDK ICS-43434</td></tr><tr><td>音频 DAC</td><td>输出抗噪声信号</td><td>ES9218, PCM5102</td></tr><tr><td>功放</td><td>驱动扬声器</td><td>Class-D</td></tr></tbody></table><p>参考麦克风位于耳罩外侧，采集外部环境噪声作为算法参考输入。误差麦克风位于耳罩内侧，采集扬声器附近的残余噪声，用于评估降噪效果并驱动自适应更新。音频 DAC 将数字抗噪声信号转为模拟量，经功放放大后驱动扬声器。</p><h2 id=mems-麦克风接口>MEMS 麦克风接口</h2><p>现代 ANC 产品普遍使用数字 MEMS 麦克风，其内部集成 ADC 和 PDM（脉冲密度调制）接口。PDM 用 1 位过采样调制，主时钟频率为 1.024–3.072 MHz，双沿采样实现 64× 或 128× 过采样。</p><p>STM32 通过 DFSDM（数字滤波器 sigma-delta 调制器）外设直接连接 PDM 麦克风。DFSDM 内置 Sinc 滤波器，可将 PDM 流转换为 16 位或 24 位 PCM 数据，无需外部编解码器。</p><h3 id=dfsdm-配置>DFSDM 配置</h3><p>以下代码配置 STM32 的 DFSDM 通道和滤波器，从一个数字 MEMS 麦克风采集音频数据：</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>void</span> <span class=nf>DFSDM_Init</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Channel0</span><span class=p>.</span><span class=n>Instance</span> <span class=o>=</span> <span class=n>DFSDM1_Channel0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Channel0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>OutputClock</span><span class=p>.</span><span class=n>Divider</span> <span class=o>=</span> <span class=mi>32</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Channel0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>OutputClock</span><span class=p>.</span><span class=n>Selection</span> <span class=o>=</span> <span class=n>DFSDM_CHANNEL_OUTPUT_CLOCK_AUDIO</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Channel0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>Input</span><span class=p>.</span><span class=n>Multiplexer</span> <span class=o>=</span> <span class=n>DFSDM_CHANNEL_EXTERNAL_INPUTS</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Channel0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>Input</span><span class=p>.</span><span class=n>DataPacking</span> <span class=o>=</span> <span class=n>DFSDM_CHANNEL_STANDARD_MODE</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Channel0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>Input</span><span class=p>.</span><span class=n>Pins</span> <span class=o>=</span> <span class=n>DFSDM_CHANNEL_SAME_CHANNEL_PINS</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Channel0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>SerialInterface</span><span class=p>.</span><span class=n>Type</span> <span class=o>=</span> <span class=n>DFSDM_CHANNEL_SPI_RISING</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Channel0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>SerialInterface</span><span class=p>.</span><span class=n>SpiClock</span> <span class=o>=</span> <span class=n>DFSDM_CHANNEL_SPI_CLOCK_INTERNAL</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Channel0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>Awd</span><span class=p>.</span><span class=n>FilterOrder</span> <span class=o>=</span> <span class=n>DFSDM_CHANNEL_FASTSINC_ORDER</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Channel0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>Awd</span><span class=p>.</span><span class=n>Oversampling</span> <span class=o>=</span> <span class=mi>64</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nf>HAL_DFSDM_ChannelInit</span><span class=p>(</span><span class=o>&amp;</span><span class=n>hdfsdm1_Channel0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Filter0</span><span class=p>.</span><span class=n>Instance</span> <span class=o>=</span> <span class=n>DFSDM1_Filter0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Filter0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>RegularParam</span><span class=p>.</span><span class=n>Trigger</span> <span class=o>=</span> <span class=n>DFSDM_FILTER_SW_TRIGGER</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Filter0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>RegularParam</span><span class=p>.</span><span class=n>FastMode</span> <span class=o>=</span> <span class=n>ENABLE</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Filter0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>SincOrder</span> <span class=o>=</span> <span class=n>DFSDM_FILTER_SINC3_ORDER</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Filter0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>Oversampling</span> <span class=o>=</span> <span class=mi>64</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>hdfsdm1_Filter0</span><span class=p>.</span><span class=n>Init</span><span class=p>.</span><span class=n>IntOversampling</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nf>HAL_DFSDM_FilterInit</span><span class=p>(</span><span class=o>&amp;</span><span class=n>hdfsdm1_Filter0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nf>HAL_DFSDM_FilterConfigRegChannel</span><span class=p>(</span><span class=o>&amp;</span><span class=n>hdfsdm1_Filter0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                     <span class=n>DFSDM_CHANNEL_0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                     <span class=n>DFSDM_CONTINUOUS_CONV_ON</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>关键参数说明：</p><ul><li><code>OutputClock.Divider = 32</code>：将系统时钟分频至 PDM 主时钟，典型值为 2.4 MHz</li><li><code>SincOrder = DFSDM_FILTER_SINC3_ORDER</code>：三阶 Sinc 滤波器，通带平坦度更好</li><li><code>Oversampling = 64</code>：过采样率，配合 PDM 时钟决定最终采样率</li></ul><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    PDM[&#34;PDM 比特流&lt;br/&gt;1-bit @ 2.048MHz&#34;] --&gt; SINC[&#34;Sinc³ 数字滤波器&lt;br/&gt;降采样&#34;]
+    SINC --&gt; DEC[&#34;抽取&lt;br/&gt;64x → 32kHz&#34;]
+    DEC --&gt; PCM[&#34;16-bit PCM&lt;br/&gt;@ 16kHz&#34;]
+
+    classDef raw fill:#f44336,color:#fff
+    classDef filter fill:#2196F3,color:#fff
+    classDef out fill:#4CAF50,color:#fff
+    class PDM raw
+    class SINC,DEC filter
+    class PCM out</code></pre></div></div><p>DFSDM 内部的核心处理链如上图所示。PDM 比特流经过 Sinc³ 滤波器完成降采样和抽取，最终输出 16 位 PCM 数据。</p><p>选择 Sinc³（三阶 Sinc）而非 FastSinc 滤波器，原因在于延迟与阻带衰减的权衡。Sinc³ 的传输函数为 H(z) = ((1 - z⁻ᴿ) / (1 - z⁻¹))³，在相同过采样率下提供更陡峭的滚降和更好的阻带衰减（约 -60dB/dec），适合音频应用。FastSinc 虽然计算量更低、群延迟更小，但阻带衰减性能差，通常只用于看门狗或阈值检测等辅助功能，不适合 ANC 主音频路径。</p><p>双麦克风配置（参考 + 误差）需要两个 DFSDM 通道，分别绑定不同的麦克风数据线。</p><h2 id=cmsis-dsp-fxlms-实现>CMSIS-DSP FXLMS 实现</h2><p>CMSIS-DSP 是 ARM 官方提供的数字信号处理库，针对 Cortex-M 内核做了 SIMD 优化。在 STM32 上实现 FXLMS 算法时，直接使用 <code>arm_fir_f32</code> 完成滤波计算，避免手写循环。</p><p><code>arm_fir_f32</code> 内部利用 Cortex-M4F/M7 的 DSP 扩展指令集，通过 SIMD（单指令多数据）方式完成滤波运算。在支持 FPU 的内核上，一条 <code>VFMA</code> 指令可在单周期内完成 2 次浮点乘加，配合循环展开（loop unrolling）和双发射（dual-issue）流水线，实际吞吐量可达每周期 2–4 次乘加。CMSIS-DSP 库对此做了深度优化，手写汇编通常无法超越其性能。</p><h3 id=数据结构定义>数据结构定义</h3><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;arm_math.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;cmsis_os.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#define BLOCK_SIZE      64
+</span></span></span><span class=line><span class=cl><span class=cp>#define FILTER_TAPS     64
+</span></span></span><span class=line><span class=cl><span class=cp>#define NUM_TAPS_STAGE  32
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>arm_fir_instance_f32</span> <span class=n>fir_inst</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>float32_t</span> <span class=n>state</span><span class=p>[</span><span class=n>FILTER_TAPS</span> <span class=o>+</span> <span class=n>BLOCK_SIZE</span> <span class=o>-</span> <span class=mi>1</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=kt>float32_t</span> <span class=n>coeffs</span><span class=p>[</span><span class=n>FILTER_TAPS</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=n>CMSIS_FIR_Filter</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>CMSIS_FIR_Filter</span> <span class=n>w_filter</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>CMSIS_FIR_Filter</span> <span class=n>s_filter</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>float32_t</span> <span class=n>mu</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>float32_t</span> <span class=n>x_buf</span><span class=p>[</span><span class=n>BLOCK_SIZE</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=kt>float32_t</span> <span class=n>e_buf</span><span class=p>[</span><span class=n>BLOCK_SIZE</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=n>FXLMS_CMSIS</span><span class=p>;</span></span></span></code></pre></td></tr></table></div></div></div></div><p><code>w_filter</code> 是自适应控制器，其系数在运行时持续更新。<code>s_filter</code> 是次级路径模型 S(z) 的估计，系数通过离线辨识预先确定，运行时不调整。</p><h3 id=初始化与处理>初始化与处理</h3><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>void</span> <span class=nf>fxlms_cmsis_init</span><span class=p>(</span><span class=n>FXLMS_CMSIS</span> <span class=o>*</span><span class=n>fx</span><span class=p>,</span> <span class=kt>float32_t</span> <span class=o>*</span><span class=n>s_hat</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>s_len</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>arm_fir_init_f32</span><span class=p>(</span><span class=o>&amp;</span><span class=n>fx</span><span class=o>-&gt;</span><span class=n>w_filter</span><span class=p>.</span><span class=n>fir_inst</span><span class=p>,</span> <span class=n>FILTER_TAPS</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                     <span class=n>fx</span><span class=o>-&gt;</span><span class=n>w_filter</span><span class=p>.</span><span class=n>coeffs</span><span class=p>,</span> <span class=n>fx</span><span class=o>-&gt;</span><span class=n>w_filter</span><span class=p>.</span><span class=n>state</span><span class=p>,</span> <span class=n>BLOCK_SIZE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>memset</span><span class=p>(</span><span class=n>fx</span><span class=o>-&gt;</span><span class=n>w_filter</span><span class=p>.</span><span class=n>coeffs</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>fx</span><span class=o>-&gt;</span><span class=n>w_filter</span><span class=p>.</span><span class=n>coeffs</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    <span class=nf>arm_fir_init_f32</span><span class=p>(</span><span class=o>&amp;</span><span class=n>fx</span><span class=o>-&gt;</span><span class=n>s_filter</span><span class=p>.</span><span class=n>fir_inst</span><span class=p>,</span> <span class=n>s_len</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                     <span class=n>s_hat</span><span class=p>,</span> <span class=n>fx</span><span class=o>-&gt;</span><span class=n>s_filter</span><span class=p>.</span><span class=n>state</span><span class=p>,</span> <span class=n>BLOCK_SIZE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>fx</span><span class=o>-&gt;</span><span class=n>mu</span> <span class=o>=</span> <span class=mf>0.0005f</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>fxlms_cmsis_process</span><span class=p>(</span><span class=n>FXLMS_CMSIS</span> <span class=o>*</span><span class=n>fx</span><span class=p>,</span> <span class=kt>float32_t</span> <span class=o>*</span><span class=n>x_ref</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                         <span class=kt>float32_t</span> <span class=o>*</span><span class=n>e_mic</span><span class=p>,</span> <span class=kt>float32_t</span> <span class=o>*</span><span class=n>output</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                         <span class=kt>uint32_t</span> <span class=n>block_size</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>float32_t</span> <span class=n>x_filtered</span><span class=p>[</span><span class=n>BLOCK_SIZE</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=kt>float32_t</span> <span class=n>y_output</span><span class=p>[</span><span class=n>BLOCK_SIZE</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nf>arm_fir_f32</span><span class=p>(</span><span class=o>&amp;</span><span class=n>fx</span><span class=o>-&gt;</span><span class=n>w_filter</span><span class=p>.</span><span class=n>fir_inst</span><span class=p>,</span> <span class=n>x_ref</span><span class=p>,</span> <span class=n>y_output</span><span class=p>,</span> <span class=n>block_size</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>arm_fir_f32</span><span class=p>(</span><span class=o>&amp;</span><span class=n>fx</span><span class=o>-&gt;</span><span class=n>s_filter</span><span class=p>.</span><span class=n>fir_inst</span><span class=p>,</span> <span class=n>x_ref</span><span class=p>,</span> <span class=n>x_filtered</span><span class=p>,</span> <span class=n>block_size</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=kt>uint32_t</span> <span class=n>n</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>n</span> <span class=o>&lt;</span> <span class=n>block_size</span><span class=p>;</span> <span class=n>n</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kt>float32_t</span> <span class=n>norm_factor</span> <span class=o>=</span> <span class=n>x_filtered</span><span class=p>[</span><span class=n>n</span><span class=p>]</span> <span class=o>*</span> <span class=n>x_filtered</span><span class=p>[</span><span class=n>n</span><span class=p>]</span> <span class=o>+</span> <span class=mf>1e-6</span><span class=n>f</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kt>float32_t</span> <span class=n>step</span> <span class=o>=</span> <span class=n>fx</span><span class=o>-&gt;</span><span class=n>mu</span> <span class=o>/</span> <span class=n>norm_factor</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=p>(</span><span class=kt>uint32_t</span> <span class=n>k</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>k</span> <span class=o>&lt;</span> <span class=n>FILTER_TAPS</span><span class=p>;</span> <span class=n>k</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=p>(</span><span class=n>n</span> <span class=o>&gt;=</span> <span class=n>k</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=n>fx</span><span class=o>-&gt;</span><span class=n>w_filter</span><span class=p>.</span><span class=n>coeffs</span><span class=p>[</span><span class=n>k</span><span class=p>]</span> <span class=o>+=</span> <span class=n>step</span> <span class=o>*</span> <span class=n>e_mic</span><span class=p>[</span><span class=n>n</span><span class=p>]</span> <span class=o>*</span> <span class=n>x_filtered</span><span class=p>[</span><span class=n>n</span> <span class=o>-</span> <span class=n>k</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nf>memcpy</span><span class=p>(</span><span class=n>output</span><span class=p>,</span> <span class=n>y_output</span><span class=p>,</span> <span class=n>block_size</span> <span class=o>*</span> <span class=k>sizeof</span><span class=p>(</span><span class=kt>float32_t</span><span class=p>));</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>上面的权重更新使用了归一化 LMS（NLMS）策略。标准的 FXLMS 权重递推公式为：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>w_k(n+1) = w_k(n) + μ · e(n) · x&#39;(n-k)</span></span></code></pre></td></tr></table></div></div></div></div><p>其中 μ 为固定步长。NLMS 引入归一化因子，将步长调整为：</p><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>μ(n) = μ₀ / (||x&#39;(n)||² + ε)</span></span></code></pre></td></tr></table></div></div></div></div><p>当参考信号功率较大时自动减小步长，避免发散；信号功率小时步长增大，加快收敛。归一化因子中的小常数 ε（代码中取 1e-6）防止除以零。</p><p><code>fxlms_cmsis_process</code> 的执行流程：</p><ol><li>参考信号 <code>x_ref</code> 经过 W(z) 生成抗噪声输出 <code>y_output</code></li><li>参考信号经过 S(z) 估计生成滤波后的参考信号 <code>x_filtered</code></li><li>使用滤波后的参考信号更新 W(z) 系数，步长做归一化处理</li></ol><p>权重更新使用 <code>x_filtered</code>（而非原始 <code>x_ref</code>），这是 FXLMS 与标准 LMS 的核心区别，补偿了次级路径带来的相位偏移。</p><h2 id=freertos-实时任务框架>FreeRTOS 实时任务框架</h2><p>在实际产品中，ANC 处理作为一个实时任务运行，由定时器或 DMA 中断触发。</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>void</span> <span class=nf>ANC_Processing_Task</span><span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=n>argument</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>FXLMS_CMSIS</span> <span class=n>fxlms</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>float32_t</span> <span class=n>s_hat</span><span class=p>[</span><span class=n>NUM_TAPS_STAGE</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span> <span class=cm>/* 离线辨识结果 */</span> <span class=p>};</span>
+</span></span><span class=line><span class=cl>    <span class=nf>fxlms_cmsis_init</span><span class=p>(</span><span class=o>&amp;</span><span class=n>fxlms</span><span class=p>,</span> <span class=n>s_hat</span><span class=p>,</span> <span class=n>NUM_TAPS_STAGE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int16_t</span> <span class=n>raw_ref</span><span class=p>[</span><span class=n>BLOCK_SIZE</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int16_t</span> <span class=n>raw_err</span><span class=p>[</span><span class=n>BLOCK_SIZE</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=kt>float32_t</span> <span class=n>f_ref</span><span class=p>[</span><span class=n>BLOCK_SIZE</span><span class=p>],</span> <span class=n>f_err</span><span class=p>[</span><span class=n>BLOCK_SIZE</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=kt>float32_t</span> <span class=n>output</span><span class=p>[</span><span class=n>BLOCK_SIZE</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int16_t</span> <span class=n>dac_output</span><span class=p>[</span><span class=n>BLOCK_SIZE</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(;;)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>ulTaskNotifyTake</span><span class=p>(</span><span class=n>pdTRUE</span><span class=p>,</span> <span class=n>portMAX_DELAY</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>arm_q15_to_float</span><span class=p>(</span><span class=n>raw_ref</span><span class=p>,</span> <span class=n>f_ref</span><span class=p>,</span> <span class=n>BLOCK_SIZE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>arm_q15_to_float</span><span class=p>(</span><span class=n>raw_err</span><span class=p>,</span> <span class=n>f_err</span><span class=p>,</span> <span class=n>BLOCK_SIZE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>fxlms_cmsis_process</span><span class=p>(</span><span class=o>&amp;</span><span class=n>fxlms</span><span class=p>,</span> <span class=n>f_ref</span><span class=p>,</span> <span class=n>f_err</span><span class=p>,</span> <span class=n>output</span><span class=p>,</span> <span class=n>BLOCK_SIZE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>arm_float_to_q15</span><span class=p>(</span><span class=n>output</span><span class=p>,</span> <span class=n>dac_output</span><span class=p>,</span> <span class=n>BLOCK_SIZE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>HAL_DAC_Start_DMA</span><span class=p>(</span><span class=o>&amp;</span><span class=n>hdac</span><span class=p>,</span> <span class=n>DAC_CHANNEL_1</span><span class=p>,</span> <span class=p>(</span><span class=kt>uint32_t</span><span class=o>*</span><span class=p>)</span><span class=n>dac_output</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                          <span class=n>BLOCK_SIZE</span><span class=p>,</span> <span class=n>DAC_ALIGN_12B_L</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    IRQ[&#34;DMA 半传输完成中断&#34;] --&gt; NOTIFY[&#34;ulTaskNotifyTake&lt;br/&gt;唤醒 ANC 任务&#34;]
+    NOTIFY --&gt; PROC[&#34;处理前半块&lt;br/&gt;64 samples&#34;]
+    PROC --&gt; DAC[&#34;DMA 启动 DAC 输出&#34;]
+    IRQ2[&#34;DMA 全传输完成中断&#34;] --&gt; NOTIFY2[&#34;唤醒 ANC 任务&#34;]
+    NOTIFY2 --&gt; PROC2[&#34;处理后半块&lt;br/&gt;64 samples&#34;]
+    PROC2 --&gt; DAC2[&#34;DMA 启动 DAC 输出&#34;]
+    DAC2 --&gt; IRQ
+
+    classDef irq fill:#f44336,color:#fff
+    classDef task fill:#2196F3,color:#fff
+    classDef out fill:#4CAF50,color:#fff
+    class IRQ,IRQ2 irq
+    class NOTIFY,PROC,NOTIFY2,PROC2 task
+    class DAC,DAC2 out</code></pre></div></div><p>DMA 的半传输和全传输完成中断交替触发，驱动 ANC 任务以流水线方式处理数据块。</p><p>任务流程：</p><ol><li>等待通知（<code>ulTaskNotifyTake</code>）—— DMA 完成一次数据采集后发送通知</li><li>类型转换——Q15 到 float（<code>arm_q15_to_float</code>），CMSIS-DSP 提供批量转换函数</li><li>执行 FXLMS——调用 <code>fxlms_cmsis_process</code></li><li>结果转回 Q15（<code>arm_float_to_q15</code>），启动 DAC 的 DMA 传输</li></ol><h2 id=实时性优化>实时性优化</h2><p>ANC 对延迟极其敏感。从误差麦克风采集到扬声器输出的总延迟需控制在 0.5 ms 以内，否则相移过大导致算法失效甚至正反馈啸叫。</p><table><thead><tr><th>优化手段</th><th>说明</th><th>典型效果</th></tr></thead><tbody><tr><td>降低采样率</td><td>16 kHz 而非 48 kHz</td><td>计算量降至 1/3</td></tr><tr><td>减小块大小</td><td>16–32 采样点</td><td>延迟降至 1–2 ms</td></tr><tr><td>降低滤波器阶数</td><td>32–64 阶</td><td>每块节省数千次乘加</td></tr><tr><td>定点运算</td><td>Q15/Q31 格式</td><td>取消浮点转换开销</td></tr><tr><td>DMA 双缓冲</td><td>乒乓缓冲</td><td>消除数据传输等待</td></tr><tr><td>核心绑定</td><td>ANC 任务绑到专用核心</td><td>避免任务切换抖动</td></tr></tbody></table><h3 id=定点优化>定点优化</h3><h3 id=延迟计算>延迟计算</h3><p>理解延迟需要建立直觉：16 kHz 采样率下，一个采样周期 = 1/16000 = 62.5 μs。块大小 16 → 块延迟 = 16 × 62.5 μs = 1 ms。从噪声进入麦克风到抗噪声离开扬声器的总端到端延迟由三部分构成：</p><table><thead><tr><th>延迟分量</th><th>典型值</th><th>说明</th></tr></thead><tbody><tr><td>块延迟</td><td>1–4 ms</td><td>DMA 填满一个块的时间，取决于采样率和块大小</td></tr><tr><td>计算延迟</td><td>0.1–0.5 ms</td><td>FXLMS 滤波 + 权重更新耗时</td></tr><tr><td>DAC 延迟</td><td>0.1–0.3 ms</td><td>DAC 转换 + 功放响应时间</td></tr><tr><td><strong>总延迟</strong></td><td><strong>1.2–4.8 ms</strong></td><td>须 &lt;0.5 ms 才能有效降噪 → 需要极端优化</td></tr></tbody></table><p>表中的 0.5 ms 目标是主动降噪的经验阈值。超过此值时，1600 Hz 以上频率的相移超过 180°，反馈会从降噪变为增强（正反馈啸叫）。因此实际 ANC 系统通常采用 16 kHz 采样率 + 16 块大小 + 32 阶滤波器 + 定点运算的组合，将总延迟压到 0.3–0.4 ms。</p><p>浮点 FXLMS 在 Cortex-M4/M7 上虽然硬件支持，但定点版本仍可进一步降低延迟。CMSIS-DSP 提供 <code>arm_fir_q15</code> 和 <code>arm_fir_q31</code> 系列函数。将系数和信号转为 Q15 格式后，每次滤波运算从多条指令降为单条 SIMD 指令。</p><p><strong>浮点 vs 定点的选择</strong>：LMS 权重更新涉及大量乘法累加操作。Q15 格式中，两个 16 位定点数相乘结果为 31 位（符号位保留），需要饱和处理（saturation）后右移回 Q15 范围，否则溢出会导致系数剧烈跳变。浮点数（float32）由硬件 FPU 直接处理，IEEE 754 标准的指数位自动处理动态范围，不存在溢出问题，代码编写更直观。</p><table><thead><tr><th>对比维度</th><th>float32</th><th>Q15/Q31</th></tr></thead><tbody><tr><td>动态范围</td><td>±3.4×10³⁸</td><td>±1 (Q15) / ±2³¹ (Q31)</td></tr><tr><td>溢出风险</td><td>无</td><td>需饱和处理</td></tr><tr><td>单周期 MAC</td><td>1 (VFMA)</td><td>2 (SMUAD)</td></tr><tr><td>功耗</td><td>较高</td><td>较低</td></tr><tr><td>代码可读性</td><td>高</td><td>低</td></tr></tbody></table><p>综合来看，浮点适合原型开发和性能充裕的 M7 系列；定点适合追求极致续航和低成本场景，但调试周期显著增加。许多产品在浮点 M7 原型验证后，再移植到定点 M4 做成本优化。</p><h3 id=dma-双缓冲>DMA 双缓冲</h3><p>双缓冲（ping-pong）模式是 DMA 数据传输中的经典技巧。两个缓冲区交替角色：当 DMA 控制器向缓冲区 A 写入新数据时，CPU 处理缓冲区 B 中已就绪的数据；DMA 完成 A 的写入后立即切换到 B，同时 CPU 开始处理 A。这种交替机制消除了数据搬移的等待时间，让 CPU 和 DMA 完全并行工作。</p><p>在 16 kHz 采样率、块大小 64 的条件下，DMA 填充一个缓冲区需要约 4 ms。如果使用单缓冲，CPU 必须等待 DMA 完成后才能开始处理，浪费一半的时间。双缓冲将有效计算吞吐量提升近一倍。</p><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>// DMA 乒乓缓冲——active_buf 在 0 和 1 之间交替
+</span></span></span><span class=line><span class=cl><span class=nf>HAL_DFSDM_FilterRegConvStart_DMA</span><span class=p>(</span><span class=o>&amp;</span><span class=n>hdfsdm1_Filter0</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                 <span class=n>ping_pong_buf</span><span class=p>[</span><span class=n>active_buf</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>                                 <span class=n>BLOCK_SIZE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=c1>// CPU 同时处理 ping_pong_buf[1 - active_buf] 中的数据
+</span></span></span></code></pre></td></tr></table></div></div></div></div><h2 id=异构架构esp32--stm32>异构架构（ESP32 + STM32）</h2><p>在复杂 ANC 系统中，单一 MCU 难以同时满足实时音频处理和非实时系统管理的需求。一种常见的思路是采用异构架构：ESP32 负责无线连接、用户交互和系统管理，STM32 专注实时音频处理。</p><p>双芯片通过 UART、SPI 或 I2C 通信。传递的数据包括音频流和控制命令。</p><h3 id=自定义通信帧格式>自定义通信帧格式</h3><div class=code-block-wrapper data-lang=c><div class=code-block-header><div class=code-block-meta><span class=code-language>c</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>typedef</span> <span class=k>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>header</span><span class=p>[</span><span class=mi>2</span><span class=p>];</span>     <span class=c1>// 0xAA 0x55
+</span></span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span>  <span class=n>type</span><span class=p>;</span>          <span class=c1>// 0x01=音频数据, 0x02=控制命令
+</span></span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>seq</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint16_t</span> <span class=n>len</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int16_t</span>  <span class=n>samples</span><span class=p>[];</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=nf>__attribute__</span><span class=p>((</span><span class=n>packed</span><span class=p>))</span> <span class=n>AudioFrame</span><span class=p>;</span></span></span></code></pre></td></tr></table></div></div></div></div><p><code>header</code> 字段用于帧同步，接收端检测到 0xAA 0x55 后开始解析。<code>type</code> 区分音频采样流和参数配置命令。<code>seq</code> 用于丢包检测和重排序。</p><p>ESP32 端处理 Wi-Fi/蓝牙协议栈、用户界面和参数更新。当用户通过手机 App 调整 ANC 模式时，ESP32 将新的滤波器系数或步长参数封装为控制帧发送给 STM32。STM32 收到后热更新算法参数，无需暂停音频处理。</p><h2 id=mermaidstm32-anc-数据流>Mermaid：STM32 ANC 数据流</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    subgraph Input
+        REF[&#34;参考麦克风&lt;br/&gt;PDM&#34;]
+        ERR[&#34;误差麦克风&lt;br/&gt;PDM&#34;]
+    end
+    subgraph STM32
+        DFSDM[&#34;DFSDM&lt;br/&gt;PDM→PCM&#34;]
+        DMA[&#34;DMA&lt;br/&gt;乒乓缓冲&#34;]
+        FXLMS[&#34;FXLMS&lt;br/&gt;CMSIS-DSP&#34;]
+        DAC[&#34;DAC&lt;br/&gt;PCM→模拟&#34;]
+        TASK[&#34;FreeRTOS&lt;br/&gt;ANC Task&#34;]
+    end
+    subgraph Output
+        SPK[&#34;扬声器&lt;br/&gt;抗噪声&#34;]
+    end
+    subgraph ESP
+        WIFI[&#34;Wi-Fi/蓝牙&lt;br/&gt;参数下发&#34;]
+    end
+
+    REF --&gt; DFSDM
+    ERR --&gt; DFSDM
+    DFSDM --&gt; DMA
+    DMA --&gt; TASK
+    TASK --&gt; FXLMS
+    FXLMS --&gt; DAC
+    DAC --&gt; SPK
+    WIFI --&gt;|UART/SPI| TASK</code></pre></div></div></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>所属系列:</span>
+<a href=/series/%E5%A3%B0%E5%AD%A6%E4%B8%8E%E6%95%B0%E5%AD%97%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86%E7%B3%BB%E5%88%97/>声学与数字信号处理系列</a></div><div class=series-nav__links><a href=/posts/physical-world/variable-step-frequency-domain/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>上一篇</span>
+<span class=series-nav__title>变步长与频域自适应算法</span>
+</a><a href=/posts/physical-world/embedded-anc-esp32/ class="series-nav__link series-nav__link--next"><span class=series-nav__direction>下一篇</span>
+<span class=series-nav__arrow>&rarr;</span>
+<span class=series-nav__title>嵌入式 ANC：ESP32 实战</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/tags/stm32/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+STM32
+</a><a class=tag-chip href=/tags/cmsis-dsp/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+CMSIS-DSP
+</a><a class=tag-chip href=/tags/dfsdm/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+DFSDM
+</a><a class=tag-chip href=/tags/mems/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+MEMS
+</a><a class=tag-chip href=/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+嵌入式
+</a><a class=tag-chip href=/tags/anc/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+ANC</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>由 Hugo 驱动 <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder=搜索文章... autocomplete=off>
+<button class=search-close id=search-close aria-label=关闭搜索>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label=回到顶部 hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>
