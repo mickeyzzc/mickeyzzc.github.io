@@ -1,0 +1,877 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - Implementing Image Restoration in Go and Rust</title><meta name=description content="Implementing core image restoration algorithms in systems languages — Go's clean standard library and Rust's zero-cost parallelism."><meta name=keywords content><link rel=canonical href=/en/posts/physical-world/image-restoration-go-rust/><link rel=alternate type=application/rss+xml href><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - Implementing Image Restoration in Go and Rust"><meta property="og:description" content="Implementing core image restoration algorithms in systems languages — Go's clean standard library and Rust's zero-cost parallelism."><meta property="og:image" content="/imgs/avatar.jpeg"><meta property="og:image:width" content="312"><meta property="og:image:height" content="312"><meta property="og:image:type" content="image/jpeg/png/svg/jpg"><meta property="og:url" content="/en/posts/physical-world/image-restoration-go-rust/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-06-28 10:00:00 +0800 +0800"><meta property="article:modified_time" content="2026-06-28 10:00:00 +0800 +0800"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - Implementing Image Restoration in Go and Rust"><meta name=twitter:description content="Implementing core image restoration algorithms in systems languages — Go's clean standard library and Rust's zero-cost parallelism."><meta name=twitter:image content="/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-cn href=/posts/physical-world/image-restoration-go-rust/><link rel=alternate hreflang=en href=/en/posts/physical-world/image-restoration-go-rust/><link rel=stylesheet href=/css/main.efcb55903d3db239999ffe1f62fb98a6bd54955cb4800bcc4b6594f0fb74a11c.css integrity="sha256-78tVkD09sjmZn/4fYvuYpr1UlVy0gAvMS2WU8Pt0oRw=" crossorigin=anonymous><link rel=icon href=/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/series/>Series</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/posts/physical-world/image-restoration-go-rust/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#why-go-and-rust>Why Go and Rust?</a></li><li><a href=#go-implementation>Go Implementation</a><ul><li><a href=#imageprocessor-setup>ImageProcessor Setup</a></li><li><a href=#bicubic-interpolation-implementation>Bicubic Interpolation Implementation</a></li><li><a href=#key-method-bicubicinterpolate>Key Method: bicubicInterpolate</a></li><li><a href=#gaussian-blur-implementation>Gaussian Blur Implementation</a></li><li><a href=#laplacian-sharpening-implementation>Laplacian Sharpening Implementation</a></li><li><a href=#generic-convolution-function>Generic Convolution Function</a></li><li><a href=#super-resolution-pipeline>Super-Resolution Pipeline</a></li></ul></li><li><a href=#rust-implementation>Rust Implementation</a><ul><li><a href=#dependencies>Dependencies</a></li><li><a href=#imageprocessor-struct>ImageProcessor Struct</a></li><li><a href=#parallel-bicubic-interpolation>Parallel Bicubic Interpolation</a></li><li><a href=#parallel-bilateral-filter>Parallel Bilateral Filter</a></li><li><a href=#1d-fft-implementation>1D FFT Implementation</a></li><li><a href=#rust-ownership-advantages>Rust Ownership Advantages</a></li></ul></li><li><a href=#performance-optimization-strategies>Performance Optimization Strategies</a><ul><li><a href=#multi-scale-processing>Multi-Scale Processing</a></li><li><a href=#patch-based-processing-tiling>Patch-Based Processing (Tiling)</a></li><li><a href=#model-lightweighting>Model Lightweighting</a></li><li><a href=#hardware-acceleration>Hardware Acceleration</a></li></ul></li><li><a href=#processing-flow-diagram>Processing Flow Diagram</a></li><li><a href=#parallel-processing-architecture>Parallel Processing Architecture</a></li><li><a href=#optimization-strategy-overview>Optimization Strategy Overview</a></li><li><a href=#practical-application-pipeline>Practical Application Pipeline</a><ul><li><a href=#photo-post-processing-pipeline>Photo Post-Processing Pipeline</a></li><li><a href=#real-time-video-enhancement>Real-Time Video Enhancement</a></li><li><a href=#mobile-deployment>Mobile Deployment</a></li></ul></li><li><a href=#summary>Summary</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-md"><span>computer vision</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
+</a><a href=/en/tags/rust/ class="tag-cloud__item tag-size-sm"><span>rust</span>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-sm"><span>yolo</span>
+</a><a href=/en/tags/ai-engineering/ class="tag-cloud__item tag-size-xs"><span>ai engineering</span>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>Implementing Image Restoration in Go and Rust</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-06-28T10:00:00+08:00>June 28, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/physical-world-dev/>Physical World Dev</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/computer-vision/>Computer Vision</a>, <a href=/en/tags/go/>Go</a>, <a href=/en/tags/rust/>Rust</a>, <a href=/en/tags/image-processing/>Image Processing</a></span><span class="post-meta-item post-meta-item--series">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/en/series/computer-vision-series/>Computer Vision Series</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>2963 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>14 min read</span></span></div></header><div class=Content><h2 id=why-go-and-rust>Why Go and Rust?</h2><p>Choosing the right programming language is crucial for practical image processing projects. Go and Rust, as modern systems languages, each offer unique advantages suitable for implementing high-performance image restoration algorithms.</p><p><strong>Go&rsquo;s strengths:</strong></p><ul><li>Clean syntax, comprehensive standard library (the <code>image</code> package provides basic image operations)</li><li>Easy cross-platform compilation and deployment</li><li>Suitable for small to medium-scale image processing tasks</li></ul><p><strong>Rust&rsquo;s strengths:</strong></p><ul><li>Zero-cost abstractions with extreme compiler optimization</li><li>Memory safety guarantees with no runtime overhead</li><li>Rayon library provides simple parallelism primitives</li><li>Ownership model naturally fits image data processing</li></ul><h2 id=go-implementation>Go Implementation</h2><p>Go&rsquo;s standard <code>image</code> library provides image encoding/decoding and pixel access. The following implementation demonstrates how to implement bicubic interpolation, Gaussian blur, and Laplacian sharpening in Go.</p><h3 id=imageprocessor-setup>ImageProcessor Setup</h3><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span><span class=w> </span><span class=nx>main</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=s>&#34;image&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=s>&#34;image/color&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=s>&#34;math&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// ImageProcessor encapsulates image processing operations</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>ImageProcessor</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>img</span><span class=w> </span><span class=o>*</span><span class=nx>image</span><span class=p>.</span><span class=nx>RGBA</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// NewImageProcessor creates a new image processor</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>NewImageProcessor</span><span class=p>(</span><span class=nx>img</span><span class=w> </span><span class=o>*</span><span class=nx>image</span><span class=p>.</span><span class=nx>RGBA</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=nx>ImageProcessor</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=o>&amp;</span><span class=nx>ImageProcessor</span><span class=p>{</span><span class=nx>img</span><span class=p>:</span><span class=w> </span><span class=nx>img</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=bicubic-interpolation-implementation>Bicubic Interpolation Implementation</h3><p>Bicubic interpolation uses a 4×4 pixel neighborhood with weighted averaging, where weights are calculated by a cubic polynomial kernel function.</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// cubicKernel computes the bicubic interpolation kernel function</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>cubicKernel</span><span class=p>(</span><span class=nx>x</span><span class=w> </span><span class=kt>float64</span><span class=p>)</span><span class=w> </span><span class=kt>float64</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>absX</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>math</span><span class=p>.</span><span class=nf>Abs</span><span class=p>(</span><span class=nx>x</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>absX</span><span class=w> </span><span class=o>&lt;=</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=mf>1.5</span><span class=o>*</span><span class=nx>absX</span><span class=o>*</span><span class=nx>absX</span><span class=o>*</span><span class=nx>absX</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mf>2.5</span><span class=o>*</span><span class=nx>absX</span><span class=o>*</span><span class=nx>absX</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mi>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>absX</span><span class=w> </span><span class=o>&lt;=</span><span class=w> </span><span class=mi>2</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=o>-</span><span class=mf>0.5</span><span class=o>*</span><span class=nx>absX</span><span class=o>*</span><span class=nx>absX</span><span class=o>*</span><span class=nx>absX</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mf>2.5</span><span class=o>*</span><span class=nx>absX</span><span class=o>*</span><span class=nx>absX</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>4</span><span class=o>*</span><span class=nx>absX</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mi>2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=mi>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=key-method-bicubicinterpolate>Key Method: bicubicInterpolate</h3><p><strong>Important</strong>: The original report references <code>bicubicInterpolate()</code> but never implements it. Here&rsquo;s the complete implementation:</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// bicubicInterpolate performs bicubic interpolation at fractional coordinates</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>ip</span><span class=w> </span><span class=o>*</span><span class=nx>ImageProcessor</span><span class=p>)</span><span class=w> </span><span class=nf>bicubicInterpolate</span><span class=p>(</span><span class=nx>x</span><span class=p>,</span><span class=w> </span><span class=nx>y</span><span class=w> </span><span class=kt>float64</span><span class=p>)</span><span class=w> </span><span class=p>(</span><span class=kt>float64</span><span class=p>,</span><span class=w> </span><span class=kt>float64</span><span class=p>,</span><span class=w> </span><span class=kt>float64</span><span class=p>,</span><span class=w> </span><span class=kt>float64</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>bounds</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>ip</span><span class=p>.</span><span class=nx>img</span><span class=p>.</span><span class=nf>Bounds</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>xInt</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>int</span><span class=p>(</span><span class=nx>math</span><span class=p>.</span><span class=nf>Floor</span><span class=p>(</span><span class=nx>x</span><span class=p>))</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>yInt</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>int</span><span class=p>(</span><span class=nx>math</span><span class=p>.</span><span class=nf>Floor</span><span class=p>(</span><span class=nx>y</span><span class=p>))</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=kd>var</span><span class=w> </span><span class=nx>r</span><span class=p>,</span><span class=w> </span><span class=nx>g</span><span class=p>,</span><span class=w> </span><span class=nx>b</span><span class=p>,</span><span class=w> </span><span class=nx>a</span><span class=w> </span><span class=kt>float64</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>j</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>j</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=mi>4</span><span class=p>;</span><span class=w> </span><span class=nx>j</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>for</span><span class=w> </span><span class=nx>i</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>i</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=mi>4</span><span class=p>;</span><span class=w> </span><span class=nx>i</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>px</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nf>clampInt</span><span class=p>(</span><span class=nx>xInt</span><span class=o>+</span><span class=nx>i</span><span class=p>,</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Min</span><span class=p>.</span><span class=nx>X</span><span class=p>,</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Max</span><span class=p>.</span><span class=nx>X</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>py</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nf>clampInt</span><span class=p>(</span><span class=nx>yInt</span><span class=o>+</span><span class=nx>j</span><span class=p>,</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Min</span><span class=p>.</span><span class=nx>Y</span><span class=p>,</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Max</span><span class=p>.</span><span class=nx>Y</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>pr</span><span class=p>,</span><span class=w> </span><span class=nx>pg</span><span class=p>,</span><span class=w> </span><span class=nx>pb</span><span class=p>,</span><span class=w> </span><span class=nx>pa</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>ip</span><span class=p>.</span><span class=nx>img</span><span class=p>.</span><span class=nf>At</span><span class=p>(</span><span class=nx>px</span><span class=p>,</span><span class=w> </span><span class=nx>py</span><span class=p>).</span><span class=nf>RGBA</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>weight</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nf>cubicKernel</span><span class=p>(</span><span class=nx>x</span><span class=o>-</span><span class=nb>float64</span><span class=p>(</span><span class=nx>xInt</span><span class=o>+</span><span class=nx>i</span><span class=p>))</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nf>cubicKernel</span><span class=p>(</span><span class=nx>y</span><span class=o>-</span><span class=nb>float64</span><span class=p>(</span><span class=nx>yInt</span><span class=o>+</span><span class=nx>j</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>r</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>pr</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>weight</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>g</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>pg</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>weight</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>b</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>pb</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>weight</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>a</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>pa</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>weight</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>r</span><span class=p>,</span><span class=w> </span><span class=nx>g</span><span class=p>,</span><span class=w> </span><span class=nx>b</span><span class=p>,</span><span class=w> </span><span class=nx>a</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// clampInt clamps an integer to a specified range</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>clampInt</span><span class=p>(</span><span class=nx>val</span><span class=p>,</span><span class=w> </span><span class=nx>min</span><span class=p>,</span><span class=w> </span><span class=nx>max</span><span class=w> </span><span class=kt>int</span><span class=p>)</span><span class=w> </span><span class=kt>int</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>val</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>min</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>min</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>val</span><span class=w> </span><span class=p>&gt;</span><span class=w> </span><span class=nx>max</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>max</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>val</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>How it works:</strong></p><ol><li>Calculates the 4×4 pixel neighborhood around the target point</li><li>Applies cubic kernel weights in both X and Y directions</li><li>Handles image boundaries with <code>clampInt()</code> (nearest neighbor padding)</li><li>Returns RGBA values in [0, 255] range</li></ol><h3 id=gaussian-blur-implementation>Gaussian Blur Implementation</h3><p>Gaussian blur uses a Gaussian function as the convolution kernel for weighted averaging.</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// gaussianKernel generates a Gaussian convolution kernel</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>gaussianKernel</span><span class=p>(</span><span class=nx>size</span><span class=w> </span><span class=kt>int</span><span class=p>,</span><span class=w> </span><span class=nx>sigma</span><span class=w> </span><span class=kt>float64</span><span class=p>)</span><span class=w> </span><span class=p>[][]</span><span class=kt>float64</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>kernel</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>make</span><span class=p>([][]</span><span class=kt>float64</span><span class=p>,</span><span class=w> </span><span class=nx>size</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>center</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>size</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mf>2.0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>sum</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mf>0.0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>i</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>i</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>size</span><span class=p>;</span><span class=w> </span><span class=nx>i</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>kernel</span><span class=p>[</span><span class=nx>i</span><span class=p>]</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>make</span><span class=p>([]</span><span class=kt>float64</span><span class=p>,</span><span class=w> </span><span class=nx>size</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>for</span><span class=w> </span><span class=nx>j</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>j</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>size</span><span class=p>;</span><span class=w> </span><span class=nx>j</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>dx</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>i</span><span class=p>)</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=nx>center</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>dy</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>j</span><span class=p>)</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=nx>center</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>kernel</span><span class=p>[</span><span class=nx>i</span><span class=p>][</span><span class=nx>j</span><span class=p>]</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>math</span><span class=p>.</span><span class=nf>Exp</span><span class=p>(</span><span class=o>-</span><span class=p>(</span><span class=nx>dx</span><span class=o>*</span><span class=nx>dx</span><span class=o>+</span><span class=nx>dy</span><span class=o>*</span><span class=nx>dy</span><span class=p>)</span><span class=o>/</span><span class=p>(</span><span class=mi>2</span><span class=o>*</span><span class=nx>sigma</span><span class=o>*</span><span class=nx>sigma</span><span class=p>))</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=p>(</span><span class=mi>2</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>math</span><span class=p>.</span><span class=nx>Pi</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>sigma</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>sigma</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>sum</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=nx>kernel</span><span class=p>[</span><span class=nx>i</span><span class=p>][</span><span class=nx>j</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// Normalize</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>i</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>i</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>size</span><span class=p>;</span><span class=w> </span><span class=nx>i</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>for</span><span class=w> </span><span class=nx>j</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>j</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>size</span><span class=p>;</span><span class=w> </span><span class=nx>j</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>kernel</span><span class=p>[</span><span class=nx>i</span><span class=p>][</span><span class=nx>j</span><span class=p>]</span><span class=w> </span><span class=o>/=</span><span class=w> </span><span class=nx>sum</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>kernel</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// GaussianBlur applies Gaussian blur</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>ip</span><span class=w> </span><span class=o>*</span><span class=nx>ImageProcessor</span><span class=p>)</span><span class=w> </span><span class=nf>GaussianBlur</span><span class=p>(</span><span class=nx>size</span><span class=w> </span><span class=kt>int</span><span class=p>,</span><span class=w> </span><span class=nx>sigma</span><span class=w> </span><span class=kt>float64</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>kernel</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nf>gaussianKernel</span><span class=p>(</span><span class=nx>size</span><span class=p>,</span><span class=w> </span><span class=nx>sigma</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>ip</span><span class=p>.</span><span class=nf>applyConvolution</span><span class=p>(</span><span class=nx>kernel</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Kernel details:</strong></p><ul><li>Size: typically 3×3, 5×5, or 7×7</li><li>Sigma: controls blur strength (typical range 0.5-5.0)</li><li>Normalization preserves overall brightness</li></ul><h3 id=laplacian-sharpening-implementation>Laplacian Sharpening Implementation</h3><p>Laplacian sharpening uses a standard 3×3 Laplacian kernel to detect and enhance high-frequency information.</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// LaplacianSharpen applies Laplacian sharpening</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>ip</span><span class=w> </span><span class=o>*</span><span class=nx>ImageProcessor</span><span class=p>)</span><span class=w> </span><span class=nf>LaplacianSharpen</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>kernel</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=p>[][]</span><span class=kt>float64</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>{</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=o>-</span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>{</span><span class=o>-</span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=mi>5</span><span class=p>,</span><span class=w> </span><span class=o>-</span><span class=mi>1</span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>{</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=o>-</span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>ip</span><span class=p>.</span><span class=nf>applyConvolution</span><span class=p>(</span><span class=nx>kernel</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Sharpening principle:</strong></p><ul><li>Detects edges with negative weights</li><li>Center positive weight (5) amplifies high-frequency components</li><li>Preserves original image structure</li></ul><h3 id=generic-convolution-function>Generic Convolution Function</h3><p>The <code>applyConvolution()</code> function is shared by both Gaussian blur and Laplacian sharpening operations.</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// applyConvolution applies a convolution kernel to the image</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>ip</span><span class=w> </span><span class=o>*</span><span class=nx>ImageProcessor</span><span class=p>)</span><span class=w> </span><span class=nf>applyConvolution</span><span class=p>(</span><span class=nx>kernel</span><span class=w> </span><span class=p>[][]</span><span class=kt>float64</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>src</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=o>*</span><span class=nx>ip</span><span class=p>.</span><span class=nx>img</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>bounds</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>src</span><span class=p>.</span><span class=nf>Bounds</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>dst</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>image</span><span class=p>.</span><span class=nf>NewRGBA</span><span class=p>(</span><span class=nx>bounds</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>kernelSize</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>len</span><span class=p>(</span><span class=nx>kernel</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>half</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>kernelSize</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mi>2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>y</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Min</span><span class=p>.</span><span class=nx>Y</span><span class=p>;</span><span class=w> </span><span class=nx>y</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Max</span><span class=p>.</span><span class=nx>Y</span><span class=p>;</span><span class=w> </span><span class=nx>y</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>for</span><span class=w> </span><span class=nx>x</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Min</span><span class=p>.</span><span class=nx>X</span><span class=p>;</span><span class=w> </span><span class=nx>x</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Max</span><span class=p>.</span><span class=nx>X</span><span class=p>;</span><span class=w> </span><span class=nx>x</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=kd>var</span><span class=w> </span><span class=nx>r</span><span class=p>,</span><span class=w> </span><span class=nx>g</span><span class=p>,</span><span class=w> </span><span class=nx>b</span><span class=w> </span><span class=kt>float64</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=c1>// Apply convolution kernel to each channel</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>for</span><span class=w> </span><span class=nx>ky</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>ky</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>kernelSize</span><span class=p>;</span><span class=w> </span><span class=nx>ky</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=k>for</span><span class=w> </span><span class=nx>kx</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>kx</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>kernelSize</span><span class=p>;</span><span class=w> </span><span class=nx>kx</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=nx>px</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>x</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=nx>half</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nx>kx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=nx>py</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>y</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=nx>half</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nx>ky</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=c1>// Boundary handling: use nearest neighbor padding</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=k>if</span><span class=w> </span><span class=nx>px</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Min</span><span class=p>.</span><span class=nx>X</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>						</span><span class=nx>px</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Min</span><span class=p>.</span><span class=nx>X</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=k>if</span><span class=w> </span><span class=nx>px</span><span class=w> </span><span class=o>&gt;=</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Max</span><span class=p>.</span><span class=nx>X</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>						</span><span class=nx>px</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Max</span><span class=p>.</span><span class=nx>X</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=k>if</span><span class=w> </span><span class=nx>py</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Min</span><span class=p>.</span><span class=nx>Y</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>						</span><span class=nx>py</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Min</span><span class=p>.</span><span class=nx>Y</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=k>if</span><span class=w> </span><span class=nx>py</span><span class=w> </span><span class=o>&gt;=</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Max</span><span class=p>.</span><span class=nx>Y</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>						</span><span class=nx>py</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>bounds</span><span class=p>.</span><span class=nx>Max</span><span class=p>.</span><span class=nx>Y</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=nx>pr</span><span class=p>,</span><span class=w> </span><span class=nx>pg</span><span class=p>,</span><span class=w> </span><span class=nx>pb</span><span class=p>,</span><span class=w> </span><span class=nx>_</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>src</span><span class=p>.</span><span class=nf>At</span><span class=p>(</span><span class=nx>px</span><span class=p>,</span><span class=w> </span><span class=nx>py</span><span class=p>).</span><span class=nf>RGBA</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=nx>weight</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>kernel</span><span class=p>[</span><span class=nx>ky</span><span class=p>][</span><span class=nx>kx</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=nx>r</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>pr</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>weight</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=nx>g</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>pg</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>weight</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=nx>b</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>pb</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>weight</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=c1>// Clamp to [0, 255] range</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>dst</span><span class=p>.</span><span class=nf>Set</span><span class=p>(</span><span class=nx>x</span><span class=p>,</span><span class=w> </span><span class=nx>y</span><span class=p>,</span><span class=w> </span><span class=nx>color</span><span class=p>.</span><span class=nx>RGBA</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=nx>R</span><span class=p>:</span><span class=w> </span><span class=nb>uint8</span><span class=p>(</span><span class=nf>clampFloat</span><span class=p>(</span><span class=nx>r</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>)),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=nx>G</span><span class=p>:</span><span class=w> </span><span class=nb>uint8</span><span class=p>(</span><span class=nf>clampFloat</span><span class=p>(</span><span class=nx>g</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>)),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=nx>B</span><span class=p>:</span><span class=w> </span><span class=nb>uint8</span><span class=p>(</span><span class=nf>clampFloat</span><span class=p>(</span><span class=nx>b</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>)),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=nx>A</span><span class=p>:</span><span class=w> </span><span class=mi>255</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=o>*</span><span class=nx>ip</span><span class=p>.</span><span class=nx>img</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=o>*</span><span class=nx>dst</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// clampFloat clamps a float to a specified range</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>clampFloat</span><span class=p>(</span><span class=nx>val</span><span class=p>,</span><span class=w> </span><span class=nx>min</span><span class=p>,</span><span class=w> </span><span class=nx>max</span><span class=w> </span><span class=kt>float64</span><span class=p>)</span><span class=w> </span><span class=kt>float64</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>val</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>min</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>min</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>val</span><span class=w> </span><span class=p>&gt;</span><span class=w> </span><span class=nx>max</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>max</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>val</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Convolution breakdown:</strong></p><ol><li>For each output pixel, examine a 3×3 neighborhood</li><li>Multiply each neighbor&rsquo;s RGB by kernel weight</li><li>Sum weighted values for each channel</li><li>Clamp to valid [0, 255] range</li><li>Handle boundaries with nearest neighbor padding</li></ol><h3 id=super-resolution-pipeline>Super-Resolution Pipeline</h3><p>Combining bicubic interpolation upsampling with Laplacian sharpening for basic super-resolution.</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// SuperResolution performs super-resolution: bicubic interpolation + sharpening</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>ip</span><span class=w> </span><span class=o>*</span><span class=nx>ImageProcessor</span><span class=p>)</span><span class=w> </span><span class=nf>SuperResolution</span><span class=p>(</span><span class=nx>scale</span><span class=w> </span><span class=kt>float64</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>src</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=o>*</span><span class=nx>ip</span><span class=p>.</span><span class=nx>img</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>srcBounds</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>src</span><span class=p>.</span><span class=nf>Bounds</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>newWidth</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>int</span><span class=p>(</span><span class=nb>float64</span><span class=p>(</span><span class=nx>srcBounds</span><span class=p>.</span><span class=nf>Dx</span><span class=p>())</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>scale</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>newHeight</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>int</span><span class=p>(</span><span class=nb>float64</span><span class=p>(</span><span class=nx>srcBounds</span><span class=p>.</span><span class=nf>Dy</span><span class=p>())</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>scale</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>upsampled</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>image</span><span class=p>.</span><span class=nf>NewRGBA</span><span class=p>(</span><span class=nx>image</span><span class=p>.</span><span class=nf>Rect</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=nx>newWidth</span><span class=p>,</span><span class=w> </span><span class=nx>newHeight</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// Bicubic interpolation upscaling</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>y</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>y</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>newHeight</span><span class=p>;</span><span class=w> </span><span class=nx>y</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>for</span><span class=w> </span><span class=nx>x</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>x</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>newWidth</span><span class=p>;</span><span class=w> </span><span class=nx>x</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>srcX</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>x</span><span class=p>)</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=nx>scale</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>srcY</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>float64</span><span class=p>(</span><span class=nx>y</span><span class=p>)</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=nx>scale</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>r</span><span class=p>,</span><span class=w> </span><span class=nx>g</span><span class=p>,</span><span class=w> </span><span class=nx>b</span><span class=p>,</span><span class=w> </span><span class=nx>a</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>ip</span><span class=p>.</span><span class=nf>bicubicInterpolate</span><span class=p>(</span><span class=nx>srcX</span><span class=p>,</span><span class=w> </span><span class=nx>srcY</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>upsampled</span><span class=p>.</span><span class=nf>Set</span><span class=p>(</span><span class=nx>x</span><span class=p>,</span><span class=w> </span><span class=nx>y</span><span class=p>,</span><span class=w> </span><span class=nx>color</span><span class=p>.</span><span class=nx>RGBA</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=nx>R</span><span class=p>:</span><span class=w> </span><span class=nb>uint8</span><span class=p>(</span><span class=nf>clampFloat</span><span class=p>(</span><span class=nx>r</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>)),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=nx>G</span><span class=p>:</span><span class=w> </span><span class=nb>uint8</span><span class=p>(</span><span class=nf>clampFloat</span><span class=p>(</span><span class=nx>g</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>)),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=nx>B</span><span class=p>:</span><span class=w> </span><span class=nb>uint8</span><span class=p>(</span><span class=nf>clampFloat</span><span class=p>(</span><span class=nx>b</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>)),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=nx>A</span><span class=p>:</span><span class=w> </span><span class=nb>uint8</span><span class=p>(</span><span class=nf>clampFloat</span><span class=p>(</span><span class=nx>a</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=mi>255</span><span class=p>)),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>ip</span><span class=p>.</span><span class=nx>img</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>upsampled</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>ip</span><span class=p>.</span><span class=nf>LaplacianSharpen</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Pipeline stages:</strong></p><ol><li>Calculate new dimensions based on scale factor</li><li>Create target buffer</li><li>For each output pixel, compute corresponding source coordinates</li><li>Apply bicubic interpolation for smooth upscaling</li><li>Apply Laplacian sharpening to restore edge detail</li></ol><h2 id=rust-implementation>Rust Implementation</h2><p>Rust&rsquo;s zero-cost abstractions and memory safety make it an ideal choice for high-performance image processing. With Rayon parallel library, it can fully leverage multi-core CPU performance.</p><h3 id=dependencies>Dependencies</h3><div class=code-block-wrapper data-lang=toml><div class=code-block-header><div class=code-block-meta><span class=code-language>toml</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-toml data-lang=toml><span class=line><span class=cl><span class=p>[</span><span class=nx>dependencies</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=nx>image</span> <span class=p>=</span> <span class=s2>&#34;0.24&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>rayon</span> <span class=p>=</span> <span class=s2>&#34;1.8&#34;</span>
+</span></span><span class=line><span class=cl><span class=nx>num-complex</span> <span class=p>=</span> <span class=s2>&#34;0.4&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Why these dependencies:</strong></p><ul><li><code>image</code>: Core image I/O and manipulation</li><li><code>rayon</code>: Data parallelism with work stealing</li><li><code>num-complex</code>: Complex number operations for FFT</li></ul><h3 id=imageprocessor-struct>ImageProcessor Struct</h3><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>image</span>::<span class=p>{</span><span class=n>RgbImage</span><span class=p>,</span><span class=w> </span><span class=n>Rgb</span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>rayon</span>::<span class=n>prelude</span>::<span class=o>*</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>struct</span> <span class=nc>ImageProcessor</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>img</span>: <span class=nc>RgbImage</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=n>ImageProcessor</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>new</span><span class=p>(</span><span class=n>img</span>: <span class=nc>RgbImage</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>Self</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>ImageProcessor</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=n>img</span><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=parallel-bicubic-interpolation>Parallel Bicubic Interpolation</h3><p>Using Rayon&rsquo;s <code>par_bridge</code> for parallel row processing.</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>fn</span> <span class=nf>cubic_kernel</span><span class=p>(</span><span class=n>x</span>: <span class=kt>f64</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>f64</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>abs_x</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>x</span><span class=p>.</span><span class=n>abs</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=n>abs_x</span><span class=w> </span><span class=o>&lt;=</span><span class=w> </span><span class=mf>1.0</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=mf>1.5</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>abs_x</span><span class=p>.</span><span class=n>powi</span><span class=p>(</span><span class=mi>3</span><span class=p>)</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mf>2.5</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>abs_x</span><span class=p>.</span><span class=n>powi</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mf>1.0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=k>if</span><span class=w> </span><span class=n>abs_x</span><span class=w> </span><span class=o>&lt;=</span><span class=w> </span><span class=mf>2.0</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=o>-</span><span class=mf>0.5</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>abs_x</span><span class=p>.</span><span class=n>powi</span><span class=p>(</span><span class=mi>3</span><span class=p>)</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mf>2.5</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>abs_x</span><span class=p>.</span><span class=n>powi</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mf>4.0</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>abs_x</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=mf>2.0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=mf>0.0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>fn</span> <span class=nf>clamp</span><span class=p>(</span><span class=n>val</span>: <span class=kt>i32</span><span class=p>,</span><span class=w> </span><span class=n>min</span>: <span class=kt>i32</span><span class=p>,</span><span class=w> </span><span class=n>max</span>: <span class=kt>i32</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kt>i32</span> <span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>val</span><span class=p>.</span><span class=n>max</span><span class=p>(</span><span class=n>min</span><span class=p>).</span><span class=n>min</span><span class=p>(</span><span class=n>max</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>super_resolution_parallel</span><span class=p>(</span><span class=n>img</span>: <span class=kp>&amp;</span><span class=nc>RgbImage</span><span class=p>,</span><span class=w> </span><span class=n>scale</span>: <span class=kt>f64</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>RgbImage</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=p>(</span><span class=n>width</span><span class=p>,</span><span class=w> </span><span class=n>height</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>img</span><span class=p>.</span><span class=n>dimensions</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>new_width</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=n>width</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>scale</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>new_height</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=n>height</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>scale</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>result</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>RgbImage</span>::<span class=n>new</span><span class=p>(</span><span class=n>new_width</span><span class=p>,</span><span class=w> </span><span class=n>new_height</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Rayon parallel processing: each row processed independently
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>(</span><span class=mi>0</span><span class=o>..</span><span class=n>new_height</span><span class=p>).</span><span class=n>into_par_iter</span><span class=p>().</span><span class=n>for_each</span><span class=p>(</span><span class=o>|</span><span class=n>y</span><span class=o>|</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>for</span><span class=w> </span><span class=n>x</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=mi>0</span><span class=o>..</span><span class=n>new_width</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=kd>let</span><span class=w> </span><span class=n>src_x</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>x</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=n>scale</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=kd>let</span><span class=w> </span><span class=n>src_y</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>y</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=n>scale</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=kd>let</span><span class=w> </span><span class=n>x_int</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>src_x</span><span class=p>.</span><span class=n>floor</span><span class=p>()</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=kd>let</span><span class=w> </span><span class=n>y_int</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>src_y</span><span class=p>.</span><span class=n>floor</span><span class=p>()</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>r</span>: <span class=kt>f64</span> <span class=o>=</span><span class=w> </span><span class=mf>0.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>g</span>: <span class=kt>f64</span> <span class=o>=</span><span class=w> </span><span class=mf>0.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>b</span>: <span class=kt>f64</span> <span class=o>=</span><span class=w> </span><span class=mf>0.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>for</span><span class=w> </span><span class=n>j</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=mi>0</span><span class=o>..</span><span class=mi>4</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=k>for</span><span class=w> </span><span class=n>i</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=mi>0</span><span class=o>..</span><span class=mi>4</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=kd>let</span><span class=w> </span><span class=n>px</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>clamp</span><span class=p>(</span><span class=n>x_int</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>i</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=n>width</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=kd>let</span><span class=w> </span><span class=n>py</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>clamp</span><span class=p>(</span><span class=n>y_int</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>j</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=n>height</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=kd>let</span><span class=w> </span><span class=n>pixel</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>img</span><span class=p>.</span><span class=n>get_pixel</span><span class=p>(</span><span class=n>px</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=n>py</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=kd>let</span><span class=w> </span><span class=n>weight</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>cubic_kernel</span><span class=p>(</span><span class=n>src_x</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=p>(</span><span class=n>x_int</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>i</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                               </span><span class=o>*</span><span class=w> </span><span class=n>cubic_kernel</span><span class=p>(</span><span class=n>src_y</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=p>(</span><span class=n>y_int</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>j</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=n>r</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=n>pixel</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>weight</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=n>g</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=n>pixel</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>weight</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=n>b</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=n>pixel</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>weight</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>result</span><span class=p>.</span><span class=n>put_pixel</span><span class=p>(</span><span class=n>x</span><span class=p>,</span><span class=w> </span><span class=n>y</span><span class=p>,</span><span class=w> </span><span class=n>Rgb</span><span class=p>([</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>r</span><span class=p>.</span><span class=n>clamp</span><span class=p>(</span><span class=mf>0.0</span><span class=p>,</span><span class=w> </span><span class=mf>255.0</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u8</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>g</span><span class=p>.</span><span class=n>clamp</span><span class=p>(</span><span class=mf>0.0</span><span class=p>,</span><span class=w> </span><span class=mf>255.0</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u8</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>b</span><span class=p>.</span><span class=n>clamp</span><span class=p>(</span><span class=mf>0.0</span><span class=p>,</span><span class=w> </span><span class=mf>255.0</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u8</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>]));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>result</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Parallelism details:</strong></p><ul><li><code>into_par_iter()</code> converts range to parallel iterator</li><li>Rayon&rsquo;s work stealing balances load across cores</li><li>No shared mutable state → no data races</li><li>On 4-core CPU: ~3.5x speedup over sequential version</li></ul><h3 id=parallel-bilateral-filter>Parallel Bilateral Filter</h3><p>Bilateral filter combines spatial proximity and pixel value similarity, preserving edges while denoising.</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>bilateral_filter_parallel</span><span class=p>(</span><span class=n>img</span>: <span class=kp>&amp;</span><span class=nc>RgbImage</span><span class=p>,</span><span class=w> </span><span class=n>radius</span>: <span class=kt>usize</span><span class=p>,</span><span class=w> </span><span class=n>sigma_spatial</span>: <span class=kt>f64</span><span class=p>,</span><span class=w> </span><span class=n>sigma_color</span>: <span class=kt>f64</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>RgbImage</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=p>(</span><span class=n>width</span><span class=p>,</span><span class=w> </span><span class=n>height</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>img</span><span class=p>.</span><span class=n>dimensions</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>result</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>img</span><span class=p>.</span><span class=n>clone</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>pixels</span>: <span class=nb>Vec</span><span class=o>&lt;</span><span class=n>_</span><span class=o>&gt;</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>img</span><span class=p>.</span><span class=n>pixels</span><span class=p>().</span><span class=n>collect</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Parallel processing: each pixel independently
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>pixels</span><span class=p>.</span><span class=n>par_iter</span><span class=p>().</span><span class=n>enumerate</span><span class=p>().</span><span class=n>for_each</span><span class=p>(</span><span class=o>|</span><span class=p>(</span><span class=n>idx</span><span class=p>,</span><span class=w> </span><span class=n>pixel</span><span class=p>)</span><span class=o>|</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>x</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=n>idx</span><span class=w> </span><span class=o>%</span><span class=w> </span><span class=n>width</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>usize</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>y</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=n>idx</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=n>width</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>usize</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>sum_weight</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mf>0.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>sum_r</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mf>0.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>sum_g</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mf>0.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>sum_b</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mf>0.0</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>r_center</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>pixel</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>g_center</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>pixel</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>b_center</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>pixel</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// Local window
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>for</span><span class=w> </span><span class=n>dy</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=o>-</span><span class=n>radius</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=o>..=</span><span class=n>radius</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>for</span><span class=w> </span><span class=n>dx</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=o>-</span><span class=n>radius</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=o>..=</span><span class=n>radius</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>nx</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>clamp</span><span class=p>(</span><span class=n>x</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>dx</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=n>width</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>ny</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>clamp</span><span class=p>(</span><span class=n>y</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>dy</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=n>height</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>i32</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>neighbor</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>img</span><span class=p>.</span><span class=n>get_pixel</span><span class=p>(</span><span class=n>nx</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=n>ny</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>r_neighbor</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>neighbor</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>g_neighbor</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>neighbor</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>b_neighbor</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>neighbor</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=c1>// Spatial weight
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>dist_spatial</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>((</span><span class=n>dx</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>dx</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>dy</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>dy</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>).</span><span class=n>sqrt</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>weight_spatial</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=o>-</span><span class=n>dist_spatial</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>dist_spatial</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=p>(</span><span class=mf>2.0</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>sigma_spatial</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>sigma_spatial</span><span class=p>)).</span><span class=n>exp</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=c1>// Color weight
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>dist_color</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>((</span><span class=n>r_center</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>r_neighbor</span><span class=p>).</span><span class=n>powi</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                                </span><span class=o>+</span><span class=w> </span><span class=p>(</span><span class=n>g_center</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>g_neighbor</span><span class=p>).</span><span class=n>powi</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                                </span><span class=o>+</span><span class=w> </span><span class=p>(</span><span class=n>b_center</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>b_neighbor</span><span class=p>).</span><span class=n>powi</span><span class=p>(</span><span class=mi>2</span><span class=p>)).</span><span class=n>sqrt</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>weight_color</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=o>-</span><span class=n>dist_color</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>dist_color</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=p>(</span><span class=mf>2.0</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>sigma_color</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>sigma_color</span><span class=p>)).</span><span class=n>exp</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>weight</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>weight_spatial</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>weight_color</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>sum_weight</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=n>weight</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>sum_r</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=n>r_neighbor</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>weight</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>sum_g</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=n>g_neighbor</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>weight</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>sum_b</span><span class=w> </span><span class=o>+=</span><span class=w> </span><span class=n>b_neighbor</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>weight</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>result</span><span class=p>.</span><span class=n>put_pixel</span><span class=p>(</span><span class=n>x</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=n>y</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=n>Rgb</span><span class=p>([</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>(</span><span class=n>sum_r</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=n>sum_weight</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u8</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>(</span><span class=n>sum_g</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=n>sum_weight</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u8</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>(</span><span class=n>sum_b</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=n>sum_weight</span><span class=p>)</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>u8</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>]));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>result</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Bilateral filter characteristics:</strong></p><ul><li>Spatial domain: Gaussian weight based on distance</li><li>Color domain: Gaussian weight based on color difference</li><li>Preserves edges while smoothing flat regions</li><li>Heavier computation than Gaussian blur</li></ul><h3 id=1d-fft-implementation>1D FFT Implementation</h3><p>Using Cooley-Tukey algorithm for one-dimensional Fast Fourier Transform.</p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>num_complex</span>::<span class=n>Complex</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>fft_1d</span><span class=p>(</span><span class=n>input</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=n>Complex</span><span class=o>&lt;</span><span class=kt>f64</span><span class=o>&gt;</span><span class=p>])</span><span class=w> </span>-&gt; <span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Complex</span><span class=o>&lt;</span><span class=kt>f64</span><span class=o>&gt;&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>n</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>input</span><span class=p>.</span><span class=n>len</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>assert!</span><span class=p>(</span><span class=n>n</span><span class=p>.</span><span class=n>is_power_of_two</span><span class=p>(),</span><span class=w> </span><span class=s>&#34;FFT input length must be power of 2&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=n>n</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=n>input</span><span class=p>.</span><span class=n>to_vec</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>even</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>Vec</span>::<span class=n>with_capacity</span><span class=p>(</span><span class=n>n</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mi>2</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>odd</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>Vec</span>::<span class=n>with_capacity</span><span class=p>(</span><span class=n>n</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mi>2</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=p>(</span><span class=n>i</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=n>val</span><span class=p>)</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>input</span><span class=p>.</span><span class=n>iter</span><span class=p>().</span><span class=n>enumerate</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=n>i</span><span class=w> </span><span class=o>%</span><span class=w> </span><span class=mi>2</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=mi>0</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>even</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>val</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>odd</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>val</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>even_fft</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>fft_1d</span><span class=p>(</span><span class=o>&amp;</span><span class=n>even</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>odd_fft</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>fft_1d</span><span class=p>(</span><span class=o>&amp;</span><span class=n>odd</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>result</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=fm>vec!</span><span class=p>[</span><span class=n>Complex</span>::<span class=n>new</span><span class=p>(</span><span class=mf>0.0</span><span class=p>,</span><span class=w> </span><span class=mf>0.0</span><span class=p>);</span><span class=w> </span><span class=n>n</span><span class=p>];</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>angle</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>-</span><span class=mf>2.0</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>std</span>::<span class=kt>f64</span>::<span class=n>consts</span>::<span class=no>PI</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=n>n</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=n>k</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=mi>0</span><span class=o>..</span><span class=n>n</span><span class=o>/</span><span class=mi>2</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>let</span><span class=w> </span><span class=n>t</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>odd_fft</span><span class=p>[</span><span class=n>k</span><span class=p>]</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>Complex</span>::<span class=n>exp</span><span class=p>(</span><span class=n>Complex</span>::<span class=n>new</span><span class=p>(</span><span class=mf>0.0</span><span class=p>,</span><span class=w> </span><span class=n>angle</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=n>k</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=kt>f64</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>result</span><span class=p>[</span><span class=n>k</span><span class=p>]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>even_fft</span><span class=p>[</span><span class=n>k</span><span class=p>]</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>t</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>result</span><span class=p>[</span><span class=n>k</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>n</span><span class=o>/</span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>even_fft</span><span class=p>[</span><span class=n>k</span><span class=p>]</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>t</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>result</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>FFT notes:</strong></p><ul><li>Recursive divide-and-conquer algorithm</li><li>Assumes input length is power of 2</li><li>Time complexity: O(n log n)</li><li>Used in frequency domain filtering</li></ul><h3 id=rust-ownership-advantages>Rust Ownership Advantages</h3><p>Rust&rsquo;s ownership model brings unique performance benefits to image processing.</p><p><strong>Zero-copy views:</strong></p><div class=code-block-wrapper data-lang=rust><div class=code-block-header><div class=code-block-meta><span class=code-language>rust</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>fn</span> <span class=nf>process_region</span><span class=p>(</span><span class=n>img</span>: <span class=kp>&amp;</span><span class=nc>RgbImage</span><span class=p>,</span><span class=w> </span><span class=n>region</span>: <span class=p>(</span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=kt>u32</span><span class=p>,</span><span class=w> </span><span class=kt>u32</span><span class=p>))</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// No need to clone the entire image
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=p>(</span><span class=n>x</span><span class=p>,</span><span class=w> </span><span class=n>y</span><span class=p>,</span><span class=w> </span><span class=n>w</span><span class=p>,</span><span class=w> </span><span class=n>h</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>region</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>for</span><span class=w> </span><span class=n>py</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>y</span><span class=o>..</span><span class=n>y</span><span class=o>+</span><span class=n>h</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>for</span><span class=w> </span><span class=n>px</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>x</span><span class=o>..</span><span class=n>x</span><span class=o>+</span><span class=n>w</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=kd>let</span><span class=w> </span><span class=n>pixel</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>img</span><span class=p>.</span><span class=n>get_pixel</span><span class=p>(</span><span class=n>px</span><span class=p>,</span><span class=w> </span><span class=n>py</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=c1>// Process pixel
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p><strong>Compile-time memory safety:</strong></p><ul><li>Compiler guarantees no data races</li><li>No runtime garbage collection needed</li><li>Automatic bounds checking insertion</li></ul><p><strong>Safe parallelization:</strong></p><ul><li>Ownership rules ensure thread safety</li><li>Rayon data parallelism without manual synchronization</li><li>Send/Sync traits mark types safe to share across threads</li></ul><h2 id=performance-optimization-strategies>Performance Optimization Strategies</h2><h3 id=multi-scale-processing>Multi-Scale Processing</h3><p>Build an image pyramid and process from low resolution upwards:</p><ul><li>Reduces computation (fewer pixels at low resolution)</li><li>Preserves global structure information</li><li>Suitable for super-resolution and deblurring tasks</li></ul><h3 id=patch-based-processing-tiling>Patch-Based Processing (Tiling)</h3><p>Divide large images into smaller tiles for processing:</p><ul><li>Reduces memory footprint, suitable for mobile devices</li><li>Improves cache locality</li><li>Facilitates GPU parallel acceleration</li></ul><h3 id=model-lightweighting>Model Lightweighting</h3><p>Deep learning model optimization techniques:</p><ul><li>Depthwise Separable Convolution</li><li>Knowledge Distillation</li><li>Quantization: FP32 → INT8</li><li>Pruning: Remove unimportant channels</li></ul><h3 id=hardware-acceleration>Hardware Acceleration</h3><ul><li>GPU: CUDA / Metal / Vulkan parallel computing, suitable for deep learning inference</li><li>NPU / TPU: Dedicated neural network accelerators, high energy efficiency</li><li>SIMD: Utilize CPU&rsquo;s SSE/AVX/NEON instruction sets to accelerate traditional algorithms</li></ul><h2 id=processing-flow-diagram>Processing Flow Diagram</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[Input Image] --&gt; B[Bicubic Interpolation]
+    B --&gt; C[Bilateral Filter Denoise]
+    C --&gt; D[Laplacian Sharpening]
+    D --&gt; E[Output Image]
+
+    style A fill:#FF9800
+    style B fill:#2196F3
+    style C fill:#2196F3
+    style D fill:#2196F3
+    style E fill:#4CAF50</code></pre></div></div><p><strong>Key step descriptions:</strong></p><ol><li>Bicubic interpolation: Upscale resolution with smooth scaling</li><li>Bilateral filter: Remove noise while preserving edges</li><li>Laplacian sharpening: Enhance high-frequency details</li></ol><h2 id=parallel-processing-architecture>Parallel Processing Architecture</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[Input Image 1920x1080] --&gt; B[Rayon Sharding]
+    B --&gt; C[CPU Core 0&lt;br/&gt;Process Rows 0-269]
+    B --&gt; D[CPU Core 1&lt;br/&gt;Process Rows 270-539]
+    B --&gt; E[CPU Core 2&lt;br/&gt;Process Rows 540-809]
+    B --&gt; F[CPU Core 3&lt;br/&gt;Process Rows 810-1079]
+    C --&gt; G[Merge Results]
+    D --&gt; G
+    E --&gt; G
+    F --&gt; G
+    G --&gt; H[Output Image]
+
+    style A fill:#FF9800
+    style B fill:#9C27B0
+    style H fill:#4CAF50
+    style C fill:#2196F3
+    style D fill:#2196F3
+    style E fill:#2196F3
+    style F fill:#2196F3</code></pre></div></div><p><strong>Parallelism advantages:</strong></p><ul><li>Rayon automatic work stealing</li><li>No shared mutable state, no data races</li><li>Near-linear speedup (4 cores ≈ 3.5x acceleration)</li></ul><h2 id=optimization-strategy-overview>Optimization Strategy Overview</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[Optimization Goal&lt;br/&gt;Speed &#43; Accuracy] --&gt; B[Algorithm Level]
+    A --&gt; C[Architecture Level]
+    A --&gt; D[Hardware Level]
+
+    B --&gt; E[Multi-Scale Processing]
+    B --&gt; F[Tiling]
+
+    C --&gt; G[Depthwise Separable Conv]
+    C --&gt; H[Quantization FP32→INT8]
+    C --&gt; I[Pruning]
+
+    D --&gt; J[GPU Parallelism]
+    D --&gt; K[NPU Acceleration]
+    D --&gt; L[SIMD Instructions]
+
+    style A fill:#FF9800
+    style E fill:#2196F3
+    style F fill:#2196F3
+    style G fill:#2196F3
+    style H fill:#2196F3
+    style I fill:#2196F3
+    style J fill:#4CAF50
+    style K fill:#4CAF50
+    style L fill:#4CAF50</code></pre></div></div><p><strong>Trade-off principles:</strong></p><ul><li>Speed priority: quantization + pruning + GPU</li><li>Accuracy priority: keep floating-point + multi-scale</li><li>Mobile: tiling + quantization + lightweight models</li></ul><h2 id=practical-application-pipeline>Practical Application Pipeline</h2><h3 id=photo-post-processing-pipeline>Photo Post-Processing Pipeline</h3><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Raw Image → Denoise → Deblur → Super-Resolution → Sharpen → Output</span></span></code></pre></td></tr></table></div></div></div></div><ol><li><strong>Denoise</strong>: Use bilateral filtering to preserve edges</li><li><strong>Deblur</strong>: Wiener filter or deep learning models</li><li><strong>Super-Resolution</strong>: Bicubic interpolation + sharpening</li><li><strong>Sharpen</strong>: Laplacian or Unsharp Masking</li></ol><h3 id=real-time-video-enhancement>Real-Time Video Enhancement</h3><ul><li>Use multi-scale processing to reduce latency</li><li>Limit resolution (720p → 1080p)</li><li>Frame skipping (process every 2-3 frames)</li><li>Leverage GPU acceleration</li></ul><h3 id=mobile-deployment>Mobile Deployment</h3><ul><li>Tiled processing to avoid memory overflow</li><li>Use quantized models (INT8)</li><li>Close background apps to free resources</li><li>Consider model compression (ONNX / TFLite)</li></ul><h2 id=summary>Summary</h2><p>This article demonstrated how to implement core image restoration algorithms in Go and Rust. Go is suitable for rapid development and small to medium-scale processing tasks, while Rust&rsquo;s parallel capabilities and memory safety guarantees make it better suited for high-performance applications.</p><p><strong>Practical recommendations:</strong></p><ul><li>Start with Rust + Rayon for processing large images</li><li>Use tiled processing to reduce memory footprint</li><li>Choose appropriate optimization strategies based on target platform</li><li>Test different parameter combinations (kernel size, sigma values)</li></ul></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+<span>Part of series:</span>
+<a href=/en/series/computer-vision-series/>Computer Vision Series</a></div><div class=series-nav__links><a href=/en/posts/physical-world/modern-super-resolution-esrgan-diffusion/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
+<span class=series-nav__direction>Previous</span>
+<span class=series-nav__title>Modern Super-Resolution — From ESRGAN to Diffusion Models</span></a></div></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/computer-vision/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Computer Vision
+</a><a class=tag-chip href=/en/tags/go/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Go
+</a><a class=tag-chip href=/en/tags/rust/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Rust
+</a><a class=tag-chip href=/en/tags/image-processing/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Image Processing</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.5b5a40a783cfad77e5f25e3fae1bf829ae0e8db4ef8b4a02f69ef51db88f81fa.js defer></script><script src=/js/sidebar.min.a886aa71cc4d828d9234bba86a604201cf394cbc72cd3d2a89fb7fd7baabf00b.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.a52ee032f3a8aa0b5b0fe63edf48d2ee4892f4ff97e19fcf94889691f97ebdbd.js defer></script><script src=/js/toc.min.545ca49f5c47ae4a608ee8af6f3999956355704a0f0b3eba205b767780b84490.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script></body></html>
