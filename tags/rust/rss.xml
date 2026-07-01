@@ -4,8 +4,98 @@
 &lt;p&gt;Rust 凭借内存安全、零成本抽象、极致性能三大特性，成为 YOLO 生产级部署的终极选择。在边缘计算、高并发场景下，Rust 的性能优势尤为显著。&lt;/p&gt;</description></item><item><title>为什么是 Zig：从 Go/Rust 视角认识一门新系统语言</title><link>/posts/programming/zig-why-and-setup/</link><pubDate>Sun, 21 Jun 2026 09:15:00 +0800</pubDate><guid>/posts/programming/zig-why-and-setup/</guid><description>&lt;p&gt;本文基于 Zig 0.16（2026-04-13 发布，当前最新稳定版）。Zig 是一门仍在快速演进的现代系统编程语言，它的源码仓库已从 GitHub 迁移到 &lt;a href="https://codeberg.org/ziglang/zig"&gt;Codeberg&lt;/a&gt;，官方下载页在 &lt;a href="https://ziglang.org/download/"&gt;ziglang.org/download/&lt;/a&gt;。&lt;/p&gt;
 &lt;h2 id="为什么是-zig"&gt;为什么是 Zig？&lt;/h2&gt;
 &lt;p&gt;如果你已经熟悉 Go 和 Rust，可能会问：为什么还要看第三门系统语言？答案很简单：&lt;strong&gt;Zig 填补了 Go 和 Rust 之间的空白&lt;/strong&gt;。&lt;/p&gt;</description></item><item><title>基础语法:用 Go/Rust 经验快速上手 Zig</title><link>/posts/programming/zig-basic-syntax/</link><pubDate>Mon, 22 Jun 2026 14:30:00 +0800</pubDate><guid>/posts/programming/zig-basic-syntax/</guid><description>&lt;p&gt;本文基于 Zig 0.16。&lt;/p&gt;
-&lt;p&gt;上一篇我们聊了为什么 Zig 值得学,以及怎么跑通你的第一个 Hello World。这一篇直接上手语法——变量、类型、控制流、函数、泛型。核心目标只有一个:&lt;strong&gt;让你能读懂和写出 Zig 代码&lt;/strong&gt;。&lt;/p&gt;</description></item><item><title>Go 与 Rust 实现图像恢复算法</title><link>/posts/physical-world/image-restoration-go-rust/</link><pubDate>Sun, 28 Jun 2026 10:00:00 +0800</pubDate><guid>/posts/physical-world/image-restoration-go-rust/</guid><description>&lt;h2 id="为什么选择-go-和-rust"&gt;为什么选择 Go 和 Rust？&lt;/h2&gt;
-&lt;p&gt;在实际图像处理项目中，选择合适的编程语言至关重要。Go 和 Rust 作为现代系统级语言，各自具有独特优势，适合实现高性能的图像恢复算法。&lt;/p&gt;</description></item><item><title>错误处理:Go、Rust 之外的第三条路</title><link>/posts/programming/zig-error-handling/</link><pubDate>Tue, 23 Jun 2026 10:45:00 +0800</pubDate><guid>/posts/programming/zig-error-handling/</guid><description>&lt;p&gt;本文基于 Zig 0.16。&lt;/p&gt;
+&lt;p&gt;上一篇我们聊了为什么 Zig 值得学,以及怎么跑通你的第一个 Hello World。这一篇直接上手语法——变量、类型、控制流、函数、泛型。核心目标只有一个:&lt;strong&gt;让你能读懂和写出 Zig 代码&lt;/strong&gt;。&lt;/p&gt;</description></item><item><title>Go 与 Rust 实现图像恢复算法</title><link>/posts/physical-world/image-restoration-go-rust/</link><pubDate>Sun, 28 Jun 2026 10:00:00 +0800</pubDate><guid>/posts/physical-world/image-restoration-go-rust/</guid><description>&lt;p&gt;本篇用 Go 和 Rust 两种语言实现图像恢复的核心算法，通过实际代码对比两种语言在图像处理场景下的写法和性能特征。&lt;/p&gt;
+&lt;div class="blur-wrap" id="blur-0"&gt;
+ &lt;div class="blur-head"&gt;
+ &lt;span&gt;原始图像&lt;/span&gt;
+ &lt;span&gt;退化图像&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;canvas class="blur-canvas" id="blur-c-0"
+ role="img" aria-label="Sharp image vs blurred image simulation with different PSF types"&gt;&lt;/canvas&gt;
+ &lt;div class="blur-bar"&gt;
+ &lt;span class="blur-name" id="blur-n-0"&gt;—&lt;/span&gt;
+ &lt;span class="blur-psf" id="blur-p-0"&gt;—&lt;/span&gt;
+ &lt;/div&gt;
+
+&lt;style&gt;
+.blur-wrap{margin:1.8rem auto;max-width:420px;background:var(--bg-surface,#f3f0f6);border:1px solid var(--border,#e5e1eb);border-radius:var(--radius-md,8px);padding:0.5rem 0.5rem 0.35rem}
+.blur-head{display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary,#888);padding:0 0.15rem 0.25rem}
+.blur-canvas{display:block;width:100%;height:auto;border-radius:4px}
+.blur-bar{text-align:center;margin-top:0.35rem;padding-top:0.3rem;border-top:1px solid var(--border,#e5e1eb)}
+.blur-name{display:block;font-size:12px;font-weight:600;color:var(--text,#333);margin-bottom:0.1rem}
+.blur-psf{display:block;font-size:10px;font-family:var(--font-mono,monospace);color:var(--text-secondary,#888);letter-spacing:0.01em}
+@media(max-width:480px){.blur-wrap{max-width:100%;margin:1.2rem 0}}
+@media(prefers-reduced-motion:reduce){.blur-canvas{opacity:0.85}}
+&lt;/style&gt;
+&lt;script&gt;
+(function(){
+var c=document.getElementById('blur-c-0'),nEl=document.getElementById('blur-n-0'),pEl=document.getElementById('blur-p-0');
+if(!c)return;
+var ctx=c.getContext('2d'),dpr=1,W=0,H=0,half=0,rm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+var states=[
+{n:'原始图像（锐利）',p:'无需 PSF — 理想点成像'},
+{n:'高斯模糊 σ=1.5',p:'G(x,y) = (1/2πσ²)·exp(-(x²+y²)/2σ²)'},
+{n:'运动模糊 L=5,θ=45°',p:'H(u,v)=T·sinc(π(a·u+b·v))·e^(-jπ(a·u+b·v))'},
+{n:'散焦模糊 r=3',p:'PSF(r)=1/πr² (√(x²+y²) ≤ r)'}
+];
+var idx=0,timer=null,off=document.createElement('canvas'),offC=off.getContext('2d');
+function dims(){
+var r=c.parentElement.getBoundingClientRect(),w=Math.floor(r.width)-4;
+return{w:w&lt;100?100:w,h:Math.round(w*0.56)||56}
+}
+function ptn(ax,w,h,ox,oy){
+var cx=ox+w*0.25,cy=oy+h*0.35,mr=Math.min(w,h)*0.32,sr=Math.max(6,mr/6|0);
+ax.fillStyle='#f0eef2';ax.fillRect(ox,oy,w,h);
+ax.strokeStyle='#1a1a2e';ax.lineWidth=1.5;
+for(var r=sr;r&lt;=mr;r+=sr){ax.beginPath();ax.arc(cx,cy,r,0,7);ax.stroke()}
+ax.strokeStyle='#2d3436';ax.lineWidth=1;
+for(var i=0;i&lt;12;i++){var a=i/12*6.2832;ax.beginPath();ax.moveTo(cx,cy);ax.lineTo(cx+Math.cos(a)*mr,cy+Math.sin(a)*mr);ax.stroke()}
+var bx=ox+w*0.58,by=oy+h*0.06,sz=Math.max(3,Math.min(6,(w*0.035)|0));
+for(var r2=0;r2&lt;8;r2++)for(var c2=0;c2&lt;8;c2++){ax.fillStyle=(r2+c2)&amp;1?'#ddd':'#16213e';ax.fillRect(bx+c2*sz,by+r2*sz,sz,sz)}
+var lx=ox+w*0.7,ly=oy+h*0.55;
+for(var i=0;i&lt;10;i++){var bw=Math.max(1,((10-i)*0.5)|0);ax.fillStyle='#0a0a23';ax.fillRect(lx+i*(bw+2),ly,bw,h*0.15)}
+var hx=ox+w*0.12,hy=oy+h*0.73;
+for(var i=0;i&lt;6;i++){ax.fillStyle=i&amp;1?'#e9e9ed':'#0a0a23';ax.fillRect(hx,hy+i*4,w*0.18,4)}
+ax.fillStyle='#1a1a2e';ax.font='bold '+(Math.max(8,(w*0.038)|0))+'px -apple-system,sans-serif';
+ax.textAlign='center';ax.textBaseline='bottom';ax.fillText('蓝宝石 123',ox+w/2,oy+h-4)
+}
+function blurRight(ax,x,y,w,h,si){
+ax.save();ax.beginPath();ax.rect(x,y,w,h);ax.clip();
+if(si===0){ptn(ax,w,h,x,y)}
+else if(si===1||si===3){ax.filter=si===1?'blur(3px)':'blur(6px)';ptn(ax,w,h,x,y);ax.filter='none'}
+else{
+off.width=Math.ceil(w*dpr);off.height=Math.ceil(h*dpr);
+offC.setTransform(dpr,0,0,dpr,0,0);ptn(offC,w,h,0,0);
+var st=10,dd=Math.round(Math.min(w,h)*0.025);
+for(var i=0;i&lt;st;i++){ax.globalAlpha=0.12;ax.drawImage(off,x+i/st*dd,y+i/st*dd,w,h)}
+ax.globalAlpha=1
+}
+ax.restore()
+}
+function draw(){
+var gap=2,lw=half-gap,rw=W-half-gap,rx=half+gap;
+ctx.clearRect(0,0,W,H);ptn(ctx,lw,H,0,0);blurRight(ctx,rx,0,rw,H,idx);
+ctx.strokeStyle='rgba(128,128,128,0.2)';ctx.lineWidth=1;
+ctx.beginPath();ctx.moveTo(half,0);ctx.lineTo(half,H);ctx.stroke();
+var s=states[idx];nEl.textContent=s.n;pEl.textContent=s.p
+}
+function next(){idx=(idx+1)%states.length;draw()}
+function resize(){
+var d=dims();W=d.w;H=d.h;half=W/2|0;dpr=window.devicePixelRatio||1;
+c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);
+c.style.width=W+'px';c.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);draw()
+}
+resize();
+new ResizeObserver(function(){resize()}).observe(c.parentElement);
+var mq=window.matchMedia('(prefers-reduced-motion:reduce)');
+mq.addEventListener('change',function(e){rm=e.matches;if(rm&amp;&amp;timer){clearInterval(timer);timer=null}else if(!rm&amp;&amp;!timer)timer=setInterval(next,3000)});
+if(!rm)timer=setInterval(next,3000)
+})();
+&lt;/script&gt;
+&lt;/div&gt;
+
+&lt;h2 id="go-实现"&gt;Go 实现&lt;/h2&gt;
+&lt;p&gt;Go 语言的 &lt;code&gt;image&lt;/code&gt; 标准库提供了图像编解码、像素访问等基础功能。以下实现展示了如何用 Go 实现双三次插值、高斯模糊、拉普拉斯锐化等核心算法。&lt;/p&gt;</description></item><item><title>错误处理:Go、Rust 之外的第三条路</title><link>/posts/programming/zig-error-handling/</link><pubDate>Tue, 23 Jun 2026 10:45:00 +0800</pubDate><guid>/posts/programming/zig-error-handling/</guid><description>&lt;p&gt;本文基于 Zig 0.16。&lt;/p&gt;
 &lt;h2 id="三种错误处理范式"&gt;三种错误处理范式&lt;/h2&gt;
 &lt;p&gt;错误处理是编程语言设计中最具争议的话题之一。Go 的多返回值、Rust 的 &lt;code&gt;Result&amp;lt;T, E&amp;gt;&lt;/code&gt; 枚举、Zig 的错误联合类型——它们代表了三种截然不同的哲学。本文假设你已有 Go 或 Rust 经验，将以此为参照系来理解 Zig 的设计。&lt;/p&gt;</description></item><item><title>Zig 内存管理:显式分配器模式</title><link>/posts/programming/zig-memory-allocators/</link><pubDate>Wed, 24 Jun 2026 16:20:00 +0800</pubDate><guid>/posts/programming/zig-memory-allocators/</guid><description>&lt;p&gt;本文基于 Zig 0.16。&lt;/p&gt;
 &lt;p&gt;前几篇我们走过了 Zig 的基础语法和错误处理。现在进入 Zig 最与众不同的部分——&lt;strong&gt;内存管理&lt;/strong&gt;。&lt;/p&gt;
