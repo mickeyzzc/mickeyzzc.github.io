@@ -281,7 +281,15 @@ c 1 2 3 4 5 6 7 8 9 10 // 旧方案：直接持有 fb，流和录制冲突 fb = 
 这一版把延时摄影管道整体重写成了 v2：用纯 Go 实现的 H.264/H.265 NAL→MP4 muxer 取代了之前依赖 FFmpeg 的合并路径，关键帧文件自包含 SPS/PPS，合并出来的就是可直接播放的 H.264/H.265 视频，不再生成中间 JPEG 序列。小米双摄支持通过通道选择接入，CW500、室外摄像头 4 这类设备能指定镜头；H.265 HLS 的 panic 被 StreamHub 重构和 muxer 自动恢复彻底治住了。转码模块也借这版做了一次分层重构——硬件探测、编码器抽象、任务管道拆成独立层，新增编码器和硬件后端不再牵动整个管道。前端 Dashboard 则做了轮大整理：AI 模块移除、摄像头管理简化、延时和普通录像合并到统一列表。
 发布前在真实摄像头环境下充分验证了这些改动，包括 CW500 双摄、H.265 摄像头的 HLS/延时录制、以及 Docker 部署的存储路径与 GPU 直通场景。三个自研摄像头项目也跟着同步更新——一个改了名（MiBeeHomeCam → MiBee Cam，新增 ONVIF 自动发现）、一个换了仓库和定位（rpi-cam → mibee-eye-raspi，覆盖所有 libcamera 兼容主板）、一个修了上版的遗留 bug，文末单开一节讲。更早一轮（v0.6.0 同期）的三个项目细节见 camera-test-machines。完整变更列表见 GitHub Release Notes。
 延时摄影 v2 管道 v2 的核心变化是合并路径不再经过 FFmpeg，关键帧直接以 H.264/H.265 NAL 单元的形式进入自研 muxer，封装成自包含的 MP4：
-mermaid flowchart TB SRC[&amp;#34;RTSP / 小米源&amp;lt;br/&amp;gt;h264 / h265&amp;#34;] --&amp;gt; … ]]></content></entry><entry><title>基础语法:用 Go/Rust 经验快速上手 Zig</title><url>/posts/programming/zig-basic-syntax/</url><categories><category>编程学习</category></categories><tags><tag>Zig</tag><tag>基础语法</tag><tag>Go</tag><tag>Rust</tag></tags><content type="html">&lt;![CDATA[ 本文基于 Zig 0.16。
+mermaid flowchart TB SRC[&amp;#34;RTSP / 小米源&amp;lt;br/&amp;gt;h264 / h265&amp;#34;] --&amp;gt; … ]]></content></entry><entry><title>gortmplib vs go2rtc vs FFmpeg：RTMP 推流源码对比与国内直播平台对接</title><url>/posts/mibee-oss/douyu-rtmp-handshake-analysis/</url><categories><category>MiBeeOSS</category></categories><tags><tag>RTMP</tag><tag>FFmpeg</tag><tag>Go</tag><tag>直播推流</tag><tag>推流</tag><tag>协议分析</tag><tag>gortmplib</tag><tag>go2rtc</tag></tags><content type="html">&lt;![CDATA[ 在 MiBee NVR 项目里要把摄像头画面推到国内某直播平台，候选方案有三个：直接调 FFmpeg、用纯 Go 的 gortmplib、用 go2rtc。三个都能「推 RTMP」，但实际对接国内直播平台时表现差异巨大——有的秒断、有的几秒后断、有的稳如老狗。这篇从源码层面把三者拆开对比，并梳理对接国内 FMS 兼容平台时的坑和解法。
+三个库的所有结论都来自源码逐行核对（go2rtc master / gortmplib main / FFmpeg master），不是文档推测。
+先跑通：FFmpeg 已经能把画面推到直播间 在纠结用哪个库之前，先用最稳妥的方案把链路打通——在 MiBeeNVR 的「转推输出」里配一个 RTMP 目标，后端走 FFmpeg 子进程。配置界面长这样：
+配上之后，桌面端 MiBeeNVR 推流、某直播平台桌面伴侣接收，两边各跑各的：
+最终在手机端直播间里能看到画面——链路是通的：
+所以用 FFmpeg 是能成的。但 FFmpeg 是外部进程，要单独装、单独管生命周期，部署和资源开销都不理想。我更希望整个推流链路纯 Go 实现——不依赖外部进程、能嵌进 NVR 进程统一管理。这才有了后面三个库（FFmpeg 作为参考、gortmplib、go2rtc）的源码对比：到底哪个 Go 库能把这条纯 Go 路走通。
+三个库的定位 先把三个选手分清楚——它们根本不是一个量级的东西：
+维度 FFmpeg gortmplib go2rtc 定位 媒体处理瑞士军刀 纯 RTMP 客户端/服务器库 终极摄像头流媒体应用 形态 命令行/C 库 Go 库（可 import） 独立二进制/Docker RTMP 角色 20+ 协议之一 唯一核心 20+ 协议之一 代码规模 巨型 推流核心 ~1000 行 RTMP 核心 ~580 行 典型用法 ffmpeg -i ... -f flv rtmp://... 嵌进自家 Go 程序 开箱即用的转分发 简单说：FFmpeg 是「能推流的全能选手」，gortmplib 是「专为 RTMP 生的库」，go2rtc 是「主打多协议互转的应用」。理解了定位，后面的差异就顺理成章。
+RTMP 握手对比 RTMP 连接第一步是握手：C0/C1/C2（客户端→服务端）和 S0/S1/S2。握手分简单和复杂两种，区别在 C1 的 … ]]></content></entry><entry><title>基础语法:用 Go/Rust 经验快速上手 Zig</title><url>/posts/programming/zig-basic-syntax/</url><categories><category>编程学习</category></categories><tags><tag>Zig</tag><tag>基础语法</tag><tag>Go</tag><tag>Rust</tag></tags><content type="html">&lt;![CDATA[ 本文基于 Zig 0.16。
 上一篇我们聊了为什么 Zig 值得学,以及怎么跑通你的第一个 Hello World。这一篇直接上手语法——变量、类型、控制流、函数、泛型。核心目标只有一个:让你能读懂和写出 Zig 代码。
 如果你有 Go 或 Rust 的基础,这里的每个概念对你来说都不会陌生。我会在关键节点做对照,帮你把已知的知识映射过来。
 变量与常量 Zig 的变量声明非常简洁,核心原则是优先使用 const,只有需要修改时才用 var:
