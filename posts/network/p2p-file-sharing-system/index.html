@@ -15,7 +15,7 @@
 </a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
 </a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label=目录><div class=toc-header><span class=toc-title>目录</span>
 <button class=toc-toggle id=toc-toggle aria-label=目录 aria-expanded=true>
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#系统架构设计>系统架构设计</a></li><li><a href=#文件元数据分发>文件元数据分发</a></li><li><a href=#rust-核心模块实现>Rust 核心模块实现</a><ul><li><a href=#piece-状态管理>Piece 状态管理</a></li><li><a href=#文件分块与校验>文件分块与校验</a></li><li><a href=#稀有优先下载调度>稀有优先下载调度</a></li><li><a href=#seeder-端响应-piece-请求>Seeder 端：响应 Piece 请求</a></li></ul></li><li><a href=#运行与测试>运行与测试</a></li><li><a href=#下载流程>下载流程</a><ul><li><a href=#参考资料>参考资料</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#系统架构设计>系统架构设计</a></li><li><a href=#文件元数据分发>文件元数据分发</a></li><li><a href=#rust-核心模块实现>Rust 核心模块实现</a><ul><li><a href=#piece-状态管理>Piece 状态管理</a></li><li><a href=#文件分块与校验>文件分块与校验</a></li><li><a href=#稀有优先下载调度>稀有优先下载调度</a></li><li><a href=#seeder-端响应-piece-请求>Seeder 端：响应 Piece 请求</a></li></ul></li><li><a href=#运行与测试>运行与测试</a></li><li><a href=#下载流程>下载流程</a></li><li><a href=#工业级参考syncthing-同步引擎设计>工业级参考：Syncthing 同步引擎设计</a><ul><li><a href=#可变块大小策略>可变块大小策略</a></li><li><a href=#版本向量冲突解决>版本向量冲突解决</a></li><li><a href=#文件夹语义类型>文件夹语义类型</a></li><li><a href=#并行哈希计算>并行哈希计算</a></li><li><a href=#参考资料>参考资料</a></li></ul></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
 </a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
 </a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
@@ -30,9 +30,9 @@
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/tags/p2p/>P2P</a>, <a href=/tags/%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB/>文件共享</a>, <a href=/tags/rust/>Rust</a>, <a href=/tags/%E5%88%86%E5%9D%97%E4%B8%8B%E8%BD%BD/>分块下载</a>, <a href=/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/>系统架构</a></span><span class="post-meta-item post-meta-item--series">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg><a href=/series/%E7%BD%91%E7%BB%9C%E5%BC%80%E5%8F%91%E5%AE%9E%E6%88%98/>网络开发实战</a></span><span class=post-meta-item>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-<span>2450 字</span>
+<span>4004 字</span>
 </span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-<span>5 分钟阅读</span></span></div></header><div class=Content><p>理论结合实践，我们来构建一个真正的分布式文件共享系统。这个系统将使用前面各篇文章介绍的技术——Kademlia DHT 用于节点发现和元数据分发，Gossipsub 用于广播，以及一个自定义的文件传输协议。</p><h2 id=系统架构设计>系统架构设计</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+<span>8 分钟阅读</span></span></div></header><div class=Content><p>理论结合实践，我们来构建一个真正的分布式文件共享系统。这个系统将使用前面各篇文章介绍的技术——Kademlia DHT 用于节点发现和元数据分发，Gossipsub 用于广播，以及一个自定义的文件传输协议。</p><h2 id=系统架构设计>系统架构设计</h2><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
     subgraph 应用层
         CLI[&#34;CLI 界面&#34;]
         API[&#34;REST API&#34;]
@@ -192,7 +192,7 @@
 </span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>hex</span>::<span class=n>encode</span><span class=p>(</span><span class=n>hasher</span><span class=p>.</span><span class=n>finalize</span><span class=p>())</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=bp>self</span><span class=p>.</span><span class=n>piece_hashes</span><span class=p>[</span><span class=n>index</span><span class=p>]</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=稀有优先下载调度>稀有优先下载调度</h3><p>BitTorrent 中的稀有优先（Rarest First）算法——优先下载整个网络中副本最少的 Piece，最大化数据可用性：</p><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
-    A[&#34;某节点拥有 Piece 集合&#34;] --&gt; B[&#34;统计每个 Piece 的&lt;br/&gt;全网副本数量&#34;]
+    HZ[&#34;某节点拥有 Piece 集合&#34;] --&gt; B[&#34;统计每个 Piece 的&lt;br/&gt;全网副本数量&#34;]
     B --&gt; C{&#34;选择副本最少&lt;br/&gt;且本节点缺失的 Piece&#34;}
     C --&gt; D[&#34;向拥有该 Piece 的&lt;br/&gt;节点发起下载请求&#34;]
     D --&gt; E{&#34;下载成功？&#34;}
@@ -405,7 +405,116 @@
     D-&gt;&gt;S: 请求 Piece 1
     S--&gt;&gt;D: 发送 Piece 1 数据
     Note over D: 所有 Piece Complete
-    Note over D: 按序重组为完整文件</code></pre></div></div><h3 id=参考资料>参考资料</h3><ul><li>Cohen, B. (2003). Incentives build robustness in BitTorrent. <em>Workshop on Economics of Peer-to-Peer Systems</em>.</li><li>IPFS. <a href=https://ipfs.tech/>https://ipfs.tech/</a></li><li>anacrolix/torrent (Go BitTorrent). <a href=https://github.com/anacrolix/torrent>https://github.com/anacrolix/torrent</a></li><li>rust-libp2p examples. <a href=https://github.com/libp2p/rust-libp2p/tree/master/examples>https://github.com/libp2p/rust-libp2p/tree/master/examples</a></li></ul></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
+    Note over D: 按序重组为完整文件</code></pre></div></div><h2 id=工业级参考syncthing-同步引擎设计>工业级参考：Syncthing 同步引擎设计</h2><p>Syncthing 作为生产级别的 P2P 文件同步引擎（85K+ stars），采用了与 BitTorrent 风格（本系统核心参考）不同的设计策略。以下从五个关键维度对比分析，为自建系统提供设计参考。</p><h3 id=可变块大小策略>可变块大小策略</h3><p>本系统使用固定 256KB 的 Piece 大小。Syncthing 则采用了动态块大小——根据文件大小自动选择最合适的块大小：</p><table><thead><tr><th>文件大小</th><th>块大小</th><th>最大块数</th></tr></thead><tbody><tr><td>≤ 250 MB</td><td>128 KiB</td><td>~2000</td></tr><tr><td>1 GB</td><td>512 KiB</td><td>~2000</td></tr><tr><td>4 GB</td><td>2 MiB</td><td>~2000</td></tr><tr><td>> 16 GB</td><td>16 MiB</td><td>~2000</td></tr></tbody></table><p>设计规则是：选择使块数不超过 2000 的最小块大小。这样既能保证小文件的精细度（128 KiB 块），又避免大文件的元数据过多（元数据与块数成正比，不是文件大小）。2000 块的限制源自 BEP 协议中 Index 消息的 Protobuf 编码效率，确保一次 Index 传输在典型 MTU 内完成。</p><h3 id=版本向量冲突解决>版本向量冲突解决</h3><p>当两个设备同时修改同一文件时，会产生冲突——这是分布式文件同步最棘手的问题之一。Syncthing 使用版本向量（Version Vector）来检测和解决冲突：</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// lib/protocol/vector.go</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>Vector</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Counters</span><span class=w> </span><span class=p>[]</span><span class=nx>Counter</span><span class=w> </span><span class=c1>// {ID: device_short_id, Value: counter} 有序数组</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>Counter</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>ID</span><span class=w>    </span><span class=kt>uint64</span><span class=w> </span><span class=c1>// 设备短 ID</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Value</span><span class=w> </span><span class=kt>uint64</span><span class=w> </span><span class=c1>// 单调递增计数器</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>版本向量的比较结果是五种关系之一：</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>const</span><span class=w> </span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Equal</span><span class=w>             </span><span class=c1>// 完全相同</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Greater</span><span class=w>           </span><span class=c1>// 严格更新</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Lesser</span><span class=w>            </span><span class=c1>// 严格更旧</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>ConcurrentLesser</span><span class=w>  </span><span class=c1>// 并发修改但排序上更旧</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>ConcurrentGreater</span><span class=w> </span><span class=c1>// 并发修改但排序上更新</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span></span></span></code></pre></td></tr></table></div></div></div></div><div class=code-block-wrapper data-lang=mermaid><div class=code-block-header><div class=code-block-meta><span class=code-language>mermaid</span></div></div><div class=code-block-body><pre class=chroma><code class=language-mermaid>flowchart TD
+    A[&#34;设备 A&lt;br/&gt;{A:3} → {A:4}&#34;]
+    B[&#34;设备 B&lt;br/&gt;{B:2} → {B:3}&#34;]
+    C{&#34;比较结果？&#34;}
+    A --&gt; C
+    B --&gt; C
+    C --&gt;|&#34;Concurrent（并发）&#34;| Conflict[&#34;保留两版本&lt;br/&gt;生成冲突文件&#34;]
+    C --&gt;|&#34;Greater/Lesser&#34;| Sync[&#34;直接覆盖同步&#34;]
+
+    style Conflict fill:#FF9800,color:#fff
+    style Sync fill:#4CAF50,color:#fff</code></pre></div></div><pre><code>style Sync fill:#4CAF50,color:#fff
+</code></pre><div class=code-block-wrapper data-lang><div class=code-block-header><div class=code-block-meta></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-mysql data-lang=mysql><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=err>与本系统中基于</span><span class=w> </span><span class=n>DHT</span><span class=w> </span><span class=err>单</span><span class=w> </span><span class=k>key</span><span class=w> </span><span class=err>的元数据分发不同，版本向量能精确描述文件变更的因果关系：当两个版本向量互不为</span><span class=w> </span><span class=n>Greater</span><span class=w> </span><span class=err>时即为</span><span class=w> </span><span class=n>Concurrent</span><span class=err>，此时触发冲突处理——保留两个版本（生成</span><span class=w> </span><span class=p>.</span><span class=n>conflict</span><span class=w> </span><span class=err>文件），确保数据不丢失。这是</span><span class=w> </span><span class=n>P2P</span><span class=w> </span><span class=err>文件同步中最重要的数据安全保障。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>### 增量索引交换
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=err>本系统使用</span><span class=w> </span><span class=n>DHT</span><span class=w> </span><span class=err>存储完整元数据，下载者全量拉取。</span><span class=n>Syncthing</span><span class=w> </span><span class=err>则采用增量索引交换：</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=err>当两台设备连接时，首先交换</span><span class=w> </span><span class=o>`</span><span class=n>IndexID</span><span class=o>`</span><span class=err>（标识本地索引的</span><span class=w> </span><span class=n>UUID</span><span class=err>）和</span><span class=w> </span><span class=o>`</span><span class=n>Sequence</span><span class=o>`</span><span class=err>（索引序列号）。如果对方的</span><span class=w> </span><span class=o>`</span><span class=n>IndexID</span><span class=o>`</span><span class=w> </span><span class=err>与本地记录的相同，则只需发送</span><span class=w> </span><span class=o>`</span><span class=n>Sequence</span><span class=o>`</span><span class=w> </span><span class=err>之后的变化——这就是</span><span class=o>**</span><span class=err>增量同步</span><span class=o>**</span><span class=err>的核心。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>```</span><span class=n>go</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=o>//</span><span class=w> </span><span class=err>伪代码：增量索引交换逻辑</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>if</span><span class=w> </span><span class=n>local</span><span class=p>.</span><span class=n>indexID</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=n>remote</span><span class=p>.</span><span class=n>indexID</span><span class=w> </span><span class=err>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=o>//</span><span class=w> </span><span class=err>只发送</span><span class=w> </span><span class=n>Sequence</span><span class=w> </span><span class=err>之后的变更</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nf>sendDelta</span><span class=p>(</span><span class=n>local</span><span class=p>.</span><span class=n>sequence</span><span class=p>,</span><span class=w> </span><span class=n>remote</span><span class=p>.</span><span class=n>sequence</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=err>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=err>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=o>//</span><span class=w> </span><span class=err>全量索引</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nf>sendFullIndex</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=err>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>这种设计对于频繁重连的场景极为高效：设备休眠唤醒后只需交换最近的变更，而非全量同步。相同理念可以应用于自建系统——在 DHT 之外维护一个序列号驱动的增量通道。</p><h3 id=文件夹语义类型>文件夹语义类型</h3><p>Syncthing 定义了四种文件夹类型，每种对应不同的同步语义：</p><table><thead><tr><th>类型</th><th>本地变更</th><th>远程变更</th><th>适用场景</th></tr></thead><tbody><tr><td>Send & Receive</td><td>发送给集群</td><td>从集群接收</td><td>默认双向同步</td></tr><tr><td>Send Only</td><td>发送给集群</td><td>忽略</td><td>NVR 录像存储（只写不读）</td></tr><tr><td>Receive Only</td><td>忽略</td><td>从集群接收</td><td>边缘设备、档案副本</td></tr><tr><td>Receive Encrypted</td><td>忽略</td><td>接收但无法解密</td><td>不可信设备托管</td></tr></tbody></table><p>其中 <strong>Receive Encrypted</strong> 类型值得注意——设备可以存储加密数据但无法解密，私钥在授权设备本地。这为自建文件共享系统提供了"边缘存储"的设计思路：信任节点负责读写，不可信节点只提供存储空间。</p><h3 id=并行哈希计算>并行哈希计算</h3><p>Syncthing 的文件扫描器使用并行哈希池加速大文件处理：</p><div class=code-block-wrapper data-lang=go><div class=code-block-header><div class=code-block-meta><span class=code-language>go</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>parallelHasher</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>workChan</span><span class=w> </span><span class=kd>chan</span><span class=w> </span><span class=o>*</span><span class=nx>hasherWork</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>outChan</span><span class=w>  </span><span class=kd>chan</span><span class=w> </span><span class=o>*</span><span class=nx>hashResult</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>workers</span><span class=w>  </span><span class=kt>int</span><span class=w> </span><span class=c1>// 默认 2 个并行 worker</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>ph</span><span class=w> </span><span class=o>*</span><span class=nx>parallelHasher</span><span class=p>)</span><span class=w> </span><span class=nf>HashFile</span><span class=p>(</span><span class=nx>ctx</span><span class=w> </span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span><span class=w> </span><span class=nx>path</span><span class=w> </span><span class=kt>string</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 1. 初始 Stat</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 2. 分块读取并发送到 workChan</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 3. 并行 Worker 计算 SHA-256</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 4. 最终 Stat 确认文件未变更</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 5. 所有 Worker 完成后汇总结果</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>关键设计细节：哈希计算前后各做一次 <code>Stat()</code>，如果文件的 mtime 或 size 在计算期间发生变化，则放弃结果——确保不会使用过时的哈希值。这项检查在 Rust 实现中也可以同样应用。</p><p>相比之下，本系统使用串行哈希计算（单线程读取→哈希→下一块）。在多核环境下，可以借鉴 Syncthing 的并行哈希池来加速大文件扫描。</p><h3 id=参考资料>参考资料</h3><ul><li>Cohen, B. (2003). Incentives build robustness in BitTorrent. <em>Workshop on Economics of Peer-to-Peer Systems</em>.</li><li>IPFS. <a href=https://ipfs.tech/>https://ipfs.tech/</a></li><li>anacrolix/torrent (Go BitTorrent). <a href=https://github.com/anacrolix/torrent>https://github.com/anacrolix/torrent</a></li><li>rust-libp2p examples. <a href=https://github.com/libp2p/rust-libp2p/tree/master/examples>https://github.com/libp2p/rust-libp2p/tree/master/examples</a></li><li>Syncthing 源码. <a href=https://github.com/syncthing/syncthing>https://github.com/syncthing/syncthing</a></li><li>BEP 协议规范. <a href=https://docs.syncthing.net/specs/bep-v1.html>https://docs.syncthing.net/specs/bep-v1.html</a></li><li>Syncthing 架构文档. <a href=https://docs.syncthing.net/dev/>https://docs.syncthing.net/dev/</a></li></ul></div><div class=series-nav><div class=series-nav__label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5.0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5.0 014 19.5v-15A2.5 2.5.0 016.5 2z"/></svg>
 <span>所属系列:</span>
 <a href=/series/%E7%BD%91%E7%BB%9C%E5%BC%80%E5%8F%91%E5%AE%9E%E6%88%98/>网络开发实战</a></div><div class=series-nav__links><a href=/posts/network/golang-p2p-development/ class="series-nav__link series-nav__link--prev"><span class=series-nav__arrow>&larr;</span>
 <span class=series-nav__direction>上一篇</span>
