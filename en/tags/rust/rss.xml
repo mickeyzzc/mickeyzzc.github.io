@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Rust on Mi&amp;Bee Blog</title><link>https://blog.mickeyzzc.tech/en/tags/rust/</link><description>Recent content in Rust on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Sun, 28 Jun 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://blog.mickeyzzc.tech/en/tags/rust/rss.xml" rel="self" type="application/rss+xml"/><item><title>Advanced eBPF Memory Observability: Container Tracing and Rust Aya</title><link>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-oom-advance/</link><pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-oom-advance/</guid><description>&lt;p&gt;The first two articles covered eBPF fundamentals and OOM Killer event tracing. This article goes deeper: container-level OOM pinpointing, real-time memory allocation rate tracking, and implementing the same functionality with the Rust Aya framework.&lt;/p&gt;
 &lt;h2 id="container-level-oom-pinpointing"&gt;Container-Level OOM Pinpointing&lt;/h2&gt;
-&lt;p&gt;In Kubernetes, &amp;ldquo;a Pod OOM&amp;rsquo;d&amp;rdquo; is actually a vague statement. A Pod consists of multiple containers, each belonging to different cgroups. eBPF can drill through this layer and precisely identify which container and which process caused the OOM.&lt;/p&gt;</description></item><item><title>Rust P2P Development: From Ping to Gossipsub</title><link>https://blog.mickeyzzc.tech/en/posts/network/rust-p2p-development/</link><pubDate>Mon, 22 Aug 2022 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/network/rust-p2p-development/</guid><description>&lt;p&gt;Rust&amp;rsquo;s ownership model and zero-cost abstractions make it an ideal language for implementing P2P network protocols. The Rust implementation of libp2p (rust-libp2p) provides a complete protocol stack from transport to application layer.&lt;/p&gt;
+&lt;p&gt;In Kubernetes, &amp;ldquo;a Pod OOM&amp;rsquo;d&amp;rdquo; is actually a vague statement. A Pod consists of multiple containers, each belonging to different cgroups. eBPF can drill through this layer and precisely identify which container and which process caused the OOM.&lt;/p&gt;</description></item><item><title>eBPF Language Battle: Full-Stack Comparison of C, Rust, and Zig</title><link>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-zig-lang-dev/</link><pubDate>Fri, 26 Jun 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-zig-lang-dev/</guid><description>&lt;p&gt;The previous articles on OOM tracing all used C for eBPF kernel-space programs. This is natural — C is eBPF&amp;rsquo;s &amp;ldquo;native language,&amp;rdquo; with the verifier, CO-RE, and libbpf toolchain all designed around C. But if you&amp;rsquo;ve followed the eBPF ecosystem, you&amp;rsquo;ll notice a clear trend: &lt;strong&gt;more and more people are writing eBPF in languages other than C&lt;/strong&gt;. Rust&amp;rsquo;s Aya framework is already used in production by the Solana validator and Kubernetes Gateway API; meanwhile, Zig is trying to bring a new development experience with &lt;code&gt;comptime&lt;/code&gt;, explicit allocation, and first-class C interop.&lt;/p&gt;</description></item><item><title>Rust P2P Development: From Ping to Gossipsub</title><link>https://blog.mickeyzzc.tech/en/posts/network/rust-p2p-development/</link><pubDate>Mon, 22 Aug 2022 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/network/rust-p2p-development/</guid><description>&lt;p&gt;Rust&amp;rsquo;s ownership model and zero-cost abstractions make it an ideal language for implementing P2P network protocols. The Rust implementation of libp2p (rust-libp2p) provides a complete protocol stack from transport to application layer.&lt;/p&gt;
 &lt;h2 id="environment-setup"&gt;Environment Setup&lt;/h2&gt;
 &lt;p&gt;Configure dependencies in &lt;code&gt;Cargo.toml&lt;/code&gt;:&lt;/p&gt;
 &lt;div class="code-block-wrapper" data-lang="toml"&gt;
@@ -37,42 +37,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;anyhow&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;1.0&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;Create the project:&lt;/p&gt;</description></item><item><title>Hands-On: Building a Distributed File Sharing System</title><link>https://blog.mickeyzzc.tech/en/posts/network/p2p-file-sharing-system/</link><pubDate>Mon, 18 Mar 2024 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/network/p2p-file-sharing-system/</guid><description>&lt;p&gt;Combining theory with practice, we&amp;rsquo;ll build a real distributed file sharing system. This system will leverage technologies introduced in previous articles — Kademlia DHT for node discovery and metadata distribution, Gossipsub for broadcasting, and a custom file transfer protocol.&lt;/p&gt;
-&lt;h2 id="system-architecture"&gt;System Architecture&lt;/h2&gt;
-&lt;div class="code-block-wrapper" data-lang="mermaid"&gt;
- &lt;div class="code-block-header"&gt;
- &lt;div class="code-block-meta"&gt;
- &lt;span class="code-language"&gt;mermaid&lt;/span&gt;
- &lt;/div&gt;
- &lt;/div&gt;
- &lt;div class="code-block-body"&gt;
- &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
- subgraph Application
- CLI[&amp;#34;CLI Interface&amp;#34;]
- API[&amp;#34;REST API&amp;#34;]
- end
-
- subgraph Business Logic
- Index[&amp;#34;File Index Manager&amp;#34;]
- Scheduler[&amp;#34;Piece Download Scheduler&amp;#34;]
- Verify[&amp;#34;Verify &amp;amp; Reassemble&amp;#34;]
- end
-
- subgraph P2P Network
- Discovery[&amp;#34;Kad-DHT&amp;lt;br/&amp;gt;Peer Discovery &amp;#43; Metadata&amp;#34;]
- Broadcast[&amp;#34;GossipSub&amp;lt;br/&amp;gt;Message Broadcast&amp;#34;]
- Transfer[&amp;#34;Custom Protocol&amp;lt;br/&amp;gt;File Transfer&amp;#34;]
- end
-
- CLI --&amp;gt; Index
- API --&amp;gt; Index
- Index --&amp;gt; Scheduler
- Scheduler --&amp;gt; Verify
- Index --&amp;gt; Discovery
- Scheduler --&amp;gt; Transfer
- Broadcast --&amp;gt;|&amp;#34;New Peer Notification&amp;#34;| Index&lt;/code&gt;&lt;/pre&gt;
- &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;Core design principles:&lt;/p&gt;</description></item><item><title>eBPF Language Battle: Full-Stack Comparison of C, Rust, and Zig</title><link>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-zig-lang-dev/</link><pubDate>Fri, 26 Jun 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-zig-lang-dev/</guid><description>&lt;p&gt;The previous articles on OOM tracing all used C for eBPF kernel-space programs. This is natural — C is eBPF&amp;rsquo;s &amp;ldquo;native language,&amp;rdquo; with the verifier, CO-RE, and libbpf toolchain all designed around C. But if you&amp;rsquo;ve followed the eBPF ecosystem, you&amp;rsquo;ll notice a clear trend: &lt;strong&gt;more and more people are writing eBPF in languages other than C&lt;/strong&gt;. Rust&amp;rsquo;s Aya framework is already used in production by the Solana validator and Kubernetes Gateway API; meanwhile, Zig is trying to bring a new development experience with &lt;code&gt;comptime&lt;/code&gt;, explicit allocation, and first-class C interop.&lt;/p&gt;</description></item><item><title>YOLO Rust Deployment Guide</title><link>https://blog.mickeyzzc.tech/en/posts/aihelper/yolo-rust-deployment/</link><pubDate>Fri, 29 May 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/aihelper/yolo-rust-deployment/</guid><description>&lt;h2 id="chapter-9-complete-yolo-tutorial-with-rust"&gt;Chapter 9: Complete YOLO Tutorial with Rust&lt;/h2&gt;
+&lt;/div&gt;&lt;p&gt;Create the project:&lt;/p&gt;</description></item><item><title>YOLO Rust Deployment Guide</title><link>https://blog.mickeyzzc.tech/en/posts/aihelper/yolo-rust-deployment/</link><pubDate>Fri, 29 May 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/aihelper/yolo-rust-deployment/</guid><description>&lt;h2 id="chapter-9-complete-yolo-tutorial-with-rust"&gt;Chapter 9: Complete YOLO Tutorial with Rust&lt;/h2&gt;
 &lt;p&gt;With its three core characteristics of memory safety, zero-cost abstractions, and extreme performance, Rust has become the ultimate choice for production-grade YOLO deployment. In edge computing and high-concurrency scenarios, Rust&amp;rsquo;s performance advantages are particularly significant.&lt;/p&gt;
 &lt;h2 id="yolo-related-libraries-in-rust-ecosystem"&gt;YOLO-related Libraries in Rust Ecosystem&lt;/h2&gt;
 &lt;table&gt;
@@ -133,7 +98,42 @@
 &lt;p&gt;&lt;strong&gt;Core Features Comparison:&lt;/strong&gt;&lt;/p&gt;</description></item><item><title>Why Zig: A New Systems Language from a Go/Rust Perspective</title><link>https://blog.mickeyzzc.tech/en/posts/programming/zig-why-and-setup/</link><pubDate>Sun, 21 Jun 2026 09:15:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/programming/zig-why-and-setup/</guid><description>&lt;p&gt;This article is based on Zig 0.16 (released 2026-04-13, the latest stable release). Zig is a rapidly evolving modern systems programming language. Its source repository has moved from GitHub to &lt;a href="https://codeberg.org/ziglang/zig"&gt;Codeberg&lt;/a&gt;, and the official download page is at &lt;a href="https://ziglang.org/download/"&gt;ziglang.org/download/&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 id="why-zig"&gt;Why Zig?&lt;/h2&gt;
 &lt;p&gt;If you already know Go and Rust, you might ask: why look at a third systems language? The answer is simple: &lt;strong&gt;Zig fills the gap between Go and Rust&lt;/strong&gt;.&lt;/p&gt;
-&lt;p&gt;Go conquered backend and cloud-native development with its low barrier to entry and high productivity. But its garbage collector (GC) and relatively large runtime become liabilities in low-level systems programming, embedded systems, and real-time scenarios. Rust delivers peak performance and safety through zero-cost abstractions and its ownership system, but its steep learning curve and slow compile times make it feel &amp;ldquo;heavy&amp;rdquo; for fast prototyping and small tools.&lt;/p&gt;</description></item><item><title>Basic Syntax: Ramp Up on Zig with Your Go/Rust Experience</title><link>https://blog.mickeyzzc.tech/en/posts/programming/zig-basic-syntax/</link><pubDate>Mon, 22 Jun 2026 14:30:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/programming/zig-basic-syntax/</guid><description>&lt;p&gt;&lt;em&gt;This article is based on Zig 0.16.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Go conquered backend and cloud-native development with its low barrier to entry and high productivity. But its garbage collector (GC) and relatively large runtime become liabilities in low-level systems programming, embedded systems, and real-time scenarios. Rust delivers peak performance and safety through zero-cost abstractions and its ownership system, but its steep learning curve and slow compile times make it feel &amp;ldquo;heavy&amp;rdquo; for fast prototyping and small tools.&lt;/p&gt;</description></item><item><title>Hands-On: Building a Distributed File Sharing System</title><link>https://blog.mickeyzzc.tech/en/posts/network/p2p-file-sharing-system/</link><pubDate>Mon, 18 Mar 2024 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/network/p2p-file-sharing-system/</guid><description>&lt;p&gt;Combining theory with practice, we&amp;rsquo;ll build a real distributed file sharing system. This system will leverage technologies introduced in previous articles — Kademlia DHT for node discovery and metadata distribution, Gossipsub for broadcasting, and a custom file transfer protocol.&lt;/p&gt;
+&lt;h2 id="system-architecture"&gt;System Architecture&lt;/h2&gt;
+&lt;div class="code-block-wrapper" data-lang="mermaid"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;
+ &lt;span class="code-language"&gt;mermaid&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;
+ &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
+ subgraph Application
+ CLI[&amp;#34;CLI Interface&amp;#34;]
+ API[&amp;#34;REST API&amp;#34;]
+ end
+
+ subgraph Business Logic
+ Index[&amp;#34;File Index Manager&amp;#34;]
+ Scheduler[&amp;#34;Piece Download Scheduler&amp;#34;]
+ Verify[&amp;#34;Verify &amp;amp; Reassemble&amp;#34;]
+ end
+
+ subgraph P2P Network
+ Discovery[&amp;#34;Kad-DHT&amp;lt;br/&amp;gt;Peer Discovery &amp;#43; Metadata&amp;#34;]
+ Broadcast[&amp;#34;GossipSub&amp;lt;br/&amp;gt;Message Broadcast&amp;#34;]
+ Transfer[&amp;#34;Custom Protocol&amp;lt;br/&amp;gt;File Transfer&amp;#34;]
+ end
+
+ CLI --&amp;gt; Index
+ API --&amp;gt; Index
+ Index --&amp;gt; Scheduler
+ Scheduler --&amp;gt; Verify
+ Index --&amp;gt; Discovery
+ Scheduler --&amp;gt; Transfer
+ Broadcast --&amp;gt;|&amp;#34;New Peer Notification&amp;#34;| Index&lt;/code&gt;&lt;/pre&gt;
+ &lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Core design principles:&lt;/p&gt;</description></item><item><title>Basic Syntax: Ramp Up on Zig with Your Go/Rust Experience</title><link>https://blog.mickeyzzc.tech/en/posts/programming/zig-basic-syntax/</link><pubDate>Mon, 22 Jun 2026 14:30:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/programming/zig-basic-syntax/</guid><description>&lt;p&gt;&lt;em&gt;This article is based on Zig 0.16.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;In Part 1 we discussed why Zig is worth learning and how to run your first Hello World. Now it&amp;rsquo;s time to dive into the syntax—variables, types, control flow, functions, and generics. The single goal is to &lt;strong&gt;make you able to read and write Zig code&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;If you have Go or Rust experience, none of these concepts will feel entirely new. I&amp;rsquo;ll draw comparisons at key points to help you map your existing knowledge.&lt;/p&gt;</description></item><item><title>Implementing Image Restoration in Go and Rust</title><link>https://blog.mickeyzzc.tech/en/posts/physical-world/image-restoration-go-rust/</link><pubDate>Sun, 28 Jun 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/physical-world/image-restoration-go-rust/</guid><description>&lt;p&gt;This post implements core image restoration algorithms in Go and Rust, comparing the two languages&amp;rsquo; approaches to image processing through practical code.&lt;/p&gt;
 &lt;div class="blur-wrap" id="blur-0"&gt;
