@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Gorilla on Mi&amp;Bee Blog</title><link>https://blog.mickeyzzc.tech/en/tags/gorilla/</link><description>Recent content in Gorilla on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Sun, 14 Jun 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://blog.mickeyzzc.tech/en/tags/gorilla/rss.xml" rel="self" type="application/rss+xml"/><item><title>Observability Storage Architecture Overview: From Gorilla to Parquet</title><link>https://blog.mickeyzzc.tech/en/posts/telemetry/obs-tech-01-storage-overview/</link><pubDate>Sun, 14 Jun 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/telemetry/obs-tech-01-storage-overview/</guid><description>&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;Observability has become a core infrastructure pillar of the cloud-native era. The five signals—Metrics, Logs, Traces, RUM, and Profiling—each generate massive volumes of data, and their storage efficiency directly determines platform cost boundaries and query performance. On the collection side, eBPF technology is reshaping how data is acquired. Behind all of this, storage architecture evolution is the foundation that enables observability to scale in production.&lt;/p&gt;
+&lt;div class="code-block-wrapper" data-lang="mermaid"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;
+ &lt;span class="code-language"&gt;mermaid&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;
+ &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
+ A[Five Signals of&amp;lt;br/&amp;gt;Observability] --&amp;gt; B[Metrics]
+ A --&amp;gt; C[Logs]
+ A --&amp;gt; D[Traces]
+ A --&amp;gt; E[RUM &amp;#43; Profiling]
+
+ style A fill:#9C27B0,color:#fff
+ style B fill:#2196F3,color:#fff
+ style C fill:#2196F3,color:#fff
+ style D fill:#2196F3,color:#fff
+ style E fill:#2196F3,color:#fff&lt;/code&gt;&lt;/pre&gt;
+ &lt;/div&gt;
+&lt;/div&gt;&lt;div class="code-block-wrapper" data-lang="mermaid"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;
+ &lt;span class="code-language"&gt;mermaid&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;
+ &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
+ G[Storage Evolution&amp;lt;br/&amp;gt;Convergent Paths] --&amp;gt; H[Proprietary Format&amp;lt;br/&amp;gt;→ Columnar Standard]
+ G --&amp;gt; I[Index Bloat&amp;lt;br/&amp;gt;→ Weak Index &amp;#43; Object Store]
+
+ style G fill:#FF9800,color:#fff
+ style H fill:#4CAF50,color:#fff
+ style I fill:#4CAF50,color:#fff&lt;/code&gt;&lt;/pre&gt;
+ &lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Figure&lt;/strong&gt;: The five observability signals each produce data with different characteristics, yet their storage evolution converges on two core themes across all signals: the shift from proprietary storage formats to Parquet/Arrow columnar standards, and the move from full-field inverted indexes to weak-index strategies with object storage.&lt;/p&gt;</description></item></channel></rss>
