@@ -1,0 +1,950 @@
+<!doctype html><html lang=en dir=ltr data-video-default=bilibili data-video-show-switch=true><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Mi&amp;Bee Blog - The Hidden Trap of Headless Browsers: Why Can't Your Automation Tool Catch Early Page Errors?</title><meta name=description content="An in-depth analysis of why headless browsers fail to capture early page errors, and the official solutions from Puppeteer, Playwright, Selenium, agent-browser and other tools"><meta name=keywords content="Headless,,Chrome,,Puppeteer,,Playwright,,Selenium,,agent-browser,,CDP,,error,capture,,automated,testing"><link rel=canonical href=https://blog.mickeyzzc.tech/en/posts/frontend/headless-browser-early-error-capture/><meta property="og:type" content="article"><meta property="og:title" content="Mi&amp;Bee Blog - The Hidden Trap of Headless Browsers: Why Can't Your Automation Tool Catch Early Page Errors?"><meta property="og:description" content="An in-depth analysis of why headless browsers fail to capture early page errors, and the official solutions from Puppeteer, Playwright, Selenium, agent-browser and other tools"><meta property="og:image" content="https://blog.mickeyzzc.tech/imgs/avatar.jpeg"><meta property="og:url" content="https://blog.mickeyzzc.tech/en/posts/frontend/headless-browser-early-error-capture/"><meta property="og:site_name" content="Mi&amp;Bee Blog"><meta property="og:locale" content="en"><meta property="article:author" content="蓝宝石的傻话"><meta property="article:published_time" content="2026-05-15T00:00:00Z"><meta property="article:modified_time" content="2026-05-15T00:00:00Z"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Mi&amp;Bee Blog - The Hidden Trap of Headless Browsers: Why Can't Your Automation Tool Catch Early Page Errors?"><meta name=twitter:description content="An in-depth analysis of why headless browsers fail to capture early page errors, and the official solutions from Puppeteer, Playwright, Selenium, agent-browser and other tools"><meta name=twitter:image content="https://blog.mickeyzzc.tech/imgs/avatar.jpeg"><link rel=alternate hreflang=zh-CN href=https://blog.mickeyzzc.tech/posts/frontend/headless-browser-early-error-capture/><link rel=alternate hreflang=en href=https://blog.mickeyzzc.tech/en/posts/frontend/headless-browser-early-error-capture/><link rel=alternate hreflang=x-default href=https://blog.mickeyzzc.tech/en/><meta name=msvalidate.01 content="E3E4B2713C91BE86457D57518A2806B9"><link rel=stylesheet href=/css/main.4e3a45ee48ef69cdd5fa6f41f531a8633770f68572f2888efba1d6c41c6026eb.css integrity="sha256-TjpF7kjvac3V+m9B9TGoYzdw9oVy8oiO+6HWxBxgJus=" crossorigin=anonymous><link rel=icon type=image/png href=https://blog.mickeyzzc.tech/imgs/icons/favicon.png><link rel=apple-touch-icon href=https://blog.mickeyzzc.tech/imgs/icons/favicon.png><script type=text/javascript>(function(e,t,n,s,o,i,a){e[n]=e[n]||function(){(e[n].q=e[n].q||[]).push(arguments)},i=t.createElement(s),i.async=1,i.src="https://www.clarity.ms/tag/"+o,a=t.getElementsByTagName(s)[0],a.parentNode.insertBefore(i,a)})(window,document,"clarity","script","who7vkbs32")</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"蓝宝石的傻话","url":"https://blog.mickeyzzc.tech/en/"},"dateModified":"2026-05-15T00:00:00Z","datePublished":"2026-05-15T00:00:00Z","description":"An in-depth analysis of why headless browsers fail to capture early page errors, and the official solutions from Puppeteer, Playwright, Selenium, agent-browser and other tools","headline":"The Hidden Trap of Headless Browsers: Why Can't Your Automation Tool Catch Early Page Errors?","image":{"@type":"ImageObject","url":"https://blog.mickeyzzc.tech/imgs/avatar.jpeg"},"keywords":"Headless Chrome, Puppeteer, Playwright, Selenium, agent-browser, Frontend Automation, Error Capture","mainEntityOfPage":{"@id":"https://blog.mickeyzzc.tech/en/posts/frontend/headless-browser-early-error-capture/","@type":"WebPage"},"publisher":{"@type":"Person","image":{"@type":"ImageObject","url":"https://blog.mickeyzzc.tech/imgs/avatar.jpeg"},"name":"蓝宝石的傻话"},"url":"https://blog.mickeyzzc.tech/en/posts/frontend/headless-browser-early-error-capture/"}</script><meta name=theme-color content="#ffffff"><script>(function(){try{var e,t=localStorage.getItem("theme");t==="dark"?document.documentElement.setAttribute("data-theme","dark"):t||(e=(new Date).getHours(),(e>=18||e<6)&&document.documentElement.setAttribute("data-theme","dark"))}catch{}})()</script></head><body data-features='{"analytics":true,"codeHighlight":true,"lightbox":true,"mathJax":true,"mermaid":true,"series":true,"themeSwitch":true}'><div class=reading-progress id=reading-progress data-position=top role=progressbar aria-valuenow=0 aria-valuemin=0 aria-valuemax=100><div class=reading-progress__bar id=reading-progress-bar></div></div><header><header><div class=container><div class=header-content><a href=https://blog.mickeyzzc.tech/ class=site-title>Mi&amp;Bee Blog
+</a><button class=nav-toggle aria-label="Toggle navigation" aria-expanded=false>
+<svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><nav class=site-nav><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/series/>Series</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><button class=search-toggle id=search-toggle aria-label=Search>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+</button>
+<button id=theme-toggle data-feature-theme-switch=true aria-label="Toggle theme">
+<svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="6.34" y1="17.66" x2="8.46" y2="19.78"/><line x1="14.12" y1="3.95" x2="16.24" y2="6.07"/></svg>
+<svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button><div class=lang-switcher><button class=lang-toggle aria-label="Switch language" aria-expanded=false>
+<svg class="lang-icon" viewBox="0 0 640 512" fill="currentColor"><path d="M0 256a256 256 0 11512 0A256 256 0 110 256zm160 0a96 96 0 10192 0 96 96 0 10-192 0zm0 64a128 128 0 11256 0 128 128 0 11-256 0zm0 224a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128zm0-320a64 64 0 100-128 64 64 0 100 128zm0 64a96 96 0 11192 0 96 96 0 11-192 0zm0 160a64 64 0 100-128 64 64 0 100 128z"/></svg>
+<span class=lang-current>English</span>
+<svg class="lang-chevron" viewBox="0 0 320 512" fill="currentColor"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3.0l128-128c9.2-9.2 11.9-22.9 6.9-34.9S301 191.9 288 191.9L32 192c-12.9.0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button><div class=lang-dropdown><a href=/posts/frontend/headless-browser-early-error-capture/ lang=zh-cn rel=alternate>中文</a></div></div></div></div></header></header><aside class=sidebar id=sidebar data-position=left><div class=sidebar-inner><div class=sidebar-avatar><img src=/imgs/avatar.jpeg alt=蓝宝石的傻话 loading=lazy></div><div class=sidebar-author><h2 class=sidebar-author__name>蓝宝石的傻话</h2><p class=sidebar-author__desc>What is rational is real; and what is real is rational.</p></div><div class=sidebar-greeting id=sidebar-greeting><span class=greeting-icon id=greeting-icon></span>
+<span class=greeting-text id=greeting-text></span></div><nav class=sidebar-social aria-label="Social links"><a href=https://github.com/mickeyzzc class=sidebar-social-link aria-label=GitHub target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
+</a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><nav class=sidebar-nav aria-label="Main navigation"><nav><ul><li><a href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/series/>Series</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><div class=sidebar-toc><nav class="toc toc--numbered toc--collapsible" id=toc aria-label="Table of Contents"><div class=toc-header><span class=toc-title>Table of Contents</span>
+<button class=toc-toggle id=toc-toggle aria-label="Table of Contents" aria-expanded=true>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div><div class=toc-body id=toc-body><nav id=TableOfContents><ul><li><a href=#introduction>Introduction</a></li><li><a href=#reproducing-the-problem-the-vanishing-error>Reproducing the Problem: The Vanishing Error</a><ul><li><a href=#the-crime-scene>The Crime Scene</a></li><li><a href=#its-not-your-fault-its-a-tool-timing-flaw>It&rsquo;s Not Your Fault, It&rsquo;s a Tool Timing Flaw</a></li></ul></li><li><a href=#the-root-cause-an-unavoidable-timing-trap>The Root Cause: An Unavoidable Timing Trap</a><ul><li><a href=#precise-timeline-analysis>Precise Timeline Analysis</a></li><li><a href=#root-cause>Root Cause</a></li></ul></li><li><a href=#which-frameworks-and-tools-are-affected>Which Frameworks and Tools Are Affected?</a><ul><li><a href=#all-modern-frontend-frameworks>All Modern Frontend Frameworks</a></li><li><a href=#all-headless-browser-tools>All Headless Browser Tools</a></li></ul></li><li><a href=#complete-official-solutions>Complete Official Solutions</a><ul><li><a href=#agent-browser-official-solution>agent-browser Official Solution</a><ul><li><a href=#method-1-using---init-script-recommended>Method 1: Using <code>--init-script</code> (Recommended)</a></li><li><a href=#method-2-using-batch-command-recommended-for-complex-scenarios>Method 2: Using batch command (Recommended for complex scenarios)</a></li><li><a href=#method-3-global-setting-via-environment-variable>Method 3: Global Setting via Environment Variable</a></li><li><a href=#method-4-removing-added-init-scripts>Method 4: Removing Added Init Scripts</a></li><li><a href=#complete-error-capturejs-file>Complete error-capture.js File</a></li><li><a href=#retrieving-captured-errors>Retrieving Captured Errors</a></li><li><a href=#version-requirements>Version Requirements</a></li></ul></li><li><a href=#playwright-official-solution-strongest-native-capability>Playwright Official Solution (Strongest Native Capability)</a><ul><li><a href=#official-documentation>Official Documentation</a></li><li><a href=#best-practice-implementation>Best Practice Implementation</a></li><li><a href=#important-notes>Important Notes</a></li></ul></li><li><a href=#puppeteer-official-solution>Puppeteer Official Solution</a><ul><li><a href=#official-documentation-1>Official Documentation</a></li><li><a href=#implementation-code>Implementation Code</a></li></ul></li><li><a href=#selenium-official-solution>Selenium Official Solution</a><ul><li><a href=#implementation-code-java>Implementation Code (Java)</a></li></ul></li></ul></li><li><a href=#universal-solution-html-inline-script-injection-last-line-of-defense>Universal Solution: HTML Inline Script Injection (Last Line of Defense)</a><ul><li><a href=#implementation-principle>Implementation Principle</a></li><li><a href=#universal-implementation-works-for-all-frameworks>Universal Implementation (Works for All Frameworks)</a></li><li><a href=#placement-by-framework>Placement by Framework</a></li></ul></li><li><a href=#framework-level-global-error-handling-second-line-of-defense>Framework-Level Global Error Handling (Second Line of Defense)</a><ul><li><a href=#sveltekit>SvelteKit</a></li><li><a href=#nextjs>Next.js</a></li><li><a href=#nuxtjs>Nuxt.js</a></li><li><a href=#react>React</a></li><li><a href=#vue-3>Vue 3</a></li></ul></li><li><a href=#quick-debugging-tips>Quick Debugging Tips</a><ul><li><a href=#run-in-non-headless-mode>Run in Non-headless Mode</a></li><li><a href=#check-build-output>Check Build Output</a></li><li><a href=#enable-chrome-detailed-logging>Enable Chrome Detailed Logging</a></li></ul></li><li><a href=#common-early-error-causes>Common Early Error Causes</a></li><li><a href=#best-practices>Best Practices</a></li><li><a href=#conclusion>Conclusion</a></li><li><a href=#references>References</a></li></ul></nav></div></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-lg"><span>prometheus</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-lg"><span>linux</span>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-md"><span>ebpf</span>
+</a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-md"><span>p2p</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
+</a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-sm"><span>computer vision</span>
+</a><a href=/en/tags/rust/ class="tag-cloud__item tag-size-sm"><span>rust</span>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span>
+</a><a href=/en/tags/ai-engineering/ class="tag-cloud__item tag-size-xs"><span>ai engineering</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><article class=post><header class=post-header><h1 class=post-title>The Hidden Trap of Headless Browsers: Why Can't Your Automation Tool Catch Early Page Errors?</h1><div class=post-meta><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<time datetime=2026-05-15T00:00:00+00:00>May 15, 2026</time>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><a href=/en/categories/frontend-technology/>Frontend Technology</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a href=/en/tags/headless-chrome/>Headless Chrome</a>, <a href=/en/tags/puppeteer/>Puppeteer</a>, <a href=/en/tags/playwright/>Playwright</a>, <a href=/en/tags/selenium/>Selenium</a>, <a href=/en/tags/agent-browser/>Agent-Browser</a>, <a href=/en/tags/frontend-automation/>Frontend Automation</a>, <a href=/en/tags/error-capture/>Error Capture</a></span><span class=post-meta-item>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6A2 2 0 004 4v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+<span>3519 words</span>
+</span><span class=post-meta-item><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<span>17 min read</span></span></div></header><div class=Content><h2 id=introduction>Introduction</h2><p>You&rsquo;re debugging a frontend engineering issue — the page is behaving abnormally. You ask an AI to open the page with a browser tool and check the console for errors.</p><p>The AI opens the page, scans around, and tells you: <strong>The console is clean, no errors whatsoever.</strong></p><p>You&rsquo;re skeptical. You open Chrome DevTools yourself — three bright red errors are staring you in the face, the page has already crashed into a white screen. The AI visited the exact same page using a Headless browser, <strong>so why did it catch nothing?</strong></p><p>This isn&rsquo;t a bug in some particular tool, nor is it your configuration issue. It&rsquo;s a timing trap buried deep in the design of Headless browsers that has driven countless developers to question their sanity over the past few years. It affects every modern frontend framework — React, Vue, SvelteKit, Next.js — none are spared.</p><p>The good news is, by 2026, all major tools have official solutions. But before we reveal the answer, let&rsquo;s first understand one thing: <strong>how exactly does this error &ldquo;disappear&rdquo;?</strong></p><h2 id=reproducing-the-problem-the-vanishing-error>Reproducing the Problem: The Vanishing Error</h2><h3 id=the-crime-scene>The Crime Scene</h3><p>Everything looks normal:</p><ol><li>Running fine in local dev mode, building and deploying without issues</li><li>Opening with regular Chrome, DevTools console clearly shows red errors</li><li>But when accessing with Headless tools (older versions), something strange happens:<ul><li><code>agent-browser console</code> output — <strong>empty</strong></li><li>Puppeteer&rsquo;s <code>page.on('pageerror')</code> — <strong>never triggered</strong></li><li>Selenium&rsquo;s log system — <strong>blank</strong></li></ul></li></ol><p>The page has clearly crashed into a white screen, but these tools all unanimously tell you: &ldquo;No errors.&rdquo;</p><blockquote><p><strong>Note</strong>: Playwright v1.40+ has significantly improved this issue, catching most errors by default. The following analysis mainly addresses older version behavior.</p></blockquote><h3 id=its-not-your-fault-its-a-tool-timing-flaw>It&rsquo;s Not Your Fault, It&rsquo;s a Tool Timing Flaw</h3><p>The truth is surprisingly simple: <strong>All high-level Headless browser tool wrappers used to inject error capture code only after page load completed.</strong></p><p>Yet modern frontend framework errors occur precisely <strong>during page loading</strong> — within the few hundred milliseconds of framework initialization, component mounting, and hydration. Your error catcher hasn&rsquo;t even been installed yet when the error has already happened and vanished.</p><p>This is a widely discussed industry issue with thousands of related GitHub issues.</p><h2 id=the-root-cause-an-unavoidable-timing-trap>The Root Cause: An Unavoidable Timing Trap</h2><h3 id=precise-timeline-analysis>Precise Timeline Analysis</h3><p>Let&rsquo;s break down the process millisecond by millisecond to understand why errors were forever uncatchable:</p><table><thead><tr><th>Time</th><th>Event</th><th>Old Tool Error Capture State</th><th>New Playwright State</th></tr></thead><tbody><tr><td>T0</td><td>Browser starts requesting HTML</td><td>Not initialized</td><td>Initialized</td></tr><tr><td>T1</td><td>HTML downloaded, parsing begins</td><td>Not initialized</td><td>Initialized</td></tr><tr><td>T2</td><td>Framework entry script parsed and executed</td><td>Not initialized</td><td>Initialized</td></tr><tr><td>T3</td><td>Framework initialization starts (ReactDOM.render, createApp, kit.start(), etc.)</td><td>Not initialized</td><td>Initialized</td></tr><tr><td>T4</td><td>Component initialization throws unhandled Promise rejection or sync error</td><td>Not initialized</td><td><strong>Capturing</strong></td></tr><tr><td>T5</td><td>Browser fires <code>DOMContentLoaded</code> event</td><td>Not initialized</td><td>Capturing</td></tr><tr><td>T6</td><td>Browser fires <code>load</code> event</td><td>Not initialized</td><td>Capturing</td></tr><tr><td>T7</td><td>Headless tool detects page load complete</td><td>Not initialized</td><td>Capturing</td></tr><tr><td>T8</td><td>Headless tool injects error capture code</td><td><strong>Missed errors</strong></td><td><strong>Already captured</strong></td></tr><tr><td>T9</td><td>You run command to get errors</td><td>Returns empty</td><td>Returns full error list</td></tr></tbody></table><h3 id=root-cause>Root Cause</h3><p><strong>To catch errors in Headless browsers, you must inject error listeners before page load</strong>, which requires directly calling the Chrome DevTools Protocol (CDP) <code>Runtime.enable</code> method.</p><p>Yet <strong>almost all</strong> high-level automation tool wrappers failed to call this method at the right time — until recently.</p><h2 id=which-frameworks-and-tools-are-affected>Which Frameworks and Tools Are Affected?</h2><h3 id=all-modern-frontend-frameworks>All Modern Frontend Frameworks</h3><p><strong>100% of modern frontend frameworks encounter this issue</strong>, though severity varies:</p><table><thead><tr><th>Framework</th><th>Affected Severity</th><th>Most Common Early Error Type</th></tr></thead><tbody><tr><td><strong>SvelteKit</strong></td><td>⭐⭐⭐⭐⭐</td><td>unhandled Promise rejection</td></tr><tr><td><strong>Next.js (App Router)</strong></td><td>⭐⭐⭐⭐⭐</td><td>hydration mismatch, server component errors</td></tr><tr><td><strong>Nuxt.js 3</strong></td><td>⭐⭐⭐⭐⭐</td><td>Nitro server errors, Vue render errors</td></tr><tr><td><strong>React + Vite</strong></td><td>⭐⭐⭐⭐</td><td>Component init errors, undefined env variables</td></tr><tr><td><strong>Vue 3 + Vite</strong></td><td>⭐⭐⭐⭐</td><td>setup function errors, third-party library incompatibility</td></tr><tr><td><strong>Angular</strong></td><td>⭐⭐⭐</td><td>Module loading errors, dependency injection failures</td></tr><tr><td><strong>Solid.js</strong></td><td>⭐⭐⭐⭐</td><td>Reactivity system errors, hydration errors</td></tr><tr><td><strong>Astro</strong></td><td>⭐⭐⭐</td><td>Island component loading errors, integration plugin errors</td></tr></tbody></table><h3 id=all-headless-browser-tools>All Headless Browser Tools</h3><p>Similarly, <strong>all</strong> automation tools based on Headless Chrome had this issue, but most are now fixed:</p><table><thead><tr><th>Tool</th><th>Affected Severity (current)</th><th>Official Solution Available</th><th>Fixed Version</th><th>Native Capture</th></tr></thead><tbody><tr><td><strong>agent-browser</strong></td><td>⭐⭐⭐⭐⭐</td><td>✅ Perfect solution available</td><td>Builds after Apr 17, 2026</td><td>Weak</td></tr><tr><td><strong>Playwright</strong></td><td>⭐⭐</td><td>✅ Perfect solution available</td><td>v1.9+</td><td>Strong (v1.40+ greatly improved)</td></tr><tr><td><strong>Puppeteer</strong></td><td>⭐⭐⭐⭐</td><td>✅ Perfect solution available</td><td>v1.0+</td><td>Medium</td></tr><tr><td><strong>Selenium</strong></td><td>⭐⭐⭐⭐⭐</td><td>✅ Solution available</td><td>v4.0+</td><td>Weak</td></tr><tr><td><strong>Cypress</strong></td><td>⭐⭐</td><td>✅ Solution available</td><td>v3.0+</td><td>Medium</td></tr><tr><td><strong>TestCafe</strong></td><td>⭐⭐⭐</td><td>✅ Solution available</td><td>v1.18+</td><td>Medium</td></tr></tbody></table><p><strong>Important note</strong>: Playwright currently has the strongest native error capture capability. Since v1.40, it enables the CDP Runtime domain immediately when creating a page, catching the vast majority of framework initialization errors, including SvelteKit and Next.js hydration errors.</p><h2 id=complete-official-solutions>Complete Official Solutions</h2><p>The core idea behind all official solutions is consistent: <strong>Inject error capture scripts before page load</strong>. Below are the official recommended implementations for each tool.</p><h3 id=agent-browser-official-solution>agent-browser Official Solution</h3><p><strong>Officially confirmed</strong>: In <strong>PR #1257 merged on April 17, 2026</strong>, Vercel Labs officially added <strong>pre-navigation initialization script</strong> functionality to agent-browser, completely solving the early error capture problem.</p><p>The PR is titled &ldquo;feat(react): React introspection, Web Vitals, and SPA primitives&rdquo; and includes, besides React dev tools support, full startup lifecycle primitives — including the error capture functionality we need.</p><h4 id=method-1-using---init-script-recommended>Method 1: Using <code>--init-script</code> (Recommended)</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Load init script from file, execute before first navigation</span>
+</span></span><span class=line><span class=cl>agent-browser open --init-script ./error-capture.js http://localhost:5173</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=method-2-using-batch-command-recommended-for-complex-scenarios>Method 2: Using batch command (Recommended for complex scenarios)</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Start browser, add init script, then navigate</span>
+</span></span><span class=line><span class=cl>agent-browser batch <span class=se>\
+</span></span></span><span class=line><span class=cl>  <span class=s1>&#39;[&#34;open&#34;]&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>  <span class=s1>&#39;[&#34;addinitscript&#34;, &#34;window.__earlyErrors = []; window.onerror = (m,s,l,c,e) =&gt; __earlyErrors.push({type:\&#34;sync_error\&#34;,message:m,source:s,line:l,column:c,stack:e?.stack,timestamp:new Date().toISOString()}); window.addEventListener(\&#34;unhandledrejection\&#34;, e =&gt; {e.preventDefault(); __earlyErrors.push({type:\&#34;unhandled_promise_rejection\&#34;,reason:e.reason?.message||String(e.reason),stack:e.reason?.stack,timestamp:new Date().toISOString()});});&#34;]&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>  <span class=s1>&#39;[&#34;navigate&#34;, &#34;http://localhost:5173&#34;]&#39;</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=method-3-global-setting-via-environment-variable>Method 3: Global Setting via Environment Variable</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Applies to all agent-browser commands, supports multiple scripts separated by commas</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>AGENT_BROWSER_INIT_SCRIPTS</span><span class=o>=</span><span class=s2>&#34;./error-capture.js,./another-script.js&#34;</span>
+</span></span><span class=line><span class=cl>agent-browser open http://localhost:5173</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=method-4-removing-added-init-scripts>Method 4: Removing Added Init Scripts</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># List all added init scripts and their IDs</span>
+</span></span><span class=line><span class=cl>agent-browser listinitscripts
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Remove a specific init script by ID</span>
+</span></span><span class=line><span class=cl>agent-browser removeinitscript &lt;identifier&gt;</span></span></code></pre></td></tr></table></div></div></div></div><h4 id=complete-error-capturejs-file>Complete error-capture.js File</h4><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=c1>// Save as error-capture.js, place in project root
+</span></span></span><span class=line><span class=cl><span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>=</span> <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>||</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 1. Capture all sync errors
+</span></span></span><span class=line><span class=cl><span class=nb>window</span><span class=p>.</span><span class=nx>onerror</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>message</span><span class=p>,</span> <span class=nx>source</span><span class=p>,</span> <span class=nx>lineno</span><span class=p>,</span> <span class=nx>colno</span><span class=p>,</span> <span class=nx>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;sync_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>message</span><span class=o>:</span> <span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>source</span><span class=o>:</span> <span class=nx>source</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>line</span><span class=o>:</span> <span class=nx>lineno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>column</span><span class=o>:</span> <span class=nx>colno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>stack</span><span class=o>:</span> <span class=nx>error</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nx>message</span><span class=p>).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=kc>false</span><span class=p>;</span> <span class=c1>// Let browser also display errors in console
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 2. Capture all unhandled Promise rejections (most common in modern frameworks)
+</span></span></span><span class=line><span class=cl><span class=nb>window</span><span class=p>.</span><span class=nx>addEventListener</span><span class=p>(</span><span class=s1>&#39;unhandledrejection&#39;</span><span class=p>,</span> <span class=kd>function</span><span class=p>(</span><span class=nx>event</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>event</span><span class=p>.</span><span class=nx>preventDefault</span><span class=p>();</span> <span class=c1>// Prevent default browser error prompt
+</span></span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;unhandled_promise_rejection&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>reason</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>message</span> <span class=o>||</span> <span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=nx>stack</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>)).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 3. Capture all console.error calls
+</span></span></span><span class=line><span class=cl><span class=kr>const</span> <span class=nx>originalConsoleError</span> <span class=o>=</span> <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nx>console</span><span class=p>.</span><span class=nx>error</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(...</span><span class=nx>args</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;console_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>args</span><span class=o>:</span> <span class=nx>args</span><span class=p>.</span><span class=nx>map</span><span class=p>(</span><span class=nx>arg</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>typeof</span> <span class=nx>arg</span> <span class=o>===</span> <span class=s1>&#39;object&#39;</span> <span class=o>?</span> <span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>arg</span><span class=p>,</span> <span class=kc>null</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span> <span class=o>:</span> <span class=nb>String</span><span class=p>(</span><span class=nx>arg</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>String</span><span class=p>(</span><span class=nx>arg</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}),</span>
+</span></span><span class=line><span class=cl>    <span class=nx>stack</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>().</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>originalConsoleError</span><span class=p>.</span><span class=nx>apply</span><span class=p>(</span><span class=nx>console</span><span class=p>,</span> <span class=nx>args</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 4. Provide a utility function to print all errors
+</span></span></span><span class=line><span class=cl><span class=nb>window</span><span class=p>.</span><span class=nx>printEarlyErrors</span> <span class=o>=</span> <span class=kd>function</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;=== Captured Early Errors ===&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>forEach</span><span class=p>((</span><span class=nx>err</span><span class=p>,</span> <span class=nx>index</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`\nError </span><span class=si>${</span><span class=nx>index</span> <span class=o>+</span> <span class=mi>1</span><span class=si>}</span><span class=sb> (</span><span class=si>${</span><span class=nx>err</span><span class=p>.</span><span class=nx>type</span><span class=si>}</span><span class=sb>):`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Time: </span><span class=si>${</span><span class=nx>err</span><span class=p>.</span><span class=nx>timestamp</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Message: </span><span class=si>${</span><span class=nx>err</span><span class=p>.</span><span class=nx>message</span> <span class=o>||</span> <span class=nx>err</span><span class=p>.</span><span class=nx>reason</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nx>err</span><span class=p>.</span><span class=nx>stack</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`Stack:\n</span><span class=si>${</span><span class=nx>err</span><span class=p>.</span><span class=nx>stack</span><span class=si>}</span><span class=sb>`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;============================&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>};</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=retrieving-captured-errors>Retrieving Captured Errors</h4><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Get formatted JSON error list</span>
+</span></span><span class=line><span class=cl>agent-browser <span class=nb>eval</span> <span class=s2>&#34;JSON.stringify(window.__earlyErrors, null, 2)&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Or print directly to console</span>
+</span></span><span class=line><span class=cl>agent-browser <span class=nb>eval</span> <span class=s2>&#34;window.printEarlyErrors()&#34;</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=version-requirements>Version Requirements</h4><ul><li>Requires a version of <strong>agent-browser built on or after April 17, 2026</strong></li><li>Check version with <code>agent-browser --version</code></li><li>Upgrade command: <code>agent-browser upgrade</code></li></ul><h3 id=playwright-official-solution-strongest-native-capability>Playwright Official Solution (Strongest Native Capability)</h3><p>Playwright has provided a perfect solution since v1.9: the <strong><code>addInitScript()</code> method</strong>. Since v1.40, its native error capture capability is already very powerful.</p><h4 id=official-documentation>Official Documentation</h4><blockquote><p>&ldquo;Script is evaluated after the document is created but before any of its scripts are run. This is useful to amend the JavaScript environment.&rdquo;</p><p>Playwright official docs explicitly recommend using <code>page.on('pageerror')</code> to catch unhandled exceptions, and <code>page.on('console')</code> to catch console errors. For most modern framework hydration errors, these two events are sufficient.</p></blockquote><h4 id=best-practice-implementation>Best Practice Implementation</h4><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span><span class=lnt>93
+</span><span class=lnt>94
+</span><span class=lnt>95
+</span><span class=lnt>96
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>const</span> <span class=p>{</span> <span class=nx>chromium</span> <span class=p>}</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;playwright&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>async</span> <span class=kd>function</span> <span class=nx>captureAllErrors</span><span class=p>(</span><span class=nx>url</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>browser</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>chromium</span><span class=p>.</span><span class=nx>launch</span><span class=p>({</span> <span class=nx>headless</span><span class=o>:</span> <span class=s1>&#39;new&#39;</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>context</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>browser</span><span class=p>.</span><span class=nx>newContext</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>allErrors</span> <span class=o>=</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// ✅ Playwright native error capture (v1.40+ handles ~95% of cases)
+</span></span></span><span class=line><span class=cl>  <span class=nx>context</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;console&#39;</span><span class=p>,</span> <span class=nx>msg</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nx>msg</span><span class=p>.</span><span class=nx>type</span><span class=p>()</span> <span class=o>===</span> <span class=s1>&#39;error&#39;</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>allErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;console_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>message</span><span class=o>:</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>text</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>location</span><span class=o>:</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>location</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>msg</span><span class=p>.</span><span class=nx>stackTrace</span><span class=p>(),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>context</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;pageerror&#39;</span><span class=p>,</span> <span class=nx>error</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>allErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;page_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>message</span><span class=o>:</span> <span class=nx>error</span><span class=p>.</span><span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>stack</span><span class=o>:</span> <span class=nx>error</span><span class=p>.</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// ⚠️ Supplement for extremely early errors (e.g., errors in document.write)
+</span></span></span><span class=line><span class=cl>  <span class=c1>// Only enable this if you confirm native events miss certain errors
+</span></span></span><span class=line><span class=cl>  <span class=kr>await</span> <span class=nx>context</span><span class=p>.</span><span class=nx>addInitScript</span><span class=p>(</span><span class=sb>`
+</span></span></span><span class=line><span class=cl><span class=sb>    window.__earlyErrors = [];
+</span></span></span><span class=line><span class=cl><span class=sb>    
+</span></span></span><span class=line><span class=cl><span class=sb>    window.onerror = function(message, source, lineno, colno, error) {
+</span></span></span><span class=line><span class=cl><span class=sb>      window.__earlyErrors.push({
+</span></span></span><span class=line><span class=cl><span class=sb>        type: &#39;extreme_early_sync_error&#39;,
+</span></span></span><span class=line><span class=cl><span class=sb>        message: message,
+</span></span></span><span class=line><span class=cl><span class=sb>        source: source,
+</span></span></span><span class=line><span class=cl><span class=sb>        line: lineno,
+</span></span></span><span class=line><span class=cl><span class=sb>        column: colno,
+</span></span></span><span class=line><span class=cl><span class=sb>        stack: error?.stack || new Error(message).stack,
+</span></span></span><span class=line><span class=cl><span class=sb>        timestamp: new Date().toISOString()
+</span></span></span><span class=line><span class=cl><span class=sb>      });
+</span></span></span><span class=line><span class=cl><span class=sb>      return false;
+</span></span></span><span class=line><span class=cl><span class=sb>    };
+</span></span></span><span class=line><span class=cl><span class=sb>    
+</span></span></span><span class=line><span class=cl><span class=sb>    window.addEventListener(&#39;unhandledrejection&#39;, function(event) {
+</span></span></span><span class=line><span class=cl><span class=sb>      event.preventDefault();
+</span></span></span><span class=line><span class=cl><span class=sb>      window.__earlyErrors.push({
+</span></span></span><span class=line><span class=cl><span class=sb>        type: &#39;extreme_early_promise_rejection&#39;,
+</span></span></span><span class=line><span class=cl><span class=sb>        reason: event.reason?.message || String(event.reason),
+</span></span></span><span class=line><span class=cl><span class=sb>        stack: event.reason?.stack || new Error(String(event.reason)).stack,
+</span></span></span><span class=line><span class=cl><span class=sb>        timestamp: new Date().toISOString()
+</span></span></span><span class=line><span class=cl><span class=sb>      });
+</span></span></span><span class=line><span class=cl><span class=sb>    });
+</span></span></span><span class=line><span class=cl><span class=sb>  `</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>page</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>context</span><span class=p>.</span><span class=nx>newPage</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=kr>goto</span><span class=p>(</span><span class=nx>url</span><span class=p>,</span> <span class=p>{</span> <span class=nx>waitUntil</span><span class=o>:</span> <span class=s1>&#39;networkidle0&#39;</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>allErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;navigation_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>message</span><span class=o>:</span> <span class=nx>e</span><span class=p>.</span><span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>stack</span><span class=o>:</span> <span class=nx>e</span><span class=p>.</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// Get extreme early errors (if addInitScript was enabled)
+</span></span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>earlyErrors</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=nx>evaluate</span><span class=p>(()</span> <span class=p>=&gt;</span> <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>||</span> <span class=p>[]);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>await</span> <span class=nx>browser</span><span class=p>.</span><span class=nx>close</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// Merge all errors and sort by time
+</span></span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=p>[...</span><span class=nx>earlyErrors</span><span class=p>,</span> <span class=p>...</span><span class=nx>allErrors</span><span class=p>].</span><span class=nx>sort</span><span class=p>((</span><span class=nx>a</span><span class=p>,</span> <span class=nx>b</span><span class=p>)</span> <span class=p>=&gt;</span> 
+</span></span><span class=line><span class=cl>    <span class=k>new</span> <span class=nb>Date</span><span class=p>(</span><span class=nx>a</span><span class=p>.</span><span class=nx>timestamp</span><span class=p>)</span> <span class=o>-</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>(</span><span class=nx>b</span><span class=p>.</span><span class=nx>timestamp</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Usage example
+</span></span></span><span class=line><span class=cl><span class=nx>captureAllErrors</span><span class=p>(</span><span class=s1>&#39;http://localhost:5173&#39;</span><span class=p>).</span><span class=nx>then</span><span class=p>(</span><span class=nx>errors</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;All captured errors:&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>errors</span><span class=p>,</span> <span class=kc>null</span><span class=p>,</span> <span class=mi>2</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=nx>errors</span><span class=p>.</span><span class=nx>length</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=sb>`\nFound </span><span class=si>${</span><span class=nx>errors</span><span class=p>.</span><span class=nx>length</span><span class=si>}</span><span class=sb> errors total`</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>process</span><span class=p>.</span><span class=nx>exit</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>log</span><span class=p>(</span><span class=s1>&#39;\nNo errors found&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nx>process</span><span class=p>.</span><span class=nx>exit</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>});</span></span></span></code></pre></td></tr></table></div></div></div></div><h4 id=important-notes>Important Notes</h4><ul><li><strong>Playwright v1.40+ users should prefer native events</strong>: <code>page.on('pageerror')</code> and <code>context.on('console')</code> already catch the vast majority of errors</li><li><strong><code>addInitScript()</code> is supplementary only</strong>: Only use when you confirm native events miss certain extreme early errors</li><li><strong>Add listeners at the context level</strong>: This way all new pages inherit these listeners</li><li>Playwright also added <code>page.console_messages()</code> and <code>page.page_errors()</code> methods for direct access to historical messages</li></ul><h3 id=puppeteer-official-solution>Puppeteer Official Solution</h3><p>Puppeteer has provided the corresponding solution since its first version: the <strong><code>evaluateOnNewDocument()</code> method</strong>.</p><h4 id=official-documentation-1>Official Documentation</h4><blockquote><p>&ldquo;The function is invoked upon the following scenarios: whenever the page is navigated; whenever the child frame is attached or navigated. The function is invoked after the document was created but before any of its scripts were run.&rdquo;</p></blockquote><h4 id=implementation-code>Implementation Code</h4><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>const</span> <span class=nx>puppeteer</span> <span class=o>=</span> <span class=nx>require</span><span class=p>(</span><span class=s1>&#39;puppeteer-core&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>async</span> <span class=kd>function</span> <span class=nx>captureAllErrors</span><span class=p>(</span><span class=nx>url</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>browser</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>puppeteer</span><span class=p>.</span><span class=nx>launch</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=nx>headless</span><span class=o>:</span> <span class=s1>&#39;new&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nx>executablePath</span><span class=o>:</span> <span class=s1>&#39;/usr/bin/google-chrome&#39;</span><span class=p>,</span> <span class=c1>// Adjust for your system
+</span></span></span><span class=line><span class=cl>    <span class=nx>args</span><span class=o>:</span> <span class=p>[</span><span class=s1>&#39;--no-sandbox&#39;</span><span class=p>,</span> <span class=s1>&#39;--disable-setuid-sandbox&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>page</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>browser</span><span class=p>.</span><span class=nx>newPage</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// ✅ Key: add evaluation script before navigation
+</span></span></span><span class=line><span class=cl>  <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=nx>evaluateOnNewDocument</span><span class=p>(()</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>=</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>onerror</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>message</span><span class=p>,</span> <span class=nx>source</span><span class=p>,</span> <span class=nx>lineno</span><span class=p>,</span> <span class=nx>colno</span><span class=p>,</span> <span class=nx>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;sync_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>message</span><span class=o>:</span> <span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>source</span><span class=o>:</span> <span class=nx>source</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>line</span><span class=o>:</span> <span class=nx>lineno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>column</span><span class=o>:</span> <span class=nx>colno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>error</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nx>message</span><span class=p>).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>addEventListener</span><span class=p>(</span><span class=s1>&#39;unhandledrejection&#39;</span><span class=p>,</span> <span class=kd>function</span><span class=p>(</span><span class=nx>event</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>event</span><span class=p>.</span><span class=nx>preventDefault</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>      <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;unhandled_promise_rejection&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>reason</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>message</span> <span class=o>||</span> <span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>)).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// Also use CDP protocol to capture all errors (ultimate safeguard)
+</span></span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>client</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=nx>createCDPSession</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=kr>await</span> <span class=nx>client</span><span class=p>.</span><span class=nx>send</span><span class=p>(</span><span class=s1>&#39;Runtime.enable&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>cdpErrors</span> <span class=o>=</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>client</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;Runtime.consoleAPICalled&#39;</span><span class=p>,</span> <span class=nx>event</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>type</span> <span class=o>===</span> <span class=s1>&#39;error&#39;</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>cdpErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;cdp_console_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>args</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>args</span><span class=p>.</span><span class=nx>map</span><span class=p>(</span><span class=nx>arg</span> <span class=p>=&gt;</span> <span class=nx>arg</span><span class=p>.</span><span class=nx>value</span> <span class=o>||</span> <span class=nx>arg</span><span class=p>.</span><span class=nx>description</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>stackTrace</span><span class=o>?</span><span class=p>.</span><span class=nx>callFrames</span> <span class=o>||</span> <span class=p>[],</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>timestamp</span><span class=p>).</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>client</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;Runtime.exceptionThrown&#39;</span><span class=p>,</span> <span class=nx>event</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>cdpErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;cdp_exception&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>message</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>exceptionDetails</span><span class=p>.</span><span class=nx>exception</span><span class=o>?</span><span class=p>.</span><span class=nx>description</span> <span class=o>||</span> <span class=nx>event</span><span class=p>.</span><span class=nx>exceptionDetails</span><span class=p>.</span><span class=nx>text</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>stack</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>exceptionDetails</span><span class=p>.</span><span class=nx>stackTrace</span><span class=o>?</span><span class=p>.</span><span class=nx>callFrames</span> <span class=o>||</span> <span class=p>[],</span>
+</span></span><span class=line><span class=cl>      <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=nx>client</span><span class=p>.</span><span class=nx>on</span><span class=p>(</span><span class=s1>&#39;Runtime.unhandledPromiseRejection&#39;</span><span class=p>,</span> <span class=nx>event</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>cdpErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;cdp_unhandled_rejection&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>reason</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>description</span> <span class=o>||</span> <span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>      <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=kr>goto</span><span class=p>(</span><span class=nx>url</span><span class=p>,</span> <span class=p>{</span> <span class=nx>waitUntil</span><span class=o>:</span> <span class=s1>&#39;networkidle0&#39;</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>cdpErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>      <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;navigation_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>message</span><span class=o>:</span> <span class=nx>e</span><span class=p>.</span><span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>stack</span><span class=o>:</span> <span class=nx>e</span><span class=p>.</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1>// Get early errors
+</span></span></span><span class=line><span class=cl>  <span class=kr>const</span> <span class=nx>earlyErrors</span> <span class=o>=</span> <span class=kr>await</span> <span class=nx>page</span><span class=p>.</span><span class=nx>evaluate</span><span class=p>(()</span> <span class=p>=&gt;</span> <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kr>await</span> <span class=nx>browser</span><span class=p>.</span><span class=nx>close</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Merge all errors
+</span></span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=p>[...</span><span class=nx>earlyErrors</span><span class=p>,</span> <span class=p>...</span><span class=nx>cdpErrors</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=selenium-official-solution>Selenium Official Solution</h3><p>Selenium 4.0+ also provides similar functionality: <strong>DevTools API + Runtime.enable</strong>.</p><h4 id=implementation-code-java>Implementation Code (Java)</h4><div class=code-block-wrapper data-lang=java><div class=code-block-header><div class=code-block-meta><span class=code-language>java</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.chrome.ChromeDriver</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.chrome.ChromeOptions</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.devtools.DevTools</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.devtools.v126.runtime.Runtime</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.devtools.v126.runtime.model.ConsoleAPICalled</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>org.openqa.selenium.devtools.v126.runtime.model.ExceptionThrown</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>java.util.ArrayList</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=nn>java.util.List</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>ErrorCapture</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kd>static</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>main</span><span class=p>(</span><span class=n>String</span><span class=o>[]</span><span class=w> </span><span class=n>args</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>ChromeOptions</span><span class=w> </span><span class=n>options</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>ChromeOptions</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>options</span><span class=p>.</span><span class=na>addArguments</span><span class=p>(</span><span class=s>&#34;--headless=new&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>ChromeDriver</span><span class=w> </span><span class=n>driver</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>ChromeDriver</span><span class=p>(</span><span class=n>options</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>DevTools</span><span class=w> </span><span class=n>devTools</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>driver</span><span class=p>.</span><span class=na>getDevTools</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>devTools</span><span class=p>.</span><span class=na>createSession</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// Enable Runtime domain</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>devTools</span><span class=p>.</span><span class=na>send</span><span class=p>(</span><span class=n>Runtime</span><span class=p>.</span><span class=na>enable</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>List</span><span class=o>&lt;</span><span class=n>Object</span><span class=o>&gt;</span><span class=w> </span><span class=n>allErrors</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>ArrayList</span><span class=o>&lt;&gt;</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// Capture console errors</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>devTools</span><span class=p>.</span><span class=na>addListener</span><span class=p>(</span><span class=n>Runtime</span><span class=p>.</span><span class=na>consoleAPICalled</span><span class=p>(),</span><span class=w> </span><span class=n>event</span><span class=w> </span><span class=o>-&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>if</span><span class=w> </span><span class=p>(</span><span class=n>event</span><span class=p>.</span><span class=na>getType</span><span class=p>().</span><span class=na>equals</span><span class=p>(</span><span class=n>ConsoleAPICalled</span><span class=p>.</span><span class=na>Type</span><span class=p>.</span><span class=na>ERROR</span><span class=p>))</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=s>&#34;Console error: &#34;</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>event</span><span class=p>.</span><span class=na>getArgs</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>allErrors</span><span class=p>.</span><span class=na>add</span><span class=p>(</span><span class=n>event</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// Capture JavaScript exceptions</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>devTools</span><span class=p>.</span><span class=na>addListener</span><span class=p>(</span><span class=n>Runtime</span><span class=p>.</span><span class=na>exceptionThrown</span><span class=p>(),</span><span class=w> </span><span class=n>event</span><span class=w> </span><span class=o>-&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>ExceptionThrown</span><span class=p>.</span><span class=na>ExceptionDetails</span><span class=w> </span><span class=n>details</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>event</span><span class=p>.</span><span class=na>getExceptionDetails</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=s>&#34;Exception thrown: &#34;</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>details</span><span class=p>.</span><span class=na>getException</span><span class=p>().</span><span class=na>get</span><span class=p>().</span><span class=na>getDescription</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>allErrors</span><span class=p>.</span><span class=na>add</span><span class=p>(</span><span class=n>event</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// Navigate to page</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>driver</span><span class=p>.</span><span class=na>get</span><span class=p>(</span><span class=s>&#34;http://localhost:5173&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>driver</span><span class=p>.</span><span class=na>quit</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Official docs: <a href=https://www.selenium.dev/documentation/webdriver/bidirectional/chrome_devtools/>https://www.selenium.dev/documentation/webdriver/bidirectional/chrome_devtools/</a></p><h2 id=universal-solution-html-inline-script-injection-last-line-of-defense>Universal Solution: HTML Inline Script Injection (Last Line of Defense)</h2><p>Although all tools now provide official solutions, adding an inline error capture script at the very top of your HTML remains the safest approach, applicable to <strong>any environment</strong> and <strong>any tool</strong>. This is also the standard approach used by error monitoring services like Sentry.</p><h3 id=implementation-principle>Implementation Principle</h3><p>Inject a global error catcher before the browser parses any other code. This script executes at the very top of <code>&lt;head></code>, before any framework code.</p><h3 id=universal-implementation-works-for-all-frameworks>Universal Implementation (Works for All Frameworks)</h3><p>Edit your HTML entry file, <strong>this code must be placed at the very top of <code>&lt;head></code></strong>:</p><div class=code-block-wrapper data-lang=html><div class=code-block-header><div class=code-block-meta><span class=code-language>html</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-html data-lang=html><span class=line><span class=cl><span class=cp>&lt;!DOCTYPE html&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;</span><span class=nt>html</span> <span class=na>lang</span><span class=o>=</span><span class=s>&#34;en&#34;</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;</span><span class=nt>head</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=c>&lt;!-- Global Early Error Catcher - MUST be before all other scripts --&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>&lt;</span><span class=nt>script</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>=</span> <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span> <span class=o>||</span> <span class=p>[];</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>onerror</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(</span><span class=nx>message</span><span class=p>,</span> <span class=nx>source</span><span class=p>,</span> <span class=nx>lineno</span><span class=p>,</span> <span class=nx>colno</span><span class=p>,</span> <span class=nx>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;sync_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>message</span><span class=o>:</span> <span class=nx>message</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>source</span><span class=o>:</span> <span class=nx>source</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>line</span><span class=o>:</span> <span class=nx>lineno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>column</span><span class=o>:</span> <span class=nx>colno</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>error</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nx>message</span><span class=p>).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nb>window</span><span class=p>.</span><span class=nx>addEventListener</span><span class=p>(</span><span class=s1>&#39;unhandledrejection&#39;</span><span class=p>,</span> <span class=kd>function</span><span class=p>(</span><span class=nx>event</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nx>event</span><span class=p>.</span><span class=nx>preventDefault</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>      <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;unhandled_promise_rejection&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>reason</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>message</span> <span class=o>||</span> <span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=o>?</span><span class=p>.</span><span class=nx>stack</span> <span class=o>||</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>(</span><span class=nb>String</span><span class=p>(</span><span class=nx>event</span><span class=p>.</span><span class=nx>reason</span><span class=p>)).</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=p>});</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kr>const</span> <span class=nx>originalConsoleError</span> <span class=o>=</span> <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>error</span> <span class=o>=</span> <span class=kd>function</span><span class=p>(...</span><span class=nx>args</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=nb>window</span><span class=p>.</span><span class=nx>__earlyErrors</span><span class=p>.</span><span class=nx>push</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=nx>type</span><span class=o>:</span> <span class=s1>&#39;console_error&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>args</span><span class=o>:</span> <span class=nx>args</span><span class=p>.</span><span class=nx>map</span><span class=p>(</span><span class=nx>arg</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=k>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=k>typeof</span> <span class=nx>arg</span> <span class=o>===</span> <span class=s1>&#39;object&#39;</span> <span class=o>?</span> <span class=nx>JSON</span><span class=p>.</span><span class=nx>stringify</span><span class=p>(</span><span class=nx>arg</span><span class=p>,</span> <span class=kc>null</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span> <span class=o>:</span> <span class=nb>String</span><span class=p>(</span><span class=nx>arg</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>          <span class=p>}</span> <span class=k>catch</span> <span class=p>(</span><span class=nx>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nb>String</span><span class=p>(</span><span class=nx>arg</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>          <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}),</span>
+</span></span><span class=line><span class=cl>        <span class=nx>stack</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Error</span><span class=p>().</span><span class=nx>stack</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>timestamp</span><span class=o>:</span> <span class=k>new</span> <span class=nb>Date</span><span class=p>().</span><span class=nx>toISOString</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>      <span class=p>});</span>
+</span></span><span class=line><span class=cl>      <span class=nx>originalConsoleError</span><span class=p>.</span><span class=nx>apply</span><span class=p>(</span><span class=nx>console</span><span class=p>,</span> <span class=nx>args</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>  <span class=p>&lt;/</span><span class=nt>script</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c>&lt;!-- Original content below --&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>&lt;</span><span class=nt>meta</span> <span class=na>charset</span><span class=o>=</span><span class=s>&#34;utf-8&#34;</span> <span class=p>/&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>&lt;</span><span class=nt>link</span> <span class=na>rel</span><span class=o>=</span><span class=s>&#34;icon&#34;</span> <span class=na>href</span><span class=o>=</span><span class=s>&#34;/favicon.png&#34;</span> <span class=p>/&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>&lt;</span><span class=nt>meta</span> <span class=na>name</span><span class=o>=</span><span class=s>&#34;viewport&#34;</span> <span class=na>content</span><span class=o>=</span><span class=s>&#34;width=device-width, initial-scale=1&#34;</span> <span class=p>/&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=c>&lt;!-- Framework injected content --&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;/</span><span class=nt>head</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;</span><span class=nt>body</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=c>&lt;!-- App content --&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;/</span><span class=nt>body</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;/</span><span class=nt>html</span><span class=p>&gt;</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=placement-by-framework>Placement by Framework</h3><ul><li><strong>SvelteKit</strong>: <code>src/app.html</code></li><li><strong>Next.js</strong>: Top of <code>app/layout.tsx</code>, before any imports</li><li><strong>Nuxt.js</strong>: Before <code>&lt;script setup></code> in <code>app.vue</code>, or use <code>nuxt.config.ts</code> <code>app.head.script</code> configuration</li><li><strong>React + Vite</strong>: <code>index.html</code></li><li><strong>Vue + Vite</strong>: <code>index.html</code></li></ul><h2 id=framework-level-global-error-handling-second-line-of-defense>Framework-Level Global Error Handling (Second Line of Defense)</h2><p>As a second line of defense, you should add global error handling in each framework:</p><h3 id=sveltekit>SvelteKit</h3><p>Add in <code>src/hooks.client.js</code>:</p><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>export</span> <span class=kd>function</span> <span class=nx>handleError</span><span class=p>({</span> <span class=nx>error</span><span class=p>,</span> <span class=nx>event</span> <span class=p>})</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;SvelteKit global error:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// Report to log system
+</span></span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Official docs: <a href=https://kit.svelte.dev/docs/hooks#shared-hooks-handleerror>https://kit.svelte.dev/docs/hooks#shared-hooks-handleerror</a></p><h3 id=nextjs>Next.js</h3><p>Add in <code>app/global-error.tsx</code>:</p><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=s1>&#39;use client&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kr>export</span> <span class=k>default</span> <span class=kd>function</span> <span class=nx>GlobalError</span><span class=p>({</span> <span class=nx>error</span><span class=p>,</span> <span class=nx>reset</span> <span class=p>})</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;Next.js global error:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// Report to log system
+</span></span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=o>&lt;</span><span class=nx>html</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl>      <span class=o>&lt;</span><span class=nx>body</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl>        <span class=o>&lt;</span><span class=nx>h2</span><span class=o>&gt;</span><span class=nx>Something</span> <span class=nx>went</span> <span class=nx>wrong</span><span class=o>!&lt;</span><span class=err>/h2&gt;</span>
+</span></span><span class=line><span class=cl>        <span class=o>&lt;</span><span class=nx>button</span> <span class=nx>onClick</span><span class=o>=</span><span class=p>{()</span> <span class=p>=&gt;</span> <span class=nx>reset</span><span class=p>()}</span><span class=o>&gt;</span><span class=nx>Try</span> <span class=nx>again</span><span class=o>&lt;</span><span class=err>/button&gt;</span>
+</span></span><span class=line><span class=cl>      <span class=o>&lt;</span><span class=err>/body&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=o>&lt;</span><span class=err>/html&gt;</span>
+</span></span><span class=line><span class=cl>  <span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Official docs: <a href=https://nextjs.org/docs/app/building-your-application/routing/error-handling#global-error-handling>https://nextjs.org/docs/app/building-your-application/routing/error-handling#global-error-handling</a></p><h3 id=nuxtjs>Nuxt.js</h3><p>Add in <code>plugins/error-handler.ts</code>:</p><div class=code-block-wrapper data-lang=typescript><div class=code-block-header><div class=code-block-meta><span class=code-language>typescript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-typescript data-lang=typescript><span class=line><span class=cl><span class=kr>export</span> <span class=k>default</span> <span class=nx>defineNuxtPlugin</span><span class=p>((</span><span class=nx>nuxtApp</span><span class=p>)</span> <span class=o>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>nuxtApp</span><span class=p>.</span><span class=nx>vueApp</span><span class=p>.</span><span class=nx>config</span><span class=p>.</span><span class=nx>errorHandler</span> <span class=o>=</span> <span class=p>(</span><span class=nx>error</span><span class=p>,</span> <span class=nx>instance</span><span class=p>,</span> <span class=nx>info</span><span class=p>)</span> <span class=o>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;Vue global error:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>,</span> <span class=nx>info</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// Report to log system
+</span></span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>nuxtApp</span><span class=p>.</span><span class=nx>hook</span><span class=p>(</span><span class=s1>&#39;vue:error&#39;</span><span class=p>,</span> <span class=p>(</span><span class=nx>error</span><span class=p>,</span> <span class=nx>instance</span><span class=p>,</span> <span class=nx>info</span><span class=p>)</span> <span class=o>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;Nuxt Vue error:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>,</span> <span class=nx>info</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// Report to log system
+</span></span></span><span class=line><span class=cl>  <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=p>});</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Official docs: <a href=https://nuxt.com/docs/getting-started/error-handling#vue-errors>https://nuxt.com/docs/getting-started/error-handling#vue-errors</a></p><h3 id=react>React</h3><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>class</span> <span class=nx>ErrorBoundary</span> <span class=kr>extends</span> <span class=nx>React</span><span class=p>.</span><span class=nx>Component</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>componentDidCatch</span><span class=p>(</span><span class=nx>error</span><span class=p>,</span> <span class=nx>errorInfo</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;React ErrorBoundary caught error:&#39;</span><span class=p>,</span> <span class=nx>error</span><span class=p>,</span> <span class=nx>errorInfo</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// Report to log system
+</span></span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nx>render</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=k>this</span><span class=p>.</span><span class=nx>props</span><span class=p>.</span><span class=nx>children</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Official docs: <a href=https://react.dev/reference/react/Component#componentdidcatch>https://react.dev/reference/react/Component#componentdidcatch</a></p><h3 id=vue-3>Vue 3</h3><div class=code-block-wrapper data-lang=javascript><div class=code-block-header><div class=code-block-meta><span class=code-language>javascript</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-javascript data-lang=javascript><span class=line><span class=cl><span class=kr>const</span> <span class=nx>app</span> <span class=o>=</span> <span class=nx>createApp</span><span class=p>(</span><span class=nx>App</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>app</span><span class=p>.</span><span class=nx>config</span><span class=p>.</span><span class=nx>errorHandler</span> <span class=o>=</span> <span class=p>(</span><span class=nx>err</span><span class=p>,</span> <span class=nx>instance</span><span class=p>,</span> <span class=nx>info</span><span class=p>)</span> <span class=p>=&gt;</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nx>console</span><span class=p>.</span><span class=nx>error</span><span class=p>(</span><span class=s1>&#39;Vue global error:&#39;</span><span class=p>,</span> <span class=nx>err</span><span class=p>,</span> <span class=nx>info</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// Report to log system
+</span></span></span><span class=line><span class=cl><span class=p>};</span></span></span></code></pre></td></tr></table></div></div></div></div><p>Official docs: <a href=https://vuejs.org/api/application.html#app-config-errorhandler>https://vuejs.org/api/application.html#app-config-errorhandler</a></p><h2 id=quick-debugging-tips>Quick Debugging Tips</h2><p>If you just want to quickly locate an issue without modifying code, try these methods:</p><h3 id=run-in-non-headless-mode>Run in Non-headless Mode</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># agent-browser</span>
+</span></span><span class=line><span class=cl>agent-browser run --headless<span class=o>=</span><span class=nb>false</span> http://localhost:5173
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Puppeteer</span>
+</span></span><span class=line><span class=cl>const <span class=nv>browser</span> <span class=o>=</span> await puppeteer.launch<span class=o>({</span> headless: <span class=nb>false</span> <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Playwright</span>
+</span></span><span class=line><span class=cl>const <span class=nv>browser</span> <span class=o>=</span> await chromium.launch<span class=o>({</span> headless: <span class=nb>false</span> <span class=o>})</span><span class=p>;</span></span></span></code></pre></td></tr></table></div></div></div></div><h3 id=check-build-output>Check Build Output</h3><p>Many early errors can be found during build:</p><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Build project and check warnings and errors</span>
+</span></span><span class=line><span class=cl>npm run build
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Preview build results (exposes many issues hidden in dev mode)</span>
+</span></span><span class=line><span class=cl>npm run preview</span></span></code></pre></td></tr></table></div></div></div></div><h3 id=enable-chrome-detailed-logging>Enable Chrome Detailed Logging</h3><div class=code-block-wrapper data-lang=bash><div class=code-block-header><div class=code-block-meta><span class=code-language>bash</span></div><button class=copy-button aria-label="Copy code">
+<svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+<svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div><div class=code-block-body><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Add these args when starting Chrome</span>
+</span></span><span class=line><span class=cl>chrome --headless<span class=o>=</span>new --enable-logging --v<span class=o>=</span><span class=m>1</span> --log-level<span class=o>=</span><span class=m>0</span> http://localhost:5173</span></span></code></pre></td></tr></table></div></div></div></div><h2 id=common-early-error-causes>Common Early Error Causes</h2><p>These are errors that all frameworks encounter during initialization that are easy to throw and hard to catch:</p><ol><li><strong>Undefined environment variables</strong>: <code>import.meta.env.VITE_XXX</code> or <code>process.env.NEXT_PUBLIC_XXX</code> doesn&rsquo;t exist on the client</li><li><strong>SSR incompatibility</strong>: Third-party libraries accessing <code>window</code> or <code>document</code> during server-side rendering</li><li><strong>Data fetching errors</strong>: <code>load</code> functions, <code>getServerSideProps</code>, or API calls in server components failing</li><li><strong>Hydration mismatches</strong>: Server-rendered HTML not matching client-generated DOM</li><li><strong>Static resource path errors</strong>: Incorrect path configuration for static assets after build</li><li><strong>Module loading failures</strong>: JS chunk loading failures or third-party CDN unavailability</li><li><strong>Dependency version incompatibility</strong>: Version conflicts between different dependencies</li></ol><h2 id=best-practices>Best Practices</h2><p><strong>Choose the right approach for your tool</strong></p><ul><li><strong>agent-browser users</strong>: Use the official <code>--init-script</code> parameter or <code>addinitscript</code> command</li><li><strong>Playwright users</strong>: Prefer native <code>page.on('pageerror')</code> and <code>context.on('console')</code>, only add <code>addInitScript()</code> if you confirm omissions</li><li><strong>Puppeteer users</strong>: Use <code>page.evaluateOnNewDocument()</code></li><li><strong>Selenium users</strong>: Use DevTools API + Runtime.enable</li></ul><p><strong>Combine with CDP protocol as ultimate safeguard</strong></p><p>For the most complex cases, directly use Chrome DevTools Protocol&rsquo;s <code>Runtime.enable</code> method, which catches all possible errors.</p><p><strong>Still recommend inline script in HTML as last line of defense</strong></p><p>Although tools now provide solutions, adding an inline error capture script at the very top of HTML remains the safest approach for any environment.</p><p><strong>Verify tool version meets requirements</strong></p><p>All major tools have solved this issue, especially Playwright v1.40+ and agent-browser (post-April 2026), with significant improvements in native error capture capability.</p><p><strong>Add framework-level global error handling</strong></p><p>As a second line of defense, catch any errors that might slip through.</p><h2 id=conclusion>Conclusion</h2><p><strong>The good news is: this &ldquo;invisible error&rdquo; problem that once plagued countless developers now has perfect official solutions.</strong></p><ul><li><strong>agent-browser</strong> completely solved this issue in PR #1257 on April 17, 2026, adding full pre-navigation init script support</li><li><strong>Playwright</strong> not only provided the solution early, but also greatly improved native capture capability in v1.40+, making it the best-performing tool overall</li><li><strong>Puppeteer</strong> and <strong>Selenium</strong> also have mature solutions</li><li>The core idea behind all solutions is: <strong>inject error capture scripts before page load</strong></li></ul><p>Now you no longer need to worry about &ldquo;page white screen but console empty.&rdquo; Configure using the official methods above, and you&rsquo;ll be able to catch all errors occurring during page initialization.</p><p>If you&rsquo;ve encountered similar &ldquo;invisible errors,&rdquo; feel free to share your experience in the comments.</p><h2 id=references>References</h2><p>[1] GitHub Issue: &ldquo;Puppeteer page.on(&lsquo;pageerror&rsquo;) not catching errors during page load&rdquo; <a href=https://github.com/puppeteer/puppeteer/issues/1933>https://github.com/puppeteer/puppeteer/issues/1933</a></p><p>[2] Chrome DevTools Protocol: Runtime Domain <a href=https://chromedevtools.github.io/devtools-protocol/tot/Runtime/>https://chromedevtools.github.io/devtools-protocol/tot/Runtime/</a></p><p>[3] Playwright Official Documentation: Page Errors <a href=https://playwright.dev/docs/api/class-page#page-event-page-error>https://playwright.dev/docs/api/class-page#page-event-page-error</a></p><p>[4] agent-browser PR #1257: feat(react): React introspection, Web Vitals, and SPA primitives <a href=https://github.com/vercel-labs/agent-browser/pull/1257>https://github.com/vercel-labs/agent-browser/pull/1257</a></p><p>[5] Playwright Official Documentation: addInitScript <a href=https://playwright.dev/docs/api/class-browsercontext#browser-context-add-init-script>https://playwright.dev/docs/api/class-browsercontext#browser-context-add-init-script</a></p><p>[6] Playwright Release Notes: <a href=https://playwright.dev/docs/release-notes>https://playwright.dev/docs/release-notes</a></p><p>[7] Puppeteer Official Documentation: evaluateOnNewDocument <a href=https://pptr.dev/api/core.page.evaluateonnewdocument>https://pptr.dev/api/core.page.evaluateonnewdocument</a></p><p>[8] Selenium Official Documentation: Chrome DevTools <a href=https://www.selenium.dev/documentation/webdriver/bidirectional/chrome_devtools/>https://www.selenium.dev/documentation/webdriver/bidirectional/chrome_devtools/</a></p><p>[9] Sentry Documentation: Install for Browser JavaScript <a href=https://docs.sentry.io/platforms/javascript/install/>https://docs.sentry.io/platforms/javascript/install/</a></p><p>[10] SvelteKit Official Documentation: Hooks <a href=https://kit.svelte.dev/docs/hooks>https://kit.svelte.dev/docs/hooks</a></p><p>[11] Next.js Official Documentation: Error Handling <a href=https://nextjs.org/docs/app/building-your-application/routing/error-handling>https://nextjs.org/docs/app/building-your-application/routing/error-handling</a></p><p>[12] Nuxt Official Documentation: Error Handling <a href=https://nuxt.com/docs/getting-started/error-handling>https://nuxt.com/docs/getting-started/error-handling</a></p><p>[13] React Official Documentation: Error Boundaries <a href=https://react.dev/reference/react/Component#componentdidcatch>https://react.dev/reference/react/Component#componentdidcatch</a></p><p>[14] Vue Official Documentation: Error Handling <a href=https://vuejs.org/api/application.html#app-config-errorhandler>https://vuejs.org/api/application.html#app-config-errorhandler</a></p></div><footer class=post-footer><div class=post-tags><a class=tag-chip href=/en/tags/headless-chrome/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Headless Chrome
+</a><a class=tag-chip href=/en/tags/puppeteer/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Puppeteer
+</a><a class=tag-chip href=/en/tags/playwright/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Playwright
+</a><a class=tag-chip href=/en/tags/selenium/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Selenium
+</a><a class=tag-chip href=/en/tags/agent-browser/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Agent-Browser
+</a><a class=tag-chip href=/en/tags/frontend-automation/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Frontend Automation
+</a><a class=tag-chip href=/en/tags/error-capture/><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+Error Capture</a></div><div class=donation-section><button class=donation-btn id=donation-btn type=button>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5.0 00-7.78.0L12 5.67l-1.06-1.06a5.5 5.5.0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5.0 000-7.78z"/></svg>
+请我喝杯咖啡吧 ヾ(^▽^*)))</button></div><div class=donation-modal id=donation-modal aria-hidden=true><div class=donation-modal__overlay id=donation-modal-overlay></div><div class=donation-modal__content><button class=donation-modal__close id=donation-modal-close aria-label=Close>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class=donation-modal__tabs><button class="donation-modal__tab active" data-tab=wechat>WeChat Pay</button>
+<button class=donation-modal__tab data-tab=alipay>Alipay</button></div><div class=donation-modal__qr id=donation-qr><div class=donation-modal__qr-item id=donation-qr-wechat><img src=/imgs/wechat-pay.png alt="WeChat Pay" loading=lazy>
+<span>WeChat Pay</span></div><div class="donation-modal__qr-item hidden" id=donation-qr-alipay><img src=/imgs/ali-pay.png alt=Alipay loading=lazy>
+<span>Alipay</span></div></div></div></div><div class="cc-badge cc-badge--normal"><a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="noopener noreferrer" class=cc-badge__link><svg class="cc-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41.0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">CC</text></svg>
+<span class=cc-badge__text>This work is licensed under
+<strong>BY NC SA</strong> 4.0</span></a></div><div class=post-end-marker>~ end ~</div></footer></article></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
+</a><a href=https://gitee.com/mickeybee class=footer-social-link aria-label=Gitee target=_blank rel="noopener noreferrer">Gitee
+</a><a href=mailto:mickey_zzc@126.com class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
+<a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
+<span class=footer-powered>Powered by Hugo <a href=https://www.mlsbs.top/#/studio target=_blank rel="noopener noreferrer">Mi&Bee Studio</a></span></div></div></footer></footer><script src=/js/analytics.min.3f9241e7aaa6e429da2027cd3eeeb074bf049f5e3ed8985e53c171f4e0064032.js defer></script><script src=/js/theme-toggle.min.ca2f0e6f2a20d20bfdd7aafec83b900f2b94a0f3e489f963464afeac1955ce27.js defer></script><script src=/js/code-copy.min.9baddcc33a62a364b9d4043d93758cce228ec27d980aa04bf97da5f2858f0aa2.js defer></script><script src=/js/lightbox.min.76237719ff9523ded306f905e6cb1313752a0ca6e50048ce4d483fd686ea3091.js defer></script><script src=/js/video-geo-switch.min.a58f49b1c8111921af6a7bbc5606301b3dc35738fe504d253333e2cf48b0c05b.js defer></script><script src=/js/main.min.dfd40c40c7bd1eeec0a1ec230089d4bd7dc4d73b9c7e7b9afe6bb8b6cb56c1e9.js defer></script><script src=/js/sidebar.min.f2458ba90c7a21e2dcd9d730ec867b2418fc20fe4999f269fd6a9cc1db0792e2.js defer></script><script src=/js/greeting.min.5340c64bad009f10fd09ec0b27d0f32b179b44faa2a0f077cc34d3f68e5c3d14.js defer></script><script src=/js/reading-progress.min.111708dd67be85b2b213657dd4881601618c675f9984e17867786ded481bcc6e.js defer></script><div class=search-overlay id=search-overlay aria-hidden=true data-index-url=/en/searchindexes.json><div class=search-modal><div class=search-input-wrapper><svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type=search id=search-input class=search-input placeholder="Search posts..." autocomplete=off>
+<button class=search-close id=search-close aria-label="Close search">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class=search-results id=search-results></div><div class=search-footer><kbd>Enter</kbd> to select · <kbd>Esc</kbd> to close</div></div></div><button class=back-to-top id=back-to-top aria-label="Back to top" hidden>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+<span class=back-to-top__percent id=back-to-top-percent>0%</span>
+</button>
+<script src=/js/back-to-top.min.9ac0813217736514beea9e0941cd794b17270a0ec0cb5ad9a6cd855a21d3f97d.js defer></script><script src=/js/search.min.31e7977ef76b2a9d6c4281181b6cb8b1cf9e796907721bdb38c8bc6596256ae0.js defer></script><script src=/js/toc.min.573b38485c50c34b76aa927c8358db23175557906b3e5b526688133262661583.js defer></script><script src=/js/donation.min.689666b6a1140a5fff52c84f736665314eb24ed0fd6e2b48f41b66be05ae2244.js defer></script><script src=/js/series-sort.min.213c020a0565480d90abe2735d1a6a6bbd79f00839112a0ccaac37c55788f84f.js defer></script><script src=/js/lang-switch.min.8b1ebf1a0fbec461a998db37669100cb0905f553a15a0bc3ea97510d939a2830.js defer></script></body></html>
