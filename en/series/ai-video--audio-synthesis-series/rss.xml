@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>AI Video &amp; Audio Synthesis Series on Mi&amp;Bee Blog</title><link>https://blog.mickeyzzc.tech/en/series/ai-video--audio-synthesis-series/</link><description>Recent content in AI Video &amp; Audio Synthesis Series on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Sat, 11 Jul 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://blog.mickeyzzc.tech/en/series/ai-video--audio-synthesis-series/rss.xml" rel="self" type="application/rss+xml"/><item><title>Code-Generated Promo Videos (1): Tech Stack Overview &amp; Remotion Footage</title><link>https://blog.mickeyzzc.tech/en/posts/aihelper/ai-video-audio-synthesis-1/</link><pubDate>Sat, 11 Jul 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/aihelper/ai-video-audio-synthesis-1/</guid><description>&lt;p&gt;This article is based on hands-on experience from a real project — the MiBee NVR open-source 45-second promo video. You will learn how to &lt;strong&gt;generate video footage by code&lt;/strong&gt; (Remotion), &lt;strong&gt;produce AI voiceovers&lt;/strong&gt; (edge-tts), &lt;strong&gt;synthesize BGM offline&lt;/strong&gt; (numpy), and &lt;strong&gt;mux everything into a final video&lt;/strong&gt; with ffmpeg. All steps are ready to follow.&lt;/p&gt;
+&lt;h2 id="reliability-notes"&gt;Reliability Notes&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The original material comes from the MiBee NVR promo development engineering notes and has been battle-tested. The following corrections and supplements have been made during this rewrite:&lt;/p&gt;</description></item><item><title>Code-Generated Promo Videos (2): edge-tts Voiceover &amp; Multilingual Batch Rendering</title><link>https://blog.mickeyzzc.tech/en/posts/aihelper/ai-video-audio-synthesis-2/</link><pubDate>Sat, 11 Jul 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/aihelper/ai-video-audio-synthesis-2/</guid><description>&lt;h2 id="edge-tts-in-practice"&gt;edge-tts in Practice&lt;/h2&gt;
+&lt;p&gt;This is Part 2 of the series, focusing on Text-to-Speech (TTS) — using &lt;code&gt;edge-tts&lt;/code&gt; (Microsoft Azure&amp;rsquo;s free neural TTS interface) to batch-generate multilingual, multi-voice voiceover files. All code comes from a real project (MiBee NVR 45-second promo) and is ready to reuse.&lt;/p&gt;
+&lt;h3 id="installation"&gt;Installation&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;edge-tts&lt;/code&gt; is a Python async library. Install it inside a virtual environment:&lt;/p&gt;
+&lt;div class="code-block-wrapper" data-lang="bash"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;&lt;span class="code-language"&gt;bash&lt;/span&gt;&lt;/div&gt;
+ 
+ &lt;button class="copy-button" aria-label="Copy code"&gt;
+ &lt;svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;rect x="9" y="9" width="13" height="13" rx="2" ry="2"/&gt;&lt;path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/&gt;&lt;/svg&gt;
+ &lt;svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt;
+ &lt;/button&gt;
+ 
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;python -m venv .venv
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;.venv&lt;span class="se"&gt;\S&lt;/span&gt;cripts&lt;span class="se"&gt;\p&lt;/span&gt;ip install edge-tts numpy&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;code&gt;numpy&lt;/code&gt; is not a dependency of edge-tts, but it will be needed for BGM synthesis (Part 3 of this series), so installing it here saves a step.&lt;/p&gt;</description></item><item><title>Code-Generated Promo Videos (3): numpy Offline Ethereal BGM Synthesis</title><link>https://blog.mickeyzzc.tech/en/posts/aihelper/ai-video-audio-synthesis-3/</link><pubDate>Sat, 11 Jul 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/aihelper/ai-video-audio-synthesis-3/</guid><description>&lt;h2 id="offline-bgm-synthesis-with-numpy"&gt;Offline BGM Synthesis with numpy&lt;/h2&gt;
+&lt;p&gt;The third challenge is background music. This project uses numpy to &lt;strong&gt;synthesize a 45-second ethereal BGM on the fly&lt;/strong&gt; — zero copyright risk, fully controllable style.&lt;/p&gt;
+&lt;h3 id="why-not-a-music-library"&gt;Why Not a Music Library&lt;/h3&gt;
+&lt;p&gt;Stock music libraries have three problems:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Copyright ambiguity&lt;/strong&gt;: Free tracks come with varying licenses; commercial use may be risky.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Style mismatch&lt;/strong&gt;: Finding a 45-second ethereal track that doesn&amp;rsquo;t compete with voiceover and can be trimmed to any length is nearly impossible.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;No batch tweaking&lt;/strong&gt;: Need to adjust volume, change reverb, or switch keys? A fixed recording gives you no control.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Code generation flips this: tweak a few parameters, re-run, and you get a new version instantly.&lt;/p&gt;</description></item><item><title>Code-Generated Promo Videos (4): ffmpeg Muxing, End-to-End Workflow &amp; Pitfall Cookbook</title><link>https://blog.mickeyzzc.tech/en/posts/aihelper/ai-video-audio-synthesis-4/</link><pubDate>Sat, 11 Jul 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/aihelper/ai-video-audio-synthesis-4/</guid><description>&lt;h2 id="overview"&gt;Overview&lt;/h2&gt;
+&lt;p&gt;This is the final installment of the series. The previous three parts covered generating footage with Remotion, batch voiceover with edge-tts, and offline BGM synthesis with numpy. This part brings everything together: using &lt;strong&gt;ffmpeg filter_complex&lt;/strong&gt; to mux the silent video, 7 voice clips, and one BGM into the final export — along with the end-to-end workflow, a pitfall cookbook, and the underlying principles.&lt;/p&gt;
+&lt;p&gt;After reading, you will understand:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Why &lt;code&gt;-c:v copy&lt;/code&gt; is much faster and lossless compared to re-encoding&lt;/li&gt;
+&lt;li&gt;How to arrange multiple voice clips on a sequential timeline to avoid overlap&lt;/li&gt;
+&lt;li&gt;The mathematical meaning of each filter in &lt;code&gt;filter_complex&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;How to batch-produce 6 language variants with one command&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="5-ffmpeg-muxing-the-core"&gt;5. ffmpeg Muxing (The Core)&lt;/h2&gt;
+&lt;h3 id="51-overall-approach"&gt;5.1 Overall Approach&lt;/h3&gt;
+&lt;p&gt;The muxing stage has a simple job: pack three things into one MP4.&lt;/p&gt;</description></item></channel></rss>
