@@ -7,13 +7,84 @@
 &lt;h2 id="three-error-handling-paradigms"&gt;Three Error Handling Paradigms&lt;/h2&gt;
 &lt;p&gt;Error handling is one of the most debated topics in programming language design. Go&amp;rsquo;s multiple return values, Rust&amp;rsquo;s &lt;code&gt;Result&amp;lt;T, E&amp;gt;&lt;/code&gt; enum, and Zig&amp;rsquo;s error union type represent three fundamentally different philosophies. This article assumes you have Go or Rust experience and uses that as a reference frame to understand Zig&amp;rsquo;s design.&lt;/p&gt;
 &lt;h3 id="go-multi-return--if-err--nil"&gt;Go: Multi-return + if err != nil&lt;/h3&gt;
-&lt;p&gt;Go&amp;rsquo;s philosophy is &amp;ldquo;explicit over implicit&amp;rdquo; — functions can return multiple values, and the convention is that the last return value is &lt;code&gt;error&lt;/code&gt;. Every call site must handle it:&lt;/p&gt;</description></item><item><title>Advanced eBPF Memory Observability: Container Tracing and Rust Aya</title><link>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-oom-advance/</link><pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-oom-advance/</guid><description>&lt;p&gt;The first two articles covered eBPF fundamentals and OOM Killer event tracing. This article goes deeper: container-level OOM pinpointing, real-time memory allocation rate tracking, and implementing the same functionality with the Rust Aya framework.&lt;/p&gt;
-&lt;h2 id="container-level-oom-pinpointing"&gt;Container-Level OOM Pinpointing&lt;/h2&gt;
-&lt;p&gt;In Kubernetes, &amp;ldquo;a Pod OOM&amp;rsquo;d&amp;rdquo; is actually a vague statement. A Pod consists of multiple containers, each belonging to different cgroups. eBPF can drill through this layer and precisely identify which container and which process caused the OOM.&lt;/p&gt;</description></item><item><title>Zig Memory Management: The Explicit Allocator Pattern</title><link>https://blog.mickeyzzc.tech/en/posts/programming/zig-memory-allocators/</link><pubDate>Wed, 24 Jun 2026 16:20:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/programming/zig-memory-allocators/</guid><description>&lt;p&gt;This article is based on Zig 0.16.&lt;/p&gt;
+&lt;p&gt;Go&amp;rsquo;s philosophy is &amp;ldquo;explicit over implicit&amp;rdquo; — functions can return multiple values, and the convention is that the last return value is &lt;code&gt;error&lt;/code&gt;. Every call site must handle it:&lt;/p&gt;</description></item><item><title>Zig Memory Management: The Explicit Allocator Pattern</title><link>https://blog.mickeyzzc.tech/en/posts/programming/zig-memory-allocators/</link><pubDate>Wed, 24 Jun 2026 16:20:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/programming/zig-memory-allocators/</guid><description>&lt;p&gt;This article is based on Zig 0.16.&lt;/p&gt;
 &lt;p&gt;In the previous articles we covered Zig&amp;rsquo;s basic syntax and error handling. Now we arrive at the most distinctive part of Zig—&lt;strong&gt;memory management&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;If you come from Go or Rust, Zig&amp;rsquo;s memory philosophy will feel unfamiliar: it provides neither garbage collection nor an ownership system. Instead, it chooses a fundamentally different path—the &lt;strong&gt;Allocator Pattern&lt;/strong&gt;. The core convention is remarkably simple, yet far-reaching:&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;Any function that might allocate memory must accept a &lt;code&gt;std.mem.Allocator&lt;/code&gt; parameter.&lt;/p&gt;</description></item><item><title>eBPF Language Battle: Full-Stack Comparison of C, Rust, and Zig</title><link>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-zig-lang-dev/</link><pubDate>Fri, 26 Jun 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-zig-lang-dev/</guid><description>&lt;p&gt;The previous articles on OOM tracing all used C for eBPF kernel-space programs. This is natural — C is eBPF&amp;rsquo;s &amp;ldquo;native language,&amp;rdquo; with the verifier, CO-RE, and libbpf toolchain all designed around C. But if you&amp;rsquo;ve followed the eBPF ecosystem, you&amp;rsquo;ll notice a clear trend: &lt;strong&gt;more and more people are writing eBPF in languages other than C&lt;/strong&gt;. Rust&amp;rsquo;s Aya framework is already used in production by the Solana validator and Kubernetes Gateway API; meanwhile, Zig is trying to bring a new development experience with &lt;code&gt;comptime&lt;/code&gt;, explicit allocation, and first-class C interop.&lt;/p&gt;</description></item><item><title>Implementing Image Restoration in Go and Rust</title><link>https://blog.mickeyzzc.tech/en/posts/physical-world/image-restoration-go-rust/</link><pubDate>Sun, 28 Jun 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/physical-world/image-restoration-go-rust/</guid><description>&lt;p&gt;This post implements core image restoration algorithms in Go and Rust, comparing the two languages&amp;rsquo; approaches to image processing through practical code.&lt;/p&gt;
+&lt;p&gt;Any function that might allocate memory must accept a &lt;code&gt;std.mem.Allocator&lt;/code&gt; parameter.&lt;/p&gt;</description></item><item><title>Rust P2P Development: From Ping to Gossipsub</title><link>https://blog.mickeyzzc.tech/en/posts/network/rust-p2p-development/</link><pubDate>Mon, 22 Aug 2022 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/network/rust-p2p-development/</guid><description>&lt;p&gt;Rust&amp;rsquo;s ownership model and zero-cost abstractions make it an ideal language for implementing P2P network protocols. The Rust implementation of libp2p (rust-libp2p) provides a complete protocol stack from transport to application layer.&lt;/p&gt;
+&lt;h2 id="environment-setup"&gt;Environment Setup&lt;/h2&gt;
+&lt;p&gt;Configure dependencies in &lt;code&gt;Cargo.toml&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="code-block-wrapper" data-lang="toml"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;&lt;span class="code-language"&gt;toml&lt;/span&gt;&lt;/div&gt;
+ 
+ &lt;button class="copy-button" aria-label="Copy code"&gt;
+ &lt;svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;rect x="9" y="9" width="13" height="13" rx="2" ry="2"/&gt;&lt;path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/&gt;&lt;/svg&gt;
+ &lt;svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt;
+ &lt;/button&gt;
+ 
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;span class="lnt"&gt;7
+&lt;/span&gt;&lt;span class="lnt"&gt;8
+&lt;/span&gt;&lt;span class="lnt"&gt;9
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-toml" data-lang="toml"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;dependencies&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;libp2p&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;version&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;0.53&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;features&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;tokio&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;tcp&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;quic&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;noise&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;yamux&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;mplex&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;ping&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;identify&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;kad&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;gossipsub&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;relay&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;dcutr&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;macros&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;tokio&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;version&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;1.0&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;features&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;full&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;tokio-stream&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;0.1&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;futures&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;0.3&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;anyhow&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;1.0&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Create the project:&lt;/p&gt;</description></item><item><title>Hands-On: Building a Distributed File Sharing System</title><link>https://blog.mickeyzzc.tech/en/posts/network/p2p-file-sharing-system/</link><pubDate>Mon, 18 Mar 2024 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/network/p2p-file-sharing-system/</guid><description>&lt;p&gt;Combining theory with practice, we&amp;rsquo;ll build a real distributed file sharing system. This system will leverage technologies introduced in previous articles — Kademlia DHT for node discovery and metadata distribution, Gossipsub for broadcasting, and a custom file transfer protocol.&lt;/p&gt;
+&lt;h2 id="system-architecture"&gt;System Architecture&lt;/h2&gt;
+&lt;div class="code-block-wrapper" data-lang="mermaid"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;
+ &lt;span class="code-language"&gt;mermaid&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;
+ &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
+ subgraph Application
+ CLI[&amp;#34;CLI Interface&amp;#34;]
+ API[&amp;#34;REST API&amp;#34;]
+ end
+
+ subgraph Business Logic
+ Index[&amp;#34;File Index Manager&amp;#34;]
+ Scheduler[&amp;#34;Piece Download Scheduler&amp;#34;]
+ Verify[&amp;#34;Verify &amp;amp; Reassemble&amp;#34;]
+ end
+
+ subgraph P2P Network
+ Discovery[&amp;#34;Kad-DHT&amp;lt;br/&amp;gt;Peer Discovery &amp;#43; Metadata&amp;#34;]
+ Broadcast[&amp;#34;GossipSub&amp;lt;br/&amp;gt;Message Broadcast&amp;#34;]
+ Transfer[&amp;#34;Custom Protocol&amp;lt;br/&amp;gt;File Transfer&amp;#34;]
+ end
+
+ CLI --&amp;gt; Index
+ API --&amp;gt; Index
+ Index --&amp;gt; Scheduler
+ Scheduler --&amp;gt; Verify
+ Index --&amp;gt; Discovery
+ Scheduler --&amp;gt; Transfer
+ Broadcast --&amp;gt;|&amp;#34;New Peer Notification&amp;#34;| Index&lt;/code&gt;&lt;/pre&gt;
+ &lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Core design principles:&lt;/p&gt;</description></item><item><title>Building Nmap Fingerprint Loading Tools: Go vs Rust vs Zig Compared</title><link>https://blog.mickeyzzc.tech/en/posts/network/nmap-fingerprint-tool-dev-go-rust-zig/</link><pubDate>Thu, 09 Jul 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/network/nmap-fingerprint-tool-dev-go-rust-zig/</guid><description>&lt;p&gt;Nmap has the world&amp;rsquo;s most comprehensive network fingerprint database — over 6,000 service probe signatures and 5,000+ OS fingerprints. But its fingerprint engine is implemented in C++, tightly coupled to PCRE2 regex and nsock async I/O. Reusing it directly means accepting Nmap&amp;rsquo;s entire architectural constraints.&lt;/p&gt;
+&lt;p&gt;Building a custom fingerprint loading tool is valuable when you need to embed the fingerprint database into a standalone binary for offline scanning, integrate fingerprint matching into an automated pipeline, bypass Nmap&amp;rsquo;s licensing constraints for customized scan strategies, or use it as a foundational component in a security product.&lt;/p&gt;</description></item><item><title>Implementing Image Restoration in Go and Rust</title><link>https://blog.mickeyzzc.tech/en/posts/physical-world/image-restoration-go-rust/</link><pubDate>Sun, 28 Jun 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/physical-world/image-restoration-go-rust/</guid><description>&lt;p&gt;This post implements core image restoration algorithms in Go and Rust, comparing the two languages&amp;rsquo; approaches to image processing through practical code.&lt;/p&gt;
 &lt;div class="blur-wrap" id="blur-0"&gt;
  &lt;div class="blur-head"&gt;
  &lt;span&gt;原始图像&lt;/span&gt;
@@ -104,44 +175,7 @@ if(!rm)timer=setInterval(next,3000)
 &lt;/div&gt;
 
 &lt;h2 id="go-implementation"&gt;Go Implementation&lt;/h2&gt;
-&lt;p&gt;Go&amp;rsquo;s standard &lt;code&gt;image&lt;/code&gt; library provides image encoding/decoding and pixel access. The following implementation demonstrates how to implement bicubic interpolation, Gaussian blur, and Laplacian sharpening in Go.&lt;/p&gt;</description></item><item><title>Rust P2P Development: From Ping to Gossipsub</title><link>https://blog.mickeyzzc.tech/en/posts/network/rust-p2p-development/</link><pubDate>Mon, 22 Aug 2022 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/network/rust-p2p-development/</guid><description>&lt;p&gt;Rust&amp;rsquo;s ownership model and zero-cost abstractions make it an ideal language for implementing P2P network protocols. The Rust implementation of libp2p (rust-libp2p) provides a complete protocol stack from transport to application layer.&lt;/p&gt;
-&lt;h2 id="environment-setup"&gt;Environment Setup&lt;/h2&gt;
-&lt;p&gt;Configure dependencies in &lt;code&gt;Cargo.toml&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="code-block-wrapper" data-lang="toml"&gt;
- &lt;div class="code-block-header"&gt;
- &lt;div class="code-block-meta"&gt;&lt;span class="code-language"&gt;toml&lt;/span&gt;&lt;/div&gt;
- 
- &lt;button class="copy-button" aria-label="Copy code"&gt;
- &lt;svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;rect x="9" y="9" width="13" height="13" rx="2" ry="2"/&gt;&lt;path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/&gt;&lt;/svg&gt;
- &lt;svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt;
- &lt;/button&gt;
- 
- &lt;/div&gt;
- &lt;div class="code-block-body"&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
-&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
-&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
-&lt;/span&gt;&lt;span class="lnt"&gt;2
-&lt;/span&gt;&lt;span class="lnt"&gt;3
-&lt;/span&gt;&lt;span class="lnt"&gt;4
-&lt;/span&gt;&lt;span class="lnt"&gt;5
-&lt;/span&gt;&lt;span class="lnt"&gt;6
-&lt;/span&gt;&lt;span class="lnt"&gt;7
-&lt;/span&gt;&lt;span class="lnt"&gt;8
-&lt;/span&gt;&lt;span class="lnt"&gt;9
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
-&lt;td class="lntd"&gt;
-&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-toml" data-lang="toml"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;dependencies&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;libp2p&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;version&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;0.53&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;features&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;tokio&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;tcp&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;quic&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;noise&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;yamux&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;mplex&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;ping&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;identify&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;kad&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;gossipsub&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;relay&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;dcutr&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;macros&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;tokio&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;version&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;1.0&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;features&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;full&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;tokio-stream&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;0.1&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;futures&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;0.3&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nx"&gt;anyhow&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;1.0&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-&lt;/div&gt;
-&lt;/div&gt;&lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;Create the project:&lt;/p&gt;</description></item><item><title>YOLO Rust Deployment Guide</title><link>https://blog.mickeyzzc.tech/en/posts/aihelper/yolo-rust-deployment/</link><pubDate>Fri, 29 May 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/aihelper/yolo-rust-deployment/</guid><description>&lt;h2 id="chapter-9-complete-yolo-tutorial-with-rust"&gt;Chapter 9: Complete YOLO Tutorial with Rust&lt;/h2&gt;
+&lt;p&gt;Go&amp;rsquo;s standard &lt;code&gt;image&lt;/code&gt; library provides image encoding/decoding and pixel access. The following implementation demonstrates how to implement bicubic interpolation, Gaussian blur, and Laplacian sharpening in Go.&lt;/p&gt;</description></item><item><title>YOLO Rust Deployment Guide</title><link>https://blog.mickeyzzc.tech/en/posts/aihelper/yolo-rust-deployment/</link><pubDate>Fri, 29 May 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/aihelper/yolo-rust-deployment/</guid><description>&lt;h2 id="chapter-9-complete-yolo-tutorial-with-rust"&gt;Chapter 9: Complete YOLO Tutorial with Rust&lt;/h2&gt;
 &lt;p&gt;With its three core characteristics of memory safety, zero-cost abstractions, and extreme performance, Rust has become the ultimate choice for production-grade YOLO deployment. In edge computing and high-concurrency scenarios, Rust&amp;rsquo;s performance advantages are particularly significant.&lt;/p&gt;
 &lt;h2 id="yolo-related-libraries-in-rust-ecosystem"&gt;YOLO-related Libraries in Rust Ecosystem&lt;/h2&gt;
 &lt;table&gt;
@@ -199,40 +233,6 @@ if(!rm)timer=setInterval(next,3000)
 			&lt;/tr&gt;
 	&lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;&lt;strong&gt;Core Features Comparison:&lt;/strong&gt;&lt;/p&gt;</description></item><item><title>Hands-On: Building a Distributed File Sharing System</title><link>https://blog.mickeyzzc.tech/en/posts/network/p2p-file-sharing-system/</link><pubDate>Mon, 18 Mar 2024 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/network/p2p-file-sharing-system/</guid><description>&lt;p&gt;Combining theory with practice, we&amp;rsquo;ll build a real distributed file sharing system. This system will leverage technologies introduced in previous articles — Kademlia DHT for node discovery and metadata distribution, Gossipsub for broadcasting, and a custom file transfer protocol.&lt;/p&gt;
-&lt;h2 id="system-architecture"&gt;System Architecture&lt;/h2&gt;
-&lt;div class="code-block-wrapper" data-lang="mermaid"&gt;
- &lt;div class="code-block-header"&gt;
- &lt;div class="code-block-meta"&gt;
- &lt;span class="code-language"&gt;mermaid&lt;/span&gt;
- &lt;/div&gt;
- &lt;/div&gt;
- &lt;div class="code-block-body"&gt;
- &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
- subgraph Application
- CLI[&amp;#34;CLI Interface&amp;#34;]
- API[&amp;#34;REST API&amp;#34;]
- end
-
- subgraph Business Logic
- Index[&amp;#34;File Index Manager&amp;#34;]
- Scheduler[&amp;#34;Piece Download Scheduler&amp;#34;]
- Verify[&amp;#34;Verify &amp;amp; Reassemble&amp;#34;]
- end
-
- subgraph P2P Network
- Discovery[&amp;#34;Kad-DHT&amp;lt;br/&amp;gt;Peer Discovery &amp;#43; Metadata&amp;#34;]
- Broadcast[&amp;#34;GossipSub&amp;lt;br/&amp;gt;Message Broadcast&amp;#34;]
- Transfer[&amp;#34;Custom Protocol&amp;lt;br/&amp;gt;File Transfer&amp;#34;]
- end
-
- CLI --&amp;gt; Index
- API --&amp;gt; Index
- Index --&amp;gt; Scheduler
- Scheduler --&amp;gt; Verify
- Index --&amp;gt; Discovery
- Scheduler --&amp;gt; Transfer
- Broadcast --&amp;gt;|&amp;#34;New Peer Notification&amp;#34;| Index&lt;/code&gt;&lt;/pre&gt;
- &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;Core design principles:&lt;/p&gt;</description></item><item><title>Building Nmap Fingerprint Loading Tools: Go vs Rust vs Zig Compared</title><link>https://blog.mickeyzzc.tech/en/posts/network/nmap-fingerprint-tool-dev-go-rust-zig/</link><pubDate>Thu, 09 Jul 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/network/nmap-fingerprint-tool-dev-go-rust-zig/</guid><description>&lt;p&gt;Nmap has the world&amp;rsquo;s most comprehensive network fingerprint database — over 6,000 service probe signatures and 5,000+ OS fingerprints. But its fingerprint engine is implemented in C++, tightly coupled to PCRE2 regex and nsock async I/O. Reusing it directly means accepting Nmap&amp;rsquo;s entire architectural constraints.&lt;/p&gt;
-&lt;p&gt;Building a custom fingerprint loading tool is valuable when you need to embed the fingerprint database into a standalone binary for offline scanning, integrate fingerprint matching into an automated pipeline, bypass Nmap&amp;rsquo;s licensing constraints for customized scan strategies, or use it as a foundational component in a security product.&lt;/p&gt;</description></item></channel></rss>
+&lt;p&gt;&lt;strong&gt;Core Features Comparison:&lt;/strong&gt;&lt;/p&gt;</description></item><item><title>Advanced eBPF Memory Observability: Container Tracing and Rust Aya</title><link>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-oom-advance/</link><pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-oom-advance/</guid><description>&lt;p&gt;The first two articles covered eBPF fundamentals and OOM Killer event tracing. This article goes deeper: container-level OOM pinpointing, real-time memory allocation rate tracking, and implementing the same functionality with the Rust Aya framework.&lt;/p&gt;
+&lt;h2 id="container-level-oom-pinpointing"&gt;Container-Level OOM Pinpointing&lt;/h2&gt;
+&lt;p&gt;In Kubernetes, &amp;ldquo;a Pod OOM&amp;rsquo;d&amp;rdquo; is actually a vague statement. A Pod consists of multiple containers, each belonging to different cgroups. eBPF can drill through this layer and precisely identify which container and which process caused the OOM.&lt;/p&gt;</description></item><item><title>eBPF Language Battle: Full-Stack Comparison of C, Rust, and Zig</title><link>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-zig-lang-dev/</link><pubDate>Fri, 26 Jun 2026 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/telemetry/ebpf-zig-lang-dev/</guid><description>&lt;p&gt;The previous articles on OOM tracing all used C for eBPF kernel-space programs. This is natural — C is eBPF&amp;rsquo;s &amp;ldquo;native language,&amp;rdquo; with the verifier, CO-RE, and libbpf toolchain all designed around C. But if you&amp;rsquo;ve followed the eBPF ecosystem, you&amp;rsquo;ll notice a clear trend: &lt;strong&gt;more and more people are writing eBPF in languages other than C&lt;/strong&gt;. Rust&amp;rsquo;s Aya framework is already used in production by the Solana validator and Kubernetes Gateway API; meanwhile, Zig is trying to bring a new development experience with &lt;code&gt;comptime&lt;/code&gt;, explicit allocation, and first-class C interop.&lt;/p&gt;</description></item></channel></rss>

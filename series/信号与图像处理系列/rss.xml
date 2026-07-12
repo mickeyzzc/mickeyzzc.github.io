@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>信号与图像处理系列 on Mi&amp;Bee Blog</title><link>https://blog.mickeyzzc.tech/series/%E4%BF%A1%E5%8F%B7%E4%B8%8E%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E7%B3%BB%E5%88%97/</link><description>Recent content in 信号与图像处理系列 on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Sun, 28 Jun 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://blog.mickeyzzc.tech/series/%E4%BF%A1%E5%8F%B7%E4%B8%8E%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E7%B3%BB%E5%88%97/rss.xml" rel="self" type="application/rss+xml"/><item><title>图像基础与 OpenCV 起步</title><link>https://blog.mickeyzzc.tech/posts/physical-world/image-basics-opencv/</link><pubDate>Fri, 08 May 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/image-basics-opencv/</guid><description>&lt;h2 id="数字图像的本质"&gt;数字图像的本质&lt;/h2&gt;
+&lt;p&gt;计算机视觉处理的对象是数字图像。数字图像本质上就是一个二维像素数组。&lt;/p&gt;
+&lt;h3 id="像素与灰度图"&gt;像素与灰度图&lt;/h3&gt;
+&lt;p&gt;灰度图是最简单的数字图像——每个像素存储一个亮度值，范围 0（纯黑）到 255（纯白）。在 Python 中，一张宽 W、高 H 的灰度图就是一个形状为 &lt;code&gt;(H, W)&lt;/code&gt; 的二维数组。&lt;/p&gt;</description></item><item><title>图像退化模型——模糊从何而来</title><link>https://blog.mickeyzzc.tech/posts/physical-world/image-degradation-model/</link><pubDate>Fri, 05 Jun 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/image-degradation-model/</guid><description>&lt;h2 id="为什么照片会模糊"&gt;为什么照片会模糊？&lt;/h2&gt;
+&lt;p&gt;翻看手机相册，总会遇到这样的遗憾：明明按下快门的瞬间捕捉了美好瞬间，但照片却模糊不清——可能因为手抖、光线不足、或者拍摄对象移动太快。老照片更是如此，岁月的流逝让当年的记忆变得模糊。&lt;/p&gt;</description></item><item><title>图像插值方法——从最近邻到双三次</title><link>https://blog.mickeyzzc.tech/posts/physical-world/image-interpolation-methods/</link><pubDate>Mon, 08 Jun 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/image-interpolation-methods/</guid><description>&lt;h2 id="为什么要插值"&gt;为什么要插值&lt;/h2&gt;
+&lt;p&gt;想象你有一张低分辨率照片，想把它放大打印。原图中每两个像素之间现在是&amp;quot;空白区域&amp;quot;——新像素从哪里来？&lt;/p&gt;
+&lt;p&gt;插值（interpolation）就是解决这个问题：利用已知像素的值，估算出未知位置的像素值。图像放大本质上就是插值问题。&lt;/p&gt;</description></item><item><title>频域图像恢复——逆滤波与维纳滤波</title><link>https://blog.mickeyzzc.tech/posts/physical-world/frequency-domain-restoration/</link><pubDate>Fri, 12 Jun 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/frequency-domain-restoration/</guid><description>&lt;h2 id="为什么在频域做恢复"&gt;为什么在频域做恢复&lt;/h2&gt;
+&lt;p&gt;上一篇我们建立了图像退化模型：观测图像 $g(x,y)$ 是原始图像 $f(x,y)$ 经过退化函数 $h(x,y)$ 卷积并叠加噪声 $n(x,y)$ 后的结果：&lt;/p&gt;
+$$g(x,y) = h(x,y) * f(x,y) + n(x,y)$$&lt;p&gt;恢复的任务是：已知 $g$ 和 $h$，尽可能还原 $f$。&lt;/p&gt;</description></item><item><title>空间域恢复与边缘保持滤波</title><link>https://blog.mickeyzzc.tech/posts/physical-world/spatial-domain-restoration/</link><pubDate>Tue, 16 Jun 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/spatial-domain-restoration/</guid><description>&lt;p&gt;上一篇介绍了频率域的图像处理方法——通过傅里叶变换将图像转换到频域，然后进行滤波、复原等操作。但频率域方法有时不太直观，尤其是我们更习惯直接操作像素。&lt;/p&gt;</description></item><item><title>深度学习超分辨率——SRCNN 与 SRGAN</title><link>https://blog.mickeyzzc.tech/posts/physical-world/dl-super-resolution-srcnn-srgan/</link><pubDate>Sat, 20 Jun 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/dl-super-resolution-srcnn-srgan/</guid><description>&lt;h2 id="从数学模型到数据驱动"&gt;从数学模型到数据驱动&lt;/h2&gt;
+&lt;p&gt;在超分辨率任务中，传统方法依赖精心设计的数学模型——插值算法、稀疏表示、先验约束等。但深度学习带来了范式转变：从大量成对的低分辨率（LR）-高分辨率（HR）图像数据中，直接学习从退化空间到清晰空间的映射。&lt;/p&gt;</description></item><item><title>现代超分辨率——ESRGAN 到扩散模型</title><link>https://blog.mickeyzzc.tech/posts/physical-world/modern-super-resolution-esrgan-diffusion/</link><pubDate>Wed, 24 Jun 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/modern-super-resolution-esrgan-diffusion/</guid><description>&lt;div class="sr-evo" id="sr-evo-0"&gt;
+ &lt;div class="sr-evo__track"&gt;
+ &lt;div class="sr-evo__rail" id="sr-evo-rail-0"&gt;
+ &lt;div class="sr-evo__fill" id="sr-evo-fill-0"&gt;&lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="sr-evo__item" data-idx="0" id="sr-evo-item-0-0"&gt;
+ &lt;div class="sr-evo__dot" style="--c:#FF9800"&gt;2014&lt;/div&gt;
+ &lt;div class="sr-evo__card"&gt;
+ &lt;div class="sr-evo__head"&gt;SRCNN&lt;/div&gt;
+ &lt;div class="sr-evo__body"&gt;三层卷积 · 3-layer CNN&lt;/div&gt;
+ &lt;div class="sr-evo__foot"&gt;pioneered DL SR&lt;/div&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="sr-evo__item" data-idx="1" id="sr-evo-item-0-1"&gt;
+ &lt;div class="sr-evo__dot" style="--c:#9C27B0"&gt;2016&lt;/div&gt;
+ &lt;div class="sr-evo__card"&gt;
+ &lt;div class="sr-evo__head"&gt;SRGAN&lt;/div&gt;
+ &lt;div class="sr-evo__body"&gt;感知损失 &amp;#43; GAN&lt;/div&gt;
+ &lt;div class="sr-evo__foot"&gt;visual quality leap&lt;/div&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="sr-evo__item" data-idx="2" id="sr-evo-item-0-2"&gt;
+ &lt;div class="sr-evo__dot" style="--c:#9C27B0"&gt;2018&lt;/div&gt;
+ &lt;div class="sr-evo__card"&gt;
+ &lt;div class="sr-evo__head"&gt;ESRGAN&lt;/div&gt;
+ &lt;div class="sr-evo__body"&gt;RRDB &amp;#43; RaGAN&lt;/div&gt;
+ &lt;div class="sr-evo__foot"&gt;richer features, no BN&lt;/div&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="sr-evo__item" data-idx="3" id="sr-evo-item-0-3"&gt;
+ &lt;div class="sr-evo__dot" style="--c:#4CAF50"&gt;2021&lt;/div&gt;
+ &lt;div class="sr-evo__card"&gt;
+ &lt;div class="sr-evo__head"&gt;Real-ESRGAN&lt;/div&gt;
+ &lt;div class="sr-evo__body"&gt;真实退化建模 · Real-world&lt;/div&gt;
+ &lt;div class="sr-evo__foot"&gt;works on real photos&lt;/div&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="sr-evo__item" data-idx="4" id="sr-evo-item-0-4"&gt;
+ &lt;div class="sr-evo__dot" style="--c:#2196F3"&gt;2021&lt;/div&gt;
+ &lt;div class="sr-evo__card"&gt;
+ &lt;div class="sr-evo__head"&gt;SwinIR&lt;/div&gt;
+ &lt;div class="sr-evo__body"&gt;Transformer 注意力&lt;/div&gt;
+ &lt;div class="sr-evo__foot"&gt;global context modeling&lt;/div&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="sr-evo__item" data-idx="5" id="sr-evo-item-0-5"&gt;
+ &lt;div class="sr-evo__dot" style="--c:#2196F3"&gt;2022&lt;/div&gt;
+ &lt;div class="sr-evo__card"&gt;
+ &lt;div class="sr-evo__head"&gt;Diffusion&lt;/div&gt;
+ &lt;div class="sr-evo__body"&gt;迭代去噪 · Iterative&lt;/div&gt;
+ &lt;div class="sr-evo__foot"&gt;best quality, slowest&lt;/div&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;/div&gt;
+&lt;/div&gt;
+&lt;style&gt;
+.sr-evo{margin:2rem auto;max-width:360px}
+.sr-evo__track{position:relative;padding-left:44px}
+.sr-evo__rail{position:absolute;left:21px;top:20px;bottom:20px;width:2px;background:var(--border);border-radius:1px;overflow:hidden}
+.sr-evo__fill{position:absolute;top:0;left:0;width:100%;height:0;background:linear-gradient(#FF9800,#9C27B0 30%,#4CAF50 60%,#2196F3 85%);transition:height .8s cubic-bezier(.4,0,.2,1)}
+.sr-evo__item{position:relative;padding:10px 0;opacity:0;transform:translateX(-16px);transition:opacity .6s,transform .6s}
+.sr-evo__item.visible{opacity:1;transform:translateX(0)}
+.sr-evo__dot{position:absolute;left:-34px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--c,var(--accent));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;z-index:1;box-shadow:0 0 0 3px var(--bg)}
+.sr-evo__card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:8px 12px}
+.sr-evo__head{font-size:14px;font-weight:700;color:var(--text)}
+.sr-evo__body{font-size:11.5px;color:var(--text-secondary);margin-top:2px;line-height:1.4}
+.sr-evo__foot{font-size:10.5px;color:var(--text-secondary);opacity:.65;margin-top:1px}
+@media(max-width:480px){
+.sr-evo{max-width:100%;margin:1.5rem 0}
+.sr-evo__track{padding-left:38px}
+.sr-evo__rail{left:17px}
+.sr-evo__dot{left:-29px;width:24px;height:24px;font-size:8px;top:14px}
+.sr-evo__item{padding:8px 0}
+.sr-evo__card{padding:6px 10px}
+.sr-evo__head{font-size:13px}
+}
+&lt;/style&gt;
+&lt;script&gt;
+(function(){var id='0',items=document.querySelectorAll('#sr-evo-'+id+' .sr-evo__item'),fill=document.getElementById('sr-evo-fill-'+id),n=items.length;if(!n||!fill)return;var intv=1200,idx=0,started=0,prm=window.matchMedia('(prefers-reduced-motion: reduce)').matches;function topAt(i){var rail=document.getElementById('sr-evo-rail-'+id),rr=rail.getBoundingClientRect(),dr=items[i].querySelector('.sr-evo__dot').getBoundingClientRect();return dr.top-rr.top+dr.height/2}function setH(h){fill.style.height=Math.round(h)+'px'}function next(){if(idx&gt;=n)return;items[idx].classList.add('visible');setH(topAt(idx));idx++;if(idx&lt;n)setTimeout(next,intv);else setH(topAt(n-1))}function all(){for(var i=0;i&lt;n;i++)items[i].classList.add('visible');setH(topAt(n-1))}if(prm){all();return}if('IntersectionObserver'in window){var wrap=document.getElementById('sr-evo-'+id);new IntersectionObserver(function(e){e.forEach(function(e){if(e.isIntersecting&amp;&amp;!started){started=1;setTimeout(next,300)}})},{threshold:.25}).observe(wrap)}else all()})();
+&lt;/script&gt;
+&lt;h2 id="从-srgan-到-esrgan2018"&gt;从 SRGAN 到 ESRGAN（2018）&lt;/h2&gt;
+&lt;p&gt;SRGAN（Super-Resolution GAN）在 2016 年首次将生成对抗网络（GAN）引入超分辨率领域，通过感知损失（perceptual loss）生成的图像在视觉质量上显著超越了传统的 PSNR 优化方法。但 SRGAN 仍有改进空间——2018 年 Wang 等人提出的 &lt;strong&gt;ESRGAN&lt;/strong&gt;（Enhanced Super-Resolution GAN）在四个关键方向上进行了优化。&lt;/p&gt;</description></item><item><title>Go 与 Rust 实现图像恢复算法</title><link>https://blog.mickeyzzc.tech/posts/physical-world/image-restoration-go-rust/</link><pubDate>Sun, 28 Jun 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/image-restoration-go-rust/</guid><description>&lt;p&gt;本篇用 Go 和 Rust 两种语言实现图像恢复的核心算法，通过实际代码对比两种语言在图像处理场景下的写法和性能特征。&lt;/p&gt;
+&lt;div class="blur-wrap" id="blur-0"&gt;
+ &lt;div class="blur-head"&gt;
+ &lt;span&gt;原始图像&lt;/span&gt;
+ &lt;span&gt;退化图像&lt;/span&gt;
+ &lt;/div&gt;
+ &lt;canvas class="blur-canvas" id="blur-c-0"
+ role="img" aria-label="Sharp image vs blurred image simulation with different PSF types"&gt;&lt;/canvas&gt;
+ &lt;div class="blur-bar"&gt;
+ &lt;span class="blur-name" id="blur-n-0"&gt;—&lt;/span&gt;
+ &lt;span class="blur-psf" id="blur-p-0"&gt;—&lt;/span&gt;
+ &lt;/div&gt;
+
+&lt;style&gt;
+.blur-wrap{margin:1.8rem auto;max-width:420px;background:var(--bg-surface,#f3f0f6);border:1px solid var(--border,#e5e1eb);border-radius:var(--radius-md,8px);padding:0.5rem 0.5rem 0.35rem}
+.blur-head{display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary,#888);padding:0 0.15rem 0.25rem}
+.blur-canvas{display:block;width:100%;height:auto;border-radius:4px}
+.blur-bar{text-align:center;margin-top:0.35rem;padding-top:0.3rem;border-top:1px solid var(--border,#e5e1eb)}
+.blur-name{display:block;font-size:12px;font-weight:600;color:var(--text,#333);margin-bottom:0.1rem}
+.blur-psf{display:block;font-size:10px;font-family:var(--font-mono,monospace);color:var(--text-secondary,#888);letter-spacing:0.01em}
+@media(max-width:480px){.blur-wrap{max-width:100%;margin:1.2rem 0}}
+@media(prefers-reduced-motion:reduce){.blur-canvas{opacity:0.85}}
+&lt;/style&gt;
+&lt;script&gt;
+(function(){
+var c=document.getElementById('blur-c-0'),nEl=document.getElementById('blur-n-0'),pEl=document.getElementById('blur-p-0');
+if(!c)return;
+var ctx=c.getContext('2d'),dpr=1,W=0,H=0,half=0,rm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+var states=[
+{n:'原始图像（锐利）',p:'无需 PSF — 理想点成像'},
+{n:'高斯模糊 σ=1.5',p:'G(x,y) = (1/2πσ²)·exp(-(x²+y²)/2σ²)'},
+{n:'运动模糊 L=5,θ=45°',p:'H(u,v)=T·sinc(π(a·u+b·v))·e^(-jπ(a·u+b·v))'},
+{n:'散焦模糊 r=3',p:'PSF(r)=1/πr² (√(x²+y²) ≤ r)'}
+];
+var idx=0,timer=null,off=document.createElement('canvas'),offC=off.getContext('2d');
+function dims(){
+var r=c.parentElement.getBoundingClientRect(),w=Math.floor(r.width)-4;
+return{w:w&lt;100?100:w,h:Math.round(w*0.56)||56}
+}
+function ptn(ax,w,h,ox,oy){
+var cx=ox+w*0.25,cy=oy+h*0.35,mr=Math.min(w,h)*0.32,sr=Math.max(6,mr/6|0);
+ax.fillStyle='#f0eef2';ax.fillRect(ox,oy,w,h);
+ax.strokeStyle='#1a1a2e';ax.lineWidth=1.5;
+for(var r=sr;r&lt;=mr;r+=sr){ax.beginPath();ax.arc(cx,cy,r,0,7);ax.stroke()}
+ax.strokeStyle='#2d3436';ax.lineWidth=1;
+for(var i=0;i&lt;12;i++){var a=i/12*6.2832;ax.beginPath();ax.moveTo(cx,cy);ax.lineTo(cx+Math.cos(a)*mr,cy+Math.sin(a)*mr);ax.stroke()}
+var bx=ox+w*0.58,by=oy+h*0.06,sz=Math.max(3,Math.min(6,(w*0.035)|0));
+for(var r2=0;r2&lt;8;r2++)for(var c2=0;c2&lt;8;c2++){ax.fillStyle=(r2+c2)&amp;1?'#ddd':'#16213e';ax.fillRect(bx+c2*sz,by+r2*sz,sz,sz)}
+var lx=ox+w*0.7,ly=oy+h*0.55;
+for(var i=0;i&lt;10;i++){var bw=Math.max(1,((10-i)*0.5)|0);ax.fillStyle='#0a0a23';ax.fillRect(lx+i*(bw+2),ly,bw,h*0.15)}
+var hx=ox+w*0.12,hy=oy+h*0.73;
+for(var i=0;i&lt;6;i++){ax.fillStyle=i&amp;1?'#e9e9ed':'#0a0a23';ax.fillRect(hx,hy+i*4,w*0.18,4)}
+ax.fillStyle='#1a1a2e';ax.font='bold '+(Math.max(8,(w*0.038)|0))+'px -apple-system,sans-serif';
+ax.textAlign='center';ax.textBaseline='bottom';ax.fillText('蓝宝石 123',ox+w/2,oy+h-4)
+}
+function blurRight(ax,x,y,w,h,si){
+ax.save();ax.beginPath();ax.rect(x,y,w,h);ax.clip();
+if(si===0){ptn(ax,w,h,x,y)}
+else if(si===1||si===3){ax.filter=si===1?'blur(3px)':'blur(6px)';ptn(ax,w,h,x,y);ax.filter='none'}
+else{
+off.width=Math.ceil(w*dpr);off.height=Math.ceil(h*dpr);
+offC.setTransform(dpr,0,0,dpr,0,0);ptn(offC,w,h,0,0);
+var st=10,dd=Math.round(Math.min(w,h)*0.025);
+for(var i=0;i&lt;st;i++){ax.globalAlpha=0.12;ax.drawImage(off,x+i/st*dd,y+i/st*dd,w,h)}
+ax.globalAlpha=1
+}
+ax.restore()
+}
+function draw(){
+var gap=2,lw=half-gap,rw=W-half-gap,rx=half+gap;
+ctx.clearRect(0,0,W,H);ptn(ctx,lw,H,0,0);blurRight(ctx,rx,0,rw,H,idx);
+ctx.strokeStyle='rgba(128,128,128,0.2)';ctx.lineWidth=1;
+ctx.beginPath();ctx.moveTo(half,0);ctx.lineTo(half,H);ctx.stroke();
+var s=states[idx];nEl.textContent=s.n;pEl.textContent=s.p
+}
+function next(){idx=(idx+1)%states.length;draw()}
+function resize(){
+var d=dims();W=d.w;H=d.h;half=W/2|0;dpr=window.devicePixelRatio||1;
+c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);
+c.style.width=W+'px';c.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);draw()
+}
+resize();
+new ResizeObserver(function(){resize()}).observe(c.parentElement);
+var mq=window.matchMedia('(prefers-reduced-motion:reduce)');
+mq.addEventListener('change',function(e){rm=e.matches;if(rm&amp;&amp;timer){clearInterval(timer);timer=null}else if(!rm&amp;&amp;!timer)timer=setInterval(next,3000)});
+if(!rm)timer=setInterval(next,3000)
+})();
+&lt;/script&gt;
+&lt;/div&gt;
+
+&lt;h2 id="go-实现"&gt;Go 实现&lt;/h2&gt;
+&lt;p&gt;Go 语言的 &lt;code&gt;image&lt;/code&gt; 标准库提供了图像编解码、像素访问等基础功能。以下实现展示了如何用 Go 实现双三次插值、高斯模糊、拉普拉斯锐化等核心算法。&lt;/p&gt;</description></item><item><title>声波与数字信号基础</title><link>https://blog.mickeyzzc.tech/posts/physical-world/acoustics-dsp-basics/</link><pubDate>Mon, 04 May 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/acoustics-dsp-basics/</guid><description>&lt;h2 id="相消干涉"&gt;相消干涉&lt;/h2&gt;
+&lt;p&gt;主动降噪（ANC）的物理基础是声波的相消干涉。两个频率相同、相位相反的声波叠加后会相互抵消。&lt;/p&gt;
+&lt;p&gt;原始噪声信号：&lt;/p&gt;
+$$
+p_n(t) = A \cos(2\pi ft + \phi)
+$$&lt;p&gt;ANC 系统生成的反向声波：&lt;/p&gt;</description></item><item><title>自适应滤波：从 LMS 到 NLMS</title><link>https://blog.mickeyzzc.tech/posts/physical-world/adaptive-filtering-lms-nlms/</link><pubDate>Thu, 07 May 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/adaptive-filtering-lms-nlms/</guid><description>&lt;h2 id="lms-算法"&gt;LMS 算法&lt;/h2&gt;
+&lt;p&gt;自适应滤波的核心问题是：给定参考信号 &lt;code&gt;x(n)&lt;/code&gt; 和期望信号 &lt;code&gt;d(n)&lt;/code&gt;，找到一个滤波器系数向量 &lt;code&gt;w&lt;/code&gt;，使输出 &lt;code&gt;y(n)&lt;/code&gt; 逼近 &lt;code&gt;d(n)&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;最小均方（Least Mean Square, LMS）算法是解决这个问题最经典的方法，由 Widrow 和 Hoff 在 1960 年提出。核心思路是每次迭代都沿着误差曲面最陡的方向下降一步——也就是随机梯度下降。&lt;/p&gt;</description></item><item><title>FXLMS 与主动降噪系统架构</title><link>https://blog.mickeyzzc.tech/posts/physical-world/fxlms-anc-architecture/</link><pubDate>Mon, 11 May 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/fxlms-anc-architecture/</guid><description>&lt;p&gt;主动降噪（ANC, Active Noise Control）的核心思路是用扬声器发出一个与噪声相位相反、幅值相同的声波，通过相消干涉抵消掉目标区域的噪声。落地到硬件系统，需要解决两个问题：用什么传感器感知噪声，以及用哪种控制策略生成抗噪声。这两点决定了 ANC 系统的架构分类——前馈、反馈和混合式。&lt;/p&gt;</description></item><item><title>变步长与频域自适应算法</title><link>https://blog.mickeyzzc.tech/posts/physical-world/variable-step-frequency-domain/</link><pubDate>Thu, 14 May 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/variable-step-frequency-domain/</guid><description>&lt;h2 id="固定步长的收敛矛盾"&gt;固定步长的收敛矛盾&lt;/h2&gt;
+&lt;p&gt;标准 LMS 算法和 NLMS 算法都使用固定的步长参数 $\mu$。步长大小的选择直接影响算法性能，但存在一个根本矛盾：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;大步长&lt;/strong&gt;：收敛速度快，能够快速追踪环境变化，但稳态误差大，滤波精度低&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;小步长&lt;/strong&gt;：稳态误差小，滤波精度高，但收敛速度慢，对突变响应迟缓&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这个矛盾在回声消除、主动噪声控制等应用中尤为突出——系统启动时需要快速收敛，稳态后则希望维持低误差。固定步长无法同时满足两阶段的需求。&lt;/p&gt;</description></item><item><title>嵌入式 ANC：STM32 实战</title><link>https://blog.mickeyzzc.tech/posts/physical-world/embedded-anc-stm32/</link><pubDate>Mon, 18 May 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/embedded-anc-stm32/</guid><description>&lt;h2 id="硬件架构"&gt;硬件架构&lt;/h2&gt;
+&lt;p&gt;实现实时 ANC 首先要选择合适的硬件平台。控制器需要在微秒级完成自适应滤波运算，同时管理多路音频数据流。&lt;/p&gt;
+&lt;table&gt;
+	&lt;thead&gt;
+			&lt;tr&gt;
+					&lt;th&gt;模块&lt;/th&gt;
+					&lt;th&gt;功能&lt;/th&gt;
+					&lt;th&gt;典型选型&lt;/th&gt;
+			&lt;/tr&gt;
+	&lt;/thead&gt;
+	&lt;tbody&gt;
+			&lt;tr&gt;
+					&lt;td&gt;主控制器&lt;/td&gt;
+					&lt;td&gt;执行自适应算法&lt;/td&gt;
+					&lt;td&gt;STM32F4/F7, ESP32-S3, nRF5340&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;参考麦克风&lt;/td&gt;
+					&lt;td&gt;采集环境噪声&lt;/td&gt;
+					&lt;td&gt;Knowles SPH0645, Infineon IM69D130&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;误差麦克风&lt;/td&gt;
+					&lt;td&gt;采集残余噪声&lt;/td&gt;
+					&lt;td&gt;Knowles SPH0645, TDK ICS-43434&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;音频 DAC&lt;/td&gt;
+					&lt;td&gt;输出抗噪声信号&lt;/td&gt;
+					&lt;td&gt;ES9218, PCM5102&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;功放&lt;/td&gt;
+					&lt;td&gt;驱动扬声器&lt;/td&gt;
+					&lt;td&gt;Class-D&lt;/td&gt;
+			&lt;/tr&gt;
+	&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;参考麦克风位于耳罩外侧，采集外部环境噪声作为算法参考输入。误差麦克风位于耳罩内侧，采集扬声器附近的残余噪声，用于评估降噪效果并驱动自适应更新。音频 DAC 将数字抗噪声信号转为模拟量，经功放放大后驱动扬声器。&lt;/p&gt;</description></item><item><title>嵌入式 ANC：ESP32 实战</title><link>https://blog.mickeyzzc.tech/posts/physical-world/embedded-anc-esp32/</link><pubDate>Thu, 21 May 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/embedded-anc-esp32/</guid><description>&lt;p&gt;ESP32-S3 的双核 Xtensa LX7 处理器带有向量指令集扩展，适合执行嵌入式 ANC 所需的实时 DSP 运算。配合 ESP-DSP 库可以高效实现自适应滤波器。&lt;/p&gt;
+&lt;h2 id="i2s-麦克风采集"&gt;I2S 麦克风采集&lt;/h2&gt;
+&lt;p&gt;ANC 需要至少两路同步输入：参考麦克风（采集环境噪声）和误差麦克风（采集残余误差）。ESP32-S3 的 I2S 外设支持同时接收多路 ADC 数据，配置为 16 位、16 kHz 采样即可满足消费级 ANC 需求。&lt;/p&gt;</description></item><item><title>ANC 调试与性能优化</title><link>https://blog.mickeyzzc.tech/posts/physical-world/anc-tuning-debugging/</link><pubDate>Mon, 25 May 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/anc-tuning-debugging/</guid><description>&lt;p&gt;主动降噪系统的工程实现中，最耗时、最依赖经验的部分不是算法选型，而是参数调优和稳定性调试。滤波器阶数、步长系数、采样率——每一个参数都牵一发而动全身。本文从实践经验出发，梳理 ANC 调试中的关键参数选择逻辑和常见问题定位方法。&lt;/p&gt;</description></item><item><title>IMU 原理：加速度计与陀螺仪</title><link>https://blog.mickeyzzc.tech/posts/physical-world/imu-accelerometer-gyroscope/</link><pubDate>Fri, 15 May 2026 10:00:00 +0800</pubDate><guid>https://blog.mickeyzzc.tech/posts/physical-world/imu-accelerometer-gyroscope/</guid><description>&lt;p&gt;运动传感系列开篇。传感器是嵌入式系统感知物理世界的窗口，IMU（Inertial Measurement Unit）是最常用的一类。这篇文章不讲高深理论，只讲 MEMS 传感器怎么工作、怎么接线、怎么读数、读出来的数据长什么样。&lt;/p&gt;</description></item></channel></rss>
