@@ -1,2 +1,32 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Database on Mi&amp;Bee Blog</title><link>https://blog.mickeyzzc.tech/en/tags/database/</link><description>Recent content in Database on Mi&amp;Bee Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>蓝宝石的傻话</managingEditor><lastBuildDate>Sat, 18 Feb 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://blog.mickeyzzc.tech/en/tags/database/rss.xml" rel="self" type="application/rss+xml"/><item><title>MySQL Operations in Practice — From Optimization, Monitoring to Disaster Recovery</title><link>https://blog.mickeyzzc.tech/en/archives/01-mysql-ops/</link><pubDate>Sat, 18 Feb 2017 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/archives/01-mysql-ops/</guid><description>&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
-&lt;p&gt;In the operations and maintenance of business systems, MySQL databases serve as core components whose performance stability and data security are critical. Based on years of hands-on operational experience, this article comprehensively shares practical MySQL database operations knowledge — from performance optimization, monitoring systems, Binlog management, and high-availability deployment to disaster recovery. These insights come from real-world cases across multiple production environments, covering the full technology stack from daily tuning to emergency incident response. We hope this provides valuable reference for database administrators and operations engineers alike.&lt;/p&gt;</description></item></channel></rss>
+&lt;p&gt;This article documents MySQL database operations practices, covering performance optimization, the monitoring system, Binlog management, dual-master high-availability deployment, and recovery from data file corruption. The cases are drawn from production environments.&lt;/p&gt;
+&lt;h2 id="innodb-performance-optimization-in-practice"&gt;InnoDB Performance Optimization in Practice&lt;/h2&gt;
+&lt;h3 id="baseline-status-analysis"&gt;Baseline Status Analysis&lt;/h3&gt;
+&lt;p&gt;Before optimizing InnoDB, you first need a comprehensive understanding of the current database runtime status:&lt;/p&gt;
+&lt;div class="code-block-wrapper" data-lang="sql"&gt;
+ &lt;div class="code-block-header"&gt;
+ &lt;div class="code-block-meta"&gt;&lt;span class="code-language"&gt;sql&lt;/span&gt;&lt;/div&gt;
+ 
+ &lt;button class="copy-button" aria-label="Copy code"&gt;
+ &lt;svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;rect x="9" y="9" width="13" height="13" rx="2" ry="2"/&gt;&lt;path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/&gt;&lt;/svg&gt;
+ &lt;svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt;
+ &lt;/button&gt;
+ 
+ &lt;/div&gt;
+ &lt;div class="code-block-body"&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sql" data-lang="sql"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;-- View InnoDB storage engine status
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;show&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;engine&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;innodb&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;status&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;\&lt;/span&gt;&lt;span class="k"&gt;G&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;-- View InnoDB-related configuration parameters
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;show&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;variables&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;like&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;innodb%&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;These commands help identify performance bottlenecks and provide data to guide subsequent optimization.&lt;/p&gt;</description></item></channel></rss>

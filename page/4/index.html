@@ -42,7 +42,7 @@
 </a><a href=/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/programming/zig-stdlib-io-concurrency/>Zig 标准库、I/O 接口与并发：把知识串起来</a></h2><div class=post-card__meta><time datetime=2026-06-26>June 26, 2026</time>
 <span class=post-card__reading-time>10 分钟阅读</span></div><div class=post-card__summary>本文基于 Zig 0.16。
 经过前五篇的旅程——语法、错误处理、内存管理、编译期计算、构建系统——现在到了 Zig 篇章收官，该把知识串起来了。
-0.16 是两个重要版本的交汇点：标准库容器完成了 Unmanaged 迁移，同时引入了革命性的 std.Io 接口。这两个变化深刻影响了 Zig 代码的写法。本篇将围绕它们展开，最后用三语言实战对比收束，并给出学习路线和资源。</div><div class=post-card__tags><a href=/tags/zig/ class=tag-chip>Zig</a>
+0.16 是两个重要版本的交汇点：标准库容器完成了 Unmanaged 迁移，同时引入了新的 std.Io 接口。这两个变化深刻影响了 Zig 代码的写法。本篇将围绕它们展开，最后用三语言实战对比收束，并给出学习路线和资源。</div><div class=post-card__tags><a href=/tags/zig/ class=tag-chip>Zig</a>
 <a href=/tags/%E6%A0%87%E5%87%86%E5%BA%93/ class=tag-chip>标准库</a>
 <a href=/tags/std.io/ class=tag-chip>Std.Io</a>
 <a href=/tags/%E5%B9%B6%E5%8F%91/ class=tag-chip>并发</a>
@@ -56,7 +56,7 @@
 <a href=/tags/co-re/ class=tag-chip>CO-RE</a>
 <a href=/tags/bpf/ class=tag-chip>BPF</a></div><a href=/posts/telemetry/ebpf-zig-lang-dev/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/programming/zig-comptime-structs/>结构体与 comptime：编译期计算的威力</a></h2><div class=post-card__meta><time datetime=2026-06-25>June 25, 2026</time>
 <span class=post-card__reading-time>7 分钟阅读</span></div><div class=post-card__summary>本文基于 Zig 0.16。
-前几篇我们完成了基础语法、错误处理和内存分配器，现在终于可以触及 Zig 最迷人、也最具革命性的特性——编译期计算（comptime）。但在此之前，我们先花几分钟快速了解 Zig 的结构体与方法，它们是你理解 comptime 的基石。</div><div class=post-card__tags><a href=/tags/zig/ class=tag-chip>Zig</a>
+前几篇我们完成了基础语法、错误处理和内存分配器，现在进入 Zig 最核心的特性——编译期计算（comptime）。但在此之前，我们先花几分钟快速了解 Zig 的结构体与方法，它们是你理解 comptime 的基石。</div><div class=post-card__tags><a href=/tags/zig/ class=tag-chip>Zig</a>
 <a href=/tags/comptime/ class=tag-chip>Comptime</a>
 <a href=/tags/%E7%BB%93%E6%9E%84%E4%BD%93/ class=tag-chip>结构体</a>
 <a href=/tags/%E6%B3%9B%E5%9E%8B/ class=tag-chip>泛型</a>
@@ -91,15 +91,15 @@
 <a href=/tags/%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/ class=tag-chip>基础语法</a>
 <a href=/tags/go/ class=tag-chip>Go</a>
 <a href=/tags/rust/ class=tag-chip>Rust</a></div><a href=/posts/programming/zig-basic-syntax/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/telemetry/obs-tech-05-rum-storage/>前端监控(RUM)时序存储架构：Sentry、Datadog RUM 与 Grafana Faro</a></h2><div class=post-card__meta><time datetime=2026-06-22>June 22, 2026</time>
-<span class=post-card__reading-time>11 分钟阅读</span></div><div class=post-card__summary>前端监控（Real User Monitoring, RUM）与后端监控的根本差异在于数据模型：RUM 采集的是带海量高基数属性的事件流——每个用户访问产生 session_id、user_id、page_url 等上百个维度，传统时序数据库（TSDB）的 label-set 模型在此场景下会剧烈退化。</div><div class=post-card__tags><a href=/tags/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/ class=tag-chip>可观测性</a>
+<span class=post-card__reading-time>10 分钟阅读</span></div><div class=post-card__summary>前端监控（Real User Monitoring, RUM）与后端监控的根本差异在于数据模型：RUM 采集的是带海量高基数属性的事件流——每个用户访问产生 session_id、user_id、page_url 等上百个维度，传统时序数据库（TSDB）的 label-set 模型在此场景下会剧烈退化。</div><div class=post-card__tags><a href=/tags/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/ class=tag-chip>可观测性</a>
 <a href=/tags/rum/ class=tag-chip>RUM</a>
 <a href=/tags/sentry/ class=tag-chip>Sentry</a>
 <a href=/tags/datadog/ class=tag-chip>Datadog</a>
 <a href=/tags/grafana-faro/ class=tag-chip>Grafana Faro</a>
 <a href=/tags/clickhouse/ class=tag-chip>ClickHouse</a>
 <a href=/tags/web-vitals/ class=tag-chip>Web Vitals</a></div><a href=/posts/telemetry/obs-tech-05-rum-storage/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/programming/zig-why-and-setup/>为什么是 Zig：从 Go/Rust 视角认识一门新系统语言</a></h2><div class=post-card__meta><time datetime=2026-06-21>June 21, 2026</time>
-<span class=post-card__reading-time>7 分钟阅读</span></div><div class=post-card__summary>本文基于 Zig 0.16（2026-04-13 发布，当前最新稳定版）。Zig 是一门仍在快速演进的现代系统编程语言，它的源码仓库已从 GitHub 迁移到 Codeberg，官方下载页在 ziglang.org/download/。
-为什么是 Zig？ 如果你已经熟悉 Go 和 Rust，可能会问：为什么还要看第三门系统语言？答案很简单：Zig 填补了 Go 和 Rust 之间的空白。</div><div class=post-card__tags><a href=/tags/zig/ class=tag-chip>Zig</a>
+<span class=post-card__reading-time>6 分钟阅读</span></div><div class=post-card__summary>本文基于 Zig 0.16（2026-04-13 发布，当前最新稳定版）。Zig 是一门仍在快速演进的现代系统编程语言，它的源码仓库已从 GitHub 迁移到 Codeberg，官方下载页在 ziglang.org/download/。
+为什么是 Zig？ 如果你已经熟悉 Go 和 Rust，可能会问：为什么还要看第三门系统语言？Zig 的位置介于两者之间，试图兼顾 C 的轻量、Rust 的现代工具链和 Go 的低门槛。</div><div class=post-card__tags><a href=/tags/zig/ class=tag-chip>Zig</a>
 <a href=/tags/%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/ class=tag-chip>系统编程</a>
 <a href=/tags/go/ class=tag-chip>Go</a>
 <a href=/tags/rust/ class=tag-chip>Rust</a>
