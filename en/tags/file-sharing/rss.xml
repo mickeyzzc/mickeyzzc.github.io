@@ -8,29 +8,11 @@
  &lt;/div&gt;
  &lt;div class="code-block-body"&gt;
  &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
- subgraph Application
- CLI[&amp;#34;CLI Interface&amp;#34;]
- API[&amp;#34;REST API&amp;#34;]
- end
-
- subgraph Business Logic
- Index[&amp;#34;File Index Manager&amp;#34;]
- Scheduler[&amp;#34;Piece Download Scheduler&amp;#34;]
- Verify[&amp;#34;Verify &amp;amp; Reassemble&amp;#34;]
- end
-
- subgraph P2P Network
- Discovery[&amp;#34;Kad-DHT&amp;lt;br/&amp;gt;Peer Discovery &amp;#43; Metadata&amp;#34;]
- Broadcast[&amp;#34;GossipSub&amp;lt;br/&amp;gt;Message Broadcast&amp;#34;]
- Transfer[&amp;#34;Custom Protocol&amp;lt;br/&amp;gt;File Transfer&amp;#34;]
- end
-
- CLI --&amp;gt; Index
- API --&amp;gt; Index
- Index --&amp;gt; Scheduler
- Scheduler --&amp;gt; Verify
- Index --&amp;gt; Discovery
- Scheduler --&amp;gt; Transfer
- Broadcast --&amp;gt;|&amp;#34;New Peer Notification&amp;#34;| Index&lt;/code&gt;&lt;/pre&gt;
+ APP[&amp;#34;Application&amp;lt;br/&amp;gt;CLI / REST API&amp;#34;] --&amp;gt; LOGIC[&amp;#34;Business Logic&amp;lt;br/&amp;gt;File index / download scheduler / verify&amp;#34;]
+ LOGIC --&amp;gt; NET[&amp;#34;P2P Network&amp;lt;br/&amp;gt;Kad-DHT / Gossipsub / file transfer&amp;#34;]
+ NET -.-&amp;gt;|&amp;#34;new peer notification&amp;#34;| LOGIC
+ style APP fill:#2196F3,color:#fff
+ style LOGIC fill:#FF9800,color:#fff
+ style NET fill:#4CAF50,color:#fff&lt;/code&gt;&lt;/pre&gt;
  &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;Core design principles:&lt;/p&gt;</description></item></channel></rss>
+&lt;/div&gt;&lt;p&gt;Three strictly separated layers: application faces outward, business logic handles scheduling and verification, and the P2P network layer handles peer discovery, message broadcast, and file transfer.&lt;/p&gt;</description></item></channel></rss>

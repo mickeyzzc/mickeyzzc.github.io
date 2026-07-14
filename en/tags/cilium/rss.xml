@@ -12,26 +12,22 @@
  &lt;/div&gt;
  &lt;div class="code-block-body"&gt;
  &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
- classDef kern fill:#E3F2FD,stroke:#1565C0,color:#1565C0
- classDef user fill:#FFF3E0,stroke:#E65100,color:#BF360C
- classDef data fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+ classDef kern fill:#bbdefb,stroke:#2196F3,color:#1B5E20
+ classDef user fill:#fff3e0,stroke:#FF9800,color:#BF360C
+ classDef data fill:#c8e6c9,stroke:#4CAF50,color:#1B5E20
 
- subgraph kernel[&amp;#34;Kernel Space&amp;#34;]
  hook@{ shape: rounded, label: &amp;#34;oom_kill_process (kprobe)&amp;#34; }
  ebpf@{ shape: proc, label: &amp;#34;eBPF Program\nEvent Collection&amp;#34; }
  ring@{ shape: cyl, label: &amp;#34;Ring Buffer&amp;#34; }
- end
-
- subgraph userspace[&amp;#34;User Space (Go)&amp;#34;]
  loader@{ shape: notch-rect, label: &amp;#34;bpf2go Loader&amp;#34; }
  reader@{ shape: proc, label: &amp;#34;RingBuf Reader\nEvent Parsing&amp;#34; }
- end
 
  hook --&amp;gt; ebpf --&amp;gt; ring
  ring --&amp;gt; reader
  loader -.-&amp;gt; ebpf
 
- class hook,ebpf,ring kern
+ class hook,ebpf kern
+ class ring data
  class loader,reader user&lt;/code&gt;&lt;/pre&gt;
  &lt;/div&gt;
 &lt;/div&gt;&lt;h2 id="ebpf-kernel-program-c"&gt;eBPF Kernel Program (C)&lt;/h2&gt;

@@ -9,35 +9,23 @@
  &lt;/div&gt;
  &lt;/div&gt;
  &lt;div class="code-block-body"&gt;
- &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart LR
- subgraph Transport Layer
- A1[&amp;#34;Max Inbound&amp;lt;br/&amp;gt;Connections: 1024&amp;#34;] --&amp;gt; B1[&amp;#34;Connection Queue&amp;#34;]
- A2[&amp;#34;Max Outbound&amp;lt;br/&amp;gt;Connections: 512&amp;#34;] --&amp;gt; B1
- end
+ &lt;pre class="chroma"&gt;&lt;code class="language-mermaid"&gt;flowchart TD
+ TL[&amp;#34;Transport Limits&amp;lt;br/&amp;gt;Inbound 1024 / Outbound 512&amp;#34;] --&amp;gt; Q[&amp;#34;Connection Queue&amp;#34;]
+ Q --&amp;gt; SL[&amp;#34;Stream Limits&amp;lt;br/&amp;gt;Inbound 128 / Outbound 256&amp;#34;]
+ SL --&amp;gt; I{&amp;#34;Health Check&amp;lt;br/&amp;gt;Idle 30s/60s&amp;#34;}
+ I --&amp;gt;|&amp;#34;Pass&amp;#34;| OK[&amp;#34;Update Active Timestamp&amp;#34;]
+ I --&amp;gt;|&amp;#34;Fail&amp;#34;| CL[&amp;#34;Close Stream/Conn&amp;lt;br/&amp;gt;Release FD &amp;amp; Memory&amp;#34;]
 
- subgraph Stream Layer
- C1[&amp;#34;Inbound Concurrent&amp;lt;br/&amp;gt;Streams: 128&amp;#34;] --&amp;gt; D1[&amp;#34;Stream Scheduler&amp;#34;]
- C2[&amp;#34;Outbound Concurrent&amp;lt;br/&amp;gt;Streams: 256&amp;#34;] --&amp;gt; D1
- end
-
- subgraph Idle Management
- E1[&amp;#34;Connection Idle&amp;lt;br/&amp;gt;Timeout: 30s&amp;#34;] --&amp;gt; F1{&amp;#34;Health Check&amp;#34;}
- E2[&amp;#34;Stream Idle&amp;lt;br/&amp;gt;Timeout: 60s&amp;#34;] --&amp;gt; F1
- F1 --&amp;gt;|&amp;#34;Pass&amp;#34;| G1[&amp;#34;Update Active Timestamp&amp;#34;]
- F1 --&amp;gt;|&amp;#34;Fail&amp;#34;| G2[&amp;#34;Close Stream/Conn&amp;lt;br/&amp;gt;Release FD &amp;amp; Memory&amp;#34;]
- end
-
- B1 --&amp;gt; C1
- B1 --&amp;gt; C2
- D1 --&amp;gt; E1
- D1 --&amp;gt; E2
-
- style A1 fill:#4CAF50,color:#fff
- style A2 fill:#4CAF50,color:#fff
- style C1 fill:#2196F3,color:#fff
- style C2 fill:#2196F3,color:#fff
- style E1 fill:#FF9800,color:#fff
- style E2 fill:#FF9800,color:#fff&lt;/code&gt;&lt;/pre&gt;
+ classDef src fill:#bbdefb,stroke:#2196F3,color:#1B5E20
+ classDef proc fill:#fff3e0,stroke:#FF9800,color:#BF360C
+ classDef decision fill:#f3e5f5,stroke:#9C27B0,color:#4A148C
+ classDef ok fill:#c8e6c9,stroke:#4CAF50,color:#1B5E20
+ classDef bad fill:#ffcdd2,stroke:#f44336,color:#B71C1C
+ class TL src
+ class Q,SL proc
+ class I decision
+ class OK ok
+ class CL bad&lt;/code&gt;&lt;/pre&gt;
  &lt;/div&gt;
 &lt;/div&gt;&lt;h3 id="rust-connection-management"&gt;Rust Connection Management&lt;/h3&gt;
 &lt;p&gt;Rust&amp;rsquo;s &lt;code&gt;SwarmBuilder&lt;/code&gt; provides a fluent API for connection configuration:&lt;/p&gt;</description></item><item><title>Monitoring System Enterprise Architecture Evolution — First Steps with Prometheus</title><link>https://blog.mickeyzzc.tech/en/posts/architecture/prometheus-evolution-history-one/</link><pubDate>Thu, 12 Dec 2019 00:00:00 +0000</pubDate><guid>https://blog.mickeyzzc.tech/en/posts/architecture/prometheus-evolution-history-one/</guid><description>&lt;p&gt;&lt;code&gt;Prometheus&lt;/code&gt; is an open-source monitoring and time series database system that has gained widespread adoption in recent years.
