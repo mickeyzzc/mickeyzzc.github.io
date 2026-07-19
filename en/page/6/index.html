@@ -16,7 +16,7 @@
 </a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><nav class=sidebar-nav aria-label="Main navigation"><nav><ul><li><a aria-current=page class=active href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/series/>Series</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><div class=sidebar-categories><h3 class=sidebar-categories__title>Categories</h3><nav class=sidebar-categories__list><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
 <span class=sidebar-category-btn__count>22</span>
 </a><a href=/en/posts/network/ class=sidebar-category-btn><span>Network</span>
-<span class=sidebar-category-btn__count>19</span>
+<span class=sidebar-category-btn__count>20</span>
 </a><a href=/en/posts/architecture/ class=sidebar-category-btn><span>Architecture & Design</span>
 <span class=sidebar-category-btn__count>9</span>
 </a><a href=/en/posts/aihelper/ class=sidebar-category-btn><span>AI & Tools</span>
@@ -36,10 +36,16 @@
 </a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-md"><span>prometheus</span>
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-md"><span>linux</span>
 </a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
-</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
 </a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-xs"><span>open source</span>
-</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/telemetry/obs-tech-02-tsdb-storage/>TSDB Storage Architecture Deep Dive: InfluxDB, Prometheus, VictoriaMetrics, TimescaleDB</a></h2><div class=post-card__meta><time datetime=2026-06-16>June 16, 2026</time>
+</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/spatial-domain-restoration/>Spatial Domain Restoration & Edge-Preserving Filters</a></h2><div class=post-card__meta><time datetime=2026-06-16>June 16, 2026</time>
+<span class=post-card__reading-time>11 min read</span></div><div class=post-card__summary>The previous post introduced frequency domain image processing methods — transforming images to the frequency domain via Fourier transform, then performing filtering, restoration, and other operations. However, frequency domain methods are sometimes less intuitive, especially when we&rsquo;re more accustomed to directly manipulating pixels.
+Spatial domain methods process images directly in pixel space, without requiring transformations. This chapter introduces spatial domain image restoration, edge-preserving filtering, and sharpening techniques.
+Lucy-Richardson Iterative Deconvolution The goal of deconvolution is to recover the original image from a degraded image. The degradation process is typically modeled as convolution: degraded image = original image convolved with blur kernel + noise.</div><div class=post-card__tags><a href=/en/tags/computer-vision/ class=tag-chip>Computer Vision</a>
+<a href=/en/tags/image-processing/ class=tag-chip>Image Processing</a>
+<a href=/en/tags/deconvolution/ class=tag-chip>Deconvolution</a>
+<a href=/en/tags/bilateral-filter/ class=tag-chip>Bilateral Filter</a></div><a href=/en/posts/physical-world/spatial-domain-restoration/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/telemetry/obs-tech-02-tsdb-storage/>TSDB Storage Architecture Deep Dive: InfluxDB, Prometheus, VictoriaMetrics, TimescaleDB</a></h2><div class=post-card__meta><time datetime=2026-06-16>June 16, 2026</time>
 <span class=post-card__reading-time>7 min read</span></div><div class=post-card__summary>Introduction Time-Series Databases (TSDB) are the foundation of observability storage. The previous post outlined the main threads of storage evolution; this post focuses on the TSDB category—comparing the storage engines of four mainstream TSDBs: InfluxDB, Prometheus, VictoriaMetrics, and TimescaleDB. Whether you use Prometheus or are evaluating VictoriaMetrics, understanding the design tradeoffs of the underlying storage engines helps with more effective selection and usage.</div><div class=post-card__tags><a href=/en/tags/observability/ class=tag-chip>Observability</a>
 <a href=/en/tags/tsdb/ class=tag-chip>TSDB</a>
 <a href=/en/tags/influxdb/ class=tag-chip>InfluxDB</a>
@@ -101,13 +107,7 @@ Kernel side: eBPF program written in C, attached to hook points, collecting even
 <a href=/en/tags/cilium/ class=tag-chip>Cilium</a>
 <a href=/en/tags/linux/ class=tag-chip>Linux</a>
 <a href=/en/tags/oom/ class=tag-chip>OOM</a>
-<a href=/en/tags/memory-management/ class=tag-chip>Memory Management</a></div><a href=/en/posts/telemetry/ebpf-oom-tracer-cgo/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/telemetry/ebpf-oom-intro/>eBPF Observability: Getting Started with OOM Killer Monitoring</a></h2><div class=post-card__meta><time datetime=2026-06-10>June 10, 2026</time>
-<span class=post-card__reading-time>8 min read</span></div><div class=post-card__summary>eBPF (Extended Berkeley Packet Filter) started as a network packet filtering tool, but over nearly a decade it has evolved into a mainstream observability framework in the Linux kernel. It allows you to safely inject and execute custom programs without modifying kernel source code or loading kernel modules.
-This article kicks off the series, using OOM (Out-of-Memory) monitoring as a concrete entry point to learn the core eBPF concepts and toolchain.</div><div class=post-card__tags><a href=/en/tags/ebpf/ class=tag-chip>EBPF</a>
-<a href=/en/tags/linux/ class=tag-chip>Linux</a>
-<a href=/en/tags/oom/ class=tag-chip>OOM</a>
-<a href=/en/tags/memory-management/ class=tag-chip>Memory Management</a>
-<a href=/en/tags/bpftrace/ class=tag-chip>Bpftrace</a></div><a href=/en/posts/telemetry/ebpf-oom-intro/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/5/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/memory-management/ class=tag-chip>Memory Management</a></div><a href=/en/posts/telemetry/ebpf-oom-tracer-cgo/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/5/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>
