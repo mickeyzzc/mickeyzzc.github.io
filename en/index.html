@@ -14,7 +14,7 @@
 </a><a href=https://gitee.com/mickeybee class=sidebar-social-link aria-label=Gitee target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg>
 </a><a href=https://www.mlsbs.top/#/studio class=sidebar-social-link aria-label=Studio target=_blank rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
 </a><a href=mailto:mickey_zzc@126.com class=sidebar-social-link aria-label=E-Mail><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1.0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1.0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a></nav><nav class=sidebar-nav aria-label="Main navigation"><nav><ul><li><a aria-current=page class=active href=/en/>Home</a></li><li><a href=/en/about.html>About</a></li><li><a href=/en/series/>Series</a></li><li><a href=/en/archives/>Archives</a></li></ul></nav></nav><div class=sidebar-categories><h3 class=sidebar-categories__title>Categories</h3><nav class=sidebar-categories__list><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>19</span>
+<span class=sidebar-category-btn__count>20</span>
 </a><a href=/en/posts/aihelper/ class=sidebar-category-btn><span>AI & Tools</span>
 <span class=sidebar-category-btn__count>26</span>
 </a><a href=/en/posts/network/ class=sidebar-category-btn><span>Network</span>
@@ -36,10 +36,20 @@
 </a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-md"><span>prometheus</span>
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-md"><span>linux</span>
 </a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-sm"><span>ebpf</span>
-</a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
+</a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-xs"><span>computer vision</span>
-</a><a href=/en/tags/architecture/ class="tag-cloud__item tag-size-xs"><span>architecture</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibeesteward-v0.2-tech/>MiBeeSteward v0.2.0 Internals: Distributed Consistency, Anti-Entropy, and the Change-Detection Engine</a></h2><div class=post-card__meta><time datetime=2026-07-13>July 13, 2026</time>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-xs"><span>open source</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibee-nvr-v0.9/>MiBeeNvr v0.9.0: ONVIF Zero-Config Auto-Discovery + Storage Rewrite + Lock-Free Camera Manager + Optional FFmpeg</a></h2><div class=post-card__meta><time datetime=2026-07-18>July 18, 2026</time>
+<span class=post-card__reading-time>12 min read</span></div><div class=post-card__summary>Nine cameras had been running on a Banana Pi M5 for over six months, and the engineering debt accumulated since v0.6 had reached the point where it needed paying off. The /api/cameras endpoint would stall for 14.9 seconds while all 9 recorders started up — not because the traversal was slow, but because the cm.mu RWMutex was blocking, holding every read operation out. ONVIF camera addition still required typing in IP addresses manually, and with a household of CW500s, DS-2CD2047G2s, and others, every new camera meant opening a terminal session — not sustainable. FFmpeg as the only third-party binary dependency meant every deployment needed a check for whether it was installed, and on Raspberry Pi you also had to worry about hardware encoder compatibility. And the older Xiaomi devices — Dafang, Xiaofang, Aqara G2 — couldn&rsquo;t be integrated at all because they speak the TUTK protocol. None of these are new technical challenges; they&rsquo;re engineering debt, and v0.9 pays it off in one shot.</div><div class=post-card__tags><a href=/en/tags/nvr/ class=tag-chip>NVR</a>
+<a href=/en/tags/go/ class=tag-chip>Go</a>
+<a href=/en/tags/onvif/ class=tag-chip>ONVIF</a>
+<a href=/en/tags/storage/ class=tag-chip>Storage</a>
+<a href=/en/tags/lock-free/ class=tag-chip>Lock-Free</a>
+<a href=/en/tags/ffmpeg/ class=tag-chip>Ffmpeg</a>
+<a href=/en/tags/xiaomi/ class=tag-chip>Xiaomi</a>
+<a href=/en/tags/tutk/ class=tag-chip>TUTK</a>
+<a href=/en/tags/open-source/ class=tag-chip>Open Source</a>
+<a href=/en/tags/golangci-lint/ class=tag-chip>Golangci-Lint</a></div><a href=/en/posts/mibee-oss/mibee-nvr-v0.9/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibeesteward-v0.2-tech/>MiBeeSteward v0.2.0 Internals: Distributed Consistency, Anti-Entropy, and the Change-Detection Engine</a></h2><div class=post-card__meta><time datetime=2026-07-13>July 13, 2026</time>
 <span class=post-card__reading-time>10 min read</span></div><div class=post-card__summary>The previous post covered what v0.2.0 ships. This one covers why it&rsquo;s designed that way — distributed consistency is the heaviest part of this release, and several seemingly casual decisions have specific trade-offs behind them.
 The problem is clear: the center can only see its own LAN, but users have several. Dropping a center into every subnet isn&rsquo;t realistic, so enter mibee-agent — a binary that only &ldquo;scans local + reports to center.&rdquo; But the moment an agent exists, it drags along a whole string of protocol questions: how to report, how to reconcile, how to detect offline, how not to overwhelm the center&rsquo;s writes. Let&rsquo;s take them one at a time.</div><div class=post-card__tags><a href=/en/tags/go/ class=tag-chip>Go</a>
 <a href=/en/tags/distributed/ class=tag-chip>Distributed</a>
@@ -69,7 +79,7 @@ This article traces speech synthesis from VODER in 1939 to Flow Matching in 2025
 <a href=/en/tags/technology-history/ class=tag-chip>Technology History</a>
 <a href=/en/tags/zero-shot-cloning/ class=tag-chip>Zero-Shot Cloning</a></div><a href=/en/posts/aihelper/ai-video-audio-synthesis-5/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/aihelper/ai-video-audio-synthesis-4/>Code-Generated Promo Videos (4): ffmpeg Muxing, End-to-End Workflow & Pitfall Cookbook</a></h2><div class=post-card__meta><time datetime=2026-07-11>July 11, 2026</time>
 <span class=post-card__reading-time>14 min read</span></div><div class=post-card__summary>Overview This is the final installment of the series. The previous three parts covered generating footage with Remotion, batch voiceover with edge-tts, and offline BGM synthesis with numpy. This part brings everything together: using ffmpeg filter_complex to mux the silent video, 7 voice clips, and one BGM into the final export — along with the end-to-end workflow, a pitfall cookbook, and the underlying principles.
-ffmpeg Muxing Overall Approach The muxing stage has a simple job: pack three things into one MP4.</div><div class=post-card__tags><a href=/en/tags/ffmpeg/ class=tag-chip>FFmpeg</a>
+ffmpeg Muxing Overall Approach The muxing stage has a simple job: pack three things into one MP4.</div><div class=post-card__tags><a href=/en/tags/ffmpeg/ class=tag-chip>Ffmpeg</a>
 <a href=/en/tags/av-muxing/ class=tag-chip>AV Muxing</a>
 <a href=/en/tags/filter_complex/ class=tag-chip>Filter_complex</a>
 <a href=/en/tags/sidechain-compression/ class=tag-chip>Sidechain Compression</a>
@@ -106,16 +116,7 @@ Stage Tool Output Footage Remotion (React-based video) Silent MP4 Voiceover edge
 <a href=/en/tags/nuclei/ class=tag-chip>Nuclei</a>
 <a href=/en/tags/observerward/ class=tag-chip>ObserverWard</a>
 <a href=/en/tags/network-security/ class=tag-chip>Network Security</a>
-<a href=/en/tags/asset-discovery/ class=tag-chip>Asset Discovery</a></div><a href=/en/posts/network/multi-fingerprint-aggregation-engines/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/nmap-npsl-license-and-alternatives/>NPSL License Restrictions and Open-Source Fingerprint Alternatives</a></h2><div class=post-card__meta><time datetime=2026-07-09>July 9, 2026</time>
-<span class=post-card__reading-time>15 min read</span></div><div class=post-card__summary>Nmap is the gold standard of network scanning, and its fingerprint databases (nmap-os-db, nmap-service-probes) represent over two decades of accumulated knowledge. However, since Nmap 7.90 (2021), Nmap&rsquo;s license was changed from GPLv2 to NPSL (Nmap Public Source License), adding many restrictions beyond standard GPL terms.
-This means: even open-source projects that read or embed Nmap&rsquo;s fingerprint data files may constitute derivative works of Nmap and must be released under an NPSL-compatible license. For closed-source commercial products, the compliance risk is even more severe—either open-source the entire project under NPSL, or pay a one-time OEM license fee of $59,980~$119,980.</div><div class=post-card__tags><a href=/en/tags/nmap/ class=tag-chip>Nmap</a>
-<a href=/en/tags/npsl/ class=tag-chip>NPSL</a>
-<a href=/en/tags/open-source-license/ class=tag-chip>Open Source License</a>
-<a href=/en/tags/fingerprinting/ class=tag-chip>Fingerprinting</a>
-<a href=/en/tags/fingerprintx/ class=tag-chip>Fingerprintx</a>
-<a href=/en/tags/p0f/ class=tag-chip>P0f</a>
-<a href=/en/tags/ja4/ class=tag-chip>JA4</a>
-<a href=/en/tags/masscan/ class=tag-chip>Masscan</a></div><a href=/en/posts/network/nmap-npsl-license-and-alternatives/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><span class="pagination__prev pagination__prev--disabled">← Previous</span>
+<a href=/en/tags/asset-discovery/ class=tag-chip>Asset Discovery</a></div><a href=/en/posts/network/multi-fingerprint-aggregation-engines/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><span class="pagination__prev pagination__prev--disabled">← Previous</span>
 <span class=pagination__pages><span class="pagination__page pagination__page--active">1</span>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>
