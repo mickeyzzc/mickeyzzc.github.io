@@ -40,7 +40,7 @@
 </a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-sm"><span>开源</span>
 </a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span>
 </a><a href=/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/mibee-oss/mibeesteward-v0.4/>MiBeeSteward v0.4.0: 路由器常驻发现 + OpenWrt 部署 + 设备持久化重写</a></h2><div class=post-card__meta><time datetime=2026-07-29>July 29, 2026</time>
-<span class=post-card__reading-time>12 分钟阅读</span></div><div class=post-card__summary>v0.3.0 发容器镜像时有个绕不开的前提：容器得 --network host 才能看到完整的 ARP 表，否则 MAC 发现数直接归零。根因是 network namespace——容器看不见宿主机那张塞满 30 行的 /proc/net/arp。
+<span class=post-card__reading-time>15 分钟阅读</span></div><div class=post-card__summary>v0.3.0 发容器镜像时有个绕不开的前提：容器得 --network host 才能看到完整的 ARP 表，否则 MAC 发现数直接归零。根因是 network namespace——容器看不见宿主机那张塞满 30 行的 /proc/net/arp。
 v0.4.0 把这个约束推到了一个更彻底的位置：**如果发现程序本身就跑在网关上呢？**网关是整个 LAN 流量的必经之路，DHCP 租约、conntrack 连接表、hostapd 的无线客户端、dnsmasq 的 DNS 查询日志——这些数据就在它眼皮底下，不需要再去 SNMP 探测交换机、不用扫端口、零额外网络流量。这版让 center 或 agent 直接常驻在路由器上，把这四个被动数据源接进来。</div><div class=post-card__tags><a href=/tags/go/ class=tag-chip>Go</a>
 <a href=/tags/openwrt/ class=tag-chip>OpenWrt</a>
 <a href=/tags/%E8%B7%AF%E7%94%B1%E5%99%A8/ class=tag-chip>路由器</a>
