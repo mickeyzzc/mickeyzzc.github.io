@@ -27,7 +27,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>25</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>27</span>
+<span class=sidebar-category-btn__count>28</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -40,7 +40,13 @@
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-xs"><span>computer vision</span>
-</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/aihelper/from-prompt-to-context/>From Prompts to Context: Why Clear Instructions Alone Are Not Enough</a></h2><div class=post-card__meta><time datetime=2024-08-15>August 15, 2024</time>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/aihelper/context-engineering-guide/>Context Engineering: Giving AI the Right Knowledge</a></h2><div class=post-card__meta><time datetime=2024-11-10>November 10, 2024</time>
+<span class=post-card__reading-time>11 min read</span></div><div class=post-card__summary>What is Context Engineering? In June 2025, Andrej Karpathy provided a definition of Context Engineering on the OpenAI engineering blog: &ldquo;the delicate art and science of filling the context window with just the right information for the model to take the next step.&rdquo;
+This definition captures the core distinction from Prompt Engineering:
+Prompt Engineering: Optimizes &ldquo;what you say&rdquo; – focuses on how input instructions are expressed Context Engineering: Optimizes &ldquo;what the model knows&rdquo; – focuses on what information the model can access Using a chef as an analogy: Prompt Engineering adjusts the menu instructions given to the chef, while Context Engineering manages the complete ingredient warehouse the chef can draw from.</div><div class=post-card__tags><a href=/en/tags/ai-engineering/ class=tag-chip>AI Engineering</a>
+<a href=/en/tags/paradigm-evolution/ class=tag-chip>Paradigm Evolution</a>
+<a href=/en/tags/context-engineering/ class=tag-chip>Context Engineering</a>
+<a href=/en/tags/rag/ class=tag-chip>RAG</a></div><a href=/en/posts/aihelper/context-engineering-guide/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/aihelper/from-prompt-to-context/>From Prompts to Context: Why Clear Instructions Alone Are Not Enough</a></h2><div class=post-card__meta><time datetime=2024-08-15>August 15, 2024</time>
 <span class=post-card__reading-time>3 min read</span></div><div class=post-card__summary>The Problem Consider a prompt on &ldquo;the latest best practices for Python MySQL connections,&rdquo; with a carefully designed persona (&ldquo;You are a Python database expert with 10 years of experience&rdquo;), clear instructions (&ldquo;Only provide 2024 best practices, no deprecated methods&rdquo;), and specific format requirements (&ldquo;List main approaches, pros/cons, code examples, security considerations&rdquo;).
 The prompt itself is well-designed, yet GPT may still confidently return code using 2018-deprecated methods with security vulnerabilities. The reason: the model doesn&rsquo;t know 2024&rsquo;s best practices, because its training data cutoff doesn&rsquo;t include this new information. The problem isn&rsquo;t the prompt—it&rsquo;s the model&rsquo;s knowledge.</div><div class=post-card__tags><a href=/en/tags/ai-engineering/ class=tag-chip>AI Engineering</a>
 <a href=/en/tags/paradigm-evolution/ class=tag-chip>Paradigm Evolution</a>
@@ -92,14 +98,7 @@ Pixie CLI: Used to deploy Pixie. Can also be used to run queries and manage reso
 The Linux kernel we use daily also adopts the time-sharing system philosophy, mainly reflected in the following aspects:
 Time Slice: Linux uses a time slice mechanism to divide CPU time. Each process can only execute for one time slice before yielding the CPU to other processes. This achieves CPU time sharing and fair allocation.</div><div class=post-card__tags><a href=/en/tags/cpu/ class=tag-chip>CPU</a>
 <a href=/en/tags/linux/ class=tag-chip>Linux</a>
-<a href=/en/tags/operating-system/ class=tag-chip>Operating System</a></div><a href=/en/posts/telemetry/talk-about-cpu-timer/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/rust-p2p-development/>Rust P2P Development: From Ping to Gossipsub</a></h2><div class=post-card__meta><time datetime=2022-08-22>August 22, 2022</time>
-<span class=post-card__reading-time>7 min read</span></div><div class=post-card__summary>Rust&rsquo;s ownership model and zero-cost abstractions make it an ideal language for implementing P2P network protocols. The Rust implementation of libp2p (rust-libp2p) provides a complete protocol stack from transport to application layer.
-Environment Setup Configure dependencies in Cargo.toml:
-toml 1 2 3 4 5 6 7 8 9 [dependencies] libp2p = { version = "0.53", features = [ "tokio", "tcp", "quic", "noise", "yamux", "mplex", "ping", "identify", "kad", "gossipsub", "relay", "dcutr", "macros", ] } tokio = { version = "1.0", features = ["full"] } tokio-stream = "0.1" futures = "0.3" anyhow = "1.0" Create the project:</div><div class=post-card__tags><a href=/en/tags/p2p/ class=tag-chip>P2P</a>
-<a href=/en/tags/rust/ class=tag-chip>Rust</a>
-<a href=/en/tags/libp2p/ class=tag-chip>Libp2p</a>
-<a href=/en/tags/kademlia/ class=tag-chip>Kademlia</a>
-<a href=/en/tags/gossipsub/ class=tag-chip>Gossipsub</a></div><a href=/en/posts/network/rust-p2p-development/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/16/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/operating-system/ class=tag-chip>Operating System</a></div><a href=/en/posts/telemetry/talk-about-cpu-timer/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/16/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>
