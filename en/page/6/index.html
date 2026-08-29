@@ -27,7 +27,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>25</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>28</span>
+<span class=sidebar-category-btn__count>29</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -40,7 +40,16 @@
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-xs"><span>computer vision</span>
-</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/nmap-fingerprint-tool-dev-go-rust-zig/>Building Nmap Fingerprint Loading Tools: Go vs Rust vs Zig Compared</a></h2><div class=post-card__meta><time datetime=2026-07-09>July 9, 2026</time>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/nmap-npsl-license-and-alternatives/>NPSL License Restrictions and Open-Source Fingerprint Alternatives</a></h2><div class=post-card__meta><time datetime=2026-07-09>July 9, 2026</time>
+<span class=post-card__reading-time>15 min read</span></div><div class=post-card__summary>Nmap is the gold standard of network scanning, and its fingerprint databases (nmap-os-db, nmap-service-probes) represent over two decades of accumulated knowledge. However, since Nmap 7.90 (2021), Nmap&rsquo;s license was changed from GPLv2 to NPSL (Nmap Public Source License), adding many restrictions beyond standard GPL terms.
+This means: even open-source projects that read or embed Nmap&rsquo;s fingerprint data files may constitute derivative works of Nmap and must be released under an NPSL-compatible license. For closed-source commercial products, the compliance risk is even more severe—either open-source the entire project under NPSL, or pay a one-time OEM license fee of $59,980~$119,980.</div><div class=post-card__tags><a href=/en/tags/nmap/ class=tag-chip>Nmap</a>
+<a href=/en/tags/npsl/ class=tag-chip>NPSL</a>
+<a href=/en/tags/open-source-license/ class=tag-chip>Open Source License</a>
+<a href=/en/tags/fingerprinting/ class=tag-chip>Fingerprinting</a>
+<a href=/en/tags/fingerprintx/ class=tag-chip>Fingerprintx</a>
+<a href=/en/tags/p0f/ class=tag-chip>P0f</a>
+<a href=/en/tags/ja4/ class=tag-chip>JA4</a>
+<a href=/en/tags/masscan/ class=tag-chip>Masscan</a></div><a href=/en/posts/network/nmap-npsl-license-and-alternatives/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/nmap-fingerprint-tool-dev-go-rust-zig/>Building Nmap Fingerprint Loading Tools: Go vs Rust vs Zig Compared</a></h2><div class=post-card__meta><time datetime=2026-07-09>July 9, 2026</time>
 <span class=post-card__reading-time>23 min read</span></div><div class=post-card__summary>Nmap has the world&rsquo;s most comprehensive network fingerprint database — over 6,000 service probe signatures and 5,000+ OS fingerprints. But its fingerprint engine is implemented in C++, tightly coupled to PCRE2 regex and nsock async I/O. Reusing it directly means accepting Nmap&rsquo;s entire architectural constraints.
 Building a custom fingerprint loading tool is valuable when you need to embed the fingerprint database into a standalone binary for offline scanning, integrate fingerprint matching into an automated pipeline, bypass Nmap&rsquo;s licensing constraints for customized scan strategies, or use it as a foundational component in a security product.</div><div class=post-card__tags><a href=/en/tags/nmap/ class=tag-chip>Nmap</a>
 <a href=/en/tags/fingerprinting/ class=tag-chip>Fingerprinting</a>
@@ -111,14 +120,7 @@ This article examines six representative systems and how they adapt Gossip proto
 <a href=/en/tags/redis/ class=tag-chip>Redis</a>
 <a href=/en/tags/cassandra/ class=tag-chip>Cassandra</a>
 <a href=/en/tags/message-queues/ class=tag-chip>Message Queues</a>
-<a href=/en/tags/distributed-systems/ class=tag-chip>Distributed Systems</a></div><a href=/en/posts/network/gossip-production-systems/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/swim-membership-protocol/>SWIM Protocol and Cluster Membership Management</a></h2><div class=post-card__meta><time datetime=2026-07-07>July 7, 2026</time>
-<span class=post-card__reading-time>16 min read</span></div><div class=post-card__summary>In the previous article, we explored the core principles of the Gossip protocol in depth—Epidemic propagation models, the distinction between Anti-Entropy and Rumor-Mongering, and the mathematical foundation of the Phi Accrual failure detector. Gossip provides a general mechanism for information dissemination, but to build a complete distributed cluster, information dissemination alone is not enough: every node needs to know who else is in the cluster—who is online, who has left, and who has just joined.</div><div class=post-card__tags><a href=/en/tags/p2p/ class=tag-chip>P2P</a>
-<a href=/en/tags/swim/ class=tag-chip>SWIM</a>
-<a href=/en/tags/gossip/ class=tag-chip>Gossip</a>
-<a href=/en/tags/membership-management/ class=tag-chip>Membership Management</a>
-<a href=/en/tags/failure-detection/ class=tag-chip>Failure Detection</a>
-<a href=/en/tags/distributed-systems/ class=tag-chip>Distributed Systems</a>
-<a href=/en/tags/cluster/ class=tag-chip>Cluster</a></div><a href=/en/posts/network/swim-membership-protocol/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/5/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/distributed-systems/ class=tag-chip>Distributed Systems</a></div><a href=/en/posts/network/gossip-production-systems/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/5/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>

@@ -27,7 +27,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>25</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>28</span>
+<span class=sidebar-category-btn__count>29</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -40,7 +40,14 @@
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-xs"><span>computer vision</span>
-</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/onvif-go-takeover/>Taking Over onvif-go: Real-Camera Fixes, Zero Dependencies, and Service Facades</a></h2><div class=post-card__meta><time datetime=2026-08-27>August 27, 2026</time>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/onvif-gb28181-four-libs/>Four Protocol Libraries, Extracted: ONVIF and GB28181 in Go and Rust</a></h2><div class=post-card__meta><time datetime=2026-08-29>August 29, 2026</time>
+<span class=post-card__reading-time>8 min read</span></div><div class=post-card__summary>MiBee&rsquo;s camera access runs on two protocols. ONVIF is the de facto standard internationally — Hikvision, Axis, Dahua, and Bosch all speak it. GB/T 28181 is China&rsquo;s national surveillance standard, unavoidable in government and state-owned projects. The device side (Raspberry Pi camera firmware, one Go and one Rust implementation) and the NVR side (MiBeeNvr, Go) both speak these two protocols, and the stacks have always lived inside the projects.
+Two problems with that. First, this code is pickled in interop details — digest-auth qop handling, SIP Via-branch uniqueness, MANSCDP element-vs-attribute dual forms, TCP framing header byte counts — each one was ground out against a real platform, and a new project would have to grind them all again. Second, a library survey two weeks ago showed the open-source landscape for these protocols is unevenly populated; several positions have no one standing in them.</div><div class=post-card__tags><a href=/en/tags/go/ class=tag-chip>Go</a>
+<a href=/en/tags/rust/ class=tag-chip>Rust</a>
+<a href=/en/tags/onvif/ class=tag-chip>ONVIF</a>
+<a href=/en/tags/gb28181/ class=tag-chip>GB28181</a>
+<a href=/en/tags/ip-cameras/ class=tag-chip>IP Cameras</a>
+<a href=/en/tags/open-source/ class=tag-chip>Open Source</a></div><a href=/en/posts/mibee-oss/onvif-gb28181-four-libs/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/onvif-go-takeover/>Taking Over onvif-go: Real-Camera Fixes, Zero Dependencies, and Service Facades</a></h2><div class=post-card__meta><time datetime=2026-08-27>August 27, 2026</time>
 <span class=post-card__reading-time>9 min read</span></div><div class=post-card__summary>MiBeeNvr talks to cameras over ONVIF, and this library is what sits underneath. ONVIF is the de facto standard for IP video surveillance equipment: device discovery, media profiles, PTZ control, event subscriptions — all one set of SOAP-over-HTTP service conventions. Any brand that claims ONVIF compliance can, in theory, be integrated through the same calls.
 onvif-go is that stack implemented in Go. We did not write it from scratch: its upstream was 0x524a/onvif-go — the previous author reshaped it into its modern form of a client plus a virtual camera server (the git history still traces back to earlier Go ONVIF attempts in the community). But upstream stalled entering 2026: the last merged PR landed in mid-January, the v1.0-through-v1.1.3 release cadence from late 2025 never resumed, and three Improve Test Coverage issues filed in November 2025 sit unclaimed to this day. Meanwhile we hit two problems in our own camera pool that could only be fixed inside the library.</div><div class=post-card__tags><a href=/en/tags/go/ class=tag-chip>Go</a>
 <a href=/en/tags/onvif/ class=tag-chip>ONVIF</a>
@@ -66,7 +73,7 @@ Data caveats up front: compression figures are ranges from standards-body verifi
 <a href=/en/tags/level/ class=tag-chip>Level</a>
 <a href=/en/tags/crf/ class=tag-chip>CRF</a>
 <a href=/en/tags/rate-control/ class=tag-chip>Rate Control</a>
-<a href=/en/tags/ffmpeg/ class=tag-chip>FFmpeg</a></div><a href=/en/posts/network/h264-pipeline-bitstream/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/video-compression-fundamentals/>Why Video Compresses 100×: Redundancy, YUV, I/P/B Frames and GOP</a></h2><div class=post-card__meta><time datetime=2026-08-24>August 24, 2026</time>
+<a href=/en/tags/ffmpeg/ class=tag-chip>Ffmpeg</a></div><a href=/en/posts/network/h264-pipeline-bitstream/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/video-compression-fundamentals/>Why Video Compresses 100×: Redundancy, YUV, I/P/B Frames and GOP</a></h2><div class=post-card__meta><time datetime=2026-08-24>August 24, 2026</time>
 <span class=post-card__reading-time>9 min read</span></div><div class=post-card__summary>The previous post on browser codec selection kept mentioning H.264, I-frames and GOP without explaining them, and every latency figure in the protocol panorama ultimately hinges on these concepts too. This post fills in the foundation: what actually happens when a stream of pixels turns into a few Mbps. No math derivations — mechanisms, each tied to its engineering consequence (latency, seeking, corruption, storage).
 Start with some arithmetic.
 How big is uncompressed video One 1080p (1920×1080), 30fps, 8bit RGB stream:</div><div class=post-card__tags><a href=/en/tags/video-coding/ class=tag-chip>Video Coding</a>
@@ -115,20 +122,7 @@ Three concepts used throughout:</div><div class=post-card__tags><a href=/en/tags
 <a href=/en/tags/raft/ class=tag-chip>Raft</a>
 <a href=/en/tags/bft/ class=tag-chip>BFT</a>
 <a href=/en/tags/blockchain/ class=tag-chip>Blockchain</a>
-<a href=/en/tags/selection/ class=tag-chip>Selection</a></div><a href=/en/posts/architecture/consensus-algorithms-landscape/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/nvr-protocol-landscape/>The Surveillance Protocol Panorama: A Four-Layer Map from Access to Compliance — What Each Protocol Is and When to Use It</a></h2><div class=post-card__meta><time datetime=2026-08-12>August 12, 2026</time>
-<span class=post-card__reading-time>12 min read</span></div><div class=post-card__summary>The previous post took ONVIF and GB/T 28181 apart down to signaling and messages. But building an NVR means the protocol environment extends well beyond those two: vendor-private APIs on the camera side, a view-library standard on the public-security side, Ministry-of-Transport standards for vehicles, WebRTC for browser viewing, HLS for public distribution, and a national-crypto compliance stack. This post lays out the entire landscape—each protocol gets four sections: what it is → key technical points → its relationship with other protocols → its value to an NVR. Beginners can read it as an index; veterans can jump straight to the priority table.</div><div class=post-card__tags><a href=/en/tags/onvif/ class=tag-chip>ONVIF</a>
-<a href=/en/tags/gb28181/ class=tag-chip>GB28181</a>
-<a href=/en/tags/rtsp/ class=tag-chip>RTSP</a>
-<a href=/en/tags/webrtc/ class=tag-chip>WebRTC</a>
-<a href=/en/tags/rtmp/ class=tag-chip>RTMP</a>
-<a href=/en/tags/hls/ class=tag-chip>HLS</a>
-<a href=/en/tags/srt/ class=tag-chip>SRT</a>
-<a href=/en/tags/ga/t-1400/ class=tag-chip>GA/T 1400</a>
-<a href=/en/tags/svac/ class=tag-chip>SVAC</a>
-<a href=/en/tags/gb-35114/ class=tag-chip>GB 35114</a>
-<a href=/en/tags/isapi/ class=tag-chip>ISAPI</a>
-<a href=/en/tags/surveillance/ class=tag-chip>Surveillance</a>
-<a href=/en/tags/nvr/ class=tag-chip>NVR</a></div><a href=/en/posts/network/nvr-protocol-landscape/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><span class="pagination__prev pagination__prev--disabled">← Previous</span>
+<a href=/en/tags/selection/ class=tag-chip>Selection</a></div><a href=/en/posts/architecture/consensus-algorithms-landscape/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><span class="pagination__prev pagination__prev--disabled">← Previous</span>
 <span class=pagination__pages><span class="pagination__page pagination__page--active">1</span>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>
