@@ -27,7 +27,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>25</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>29</span>
+<span class=sidebar-category-btn__count>30</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -40,7 +40,16 @@
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-xs"><span>computer vision</span>
-</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/swim-membership-protocol/>SWIM Protocol and Cluster Membership Management</a></h2><div class=post-card__meta><time datetime=2026-07-07>July 7, 2026</time>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/gossip-production-systems/>Gossip in Production Systems</a></h2><div class=post-card__meta><time datetime=2026-07-07>July 7, 2026</time>
+<span class=post-card__reading-time>22 min read</span></div><div class=post-card__summary>The previous four articles in this series built a complete knowledge foundation—from Epidemic propagation theory in Gossip, to the SWIM membership protocol, to P2P implementations in Rust and Go, and finally to production best practices. Now it is time to apply this knowledge to real distributed systems.
+This article examines six representative systems and how they adapt Gossip protocols to different scenarios: from Gossipsub parameter tuning to Raft membership changes, from Redis Cluster PING/PONG to Cassandra&rsquo;s GossipDigest protocol, and the hidden Gossip routing mechanisms inside message queues.</div><div class=post-card__tags><a href=/en/tags/p2p/ class=tag-chip>P2P</a>
+<a href=/en/tags/gossip/ class=tag-chip>Gossip</a>
+<a href=/en/tags/gossipsub/ class=tag-chip>Gossipsub</a>
+<a href=/en/tags/raft/ class=tag-chip>Raft</a>
+<a href=/en/tags/redis/ class=tag-chip>Redis</a>
+<a href=/en/tags/cassandra/ class=tag-chip>Cassandra</a>
+<a href=/en/tags/message-queues/ class=tag-chip>Message Queues</a>
+<a href=/en/tags/distributed-systems/ class=tag-chip>Distributed Systems</a></div><a href=/en/posts/network/gossip-production-systems/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/swim-membership-protocol/>SWIM Protocol and Cluster Membership Management</a></h2><div class=post-card__meta><time datetime=2026-07-07>July 7, 2026</time>
 <span class=post-card__reading-time>16 min read</span></div><div class=post-card__summary>In the previous article, we explored the core principles of the Gossip protocol in depth—Epidemic propagation models, the distinction between Anti-Entropy and Rumor-Mongering, and the mathematical foundation of the Phi Accrual failure detector. Gossip provides a general mechanism for information dissemination, but to build a complete distributed cluster, information dissemination alone is not enough: every node needs to know who else is in the cluster—who is online, who has left, and who has just joined.</div><div class=post-card__tags><a href=/en/tags/p2p/ class=tag-chip>P2P</a>
 <a href=/en/tags/swim/ class=tag-chip>SWIM</a>
 <a href=/en/tags/gossip/ class=tag-chip>Gossip</a>
@@ -113,15 +122,7 @@ All technical descriptions are verified against primary sources—RFC originals,
 <a href=/en/tags/push-streaming/ class=tag-chip>Push Streaming</a>
 <a href=/en/tags/protocol-analysis/ class=tag-chip>Protocol Analysis</a>
 <a href=/en/tags/gortmplib/ class=tag-chip>Gortmplib</a>
-<a href=/en/tags/go2rtc/ class=tag-chip>Go2rtc</a></div><a href=/en/posts/mibee-oss/douyu-rtmp-handshake-analysis/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/telemetry/obs-tech-08-storage-selection-guide/>Observability Storage Selection Guide: A Scenario-Driven Decision Framework</a></h2><div class=post-card__meta><time datetime=2026-07-01>July 1, 2026</time>
-<span class=post-card__reading-time>8 min read</span></div><div class=post-card__summary>The previous 7 articles broke down the storage architectures of each observability domain—TSDB, logging, tracing, RUM, profiling, and eBPF. This one pulls them together: how to pick storage for your scenario. Teams differ in scale, tech stack, budget, and requirements—there is no &ldquo;best&rdquo; storage, only the one that fits you.
-Picking storage is a bit like picking a car—a startup needs a cost-efficient compact (Loki + VictoriaMetrics), an enterprise with compliance needs wants a heavy-duty truck (Elasticsearch), and a platform team wants a versatile van (ClickHouse unified). It comes down to four dimensions: data volume, query patterns, budget, and team size. The animation below walks three typical scenarios through the decision matrix:</div><div class=post-card__tags><a href=/en/tags/observability/ class=tag-chip>Observability</a>
-<a href=/en/tags/storage-selection/ class=tag-chip>Storage Selection</a>
-<a href=/en/tags/tsdb/ class=tag-chip>TSDB</a>
-<a href=/en/tags/logging/ class=tag-chip>Logging</a>
-<a href=/en/tags/tracing/ class=tag-chip>Tracing</a>
-<a href=/en/tags/profiling/ class=tag-chip>Profiling</a>
-<a href=/en/tags/architecture-decision/ class=tag-chip>Architecture Decision</a></div><a href=/en/posts/telemetry/obs-tech-08-storage-selection-guide/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/6/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/go2rtc/ class=tag-chip>Go2rtc</a></div><a href=/en/posts/mibee-oss/douyu-rtmp-handshake-analysis/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/6/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>

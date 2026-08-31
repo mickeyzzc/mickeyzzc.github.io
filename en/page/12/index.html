@@ -27,7 +27,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>25</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>29</span>
+<span class=sidebar-category-btn__count>30</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -40,7 +40,13 @@
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-xs"><span>computer vision</span>
-</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibee-nvr-v0.4-tech/>MiBeeNvr v0.4.0: Audio Recording Pipeline and Multi-Layer Health Monitoring Architecture</a></h2><div class=post-card__meta><time datetime=2026-05-25>May 25, 2026</time>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/anc-tuning-debugging/>ANC Tuning & Performance Optimization</a></h2><div class=post-card__meta><time datetime=2026-05-25>May 25, 2026</time>
+<span class=post-card__reading-time>11 min read</span></div><div class=post-card__summary>In engineering practice, the most time-consuming and experience-dependent part of an active noise control system is not algorithm selection, but parameter tuning and stability debugging. Filter order, step size, sampling rate — each parameter interacts with the others in ways that are not always obvious. This article draws from hands-on experience to cover the key parameter selection logic and common troubleshooting approaches in ANC tuning.
+Filter Order Selection The FIR filter order $N$ directly determines two core metrics: frequency resolution and computational complexity. Getting this choice wrong reveals itself early in debugging — poor noise reduction, slow convergence, or outright divergence.</div><div class=post-card__tags><a href=/en/tags/anc/ class=tag-chip>ANC</a>
+<a href=/en/tags/performance-optimization/ class=tag-chip>Performance Optimization</a>
+<a href=/en/tags/stability/ class=tag-chip>Stability</a>
+<a href=/en/tags/debugging/ class=tag-chip>Debugging</a>
+<a href=/en/tags/parameter-tuning/ class=tag-chip>Parameter Tuning</a></div><a href=/en/posts/physical-world/anc-tuning-debugging/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibee-nvr-v0.4-tech/>MiBeeNvr v0.4.0: Audio Recording Pipeline and Multi-Layer Health Monitoring Architecture</a></h2><div class=post-card__meta><time datetime=2026-05-25>May 25, 2026</time>
 <span class=post-card__reading-time>7 min read</span></div><div class=post-card__summary>After v0.3.1 shipped, v0.4.0 is a feature-dense release: audio recording pipeline, multi-layer health monitoring engine, HLS/LL-HLS playback stability optimization, and a major UI redesign. For the full changelog, see GitHub Release Notes.
 The previous post covered v0.3.x&rsquo;s multi-protocol streaming and Xiaomi camera support (v0.3.0 Tech Post). If you haven&rsquo;t read the first post, start with MiBeeNvr Introduction.
 Audio Recording: From Silent to Sound In the v0.3.x era, recorded MP4 files only had a video track. v0.4.0 introduces a complete audio capture and muxing pipeline, supporting AAC audio from RTSP cameras and G.711 audio from ONVIF/Xiaomi cameras.</div><div class=post-card__tags><a href=/en/tags/nvr/ class=tag-chip>NVR</a>
@@ -111,14 +117,7 @@ As someone with several Xiaomi cameras at home, I always had one frustration: ev
 <a href=/en/tags/xiaomi-camera/ class=tag-chip>Xiaomi Camera</a>
 <a href=/en/tags/smart-home/ class=tag-chip>Smart Home</a>
 <a href=/en/tags/recording/ class=tag-chip>Recording</a>
-<a href=/en/tags/open-source/ class=tag-chip>Open Source</a></div><a href=/en/posts/mibee-oss/mibee-nvr-v0.3-promo/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/telemetry/security-collector-exporter-ebpf-v030/>security-collector-exporter v0.3.0: Real-Time Security Monitoring with eBPF</a></h2><div class=post-card__meta><time datetime=2026-05-19>May 19, 2026</time>
-<span class=post-card__reading-time>8 min read</span></div><div class=post-card__summary>From Static to Real-Time The previous article introduced security-collector-exporter v0.1.0 — turning Linux security configuration states into Prometheus metrics. But v0.1.0 is essentially &ldquo;snapshot-based&rdquo;: periodically reading /etc, /proc, capturing the static configuration at a single point in time.
-There&rsquo;s an area of security operations that snapshots can&rsquo;t cover: real-time security events. Someone running a reverse shell, a process escalating privileges, an abnormal network connection, someone loading a kernel module — these events happen and pass; you&rsquo;d never see them at your next scrape.</div><div class=post-card__tags><a href=/en/tags/prometheus/ class=tag-chip>Prometheus</a>
-<a href=/en/tags/ebpf/ class=tag-chip>EBPF</a>
-<a href=/en/tags/linux/ class=tag-chip>Linux</a>
-<a href=/en/tags/security-monitoring/ class=tag-chip>Security Monitoring</a>
-<a href=/en/tags/go/ class=tag-chip>Go</a>
-<a href=/en/tags/exporter/ class=tag-chip>Exporter</a></div><a href=/en/posts/telemetry/security-collector-exporter-ebpf-v030/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/11/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/open-source/ class=tag-chip>Open Source</a></div><a href=/en/posts/mibee-oss/mibee-nvr-v0.3-promo/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/11/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>

@@ -27,7 +27,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>25</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>29</span>
+<span class=sidebar-category-btn__count>30</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -40,7 +40,12 @@
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-xs"><span>computer vision</span>
-</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/ptz-foundations-two-devils/>The Two Devils of PTZ Cameras: Long-Focus Amplification and Dead Time</a></h2><div class=post-card__meta><time datetime=2026-07-30>July 30, 2026</time>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/ptz-stability-four-layers/>PTZ Stability Four-Layer Defense: From Mechanics to Maintenance</a></h2><div class=post-card__meta><time datetime=2026-07-31>July 31, 2026</time>
+<span class=post-card__reading-time>17 min read</span></div><div class=post-card__summary>The most frustrating problem in security projects goes like this: a 36x PTZ camera mounted on a 6-meter pole, rock solid at the wide end, starts to show fine jitter the moment you push to the telephoto end—like someone gently tapping the viewfinder every few seconds. The project team replaces the pole with a thicker one—it works for a few days then comes back. They add an independent stabilization module—useless. Finally they blame the camera head, the manufacturer comes on-site, tests everything, and says all specs are normal. Both sides deadlock, the problem hanging in the middle.</div><div class=post-card__tags><a href=/en/tags/ptz/ class=tag-chip>PTZ</a>
+<a href=/en/tags/stability/ class=tag-chip>Stability</a>
+<a href=/en/tags/mechanical-design/ class=tag-chip>Mechanical Design</a>
+<a href=/en/tags/control-theory/ class=tag-chip>Control Theory</a>
+<a href=/en/tags/optical-image-stabilization/ class=tag-chip>Optical Image Stabilization</a></div><a href=/en/posts/physical-world/ptz-stability-four-layers/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/ptz-foundations-two-devils/>The Two Devils of PTZ Cameras: Long-Focus Amplification and Dead Time</a></h2><div class=post-card__meta><time datetime=2026-07-30>July 30, 2026</time>
 <span class=post-card__reading-time>10 min read</span></div><div class=post-card__summary>If you&rsquo;ve used a security PTZ dome long enough, you&rsquo;ve probably seen these symptoms:
 Rock-steady at wide angle, but a persistent jitter once you zoom into telephoto. Preset recall is spot-on at wide angle, but off by half a screen at telephoto. Joystick control always feels &ldquo;half a beat behind&rdquo; — you push, wait for the frame to change, but by the time it does, the gimbal has already overshot. So you correct, overshoot again, oscillate. AI auto-tracking works fine at wide angle, but the target starts swinging left-right once you zoom in. Same camera — why is it fine at wide angle and broken at telephoto? Why is joystick control never precise?</div><div class=post-card__tags><a href=/en/tags/ptz/ class=tag-chip>PTZ</a>
 <a href=/en/tags/gimbal/ class=tag-chip>Gimbal</a>
@@ -104,17 +109,7 @@ This isn&rsquo;t a common choice among NVR products. Most open-source NVRs (Frig
 <a href=/en/tags/tf-card/ class=tag-chip>TF Card</a>
 <a href=/en/tags/flash-technology/ class=tag-chip>Flash Technology</a>
 <a href=/en/tags/endurance/ class=tag-chip>Endurance</a>
-<a href=/en/tags/hardware-selection/ class=tag-chip>Hardware Selection</a></div><a href=/en/posts/iot/microsd-card-selection-guide/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/streaming-protocols-survey/>Streaming Protocols Deep Dive: 14 Technologies, Their Limits, and Selection Guide</a></h2><div class=post-card__meta><time datetime=2026-07-24>July 24, 2026</time>
-<span class=post-card__reading-time>9 min read</span></div><div class=post-card__summary>These 14 streaming technologies don&rsquo;t operate in the same layer. A complete live streaming pipeline typically follows:
-Camera/Encoder → Ingest (RTMP / SRT / RIST / WebRTC-WHIP / WebTransport) → Transcode → Delivery (HLS / LL-HLS / DASH / LL-DASH / HESP / HTTP-FLV) → Viewers
-Start by identifying which segment of the pipeline you&rsquo;re working on, not by asking &ldquo;which is better.&rdquo;
-mermaid flowchart TD A["Camera/Encoder"] --> B["Ingest Layer&lt;br/>RTMP · SRT · RIST&lt;br/>WebRTC · WebTransport"] B --> C["Transcode/Packaging&lt;br/>CMAF · ABR · Multi-bitrate"] C --> D["Delivery Layer&lt;br/>HLS · LL-HLS · DASH&lt;br/>HTTP-FLV · WebRTC · HESP"] D --> E["Viewer End"] style A fill:#2196F3,color:#fff style B fill:#FF9800,color:#fff style C fill:#9C27B0,color:#fff style D fill:#4CAF50,color:#fff style E fill:#2196F3,color:#fff The diagram above shows a five-segment structure for a standard live streaming pipeline. The ingest layer moves signals from cameras to the platform, while the delivery layer distributes processed streams to viewers. RTSP (camera control) and NDI (LAN production) operate outside the main pipeline, each working independently.</div><div class=post-card__tags><a href=/en/tags/hls/ class=tag-chip>HLS</a>
-<a href=/en/tags/webrtc/ class=tag-chip>WebRTC</a>
-<a href=/en/tags/rtmp/ class=tag-chip>RTMP</a>
-<a href=/en/tags/srt/ class=tag-chip>SRT</a>
-<a href=/en/tags/ll-hls/ class=tag-chip>LL-HLS</a>
-<a href=/en/tags/streaming/ class=tag-chip>Streaming</a>
-<a href=/en/tags/live/ class=tag-chip>Live</a></div><a href=/en/posts/network/streaming-protocols-survey/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/2/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/hardware-selection/ class=tag-chip>Hardware Selection</a></div><a href=/en/posts/iot/microsd-card-selection-guide/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/2/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <span class="pagination__page pagination__page--active">3</span>

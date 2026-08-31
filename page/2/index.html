@@ -29,7 +29,7 @@
 </a><a href=/posts/network/ class=sidebar-category-btn><span>网络技术</span>
 <span class=sidebar-category-btn__count>28</span>
 </a><a href=/posts/mibee-oss/ class=sidebar-category-btn><span>我的开源</span>
-<span class=sidebar-category-btn__count>29</span>
+<span class=sidebar-category-btn__count>30</span>
 </a><a href=/posts/physical-world/ class=sidebar-category-btn><span>物理世界开发</span>
 <span class=sidebar-category-btn__count>24</span></a></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/tags/nvr/ class="tag-cloud__item tag-size-lg"><span>nvr</span>
@@ -40,7 +40,14 @@
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
 </a><a href=/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span>
-</a><a href=/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/ class="tag-cloud__item tag-size-xs"><span>计算机视觉</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/network/nvr-protocol-landscape/>视频监控协议全景：从接入到合规的四层版图，每个协议是什么、管什么、什么时候用</a></h2><div class=post-card__meta><time datetime=2026-08-12>August 12, 2026</time>
+</a><a href=/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/ class="tag-cloud__item tag-size-xs"><span>计算机视觉</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/architecture/consensus-algorithms-landscape/>分布式共识算法全景：从 Paxos 到 DAG-BFT，四类协议的边界与选型</a></h2><div class=post-card__meta><time datetime=2026-08-12>August 12, 2026</time>
+<span class=post-card__reading-time>18 分钟阅读</span></div><div class=post-card__summary>etcd 用 Raft，Cosmos 用 Tendermint，Bitcoin 用 PoW，Sui 用 Mysticeti——它们都叫「共识（consensus）」，但解决的根本不是同一个问题。机房里几个已知身份的节点选主，和公链上一群匿名节点对账本达成一致，约束条件差出一个数量级。把所有共识算法捏在一起比吞吐，是很多选型文章读起来糊涂的根源。</div><div class=post-card__tags><a href=/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/ class=tag-chip>分布式系统</a>
+<a href=/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/ class=tag-chip>共识算法</a>
+<a href=/tags/paxos/ class=tag-chip>Paxos</a>
+<a href=/tags/raft/ class=tag-chip>Raft</a>
+<a href=/tags/bft/ class=tag-chip>BFT</a>
+<a href=/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/ class=tag-chip>区块链</a>
+<a href=/tags/%E9%80%89%E5%9E%8B/ class=tag-chip>选型</a></div><a href=/posts/architecture/consensus-algorithms-landscape/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/network/nvr-protocol-landscape/>视频监控协议全景：从接入到合规的四层版图，每个协议是什么、管什么、什么时候用</a></h2><div class=post-card__meta><time datetime=2026-08-12>August 12, 2026</time>
 <span class=post-card__reading-time>12 分钟阅读</span></div><div class=post-card__summary>上一篇把 ONVIF 和 GB/T 28181 拆到了信令和报文级别，但真做 NVR 会发现协议环境远不止这两个：摄像头侧有厂商私有 API，公安侧有视图库标准，车载有交通部标准，浏览器观看有 WebRTC，公网分发有 HLS，安全合规有国密体系。这篇把整个视频监控的协议版图铺开——每个协议按「是什么 → 技术要点 → 和其他协议的关系 → 对 NVR 的价值」四段展开，新手可以当索引读，老手可以直接跳取舍表。</div><div class=post-card__tags><a href=/tags/onvif/ class=tag-chip>ONVIF</a>
 <a href=/tags/gb28181/ class=tag-chip>GB28181</a>
 <a href=/tags/rtsp/ class=tag-chip>RTSP</a>
@@ -100,12 +107,7 @@
 <a href=/tags/%E5%BB%B6%E8%BF%9F/ class=tag-chip>延迟</a>
 <a href=/tags/%E8%A7%86%E9%A2%91%E7%BC%96%E7%A0%81/ class=tag-chip>视频编码</a>
 <a href=/tags/%E6%B5%81%E5%AA%92%E4%BD%93/ class=tag-chip>流媒体</a>
-<a href=/tags/onvif/ class=tag-chip>ONVIF</a></div><a href=/posts/physical-world/ptz-latency-full-chain/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/physical-world/ptz-stability-four-layers/>PTZ 稳定性四层防御：从机械到运维</a></h2><div class=post-card__meta><time datetime=2026-07-31>July 31, 2026</time>
-<span class=post-card__reading-time>29 分钟阅读</span></div><div class=post-card__summary>安防项目上最气人的一种问题长这样：一台 36 倍球机装在 6 米立杆上，广角端画面稳稳的，一推到长焦端画面就开始细微地跳，像有人隔几秒轻轻弹一下取景器。项目方先换了根更粗的立杆，好了几天又复发；再花钱加装独立防抖模块，没用；最后怪到球机头上，厂商来现场测了一圈，说机器指标全部正常。两边僵住，问题悬在中间。</div><div class=post-card__tags><a href=/tags/ptz/ class=tag-chip>PTZ</a>
-<a href=/tags/%E7%A8%B3%E5%AE%9A%E6%80%A7/ class=tag-chip>稳定性</a>
-<a href=/tags/%E6%9C%BA%E6%A2%B0%E8%AE%BE%E8%AE%A1/ class=tag-chip>机械设计</a>
-<a href=/tags/%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/ class=tag-chip>控制理论</a>
-<a href=/tags/%E5%85%89%E5%AD%A6%E9%98%B2%E6%8A%96/ class=tag-chip>光学防抖</a></div><a href=/posts/physical-world/ptz-stability-four-layers/ class=post-card__read-more>继续阅读 →</a></article></div><nav class=pagination aria-label=Pagination><a href=/ class=pagination__prev rel=prev>← 上一页</a>
+<a href=/tags/onvif/ class=tag-chip>ONVIF</a></div><a href=/posts/physical-world/ptz-latency-full-chain/ class=post-card__read-more>继续阅读 →</a></article></div><nav class=pagination aria-label=Pagination><a href=/ class=pagination__prev rel=prev>← 上一页</a>
 <span class=pagination__pages><a href=/ class=pagination__page>1</a>
 <span class="pagination__page pagination__page--active">2</span>
 <a href=/page/3/ class=pagination__page>3</a>
