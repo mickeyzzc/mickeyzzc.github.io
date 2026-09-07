@@ -31,7 +31,7 @@
 </a><a href=/posts/mibee-oss/ class=sidebar-category-btn><span>我的开源</span>
 <span class=sidebar-category-btn__count>30</span>
 </a><a href=/posts/physical-world/ class=sidebar-category-btn><span>物理世界开发</span>
-<span class=sidebar-category-btn__count>26</span></a></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
+<span class=sidebar-category-btn__count>27</span></a></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/tags/nvr/ class="tag-cloud__item tag-size-lg"><span>nvr</span>
 </a><a href=/tags/rust/ class="tag-cloud__item tag-size-lg"><span>rust</span>
 </a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-md"><span>开源</span>
@@ -40,7 +40,13 @@
 </a><a href=/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
 </a><a href=/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/ class="tag-cloud__item tag-size-xs"><span>计算机视觉</span>
-</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/mibee-oss/mibee-nvr-v0.10/>MiBeeNvr v0.10.0: H.265 直播与架构大清理</a></h2><div class=post-card__meta><time datetime=2026-07-28>July 28, 2026</time>
+</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/mibee-oss/mibeesteward-v0.4/>MiBeeSteward v0.4.0: 路由器常驻发现</a></h2><div class=post-card__meta><time datetime=2026-07-29>July 29, 2026</time>
+<span class=post-card__reading-time>16 分钟阅读</span></div><div class=post-card__summary>想知道局域网里都有些什么设备，此前的办法要么主动扫描——有流量、有遗漏，要么装在容器里——必须 host 网络才能看见完整的设备表。而路由器明明什么都知道，发现系统却要绕着它走。</div><div class=post-card__tags><a href=/tags/go/ class=tag-chip>Go</a>
+<a href=/tags/openwrt/ class=tag-chip>OpenWrt</a>
+<a href=/tags/%E8%B7%AF%E7%94%B1%E5%99%A8/ class=tag-chip>路由器</a>
+<a href=/tags/%E8%A2%AB%E5%8A%A8%E5%8F%91%E7%8E%B0/ class=tag-chip>被动发现</a>
+<a href=/tags/%E8%AE%BE%E5%A4%87%E5%8F%91%E7%8E%B0/ class=tag-chip>设备发现</a>
+<a href=/tags/%E5%BC%80%E6%BA%90/ class=tag-chip>开源</a></div><a href=/posts/mibee-oss/mibeesteward-v0.4/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/mibee-oss/mibee-nvr-v0.10/>MiBeeNvr v0.10.0: H.265 直播与架构大清理</a></h2><div class=post-card__meta><time datetime=2026-07-28>July 28, 2026</time>
 <span class=post-card__reading-time>15 分钟阅读</span></div><div class=post-card__summary>H.265 摄像头此前的体验是半残的：纯 HTTP 的局域网播不出直播（非 HTTPS 不可）、Edge 上合并产物经常黑屏、延时摄影的合并干脆不工作。
 H.265 全都能放了 纯 HTTP 的局域网也能播 H.265 直播，不再非 HTTPS 不可 HTTPS 环境自动用硬件加速，普通环境自动切软件解码，两条路都通 录像合并、回放、延时摄影的 H.265 问题一次修通 延时摄影更好用 重写到 v3：合并时长不再有 1 小时上限 合并记录进数据库，进度可查 底子更干净 登录换成签名 token，不依赖服务器会话，过期可控 一轮贯穿配置、依赖注入、API 路由的架构清理，为更强的 AI 能力和更多摄像头铺路 地基清干净，楼才盖得高。</div><div class=post-card__tags><a href=/tags/nvr/ class=tag-chip>NVR</a>
 <a href=/tags/go/ class=tag-chip>Go</a>
@@ -106,18 +112,7 @@ H.265 全都能放了 纯 HTTP 的局域网也能播 H.265 直播，不再非 HT
 <a href=/tags/smr/ class=tag-chip>SMR</a>
 <a href=/tags/%E8%AE%B0%E5%BD%95%E6%8A%80%E6%9C%AF/ class=tag-chip>记录技术</a>
 <a href=/tags/%E5%85%85%E6%B0%A6/ class=tag-chip>充氦</a>
-<a href=/tags/%E7%A1%AC%E4%BB%B6%E9%80%89%E5%9E%8B/ class=tag-chip>硬件选型</a></div><a href=/posts/iot/hdd-selection-guide/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/mibee-oss/mibee-nvr-v0.9/>MiBeeNvr v0.9.0: 零配置发现，顺手还债</a></h2><div class=post-card__meta><time datetime=2026-07-19>July 19, 2026</time>
-<span class=post-card__reading-time>17 分钟阅读</span></div><div class=post-card__summary>摄像头多起来之后，烦人的事跟着多：加一台 ONVIF 摄像头要手动填 IP、开终端；9 路摄像头一起启动时页面卡十几秒；部署前还得先确认 FFmpeg 装没装；小米的老设备（Dafang、小方、Aqara G2）一直接不进来。</div><div class=post-card__tags><a href=/tags/nvr/ class=tag-chip>NVR</a>
-<a href=/tags/go/ class=tag-chip>Go</a>
-<a href=/tags/onvif/ class=tag-chip>ONVIF</a>
-<a href=/tags/%E5%AD%98%E5%82%A8/ class=tag-chip>存储</a>
-<a href=/tags/%E6%97%A0%E9%94%81%E5%8C%96/ class=tag-chip>无锁化</a>
-<a href=/tags/ffmpeg/ class=tag-chip>FFmpeg</a>
-<a href=/tags/xiaomi/ class=tag-chip>Xiaomi</a>
-<a href=/tags/tutk/ class=tag-chip>TUTK</a>
-<a href=/tags/i18n/ class=tag-chip>I18n</a>
-<a href=/tags/%E5%BC%80%E6%BA%90/ class=tag-chip>开源</a>
-<a href=/tags/golangci-lint/ class=tag-chip>Golangci-Lint</a></div><a href=/posts/mibee-oss/mibee-nvr-v0.9/ class=post-card__read-more>继续阅读 →</a></article></div><nav class=pagination aria-label=Pagination><a href=/page/3/ class=pagination__prev rel=prev>← 上一页</a>
+<a href=/tags/%E7%A1%AC%E4%BB%B6%E9%80%89%E5%9E%8B/ class=tag-chip>硬件选型</a></div><a href=/posts/iot/hdd-selection-guide/ class=post-card__read-more>继续阅读 →</a></article></div><nav class=pagination aria-label=Pagination><a href=/page/3/ class=pagination__prev rel=prev>← 上一页</a>
 <span class=pagination__pages><a href=/ class=pagination__page>1</a>
 <a href=/page/2/ class=pagination__page>2</a>
 <a href=/page/3/ class=pagination__page>3</a>

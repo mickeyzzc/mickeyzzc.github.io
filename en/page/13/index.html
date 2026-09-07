@@ -29,7 +29,7 @@
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
 <span class=sidebar-category-btn__count>30</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
-<span class=sidebar-category-btn__count>26</span>
+<span class=sidebar-category-btn__count>27</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
 <span class=sidebar-category-btn__count>18</span></a></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-lg"><span>nvr</span>
@@ -40,7 +40,13 @@
 </a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-sm"><span>computer vision</span>
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-xs"><span>p2p</span>
-</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/programming/rust-error-handling-lifetimes/>Error Handling and Lifetimes: Result, Option, and Compile-Time Borrow Checking</a></h2><div class=post-card__meta><time datetime=2026-05-22>May 22, 2026</time>
+</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/aihelper/yolo-faq/>YOLO FAQ: Common Problems and Solutions</a></h2><div class=post-card__meta><time datetime=2026-05-23>May 23, 2026</time>
+<span class=post-card__reading-time>13 min read</span></div><div class=post-card__summary>Environment Installation Issues Q1: CUDA not available, only using CPU?
+First confirm your NVIDIA driver version supports the required CUDA version. A driver that is too old will make CUDA unavailable:
+bash 1 2 3 4 5 6 # Check driver version (Driver Version must be >= minimum for target CUDA) nvidia-smi # Check CUDA toolkit version nvcc --version # Reinstall PyTorch with matching CUDA version pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu121 If nvidia-smi shows a CUDA version but PyTorch still uses CPU, you have installed the CPU-only PyTorch build. Uninstall and reinstall with the --index-url flag for the correct CUDA version. For CUDA 11.8, replace cu121 with cu118 in the URL. Always use a conda or venv virtual environment to isolate PyTorch versions and avoid system-level conflicts.</div><div class=post-card__tags><a href=/en/tags/yolo/ class=tag-chip>YOLO</a>
+<a href=/en/tags/faq/ class=tag-chip>FAQ</a>
+<a href=/en/tags/troubleshooting/ class=tag-chip>Troubleshooting</a>
+<a href=/en/tags/best-practices/ class=tag-chip>Best Practices</a></div><a href=/en/posts/aihelper/yolo-faq/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/programming/rust-error-handling-lifetimes/>Error Handling and Lifetimes: Result, Option, and Compile-Time Borrow Checking</a></h2><div class=post-card__meta><time datetime=2026-05-22>May 22, 2026</time>
 <span class=post-card__reading-time>12 min read</span></div><div class=post-card__summary>If you&rsquo;re used to Go&rsquo;s if err != nil, encountering Rust&rsquo;s error handling for the first time can be confusing. Go&rsquo;s philosophy is explicit multi-return values, where errors are just ordinary values. Rust, on the other hand, elevates error handling to the type system level—a function that might fail must declare it explicitly in its return type. This design brings zero-cost abstractions but also introduces the two concepts that give beginners the most headaches: the Result&lt;T, E> enum and lifetime annotations.</div><div class=post-card__tags><a href=/en/tags/rust/ class=tag-chip>Rust</a>
 <a href=/en/tags/error-handling/ class=tag-chip>Error Handling</a>
 <a href=/en/tags/lifetimes/ class=tag-chip>Lifetimes</a>
@@ -103,13 +109,7 @@ Module Function Typical Choice Main Controller Executes adaptive algorithm STM32
 <a href=/en/tags/model-optimization/ class=tag-chip>Model Optimization</a>
 <a href=/en/tags/knowledge-distillation/ class=tag-chip>Knowledge Distillation</a>
 <a href=/en/tags/model-quantization/ class=tag-chip>Model Quantization</a>
-<a href=/en/tags/edge-deployment/ class=tag-chip>Edge Deployment</a></div><a href=/en/posts/aihelper/yolo-advanced-optimization/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/telemetry/stream-metrics-three/>From Hashmod to Jump Consistent Hash — stream-metrics-route Hash Algorithm Upgrade</a></h2><div class=post-card__meta><time datetime=2026-05-16>May 16, 2026</time>
-<span class=post-card__reading-time>12 min read</span></div><div class=post-card__summary>Introduction In the previous article, we reviewed the three-year evolution of stream-metrics-route and mentioned that the &ldquo;dual hashmod scheduling&rdquo; is the core scheduling mechanism of the entire gateway. However, during continuous production operation, one fatal flaw of hashmod became increasingly obvious—every scaling operation triggers full data redistribution.
-This article documents the decision process of migrating from hash % N (hashmod) to Jump Consistent Hash, including the candidate algorithms evaluated, why Jump Hash was ultimately chosen, and the specific impact before and after migration.</div><div class=post-card__tags><a href=/en/tags/victoriametrics/ class=tag-chip>VictoriaMetrics</a>
-<a href=/en/tags/prometheus/ class=tag-chip>Prometheus</a>
-<a href=/en/tags/consistent-hashing/ class=tag-chip>Consistent Hashing</a>
-<a href=/en/tags/stream-metrics-route/ class=tag-chip>Stream-Metrics-Route</a>
-<a href=/en/tags/distributed-systems/ class=tag-chip>Distributed Systems</a></div><a href=/en/posts/telemetry/stream-metrics-three/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/12/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/edge-deployment/ class=tag-chip>Edge Deployment</a></div><a href=/en/posts/aihelper/yolo-advanced-optimization/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/12/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>
