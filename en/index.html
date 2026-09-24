@@ -26,7 +26,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>17</span>
+<span class=sidebar-category-btn__count>18</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>28</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -37,9 +37,17 @@
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-md"><span>linux</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-sm"><span>prometheus</span>
-</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-sm"><span>yolo</span>
-</a><a href=/en/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span>
-</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-xs"><span>nvr</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/onvif-gb28181-four-libs-next/>Five Protocol Libraries, One Release Day: onvif-go Reaches v2, the GB28181 Device Side Closes Out, and onvif-c Debuts</a></h2><div class=post-card__meta><time datetime=2026-09-21>September 21, 2026</time>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-xs"><span>open source</span>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibee-nvr-perf-benchmark/>MiBeeNvr v0.13.0 Performance Self-Benchmark: Capacity and Resource Curves on Three Hardware Tiers</a></h2><div class=post-card__meta><time datetime=2026-09-24>September 24, 2026</time>
+<span class=post-card__reading-time>21 min read</span></div><div class=post-card__summary>Choosing an NVR keeps running into the same wall: there are no public performance numbers with stated measurement conditions. Third-party cross-product benchmarks don&rsquo;t exist; what you can find is either vendor-quoted partial metrics (detector inference latency, say) or editorial estimate tables that omit the hardware, bitrate, and framerate conditions — the numbers can&rsquo;t be compared against each other.
+So I measured MiBeeNvr&rsquo;s own capacity and resource curves: three hardware tiers, recording ramps from 16 to 68 cameras, concurrent playback on top of full load, pure forwarding, an fsync-policy comparison, plus a read-only observation of a 7×24 production machine. The methodology, pass/fail criteria, and test scripts are all published with this post. The goal is not to rank products — with no comparable public methodology, ranking means nothing — but to answer two questions that actually come up during capacity planning: how many cameras a machine of a given tier can carry, and whether the bottleneck lands on CPU, memory, or storage.</div><div class=post-card__tags><a href=/en/tags/nvr/ class=tag-chip>NVR</a>
+<a href=/en/tags/benchmark/ class=tag-chip>Benchmark</a>
+<a href=/en/tags/streaming/ class=tag-chip>Streaming</a>
+<a href=/en/tags/rtsp/ class=tag-chip>RTSP</a>
+<a href=/en/tags/ll-hls/ class=tag-chip>LL-HLS</a>
+<a href=/en/tags/storage/ class=tag-chip>Storage</a>
+<a href=/en/tags/open-source/ class=tag-chip>Open Source</a></div><a href=/en/posts/mibee-oss/mibee-nvr-perf-benchmark/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/onvif-gb28181-four-libs-next/>Five Protocol Libraries, One Release Day: onvif-go Reaches v2, the GB28181 Device Side Closes Out, and onvif-c Debuts</a></h2><div class=post-card__meta><time datetime=2026-09-21>September 21, 2026</time>
 <span class=post-card__reading-time>12 min read</span></div><div class=post-card__summary>MiBee&rsquo;s camera access runs on two protocols: ONVIF, the de facto standard internationally that Hikvision, Axis, and Dahua all speak, and GB/T 28181, China&rsquo;s national surveillance standard that government and state-owned projects cannot avoid. The protocol stack is open-sourced as five independent libraries split by protocol × language × role, all extracted from production code, and in the latest release round all five tagged on the same day: onvif-go entered the stable v2 line, onvif-device-rs shipped to crates.io, gb28181-go and gb28181-rs closed out the 2022 device-side surface, and onvif-c debuted as the fifth member. This post goes library by library through capability boundaries, key design decisions, and remaining limitations, stated as released.</div><div class=post-card__tags><a href=/en/tags/go/ class=tag-chip>Go</a>
 <a href=/en/tags/rust/ class=tag-chip>Rust</a>
 <a href=/en/tags/c/ class=tag-chip>C</a>
@@ -98,13 +106,7 @@ The conclusion first, so you don&rsquo;t over-expect: this is a beta-stage resea
 <a href=/en/tags/on-device-ai/ class=tag-chip>On-Device AI</a>
 <a href=/en/tags/function-calling/ class=tag-chip>Function Calling</a>
 <a href=/en/tags/edge-computing/ class=tag-chip>Edge Computing</a>
-<a href=/en/tags/small-models/ class=tag-chip>Small Models</a></div><a href=/en/posts/aihelper/needle2-on-device-tool-calling/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/aihelper/yolo-export-formats/>YOLO Model Export Explained: 22 Formats, Parameters, and How to Choose</a></h2><div class=post-card__meta><time datetime=2026-09-03>September 3, 2026</time>
-<span class=post-card__reading-time>11 min read</span></div><div class=post-card__summary>When I wrote &ldquo;YOLO Deployment&rdquo; in May 2026, the official Ultralytics export table had 17 rows. By September, when this post came together, it had grown to 22 — every new row is an NPU vendor pipeline: ExecuTorch, Axelera, DEEPX, Hailo, Huawei Ascend, Apple Core AI, and the like. The direction of growth is clear: training frameworks and inference hardware are drifting apart. PyTorch handles training, each deployment target runs its own runtime, and export is the only bridge between the two.</div><div class=post-card__tags><a href=/en/tags/yolo/ class=tag-chip>YOLO</a>
-<a href=/en/tags/model-deployment/ class=tag-chip>Model Deployment</a>
-<a href=/en/tags/onnx/ class=tag-chip>ONNX</a>
-<a href=/en/tags/tensorrt/ class=tag-chip>TensorRT</a>
-<a href=/en/tags/openvino/ class=tag-chip>OpenVINO</a>
-<a href=/en/tags/edge-ai/ class=tag-chip>Edge AI</a></div><a href=/en/posts/aihelper/yolo-export-formats/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><span class="pagination__prev pagination__prev--disabled">← Previous</span>
+<a href=/en/tags/small-models/ class=tag-chip>Small Models</a></div><a href=/en/posts/aihelper/needle2-on-device-tool-calling/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><span class="pagination__prev pagination__prev--disabled">← Previous</span>
 <span class=pagination__pages><span class="pagination__page pagination__page--active">1</span>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>
@@ -123,6 +125,7 @@ The conclusion first, so you don&rsquo;t over-expect: this is a beta-stage resea
 <a href=/en/page/16/ class=pagination__page>16</a>
 <a href=/en/page/17/ class=pagination__page>17</a>
 <a href=/en/page/18/ class=pagination__page>18</a>
+<a href=/en/page/19/ class=pagination__page>19</a>
 </span><a href=/en/page/2/ class=pagination__next rel=next>Next →</a></nav></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
 </a><a href=mailto:mickey_zzc@mickeybee.cn class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>

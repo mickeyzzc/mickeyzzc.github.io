@@ -28,7 +28,7 @@
 </a><a href=/posts/network/ class=sidebar-category-btn><span>网络技术</span>
 <span class=sidebar-category-btn__count>28</span>
 </a><a href=/posts/mibee-oss/ class=sidebar-category-btn><span>我的开源</span>
-<span class=sidebar-category-btn__count>17</span>
+<span class=sidebar-category-btn__count>18</span>
 </a><a href=/posts/physical-world/ class=sidebar-category-btn><span>物理世界开发</span>
 <span class=sidebar-category-btn__count>28</span></a></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/tags/rust/ class="tag-cloud__item tag-size-lg"><span>rust</span>
@@ -37,9 +37,17 @@
 </a><a href=/tags/p2p/ class="tag-cloud__item tag-size-md"><span>p2p</span>
 </a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-sm"><span>prometheus</span>
 </a><a href=/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/ class="tag-cloud__item tag-size-sm"><span>计算机视觉</span>
-</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-sm"><span>yolo</span>
-</a><a href=/tags/ebpf/ class="tag-cloud__item tag-size-xs"><span>ebpf</span>
-</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-xs"><span>nvr</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/telemetry/obs-tech-03-log-storage/>日志存储架构：从倒排索引到弱索引的范式转移</a></h2><div class=post-card__meta><time datetime=2026-06-18>June 18, 2026</time>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
+</a><a href=/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span>
+</a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-xs"><span>开源</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/telemetry/obs-tech-04-tracing-storage/>分布式调用链存储架构对比：Jaeger、Tempo、SkyWalking 与商业方案</a></h2><div class=post-card__meta><time datetime=2026-06-20>June 20, 2026</time>
+<span class=post-card__reading-time>16 分钟阅读</span></div><div class=post-card__summary>调用链（Distributed Tracing）存储是可观测性体系中技术分歧最大的领域之一。不同于时序和日志有相对收敛的存储模式（TSDB 与 ClickHouse-like），调用链系统的存储方案因索引策略的根本分歧而分化为三条路径。</div><div class=post-card__tags><a href=/tags/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/ class=tag-chip>可观测性</a>
+<a href=/tags/%E8%B0%83%E7%94%A8%E9%93%BE/ class=tag-chip>调用链</a>
+<a href=/tags/jaeger/ class=tag-chip>Jaeger</a>
+<a href=/tags/tempo/ class=tag-chip>Tempo</a>
+<a href=/tags/skywalking/ class=tag-chip>SkyWalking</a>
+<a href=/tags/zipkin/ class=tag-chip>Zipkin</a>
+<a href=/tags/datadog/ class=tag-chip>Datadog</a>
+<a href=/tags/splunk/ class=tag-chip>Splunk</a></div><a href=/posts/telemetry/obs-tech-04-tracing-storage/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/telemetry/obs-tech-03-log-storage/>日志存储架构：从倒排索引到弱索引的范式转移</a></h2><div class=post-card__meta><time datetime=2026-06-18>June 18, 2026</time>
 <span class=post-card__reading-time>24 分钟阅读</span></div><div class=post-card__summary>引言 日志是可观测性三大支柱中数据量最大、存储成本最高的信号。与指标（Metrics）的固定数值结构不同，日志的变长文本和半结构化特性使得存储设计面临独特挑战：既要支持全文检索，又要控制存储成本。</div><div class=post-card__tags><a href=/tags/%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/ class=tag-chip>可观测性</a>
 <a href=/tags/%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/ class=tag-chip>日志存储</a>
 <a href=/tags/loki/ class=tag-chip>Loki</a>
@@ -91,14 +99,7 @@ $$g(x,y) = h(x,y) * f(x,y) + n(x,y)$$恢复的任务是：已知 $g$ 和 $h$，�
 <a href=/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/ class=tag-chip>内存管理</a>
 <a href=/tags/oom/ class=tag-chip>OOM</a>
 <a href=/tags/cgroup/ class=tag-chip>Cgroup</a>
-<a href=/tags/linux/ class=tag-chip>Linux</a></div><a href=/posts/telemetry/ebpf-oom-advance/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/telemetry/ebpf-oom-tracer-cgo/>用 eBPF + Go 构建 OOM Killer 事件追踪器</a></h2><div class=post-card__meta><time datetime=2026-06-11>June 11, 2026</time>
-<span class=post-card__reading-time>4 分钟阅读</span></div><div class=post-card__summary>bpftrace 适合快速探查和临时调试，但如果要构建持续运行的生产级监控工具，就需要完整的 eBPF 程序了。典型的架构分两层：
-内核态：用 C 编写 eBPF 程序，挂载到 hook 点，采集事件数据 用户态：用 Go（或 Rust / libbpf C）编写 loader，加载 eBPF 程序并读取事件 这个模式在行业里已经非常成熟——Pixie、Parca、Cilium 等开源项目都遵循这个架构。</div><div class=post-card__tags><a href=/tags/ebpf/ class=tag-chip>EBPF</a>
-<a href=/tags/go/ class=tag-chip>Go</a>
-<a href=/tags/cilium/ class=tag-chip>Cilium</a>
-<a href=/tags/linux/ class=tag-chip>Linux</a>
-<a href=/tags/oom/ class=tag-chip>OOM</a>
-<a href=/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/ class=tag-chip>内存管理</a></div><a href=/posts/telemetry/ebpf-oom-tracer-cgo/ class=post-card__read-more>继续阅读 →</a></article></div><nav class=pagination aria-label=Pagination><a href=/page/9/ class=pagination__prev rel=prev>← 上一页</a>
+<a href=/tags/linux/ class=tag-chip>Linux</a></div><a href=/posts/telemetry/ebpf-oom-advance/ class=post-card__read-more>继续阅读 →</a></article></div><nav class=pagination aria-label=Pagination><a href=/page/9/ class=pagination__prev rel=prev>← 上一页</a>
 <span class=pagination__pages><a href=/ class=pagination__page>1</a>
 <a href=/page/2/ class=pagination__page>2</a>
 <a href=/page/3/ class=pagination__page>3</a>
@@ -117,6 +118,7 @@ $$g(x,y) = h(x,y) * f(x,y) + n(x,y)$$恢复的任务是：已知 $g$ 和 $h$，�
 <a href=/page/16/ class=pagination__page>16</a>
 <a href=/page/17/ class=pagination__page>17</a>
 <a href=/page/18/ class=pagination__page>18</a>
+<a href=/page/19/ class=pagination__page>19</a>
 </span><a href=/page/11/ class=pagination__next rel=next>下一页 →</a></nav></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
 </a><a href=mailto:mickey_zzc@mickeybee.cn class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
