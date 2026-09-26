@@ -28,7 +28,7 @@
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
 <span class=sidebar-category-btn__count>18</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
-<span class=sidebar-category-btn__count>28</span>
+<span class=sidebar-category-btn__count>29</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
 <span class=sidebar-category-btn__count>18</span></a></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/en/tags/rust/ class="tag-cloud__item tag-size-lg"><span>rust</span>
@@ -39,7 +39,12 @@
 </a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-sm"><span>prometheus</span>
 </a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
 </a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-xs"><span>open source</span>
-</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/ptz-latency-full-chain/>PTZ Latency End-to-End: From Encoding to Transport Optimization</a></h2><div class=post-card__meta><time datetime=2026-08-01>August 1, 2026</time>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/ptz-ai-tracking-calibration/>PTZ AI Tracking & Calibration: Gain Scheduling, Dead Time Compensation and Master-Detail</a></h2><div class=post-card__meta><time datetime=2026-08-02>August 2, 2026</time>
+<span class=post-card__reading-time>18 min read</span></div><div class=post-card__summary>The site called. AI tracking worked fine at the wide end — the target stayed centered and the gimbal followed it smoothly. Pull to telephoto and the gimbal starts swinging left and right, the swing growing until it finally throws the target out of frame. The first instinct is to turn down the PID&rsquo;s P — but then the wide end stops keeping up and the target drifts out of frame. Same closed loop, two parameter sets, and neither works.</div><div class=post-card__tags><a href=/en/tags/ptz/ class=tag-chip>PTZ</a>
+<a href=/en/tags/ai-tracking/ class=tag-chip>AI Tracking</a>
+<a href=/en/tags/visual-servoing/ class=tag-chip>Visual Servoing</a>
+<a href=/en/tags/calibration/ class=tag-chip>Calibration</a>
+<a href=/en/tags/kalman-filter/ class=tag-chip>Kalman Filter</a></div><a href=/en/posts/physical-world/ptz-ai-tracking-calibration/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/ptz-latency-full-chain/>PTZ Latency End-to-End: From Encoding to Transport Optimization</a></h2><div class=post-card__meta><time datetime=2026-08-01>August 1, 2026</time>
 <span class=post-card__reading-time>22 min read</span></div><div class=post-card__summary>The operator calls: the PTZ feed is several seconds behind. Push the joystick and the far end reacts long after. Ops swaps the camera first—no change; suspects the network—RTT measured, normal; finally shrinks the player buffer—the problem disappears on the spot.
 That is not a skit; it is the standard path of a &ldquo;latency complaint&rdquo;: swap hardware first, check the network second, and only then get to the real problem. The previous post in this series, &ldquo;The Two Devils of PTZ Cameras,&rdquo; named latency one of the two devils. This one tears it apart: where each millisecond goes, what can be optimized, and what is a hard protocol limitation.</div><div class=post-card__tags><a href=/en/tags/ptz/ class=tag-chip>PTZ</a>
 <a href=/en/tags/latency/ class=tag-chip>Latency</a>
@@ -93,17 +98,7 @@ This isn&rsquo;t a common choice among NVR products. Most open-source NVRs (Frig
 <a href=/en/tags/tf-card/ class=tag-chip>TF Card</a>
 <a href=/en/tags/flash-technology/ class=tag-chip>Flash Technology</a>
 <a href=/en/tags/endurance/ class=tag-chip>Endurance</a>
-<a href=/en/tags/hardware-selection/ class=tag-chip>Hardware Selection</a></div><a href=/en/posts/iot/microsd-card-selection-guide/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/streaming-protocols-survey/>Streaming Protocols Deep Dive: 14 Technologies, Their Limits, and Selection Guide</a></h2><div class=post-card__meta><time datetime=2026-07-24>July 24, 2026</time>
-<span class=post-card__reading-time>9 min read</span></div><div class=post-card__summary>These 14 streaming technologies don&rsquo;t operate in the same layer. A complete live streaming pipeline typically follows:
-Camera/Encoder → Ingest (RTMP / SRT / RIST / WebRTC-WHIP / WebTransport) → Transcode → Delivery (HLS / LL-HLS / DASH / LL-DASH / HESP / HTTP-FLV) → Viewers
-Start by identifying which segment of the pipeline you&rsquo;re working on, not by asking &ldquo;which is better.&rdquo;
-mermaid flowchart TD A["Camera/Encoder"] --> B["Ingest Layer&lt;br/>RTMP · SRT · RIST&lt;br/>WebRTC · WebTransport"] B --> C["Transcode/Packaging&lt;br/>CMAF · ABR · Multi-bitrate"] C --> D["Delivery Layer&lt;br/>HLS · LL-HLS · DASH&lt;br/>HTTP-FLV · WebRTC · HESP"] D --> E["Viewer End"] style A fill:#2196F3,color:#fff style B fill:#FF9800,color:#fff style C fill:#9C27B0,color:#fff style D fill:#4CAF50,color:#fff style E fill:#2196F3,color:#fff The diagram above shows a five-segment structure for a standard live streaming pipeline. The ingest layer moves signals from cameras to the platform, while the delivery layer distributes processed streams to viewers. RTSP (camera control) and NDI (LAN production) operate outside the main pipeline, each working independently.</div><div class=post-card__tags><a href=/en/tags/hls/ class=tag-chip>HLS</a>
-<a href=/en/tags/webrtc/ class=tag-chip>WebRTC</a>
-<a href=/en/tags/rtmp/ class=tag-chip>RTMP</a>
-<a href=/en/tags/srt/ class=tag-chip>SRT</a>
-<a href=/en/tags/ll-hls/ class=tag-chip>LL-HLS</a>
-<a href=/en/tags/streaming/ class=tag-chip>Streaming</a>
-<a href=/en/tags/live/ class=tag-chip>Live</a></div><a href=/en/posts/network/streaming-protocols-survey/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/3/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/hardware-selection/ class=tag-chip>Hardware Selection</a></div><a href=/en/posts/iot/microsd-card-selection-guide/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/3/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>

@@ -28,7 +28,7 @@
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
 <span class=sidebar-category-btn__count>18</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
-<span class=sidebar-category-btn__count>28</span>
+<span class=sidebar-category-btn__count>29</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
 <span class=sidebar-category-btn__count>18</span></a></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/en/tags/rust/ class="tag-cloud__item tag-size-lg"><span>rust</span>
@@ -39,7 +39,15 @@
 </a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-sm"><span>prometheus</span>
 </a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
 </a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-xs"><span>open source</span>
-</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/dual-stack-camera-gb28181-international/>Dual-Stack Cameras in the Field: What Happens When ONVIF and GB28181 Run Together, and Whether GB28181 Travels</a></h2><div class=post-card__meta><time datetime=2026-08-13>August 13, 2026</time>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/onvif-gb28181-rust-go-ecosystem/>The Rust and Go Ecosystems for ONVIF/GB28181: Library Selection, Source Reading, and a Hardware-Free Integration Path</a></h2><div class=post-card__meta><time datetime=2026-08-15>August 15, 2026</time>
+<span class=post-card__reading-time>10 min read</span></div><div class=post-card__summary>The first three posts settled the protocol mechanics, the landscape, and the device side; the final question is concrete: which libraries to write it with. This survey went through everything usable in both ecosystems. The one-sentence verdict: ONVIF has workable libraries on both sides; the mature GB28181 implementations live on the Go/Java/C++ side while Rust&rsquo;s are still young; and for streaming infrastructure (repackaging, distribution, egress) the Go ecosystem is clearly thicker.</div><div class=post-card__tags><a href=/en/tags/onvif/ class=tag-chip>ONVIF</a>
+<a href=/en/tags/gb28181/ class=tag-chip>GB28181</a>
+<a href=/en/tags/rust/ class=tag-chip>Rust</a>
+<a href=/en/tags/go/ class=tag-chip>Go</a>
+<a href=/en/tags/mediamtx/ class=tag-chip>MediaMTX</a>
+<a href=/en/tags/moonfire-nvr/ class=tag-chip>Moonfire NVR</a>
+<a href=/en/tags/zlmediakit/ class=tag-chip>ZLMediaKit</a>
+<a href=/en/tags/nvr/ class=tag-chip>NVR</a></div><a href=/en/posts/network/onvif-gb28181-rust-go-ecosystem/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/dual-stack-camera-gb28181-international/>Dual-Stack Cameras in the Field: What Happens When ONVIF and GB28181 Run Together, and Whether GB28181 Travels</a></h2><div class=post-card__meta><time datetime=2026-08-13>August 13, 2026</time>
 <span class=post-card__reading-time>7 min read</span></div><div class=post-card__summary>The first two posts covered protocol mechanics and the landscape; this one returns to device-side questions an NVR builder actually meets: can a camera hang both protocol stacks at once? With both enabled, what does it cost the camera, and what does it mean for an NVR that discovers cameras via ONVIF? Finally, a product question—does GB28181 actually get used overseas, and is it worth building for international markets?
 Three concepts used throughout:</div><div class=post-card__tags><a href=/en/tags/onvif/ class=tag-chip>ONVIF</a>
 <a href=/en/tags/gb28181/ class=tag-chip>GB28181</a>
@@ -106,12 +114,7 @@ When mounted on a tilted or moving platform (vehicle, ship, drone, jib, robot ar
 <a href=/en/tags/wdr/ class=tag-chip>WDR</a>
 <a href=/en/tags/network-security/ class=tag-chip>Network Security</a>
 <a href=/en/tags/edge-ai/ class=tag-chip>Edge AI</a>
-<a href=/en/tags/privacy-compliance/ class=tag-chip>Privacy Compliance</a></div><a href=/en/posts/physical-world/ptz-industry-problems-edge-ai/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/ptz-ai-tracking-calibration/>PTZ AI Tracking & Calibration: Gain Scheduling, Dead Time Compensation and Master-Detail</a></h2><div class=post-card__meta><time datetime=2026-08-02>August 2, 2026</time>
-<span class=post-card__reading-time>18 min read</span></div><div class=post-card__summary>The site called. AI tracking worked fine at the wide end — the target stayed centered and the gimbal followed it smoothly. Pull to telephoto and the gimbal starts swinging left and right, the swing growing until it finally throws the target out of frame. The first instinct is to turn down the PID&rsquo;s P — but then the wide end stops keeping up and the target drifts out of frame. Same closed loop, two parameter sets, and neither works.</div><div class=post-card__tags><a href=/en/tags/ptz/ class=tag-chip>PTZ</a>
-<a href=/en/tags/ai-tracking/ class=tag-chip>AI Tracking</a>
-<a href=/en/tags/visual-servoing/ class=tag-chip>Visual Servoing</a>
-<a href=/en/tags/calibration/ class=tag-chip>Calibration</a>
-<a href=/en/tags/kalman-filter/ class=tag-chip>Kalman Filter</a></div><a href=/en/posts/physical-world/ptz-ai-tracking-calibration/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/2/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/privacy-compliance/ class=tag-chip>Privacy Compliance</a></div><a href=/en/posts/physical-world/ptz-industry-problems-edge-ai/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/2/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <span class="pagination__page pagination__page--active">3</span>
