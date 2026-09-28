@@ -26,20 +26,30 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>18</span>
+<span class=sidebar-category-btn__count>19</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>31</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
 <span class=sidebar-category-btn__count>18</span></a></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>Tags</h3><div class=tag-cloud__list><a href=/en/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/en/tags/rust/ class="tag-cloud__item tag-size-lg"><span>rust</span>
 </a><a href=/en/tags/learning-notes/ class="tag-cloud__item tag-size-lg"><span>learning notes</span>
+</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-md"><span>open source</span>
 </a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-md"><span>computer vision</span>
-</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-md"><span>linux</span>
-</a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-sm"><span>open source</span>
+</a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-sm"><span>prometheus</span>
 </a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-xs"><span>nvr</span>
-</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/video-compression-fundamentals/>Why Video Compresses 100×: Redundancy, YUV, I/P/B Frames and GOP</a></h2><div class=post-card__meta><time datetime=2026-08-24>August 24, 2026</time>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/h264-pipeline-bitstream/>Inside H.264: the Encode Pipeline and the Bitstream, from Residuals and Quantization to NALU and SPS/PPS</a></h2><div class=post-card__meta><time datetime=2026-08-24>August 24, 2026</time>
+<span class=post-card__reading-time>11 min read</span></div><div class=post-card__summary>The previous post covered the frame level: I/P/B, GOP, PTS/DTS. This one goes inside H.264 to answer two questions: what pipeline turns a frame into bytes, and what SPS/PPS/NALU each do in the bitstream. H.264 is not the newest — H.265 and AV1 both compress better (selection guide) — but it has the largest installed base, dominates surveillance/GB28181 links, and every later standard evolved from its skeleton. Once you take it apart, the differences in H.265/H.266/AV1 read easily.</div><div class=post-card__tags><a href=/en/tags/h.264/ class=tag-chip>H.264</a>
+<a href=/en/tags/avc/ class=tag-chip>AVC</a>
+<a href=/en/tags/nalu/ class=tag-chip>NALU</a>
+<a href=/en/tags/sps/ class=tag-chip>SPS</a>
+<a href=/en/tags/pps/ class=tag-chip>PPS</a>
+<a href=/en/tags/profile/ class=tag-chip>Profile</a>
+<a href=/en/tags/level/ class=tag-chip>Level</a>
+<a href=/en/tags/crf/ class=tag-chip>CRF</a>
+<a href=/en/tags/rate-control/ class=tag-chip>Rate Control</a>
+<a href=/en/tags/ffmpeg/ class=tag-chip>FFmpeg</a></div><a href=/en/posts/network/h264-pipeline-bitstream/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/video-compression-fundamentals/>Why Video Compresses 100×: Redundancy, YUV, I/P/B Frames and GOP</a></h2><div class=post-card__meta><time datetime=2026-08-24>August 24, 2026</time>
 <span class=post-card__reading-time>9 min read</span></div><div class=post-card__summary>The previous post on browser codec selection kept mentioning H.264, I-frames and GOP without explaining them, and every latency figure in the protocol panorama ultimately hinges on these concepts too. This post fills in the foundation: what actually happens when a stream of pixels turns into a few Mbps. No math derivations — mechanisms, each tied to its engineering consequence (latency, seeking, corruption, storage).
 Start with some arithmetic.
 How big is uncompressed video One 1080p (1920×1080), 30fps, 8bit RGB stream:</div><div class=post-card__tags><a href=/en/tags/video-coding/ class=tag-chip>Video Coding</a>
@@ -118,13 +128,7 @@ The shift is real: a few years ago an edge IPC had only a CPU and you hoarded ev
 <a href=/en/tags/ai-hardware/ class=tag-chip>AI Hardware</a>
 <a href=/en/tags/face-recognition/ class=tag-chip>Face Recognition</a>
 <a href=/en/tags/motion-detection/ class=tag-chip>Motion Detection</a>
-<a href=/en/tags/selection/ class=tag-chip>Selection</a></div><a href=/en/posts/physical-world/edge-ai-npu-motion-face-breakthrough/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/edge-motion-detection-face-recognition/>Motion Detection & Face Recognition on Edge Devices: The Resource–Accuracy Trade-off, from Classical to Lightweight AI</a></h2><div class=post-card__meta><time datetime=2026-08-06>August 6, 2026</time>
-<span class=post-card__reading-time>6 min read</span></div><div class=post-card__summary>On a Raspberry Pi, an IPC SoC, or an AI box with only a fraction of a TOPS, the hard part of motion detection and face recognition isn&rsquo;t whether you can do it — it&rsquo;s how much resource you spend for how much accuracy. Once the compute and memory budget is fixed, every choice answers the same question: what can this tier solve, what can&rsquo;t it, and what does it cost to close the gap.</div><div class=post-card__tags><a href=/en/tags/computer-vision/ class=tag-chip>Computer Vision</a>
-<a href=/en/tags/motion-detection/ class=tag-chip>Motion Detection</a>
-<a href=/en/tags/face-recognition/ class=tag-chip>Face Recognition</a>
-<a href=/en/tags/edge-computing/ class=tag-chip>Edge Computing</a>
-<a href=/en/tags/model-compression/ class=tag-chip>Model Compression</a>
-<a href=/en/tags/selection/ class=tag-chip>Selection</a></div><a href=/en/posts/physical-world/edge-motion-detection-face-recognition/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/2/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/selection/ class=tag-chip>Selection</a></div><a href=/en/posts/physical-world/edge-ai-npu-motion-face-breakthrough/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/2/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <span class="pagination__page pagination__page--active">3</span>
