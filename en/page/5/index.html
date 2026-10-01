@@ -26,7 +26,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>20</span>
+<span class=sidebar-category-btn__count>21</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>31</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -39,7 +39,14 @@
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-sm"><span>prometheus</span>
 </a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-xs"><span>nvr</span>
-</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/iot/os-selection-guide/>Operating System Selection by Scenario — OS Families, Workloads, and Engineering Trade-offs: Linux, Windows, and macOS</a></h2><div class=post-card__meta><time datetime=2026-07-27>July 27, 2026</time>
+</a><a href=/en/tags/yolo/ class="tag-cloud__item tag-size-xs"><span>yolo</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibee-nvr-yolo11n/>MiBeeNvr's AI Detection: Why Inference Runs in the Browser, and Why YOLO11n</a></h2><div class=post-card__meta><time datetime=2026-07-28>July 28, 2026</time>
+<span class=post-card__reading-time>10 min read</span></div><div class=post-card__summary>MiBeeNvr&rsquo;s Smart Features include an AI detection option that runs inference entirely in the browser — the backend server does no inference at all. The ONNX model file is served to the browser, and ONNX Runtime Web executes it client-side. The model is Ultralytics&rsquo; yolo11n.onnx.
+This isn&rsquo;t a common choice among NVR products. Most open-source NVRs (Frigate, the go2rtc ecosystem) put AI inference on the backend, because the backend has access to the raw stream, runs persistently, and can use a GPU. Moving inference into the browser is a deliberate architectural trade-off, not a stopgap. This post breaks down two things: why inference lives in the browser, and — given that premise — why YOLO11n.</div><div class=post-card__tags><a href=/en/tags/nvr/ class=tag-chip>NVR</a>
+<a href=/en/tags/yolo/ class=tag-chip>YOLO</a>
+<a href=/en/tags/onnx/ class=tag-chip>ONNX</a>
+<a href=/en/tags/ai/ class=tag-chip>AI</a>
+<a href=/en/tags/object-detection/ class=tag-chip>Object Detection</a>
+<a href=/en/tags/webgpu/ class=tag-chip>WebGPU</a></div><a href=/en/posts/mibee-oss/mibee-nvr-yolo11n/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/iot/os-selection-guide/>Operating System Selection by Scenario — OS Families, Workloads, and Engineering Trade-offs: Linux, Windows, and macOS</a></h2><div class=post-card__meta><time datetime=2026-07-27>July 27, 2026</time>
 <span class=post-card__reading-time>11 min read</span></div><div class=post-card__summary>About This Guide This guide is organized not by OS version number, but by OS family and workload matching. The underlying dimensions of operating systems — OS family (Linux/Windows/macOS), kernel characteristics, package management, LTS support strategy, ecosystem fit — have been stable for years (Linux kernel evolution patterns are stable, the Windows NT kernel architecture is stable, macOS&rsquo;s Unix foundation is stable), and hold more long-term reference value than specific version numbers.</div><div class=post-card__tags><a href=/en/tags/operating-system/ class=tag-chip>Operating System</a>
 <a href=/en/tags/linux-distribution/ class=tag-chip>Linux Distribution</a>
 <a href=/en/tags/windows/ class=tag-chip>Windows</a>
@@ -100,14 +107,7 @@ mermaid flowchart TD A["Camera/Encoder"] --> B["Ingest Layer&lt;br/>RTMP · SRT 
 <a href=/en/tags/streaming/ class=tag-chip>Streaming</a>
 <a href=/en/tags/nvr/ class=tag-chip>NVR</a>
 <a href=/en/tags/surveillance/ class=tag-chip>Surveillance</a>
-<a href=/en/tags/webrtc/ class=tag-chip>WebRTC</a></div><a href=/en/posts/network/web-video-codec-survey/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/iroh-project-deep-analysis/>iroh Deep Dive: A Dial-by-Key P2P Transport Stack as an Alternative to libp2p</a></h2><div class=post-card__meta><time datetime=2026-07-15>July 15, 2026</time>
-<span class=post-card__reading-time>18 min read</span></div><div class=post-card__summary>In the P2P transport-stack space, libp2p has long been the default — but its protocol stack is large and its configuration surface wide; every new project ends up choosing combinations from a long list of features (tcp/quic/webrtc/noise/yamux/identify/kad/relay/dcutr). iroh is the Rust library that takes the other road: it does only QUIC + dial-by-public-key + NAT traversal, collapses the transport layer into something small, and layers three optional modules on top (blobs/gossip/docs). On June 15, 2026, n0 released iroh 1.0 with the slogan &ldquo;Dial Keys, not IPs&rdquo; — the first stable release after 4 years of development and 65 pre-release versions.</div><div class=post-card__tags><a href=/en/tags/p2p/ class=tag-chip>P2P</a>
-<a href=/en/tags/rust/ class=tag-chip>Rust</a>
-<a href=/en/tags/iroh/ class=tag-chip>Iroh</a>
-<a href=/en/tags/libp2p/ class=tag-chip>Libp2p</a>
-<a href=/en/tags/quic/ class=tag-chip>QUIC</a>
-<a href=/en/tags/nat-traversal/ class=tag-chip>NAT Traversal</a>
-<a href=/en/tags/blake3/ class=tag-chip>BLAKE3</a></div><a href=/en/posts/network/iroh-project-deep-analysis/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/4/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/webrtc/ class=tag-chip>WebRTC</a></div><a href=/en/posts/network/web-video-codec-survey/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/4/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>
