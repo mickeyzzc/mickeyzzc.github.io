@@ -28,18 +28,29 @@
 </a><a href=/posts/network/ class=sidebar-category-btn><span>网络技术</span>
 <span class=sidebar-category-btn__count>32</span>
 </a><a href=/posts/mibee-oss/ class=sidebar-category-btn><span>我的开源</span>
-<span class=sidebar-category-btn__count>22</span>
+<span class=sidebar-category-btn__count>23</span>
 </a><a href=/posts/physical-world/ class=sidebar-category-btn><span>物理世界开发</span>
 <span class=sidebar-category-btn__count>34</span></a></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/tags/rust/ class="tag-cloud__item tag-size-lg"><span>rust</span>
 </a><a href=/tags/%E5%BC%80%E6%BA%90/ class="tag-cloud__item tag-size-lg"><span>开源</span>
-</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-md"><span>nvr</span>
 </a><a href=/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ class="tag-cloud__item tag-size-md"><span>学习笔记</span>
-</a><a href=/tags/onvif/ class="tag-cloud__item tag-size-sm"><span>onvif</span>
-</a><a href=/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
+</a><a href=/tags/p2p/ class="tag-cloud__item tag-size-md"><span>p2p</span>
 </a><a href=/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/ class="tag-cloud__item tag-size-sm"><span>计算机视觉</span>
-</a><a href=/tags/linux/ class="tag-cloud__item tag-size-xs"><span>linux</span>
-</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-xs"><span>prometheus</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/programming/rust-error-handling-lifetimes/>错误处理与生命周期：Result、Option 与编译期借用检查</a></h2><div class=post-card__meta><time datetime=2026-05-22>May 22, 2026</time>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
+</a><a href=/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
+</a><a href=/tags/onvif/ class="tag-cloud__item tag-size-xs"><span>onvif</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-xs"><span>prometheus</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/physical-world/anc-tuning-debugging/>ANC 调试与性能优化</a></h2><div class=post-card__meta><time datetime=2026-05-25>May 25, 2026</time>
+<span class=post-card__reading-time>10 分钟阅读</span></div><div class=post-card__summary>主动降噪系统的工程实现中，最耗时、最依赖经验的部分不是算法选型，而是参数调优和稳定性调试。滤波器阶数、步长系数、采样率——每一个参数都牵一发而动全身。本文从实践经验出发，梳理 ANC 调试中的关键参数选择逻辑和常见问题定位方法。</div><div class=post-card__tags><a href=/tags/anc/ class=tag-chip>ANC</a>
+<a href=/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/ class=tag-chip>性能优化</a>
+<a href=/tags/%E7%A8%B3%E5%AE%9A%E6%80%A7/ class=tag-chip>稳定性</a>
+<a href=/tags/%E8%B0%83%E8%AF%95/ class=tag-chip>调试</a>
+<a href=/tags/%E8%B0%83%E5%8F%82/ class=tag-chip>调参</a></div><a href=/posts/physical-world/anc-tuning-debugging/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/aihelper/yolo-faq/>YOLO 常见问题与解决方案</a></h2><div class=post-card__meta><time datetime=2026-05-23>May 23, 2026</time>
+<span class=post-card__reading-time>12 分钟阅读</span></div><div class=post-card__summary>环境安装问题 Q1: CUDA 不可用，只使用 CPU？
+首先确认 NVIDIA 驱动版本是否支持所需 CUDA 版本，驱动版本过低会导致 CUDA 不可用：
+bash 1 2 3 4 5 6 # 检查驱动版本（Driver Version 需 >= 支持CUDA的最低版本） nvidia-smi # 检查CUDA工具包版本 nvcc --version # 重新安装对应CUDA版本的PyTorch pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu121 如果 nvidia-smi 显示 CUDA 版本但 PyTorch 仍使用 CPU，说明安装的是 CPU 版 PyTorch。卸载后用 --index-url 重新安装 CUDA 版本。CUDA 11.8 用户将 URL 中的 cu121 替换为 cu118。建议使用 conda 或 venv 虚拟环境隔离不同 CUDA 版本的 PyTorch，避免系统级冲突。</div><div class=post-card__tags><a href=/tags/yolo/ class=tag-chip>YOLO</a>
+<a href=/tags/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/ class=tag-chip>常见问题</a>
+<a href=/tags/%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4/ class=tag-chip>故障排除</a>
+<a href=/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/ class=tag-chip>最佳实践</a></div><a href=/posts/aihelper/yolo-faq/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/programming/rust-error-handling-lifetimes/>错误处理与生命周期：Result、Option 与编译期借用检查</a></h2><div class=post-card__meta><time datetime=2026-05-22>May 22, 2026</time>
 <span class=post-card__reading-time>9 分钟阅读</span></div><div class=post-card__summary>如果你习惯了 Go 的 if err != nil，第一次接触 Rust 的错误处理可能会感到困惑。Go 的哲学是显式多返回值，错误只是普通的值。而 Rust 则将错误提升到了类型系统层面——一个可能出错的函数必须在返回类型中显式声明。这种设计带来了零成本抽象，但也引入了初学者最头疼的两个概念：Result&lt;T, E> 枚举和生命周期标注。</div><div class=post-card__tags><a href=/tags/rust/ class=tag-chip>Rust</a>
 <a href=/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/ class=tag-chip>错误处理</a>
 <a href=/tags/%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/ class=tag-chip>生命周期</a>
@@ -89,20 +100,7 @@ Ultralytics 统一导出 API python 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
 <a href=/tags/prometheus/ class=tag-chip>Prometheus</a>
 <a href=/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C/ class=tag-chip>一致性哈希</a>
 <a href=/tags/stream-metrics-route/ class=tag-chip>Stream-Metrics-Route</a>
-<a href=/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/ class=tag-chip>分布式系统</a></div><a href=/posts/telemetry/stream-metrics-three/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/physical-world/imu-accelerometer-gyroscope/>IMU 原理：加速度计与陀螺仪</a></h2><div class=post-card__meta><time datetime=2026-05-15>May 15, 2026</time>
-<span class=post-card__reading-time>7 分钟阅读</span></div><div class=post-card__summary>运动传感系列开篇。传感器是嵌入式系统感知物理世界的窗口，IMU（Inertial Measurement Unit）是最常用的一类。这篇文章不讲高深理论，只讲 MEMS 传感器怎么工作、怎么接线、怎么读数、读出来的数据长什么样。</div><div class=post-card__tags><a href=/tags/imu/ class=tag-chip>IMU</a>
-<a href=/tags/%E5%8A%A0%E9%80%9F%E5%BA%A6%E8%AE%A1/ class=tag-chip>加速度计</a>
-<a href=/tags/%E9%99%80%E8%9E%BA%E4%BB%AA/ class=tag-chip>陀螺仪</a>
-<a href=/tags/mems/ class=tag-chip>MEMS</a>
-<a href=/tags/%E8%BF%90%E5%8A%A8%E4%BC%A0%E6%84%9F/ class=tag-chip>运动传感</a></div><a href=/posts/physical-world/imu-accelerometer-gyroscope/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/frontend/headless-browser-early-error-capture/>Headless浏览器的隐形陷阱：为什么你的自动化工具抓不到页面早期错误？</a></h2><div class=post-card__meta><time datetime=2026-05-15>May 15, 2026</time>
-<span class=post-card__reading-time>16 分钟阅读</span></div><div class=post-card__summary>前言 你在调试一个前端工程问题，页面表现异常。你让 AI 用浏览器工具帮你打开页面，检查控制台有没有报错。
-AI 打开页面，扫了一圈，告诉你：控制台干干净净，没有任何错误。</div><div class=post-card__tags><a href=/tags/headless-chrome/ class=tag-chip>Headless Chrome</a>
-<a href=/tags/puppeteer/ class=tag-chip>Puppeteer</a>
-<a href=/tags/playwright/ class=tag-chip>Playwright</a>
-<a href=/tags/selenium/ class=tag-chip>Selenium</a>
-<a href=/tags/agent-browser/ class=tag-chip>Agent-Browser</a>
-<a href=/tags/%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96/ class=tag-chip>前端自动化</a>
-<a href=/tags/%E9%94%99%E8%AF%AF%E6%8D%95%E8%8E%B7/ class=tag-chip>错误捕获</a></div><a href=/posts/frontend/headless-browser-early-error-capture/ class=post-card__read-more>继续阅读 →</a></article></div><nav class=pagination aria-label=Pagination><a href=/page/13/ class=pagination__prev rel=prev>← 上一页</a>
+<a href=/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/ class=tag-chip>分布式系统</a></div><a href=/posts/telemetry/stream-metrics-three/ class=post-card__read-more>继续阅读 →</a></article></div><nav class=pagination aria-label=Pagination><a href=/page/13/ class=pagination__prev rel=prev>← 上一页</a>
 <span class=pagination__pages><a href=/ class=pagination__page>1</a>
 <a href=/page/2/ class=pagination__page>2</a>
 <a href=/page/3/ class=pagination__page>3</a>
