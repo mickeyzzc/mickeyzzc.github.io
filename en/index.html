@@ -26,7 +26,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>23</span>
+<span class=sidebar-category-btn__count>24</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>34</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -35,11 +35,17 @@
 </a><a href=/en/tags/open-source/ class="tag-cloud__item tag-size-lg"><span>open source</span>
 </a><a href=/en/tags/computer-vision/ class="tag-cloud__item tag-size-md"><span>computer vision</span>
 </a><a href=/en/tags/learning-notes/ class="tag-cloud__item tag-size-md"><span>learning notes</span>
+</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
 </a><a href=/en/tags/p2p/ class="tag-cloud__item tag-size-sm"><span>p2p</span>
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
-</a><a href=/en/tags/nvr/ class="tag-cloud__item tag-size-sm"><span>nvr</span>
 </a><a href=/en/tags/onvif/ class="tag-cloud__item tag-size-xs"><span>onvif</span>
-</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-xs"><span>prometheus</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibee-nvr-adaptive-recording-design/>Adaptive Recording and Storage Design in MiBeeNvr</a></h2><div class=post-card__meta><time datetime=2026-10-18>October 18, 2026</time>
+</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-xs"><span>prometheus</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibee-nvr-deepcheck-observability/>MiBeeNvr's Recording Deep-Check and Full-Link Observability</a></h2><div class=post-card__meta><time datetime=2026-10-19>October 19, 2026</time>
+<span class=post-card__reading-time>11 min read</span></div><div class=post-card__summary>The nastiest failures in a surveillance pipeline are the ones that never raise an error. A frozen live tile could be a dropped camera, network jitter, or the NVR itself — before v0.12, the available diagnostic tools were reading logs and counting frames. The recording side was worse off: ingest, muxing, and writes all reported success, yet playback would corrupt from some point onward, and the write path never said a word about it.</div><div class=post-card__tags><a href=/en/tags/nvr/ class=tag-chip>NVR</a>
+<a href=/en/tags/go/ class=tag-chip>Go</a>
+<a href=/en/tags/recording-integrity/ class=tag-chip>Recording Integrity</a>
+<a href=/en/tags/observability/ class=tag-chip>Observability</a>
+<a href=/en/tags/deep-check/ class=tag-chip>Deep Check</a>
+<a href=/en/tags/open-source/ class=tag-chip>Open Source</a></div><a href=/en/posts/mibee-oss/mibee-nvr-deepcheck-observability/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibee-nvr-adaptive-recording-design/>Adaptive Recording and Storage Design in MiBeeNvr</a></h2><div class=post-card__meta><time datetime=2026-10-18>October 18, 2026</time>
 <span class=post-card__reading-time>21 min read</span></div><div class=post-card__summary>Outside writeups of MiBeeNvr&rsquo;s adaptive recording mostly stop at &ldquo;motion-aware, saves disk&rdquo;: what signal drives the gating, why the switch loses no frames, and which cameras it fails on rarely get covered. This post takes all three apart — plain words first, then a picture, then the parameters, with a full glossary at the end. Mechanism descriptions are based on the v0.13.0 documentation and release records (October 2026); the version-by-version timeline is in MiBeeNvr: From v0.1.0 to v0.12.0.</div><div class=post-card__tags><a href=/en/tags/nvr/ class=tag-chip>NVR</a>
 <a href=/en/tags/adaptive-recording/ class=tag-chip>Adaptive Recording</a>
 <a href=/en/tags/storage/ class=tag-chip>Storage</a>
@@ -107,12 +113,7 @@ Thermal imaging fixes exactly these two scenes: it needs no light at all, receiv
 <a href=/en/tags/object-detection/ class=tag-chip>Object Detection</a>
 <a href=/en/tags/vlm/ class=tag-chip>VLM</a>
 <a href=/en/tags/rust/ class=tag-chip>Rust</a>
-<a href=/en/tags/onnx/ class=tag-chip>ONNX</a></div><a href=/en/posts/mibee-oss/mibee-eye-notebook-multimodal-ai/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/onvif-c-tutorial/>onvif-c Tutorial: Adding an ONVIF Device to Your ESP32 Firmware</a></h2><div class=post-card__meta><time datetime=2026-10-03>October 3, 2026</time>
-<span class=post-card__reading-time>11 min read</span></div><div class=post-card__summary>onvif-c is the most &ldquo;physical&rdquo; of the five protocol libraries: a plain C ONVIF device component for ESP-IDF with a footprint around 10KB and zero third-party dependencies. When an ESP32 camera firmware needs to be discovered by an NVR, answer device-information queries, hand out stream URIs, and report motion events — this one component covers it. There is no XML parser inside: action recognition is strstr(), responses are assembled with snprintf(), and the memory model is simple enough to call safely from sensor callback context. The four MiBee camera firmware repos carry it in lockstep, and library changes go through real hardware before release.</div><div class=post-card__tags><a href=/en/tags/c/ class=tag-chip>C</a>
-<a href=/en/tags/onvif/ class=tag-chip>ONVIF</a>
-<a href=/en/tags/esp32/ class=tag-chip>ESP32</a>
-<a href=/en/tags/ip-cameras/ class=tag-chip>IP Cameras</a>
-<a href=/en/tags/open-source/ class=tag-chip>Open Source</a></div><a href=/en/posts/mibee-oss/onvif-c-tutorial/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><span class="pagination__prev pagination__prev--disabled">← Previous</span>
+<a href=/en/tags/onnx/ class=tag-chip>ONNX</a></div><a href=/en/posts/mibee-oss/mibee-eye-notebook-multimodal-ai/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><span class="pagination__prev pagination__prev--disabled">← Previous</span>
 <span class=pagination__pages><span class="pagination__page pagination__page--active">1</span>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>
