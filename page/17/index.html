@@ -28,7 +28,7 @@
 </a><a href=/posts/network/ class=sidebar-category-btn><span>网络技术</span>
 <span class=sidebar-category-btn__count>34</span>
 </a><a href=/posts/mibee-oss/ class=sidebar-category-btn><span>我的开源</span>
-<span class=sidebar-category-btn__count>24</span>
+<span class=sidebar-category-btn__count>25</span>
 </a><a href=/posts/physical-world/ class=sidebar-category-btn><span>物理世界开发</span>
 <span class=sidebar-category-btn__count>36</span></a></nav></div><div class=tag-cloud><h3 class=tag-cloud__title>标签</h3><div class=tag-cloud__list><a href=/tags/go/ class="tag-cloud__item tag-size-lg"><span>go</span>
 </a><a href=/tags/rust/ class="tag-cloud__item tag-size-lg"><span>rust</span>
@@ -37,9 +37,13 @@
 </a><a href=/tags/p2p/ class="tag-cloud__item tag-size-md"><span>p2p</span>
 </a><a href=/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ class="tag-cloud__item tag-size-sm"><span>学习笔记</span>
 </a><a href=/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/ class="tag-cloud__item tag-size-sm"><span>计算机视觉</span>
-</a><a href=/tags/linux/ class="tag-cloud__item tag-size-sm"><span>linux</span>
-</a><a href=/tags/onvif/ class="tag-cloud__item tag-size-xs"><span>onvif</span>
-</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-xs"><span>prometheus</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/iot/ai-thinker-esp32-cam-flash/>ESP32-CAM 监控：小试牛刀写一个自助闪光</a></h2><div class=post-card__meta><time datetime=2026-05-08>May 8, 2026</time>
+</a><a href=/tags/onvif/ class="tag-cloud__item tag-size-sm"><span>onvif</span>
+</a><a href=/tags/linux/ class="tag-cloud__item tag-size-xs"><span>linux</span>
+</a><a href=/tags/prometheus/ class="tag-cloud__item tag-size-xs"><span>prometheus</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/posts/aihelper/yolo-quick-start/>YOLO 快速实战：模型加载与推理</a></h2><div class=post-card__meta><time datetime=2026-05-08>May 8, 2026</time>
+<span class=post-card__reading-time>7 分钟阅读</span></div><div class=post-card__summary>各版本模型加载与推理 Ultralytics 统一 API（v8/11/26 通用） python 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 from ultralytics import YOLO # ========== YOLOv8 ========== model_v8 = YOLO("yolov8n.pt") # nano model_v8 = YOLO("yolov8s.pt") # small model_v8 = YOLO("yolov8m.pt") # medium model_v8 = YOLO("yolov8l.pt") # large model_v8 = YOLO("yolov8x.pt") # extra large # ========== YOLO11 ========== model_11 = YOLO("yolo11n.pt") # nano model_11 = YOLO("yolo11s.pt") # small model_11 = YOLO("yolo11m.pt") # medium model_11 = YOLO("yolo11l.pt") # large model_11 = YOLO("yolo11x.pt") # extra large # ========== YOLO26 (2026最新) ========== model_26 = YOLO("yolo26n.pt") # nano 推荐边缘部署 model_26 = YOLO("yolo26s.pt") # small model_26 = YOLO("yolo26m.pt") # medium model_26 = YOLO("yolo26l.pt") # large model_26 = YOLO("yolo26x.pt") # extra large 图片检测实战 python 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 from ultralytics import YOLO # 加载模型（以YOLO26为例） model = YOLO("yolo26n.pt") # 单张图片检测 results = model("test.jpg", conf=0.25, iou=0.45) # 结果处理 for result in results: boxes = result.boxes # 检测框 masks = result.masks # 分割掩码 probs = result.probs # 分类概率 # 打印检测结果 for box in boxes: print(f"类别: {result.names[int(box.cls)]}, " f"置信度: {box.conf.item():.3f}, " f"坐标: {box.xyxy.tolist()[0]}") # 保存可视化结果 result.save("result.jpg") 视频检测实战 python 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 from ultralytics import YOLO model = YOLO("yolo26n.pt") # 视频文件检测 results = model.predict( source="input.mp4", save=True, # 保存结果视频 conf=0.3, show=False, # 是否实时显示 stream=True # 流式处理，节省内存 ) # 逐帧处理 for result in results: # 自定义后处理逻辑 pass 摄像头实时检测 python 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 from ultralytics import YOLO import cv2 model = YOLO("yolo26n.pt") # 打开摄像头 cap = cv2.VideoCapture(0) # 0为默认摄像头 while cap.isOpened(): ret, frame = cap.read() if not ret: break # 推理 results = model(frame, verbose=False) # 绘制结果 annotated_frame = results[0].plot() # 显示 cv2.imshow("YOLO Real-time", annotated_frame) if cv2.waitKey(1) & 0xFF == ord('q'): break cap.release() cv2.destroyAllWindows() 各版本代码差异说明 特性 YOLOv8 YOLO11 YOLO26 YOLOv9 YOLOv10 API 统一 ✅ ✅ ✅ ❌ 独立仓库 ❌ 独立仓库 无 NMS ❌ ❌ ✅ ❌ ✅ DFL 模块 ✅ ✅ ❌ 已移除 ✅ ✅ MuSGD 优化器 ❌ ❌ ✅ ❌ ❌ 导出兼容性 良好 良好 最佳 一般 一般 Results 对象 API 详解 model() 或 model.predict() 返回的是一个 Results 对象列表。每个 Results 对象封装了单张图片的所有推理输出。理解其内部结构是进行后续处理的基础。</div><div class=post-card__tags><a href=/tags/yolo/ class=tag-chip>YOLO</a>
+<a href=/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/ class=tag-chip>计算机视觉</a>
+<a href=/tags/python/ class=tag-chip>Python</a>
+<a href=/tags/%E6%8E%A8%E7%90%86/ class=tag-chip>推理</a></div><a href=/posts/aihelper/yolo-quick-start/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/iot/ai-thinker-esp32-cam-flash/>ESP32-CAM 监控：小试牛刀写一个自助闪光</a></h2><div class=post-card__meta><time datetime=2026-05-08>May 8, 2026</time>
 <span class=post-card__reading-time>6 分钟阅读</span></div><div class=post-card__summary>起因 之前用 ESP32-S3 做了个监控摄像头，效果还行。后来翻抽屉发现还有一块 AI-Thinker 的 ESP32-CAM 开发板——就是那种十几块钱、自带 OV2640 摄像头和 TF 卡槽的经典板子。手上有就不用浪费，再做一个吧：ai-thinker-esp32-cam。</div><div class=post-card__tags><a href=/tags/esp32-cam/ class=tag-chip>ESP32-CAM</a>
 <a href=/tags/esp-idf/ class=tag-chip>ESP-IDF</a>
 <a href=/tags/%E6%91%84%E5%83%8F%E5%A4%B4/ class=tag-chip>摄像头</a>
@@ -84,11 +88,7 @@ $$ p_n(t) = A \cos(2\pi ft + \phi) $$ ANC 系统生成的反向声波：</div><d
 <a href=/tags/%E5%8F%98%E9%87%8F/ class=tag-chip>变量</a>
 <a href=/tags/%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8D/ class=tag-chip>模式匹配</a>
 <a href=/tags/go/ class=tag-chip>Go</a>
-<a href=/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ class=tag-chip>学习笔记</a></div><a href=/posts/programming/rust-basic-syntax/ class=post-card__read-more>继续阅读 →</a></article><article class=post-card><h2 class=post-card__title><a href=/posts/mibee-oss/hugo-theme-zhi-intro/>给博客换了个主题：从 Hugo NexT 到自写的 Zhi</a></h2><div class=post-card__meta><time datetime=2026-04-16>April 16, 2026</time>
-<span class=post-card__reading-time>6 分钟阅读</span></div><div class=post-card__summary>为什么换 这个博客之前用的 Hugo NexT，fork 了一份自己做修改。NexT 本身是个功能很全的主题，但在"自己改"这件事上，体验不太行。</div><div class=post-card__tags><a href=/tags/hugo/ class=tag-chip>Hugo</a>
-<a href=/tags/%E4%B8%BB%E9%A2%98%E5%BC%80%E5%8F%91/ class=tag-chip>主题开发</a>
-<a href=/tags/zhi/ class=tag-chip>Zhi</a>
-<a href=/tags/ai%E7%BC%96%E7%A8%8B/ class=tag-chip>AI编程</a></div><a href=/posts/mibee-oss/hugo-theme-zhi-intro/ class=post-card__read-more>继续阅读 →</a></article></div><nav class=pagination aria-label=Pagination><a href=/page/16/ class=pagination__prev rel=prev>← 上一页</a>
+<a href=/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ class=tag-chip>学习笔记</a></div><a href=/posts/programming/rust-basic-syntax/ class=post-card__read-more>继续阅读 →</a></article></div><nav class=pagination aria-label=Pagination><a href=/page/16/ class=pagination__prev rel=prev>← 上一页</a>
 <span class=pagination__pages><a href=/ class=pagination__page>1</a>
 <a href=/page/2/ class=pagination__page>2</a>
 <a href=/page/3/ class=pagination__page>3</a>
