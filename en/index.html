@@ -26,7 +26,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>25</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>28</span>
+<span class=sidebar-category-btn__count>29</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>36</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -41,7 +41,13 @@
 </a><a href=/en/tags/learning-notes/ class="tag-cloud__item tag-size-sm"><span>learning notes</span>
 </a><a href=/en/tags/onvif/ class="tag-cloud__item tag-size-sm"><span>onvif</span>
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-xs"><span>linux</span>
-</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-xs"><span>prometheus</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/incus/incus-hub-v2-ops-baseline/>Building incus-hub: A Console for Multiple Clusters</a></h2><div class=post-card__meta><time datetime=2026-11-09>November 9, 2026</time>
+</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-xs"><span>prometheus</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibeevision-recording-ai/>MiBeeVision: An Understanding Engine for MiBeeNvr's Recordings</a></h2><div class=post-card__meta><time datetime=2026-11-09>November 9, 2026</time>
+<span class=post-card__reading-time>16 min read</span></div><div class=post-card__summary>The NVR keeps one promise: footage is always being recorded. Once the recordings pile up, a new problem appears — who watches dozens of gigabytes of playback? Scrubbing timelines afterwards to find &ldquo;when did that person walk in&rdquo; still relies on human eyes. MiBeeNvr&rsquo;s browser-side AI watches the live view while the page is open, and stops the moment the tab closes. What is missing is a component that runs independently of any page, around the clock, over the recordings.</div><div class=post-card__tags><a href=/en/tags/nvr/ class=tag-chip>NVR</a>
+<a href=/en/tags/object-detection/ class=tag-chip>Object Detection</a>
+<a href=/en/tags/onnx/ class=tag-chip>ONNX</a>
+<a href=/en/tags/bytetrack/ class=tag-chip>ByteTrack</a>
+<a href=/en/tags/self-hosted/ class=tag-chip>Self-Hosted</a>
+<a href=/en/tags/rust/ class=tag-chip>Rust</a></div><a href=/en/posts/mibee-oss/mibeevision-recording-ai/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/incus/incus-hub-v2-ops-baseline/>Building incus-hub: A Console for Multiple Clusters</a></h2><div class=post-card__meta><time datetime=2026-11-09>November 9, 2026</time>
 <span class=post-card__reading-time>8 min read</span></div><div class=post-card__summary>Yesterday&rsquo;s conclusion was an open-source gap, and of the three roads I picked self-building — evolving the existing incus-hub (a multi-host aggregation page) into a multi-cluster console rather than starting over. This post lays out the design and the order of implementation, and closes the series with the one thing a no-replication architecture owes: backups as the only safety net.
 Why evolve incus-hub Everything v1 has gets reused:
 Existing foundation How v2 uses it Node with zero external dependencies (http/https/fs/path only) Runs directly on Debian 13&rsquo;s stock Node 20.19.x; the systemd unit already exists mTLS client certificates + per-host CA Becomes &ldquo;one certificate per cluster + per-cluster CA&rdquo; callNode() / waitOperation() REST helpers Reused for handshake and operation polling Promise.allSettled partial-failure isolation Upgraded to &ldquo;a dead cluster greys out, the rest keep working&rdquo; Frontend aggregate table + search/filter + demo mode Gains the cluster hierarchy and a migration wizard Not adapting Orcastra or LXD Mosaic, as covered last post: the former has no public source and wants 4 VMs / 30 GB of control plane; the latter flattens clusters into hosts, is PHP, and last shipped in 2022. None satisfy &ldquo;light, runnable on Debian 13, controllable&rdquo;.</div><div class=post-card__tags><a href=/en/tags/incus/ class=tag-chip>Incus</a>
@@ -89,15 +95,7 @@ What the official docs actually say Incus cluster state lives in a Raft-replicat
 <a href=/en/tags/webrtc/ class=tag-chip>WebRTC</a>
 <a href=/en/tags/nat-traversal/ class=tag-chip>NAT Traversal</a>
 <a href=/en/tags/self-hosted/ class=tag-chip>Self-Hosted</a>
-<a href=/en/tags/privacy/ class=tag-chip>Privacy</a></div><a href=/en/posts/mibee-oss/mibeereach-remote-access-platform/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/mibee-oss/mibeebell-notification-center/>MiBeeBell: 30 Alerts In, One Notification Out</a></h2><div class=post-card__meta><time datetime=2026-11-02>November 2, 2026</time>
-<span class=post-card__reading-time>8 min read</span></div><div class=post-card__summary>One camera in my studio watches a hallway. Headlights sweeping past, a moth landing on the lens, tree shadows moving in the wind — all of it gets classified as motion detection. Dozens of alerts hit my phone in a night; once the push volume crosses a threshold I stop registering them, and the one alert that actually matters disappears into the noise.
-For years the alerting here was improvised: the NVR pushed its own notifications, Steward&rsquo;s device alerts went out as SMTP mail, and IoT device anomalies were dropped into an MQTT topic nobody watched. Channels scattered, no aggregation, no silence windows, and nowhere to manage the rules as a whole. MiBeeBell is the alert notification center I wrote for exactly this: every system sends its events to it, it does the noise reduction, and only the part worth interrupting you reaches a channel you picked. It is a CGO-free single binary in Go with SQLite for storage — Raspberry-Pi-class hardware can run it as a resident service. The name joins the MiBee studio brand with &ldquo;Bell&rdquo; — the bell a hive rings when something is wrong.</div><div class=post-card__tags><a href=/en/tags/go/ class=tag-chip>Go</a>
-<a href=/en/tags/alerting/ class=tag-chip>Alerting</a>
-<a href=/en/tags/self-hosted/ class=tag-chip>Self-Hosted</a>
-<a href=/en/tags/notifications/ class=tag-chip>Notifications</a>
-<a href=/en/tags/noise-reduction/ class=tag-chip>Noise Reduction</a>
-<a href=/en/tags/mqtt/ class=tag-chip>MQTT</a>
-<a href=/en/tags/sqlite/ class=tag-chip>SQLite</a></div><a href=/en/posts/mibee-oss/mibeebell-notification-center/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><span class="pagination__prev pagination__prev--disabled">← Previous</span>
+<a href=/en/tags/privacy/ class=tag-chip>Privacy</a></div><a href=/en/posts/mibee-oss/mibeereach-remote-access-platform/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><span class="pagination__prev pagination__prev--disabled">← Previous</span>
 <span class=pagination__pages><span class="pagination__page pagination__page--active">1</span>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>
@@ -120,6 +118,7 @@ For years the alerting here was improvised: the NVR pushed its own notifications
 <a href=/en/page/20/ class=pagination__page>20</a>
 <a href=/en/page/21/ class=pagination__page>21</a>
 <a href=/en/page/22/ class=pagination__page>22</a>
+<a href=/en/page/23/ class=pagination__page>23</a>
 </span><a href=/en/page/2/ class=pagination__next rel=next>Next →</a></nav></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
 </a><a href=mailto:mickey_zzc@mickeybee.cn class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>

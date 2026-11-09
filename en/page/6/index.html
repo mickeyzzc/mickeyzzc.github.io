@@ -26,7 +26,7 @@
 </a><a href=/en/posts/telemetry/ class=sidebar-category-btn><span>Observability</span>
 <span class=sidebar-category-btn__count>25</span>
 </a><a href=/en/posts/mibee-oss/ class=sidebar-category-btn><span>Open Source</span>
-<span class=sidebar-category-btn__count>28</span>
+<span class=sidebar-category-btn__count>29</span>
 </a><a href=/en/posts/physical-world/ class=sidebar-category-btn><span>Physical World Development</span>
 <span class=sidebar-category-btn__count>36</span>
 </a><a href=/en/posts/programming/ class=sidebar-category-btn><span>Programming Learning</span>
@@ -41,7 +41,11 @@
 </a><a href=/en/tags/learning-notes/ class="tag-cloud__item tag-size-sm"><span>learning notes</span>
 </a><a href=/en/tags/onvif/ class="tag-cloud__item tag-size-sm"><span>onvif</span>
 </a><a href=/en/tags/linux/ class="tag-cloud__item tag-size-xs"><span>linux</span>
-</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-xs"><span>prometheus</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/ruview-wifi-pose-sensing/>RuView: WiFi-Based Pose Estimation and Contactless Vital Signs</a></h2><div class=post-card__meta><time datetime=2026-09-06>September 6, 2026</time>
+</a><a href=/en/tags/prometheus/ class="tag-cloud__item tag-size-xs"><span>prometheus</span></a></div></div><script>(function(){var e,t,n,o,s=document.querySelector(".tag-cloud__list");if(!s)return;for(e=Array.from(s.children),t=e.length-1;t>0;t--)n=Math.floor(Math.random()*(t+1)),s.appendChild(e[n]),o=e[t],e[t]=e[n],e[n]=o})()</script></div></aside><div class=sidebar-overlay id=sidebar-overlay></div><main><div class=post-list><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/opencv-ecosystem-survey/>Choosing an Image Library: OpenCV and Its Peers</a></h2><div class=post-card__meta><time datetime=2026-09-06>September 6, 2026</time>
+<span class=post-card__reading-time>9 min read</span></div><div class=post-card__summary>The series&rsquo; first post, Image Basics & Getting Started with OpenCV, treated OpenCV as the default tool for basic operations. But when it comes to picking a library for a real project, OpenCV is not the only player, and not every scenario plays to its strengths. This post walks through the current state of OpenCV itself and its main peers. Version numbers were verified in September 2026; treat this as a tool map for the image-processing posts that follow.</div><div class=post-card__tags><a href=/en/tags/computer-vision/ class=tag-chip>Computer Vision</a>
+<a href=/en/tags/opencv/ class=tag-chip>OpenCV</a>
+<a href=/en/tags/image-processing/ class=tag-chip>Image Processing</a>
+<a href=/en/tags/library-selection/ class=tag-chip>Library Selection</a></div><a href=/en/posts/physical-world/opencv-ecosystem-survey/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/physical-world/ruview-wifi-pose-sensing/>RuView: WiFi-Based Pose Estimation and Contactless Vital Signs</a></h2><div class=post-card__meta><time datetime=2026-09-06>September 6, 2026</time>
 <span class=post-card__reading-time>16 min read</span></div><div class=post-card__summary>The ESPectre post, earlier in this series, uses WiFi CSI to answer &ldquo;is anyone moving in the room?&rdquo; RuView wants more: not just motion, but 17 body keypoints, breathing rate, heart rate, and through-wall sensing, all decoded from the same signals. It is written in Rust by ruvnet (the author of claude-flow), MIT-licensed, and with 92,000+ stars as of September 2026 it is the hottest open-source project in this space.</div><div class=post-card__tags><a href=/en/tags/wifi-sensing/ class=tag-chip>WiFi Sensing</a>
 <a href=/en/tags/csi/ class=tag-chip>CSI</a>
 <a href=/en/tags/signal-processing/ class=tag-chip>Signal Processing</a>
@@ -101,18 +105,7 @@ Data caveats up front: compression figures are ranges from standards-body verifi
 <a href=/en/tags/level/ class=tag-chip>Level</a>
 <a href=/en/tags/crf/ class=tag-chip>CRF</a>
 <a href=/en/tags/rate-control/ class=tag-chip>Rate Control</a>
-<a href=/en/tags/ffmpeg/ class=tag-chip>Ffmpeg</a></div><a href=/en/posts/network/h264-pipeline-bitstream/ class=post-card__read-more>Continue reading →</a></article><article class=post-card><h2 class=post-card__title><a href=/en/posts/network/video-compression-fundamentals/>Why Video Compresses 100×: Redundancy, YUV, I/P/B Frames and GOP</a></h2><div class=post-card__meta><time datetime=2026-08-24>August 24, 2026</time>
-<span class=post-card__reading-time>9 min read</span></div><div class=post-card__summary>The later posts on browser codec selection and the streaming protocol panorama keep leaning on H.264, I-frames and GOP — this post fills in the foundation first: what actually happens when a stream of pixels turns into a few Mbps. No math derivations — mechanisms, each tied to its engineering consequence (latency, seeking, corruption, storage).
-Start with some arithmetic.
-How big is uncompressed video One 1080p (1920×1080), 30fps, 8bit RGB stream:
-text 1 2 3 4 pixels per frame = 1920 × 1080 = 2,073,600 bytes per frame = 2,073,600 × 3 (RGB) ≈ 5.93 MB per second = 5.93 MB × 30 ≈ 178 MB/s bitrate ≈ 1.49 Gbps That is 10.7 GB per minute. 4K (3840×2160) multiplies by another 4: ~42.7 GB/min. Sixteen surveillance cameras recording for a month at these rates is beyond any storage system. In practice 1080p surveillance streams run 2–8 Mbps — a compression ratio on the order of several hundred to one. Compression is not an optimization; it is the precondition for video existing at all.</div><div class=post-card__tags><a href=/en/tags/video-coding/ class=tag-chip>Video Coding</a>
-<a href=/en/tags/h.264/ class=tag-chip>H.264</a>
-<a href=/en/tags/gop/ class=tag-chip>GOP</a>
-<a href=/en/tags/motion-estimation/ class=tag-chip>Motion Estimation</a>
-<a href=/en/tags/yuv/ class=tag-chip>YUV</a>
-<a href=/en/tags/pts/ class=tag-chip>PTS</a>
-<a href=/en/tags/dts/ class=tag-chip>DTS</a>
-<a href=/en/tags/streaming/ class=tag-chip>Streaming</a></div><a href=/en/posts/network/video-compression-fundamentals/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/5/ class=pagination__prev rel=prev>← Previous</a>
+<a href=/en/tags/ffmpeg/ class=tag-chip>Ffmpeg</a></div><a href=/en/posts/network/h264-pipeline-bitstream/ class=post-card__read-more>Continue reading →</a></article></div><nav class=pagination aria-label=Pagination><a href=/en/page/5/ class=pagination__prev rel=prev>← Previous</a>
 <span class=pagination__pages><a href=/en/ class=pagination__page>1</a>
 <a href=/en/page/2/ class=pagination__page>2</a>
 <a href=/en/page/3/ class=pagination__page>3</a>
@@ -135,6 +128,7 @@ text 1 2 3 4 pixels per frame = 1920 × 1080 = 2,073,600 bytes per frame = 2,073
 <a href=/en/page/20/ class=pagination__page>20</a>
 <a href=/en/page/21/ class=pagination__page>21</a>
 <a href=/en/page/22/ class=pagination__page>22</a>
+<a href=/en/page/23/ class=pagination__page>23</a>
 </span><a href=/en/page/7/ class=pagination__next rel=next>Next →</a></nav></main><footer><footer class=site-footer role=contentinfo><div class=footer-inner><div class=footer-copyright><span>© 2010-2026 蓝宝石的傻话</span></div><div class=footer-social><a href=https://github.com/mickeyzzc class=footer-social-link aria-label=GitHub target=_blank rel="noopener noreferrer">GitHub
 </a><a href=mailto:mickey_zzc@mickeybee.cn class=footer-social-link aria-label=E-Mail>E-Mail</a></div><div class=footer-meta><a href=https://beian.miit.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-beian>粤ICP备2023145803号</a>
 <a href=https://www.beian.gov.cn/ target=_blank rel="noopener noreferrer" class=footer-gongan>粤公网安备44011102001194号</a>
